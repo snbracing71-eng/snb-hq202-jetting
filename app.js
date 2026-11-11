@@ -1435,38 +1435,9 @@
   }
 
   function renderStep1WeatherOnlySwitch(phys) {
-    const btn = $('btnToggleStep1WeatherOnly');
-    const sub = $('step1WeatherOnlySub');
-    const pill = $('step1WeatherOnlyPill');
-    const multHint = $('step1AfrMultiplierHint');
     const tgtHint = $('targetAfrHint');
-    if (!btn || !sub || !pill) return;
-
-    btn.classList.toggle('active', phys.isWeatherOnly);
-    btn.setAttribute('aria-checked', phys.isWeatherOnly ? 'true' : 'false');
-    pill.textContent = phys.isWeatherOnly ? 'ON' : 'OFF';
-
-    if (!phys.hasNumericBaseAfr) {
-      sub.textContent = 'AUTO ON • Baseline has no track AFR (√AFR = 1.000×)';
-    } else if (phys.isWeatherOnly) {
-      sub.textContent = 'ON • Scaling purely from Kestrel RAD % & Fuel SG (1.000×)';
-    } else if (phys.base.afrStatus === 'estimated') {
-      sub.textContent = `OFF • Chaining from ${Number(phys.base.wotAfr).toFixed(2)} Estimated AFR`;
-    } else {
-      sub.textContent = `OFF • Scaling from ${Number(phys.base.wotAfr).toFixed(2)} Verified AFR`;
-    }
-
-    if (multHint) {
-      multHint.textContent = phys.isWeatherOnly
-        ? '√AFR mult: 1.000× (Weather-Only)'
-        : `√AFR mult: ${phys.afrMultiplier.toFixed(3)}×`;
-      multHint.className = phys.isWeatherOnly ? 'field-hint amber' : 'field-hint emerald';
-    }
-
     if (tgtHint) {
-      tgtHint.textContent = phys.isWeatherOnly
-        ? 'Est. AFR ref only (Jet mult = 1.000×)'
-        : '12.8–12.9 Power Window';
+      tgtHint.textContent = phys.isWeatherOnly ? 'Weather-Only (1.000×)' : '12.8–12.9';
       tgtHint.className = phys.isWeatherOnly ? 'field-hint amber' : 'field-hint emerald';
     }
   }
@@ -1478,7 +1449,7 @@
 
     const sg15Hint = $('fuelTempSg15Hint');
     if (sg15Hint) {
-      sg15Hint.textContent = `Std 15°C eq: ${phys.sg15Eq.toFixed(3)} kg/L`;
+      sg15Hint.textContent = `15°C eq: ${phys.sg15Eq.toFixed(3)}`;
     }
 
     if (ui.weatherMode === 'raw' && phys.rawTelemetry) {

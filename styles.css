@@ -1260,6 +1260,63 @@ textarea:focus-visible {
   }
 }
 
+/* Compact 2-Column Side-by-Side Stepper Rows (Fuel SG + Fuel Temp, Timing + Target AFR) */
+.compact-pair-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.compact-pair-grid .field-label {
+  font-size: 15.5px;
+}
+
+.compact-pair-grid .field-hint {
+  font-size: 13px;
+}
+
+.compact-pair-grid .num-stepper {
+  grid-template-columns: 46px minmax(0, 1fr) 46px;
+  gap: 4px;
+  padding: 4px;
+  min-height: 58px;
+}
+
+.compact-pair-grid .stepper-btn {
+  width: 46px;
+  min-width: 46px;
+  height: 48px;
+  min-height: 48px;
+  font-size: 25px;
+}
+
+.compact-pair-grid .num-input-wrap {
+  padding: 0 3px;
+  gap: 3px;
+  min-height: 48px;
+}
+
+.compact-pair-grid .num-input {
+  font-size: 23px;
+  min-height: 46px;
+  padding: 2px 0;
+}
+
+.compact-pair-grid .num-unit-badge {
+  font-size: 12.5px;
+}
+
+@media (max-width: 420px) {
+  .compact-pair-grid .num-unit-badge {
+    display: none;
+  }
+}
+
+@media (max-width: 345px) {
+  .compact-pair-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Raw Weather Buck Readout */
 .weather-telem-strip {
   display: grid;

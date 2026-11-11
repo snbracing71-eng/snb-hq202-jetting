@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>SNB Racing — HQ 202 Jetting &amp; AFR (v0.3 Dark Edition)</title>
+  <title>SNB Racing — HQ 202 DATA</title>
   <meta name="description" content="Mobile-first offline pit-lane Stromberg BXUV-3 carburettor jetting calculator, wideband AFR session tracker, dyno lab, and M1 jet kit manager for Group 3H HQ Holden 202 race cars." />
   <meta name="theme-color" content="#090B0E" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -64,8 +64,7 @@
           </svg>
         </div>
         <div class="brand-titles">
-          <h1 class="app-main-title">HQ 202 Jetting &amp; AFR</h1>
-          <p class="app-sub-title">v0.3 Dark Edition &bull; Grp 3H BXUV-3</p>
+          <h1 class="app-main-title">HQ 202 DATA</h1>
         </div>
       </div>
 
@@ -408,88 +407,69 @@
             </div>
           </div>
 
-          <!-- 4) Fuel Specific Gravity (Hydrometer) -->
-          <div class="field-group">
-            <div class="field-label-row">
-              <label class="field-label" for="inputFuelSg">Fuel Specific Gravity (Hydrometer)</label>
-              <span class="field-hint">0.740 kg/L std baseline</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="inputFuelSg" data-step="-0.001" aria-label="Decrease Fuel SG">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="inputFuelSg" class="num-input" value="0.740" min="0.680" max="0.820" step="0.001" inputmode="decimal" />
-                <span class="num-unit-badge">kg/L</span>
+          <!-- Row A: Fuel SG (Hydrometer) + Fuel Temp (°C) side-by-side -->
+          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 14px;">
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="inputFuelSg">Fuel SG (Hydrometer)</label>
+                <span class="field-hint">kg/L</span>
               </div>
-              <button type="button" class="stepper-btn" data-stepper-target="inputFuelSg" data-step="0.001" aria-label="Increase Fuel SG">+</button>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="inputFuelSg" data-step="-0.001" aria-label="Decrease Fuel SG">&minus;</button>
+                <div class="num-input-wrap">
+                  <input type="number" id="inputFuelSg" class="num-input" value="0.740" min="0.680" max="0.820" step="0.001" inputmode="decimal" />
+                  <span class="num-unit-badge">kg/L</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="inputFuelSg" data-step="0.001" aria-label="Increase Fuel SG">+</button>
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="inputFuelTempC">Fuel Temp</label>
+                <span class="field-hint emerald" id="fuelTempSg15Hint">15&deg;C eq: 0.744</span>
+              </div>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="inputFuelTempC" data-step="-0.5" aria-label="Decrease Fuel Temperature">&minus;</button>
+                <div class="num-input-wrap">
+                  <input type="number" id="inputFuelTempC" class="num-input" value="20.0" min="0" max="60" step="0.5" inputmode="decimal" />
+                  <span class="num-unit-badge">&deg;C</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="inputFuelTempC" data-step="0.5" aria-label="Increase Fuel Temperature">+</button>
+              </div>
             </div>
           </div>
 
-          <!-- 5) Fuel Temperature (°C) with live Std 15°C eq hint (no double counting in orifice equation) -->
-          <div class="field-group">
-            <div class="field-label-row">
-              <label class="field-label" for="inputFuelTempC">Fuel Temperature</label>
-              <span class="field-hint emerald" id="fuelTempSg15Hint">Std 15&deg;C eq: 0.744 kg/L</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="inputFuelTempC" data-step="-0.5" aria-label="Decrease Fuel Temperature">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="inputFuelTempC" class="num-input" value="20.0" min="0" max="60" step="0.5" inputmode="decimal" />
-                <span class="num-unit-badge">&deg;C</span>
+          <!-- Row B: Total Timing (WOT) + Target WOT AFR side-by-side -->
+          <div class="form-grid-2 compact-pair-grid">
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="inputTotalTiming">Total Timing (WOT)</label>
+                <span class="field-hint amber">32&ndash;34&deg; Safe</span>
               </div>
-              <button type="button" class="stepper-btn" data-stepper-target="inputFuelTempC" data-step="0.5" aria-label="Increase Fuel Temperature">+</button>
-            </div>
-          </div>
-
-          <!-- 6) Practice 1 / Weather-Only Mode toggle -->
-          <div class="field-group">
-            <div class="field-label-row">
-              <span class="field-label">Practice 1 / Weather-Only Mode</span>
-              <span class="field-hint emerald" id="step1AfrMultiplierHint">AFR mult: 0.986&times;</span>
-            </div>
-            <button
-              type="button"
-              id="btnToggleStep1WeatherOnly"
-              class="weather-only-toggle"
-              role="switch"
-              aria-checked="false"
-            >
-              <span class="wo-toggle-text">
-                <span class="wo-toggle-title">Weather-Only / No O&#8322; Sensor</span>
-                <span class="wo-toggle-sub" id="step1WeatherOnlySub">OFF &bull; Scaling jet with Logged vs Target AFR</span>
-              </span>
-              <span class="wo-pill" id="step1WeatherOnlyPill">OFF</span>
-            </button>
-          </div>
-
-          <!-- 7) Total Ignition Timing (WOT) -->
-          <div class="field-group">
-            <div class="field-label-row">
-              <label class="field-label" for="inputTotalTiming">Total Ignition Timing (WOT)</label>
-              <span class="field-hint amber">32.0&ndash;34.0&deg; Safe Window</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="inputTotalTiming" data-step="-0.5" aria-label="Decrease Total Timing">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="inputTotalTiming" class="num-input" value="33.0" min="24.0" max="40.0" step="0.5" inputmode="decimal" />
-                <span class="num-unit-badge">&deg;BTDC</span>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="inputTotalTiming" data-step="-0.5" aria-label="Decrease Total Timing">&minus;</button>
+                <div class="num-input-wrap">
+                  <input type="number" id="inputTotalTiming" class="num-input" value="33.0" min="24.0" max="40.0" step="0.5" inputmode="decimal" />
+                  <span class="num-unit-badge">&deg;</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="inputTotalTiming" data-step="0.5" aria-label="Increase Total Timing">+</button>
               </div>
-              <button type="button" class="stepper-btn" data-stepper-target="inputTotalTiming" data-step="0.5" aria-label="Increase Total Timing">+</button>
             </div>
-          </div>
 
-          <!-- 8) Target WOT Collector AFR -->
-          <div class="field-group">
-            <div class="field-label-row">
-              <label class="field-label" for="inputTargetAfr">Target WOT Collector AFR</label>
-              <span class="field-hint emerald" id="targetAfrHint">12.8&ndash;12.9 Power Window</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="inputTargetAfr" data-step="-0.05" aria-label="Decrease Target WOT AFR">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="inputTargetAfr" class="num-input" value="12.85" min="11.50" max="14.20" step="0.05" inputmode="decimal" />
-                <span class="num-unit-badge">AFR</span>
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="inputTargetAfr">Target WOT AFR</label>
+                <span class="field-hint emerald" id="targetAfrHint">12.8&ndash;12.9</span>
               </div>
-              <button type="button" class="stepper-btn" data-stepper-target="inputTargetAfr" data-step="0.05" aria-label="Increase Target WOT AFR">+</button>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="inputTargetAfr" data-step="-0.05" aria-label="Decrease Target WOT AFR">&minus;</button>
+                <div class="num-input-wrap">
+                  <input type="number" id="inputTargetAfr" class="num-input" value="12.85" min="11.50" max="14.20" step="0.05" inputmode="decimal" />
+                  <span class="num-unit-badge">AFR</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="inputTargetAfr" data-step="0.05" aria-label="Increase Target WOT AFR">+</button>
+              </div>
             </div>
           </div>
         </div>
