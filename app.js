@@ -167,8 +167,10 @@
         afr4000: 12.98,
         afr4500: 12.92,
         afr5000: 12.89,
+        afr5500: 12.90,
         afrWot: 12.90,
-        notes: 'Crisp morning air at Calder; SNB Carby clean pull to 5300 RPM.'
+        peakRpm: 5900,
+        notes: 'Crisp morning air at Calder; SNB Carby clean pull to 5900 RPM.'
       },
       {
         id: 'calder_p2',
@@ -187,7 +189,9 @@
         afr4000: 13.15,
         afr4500: 13.10,
         afr5000: 13.06,
+        afr5500: 13.07,
         afrWot: 13.08,
+        peakRpm: 5900,
         notes: 'Tested 1.950mm custom drill — #1/#6 end-cyl est 13.35 (too lean down back straight).'
       },
       {
@@ -207,7 +211,9 @@
         afr4000: 12.84,
         afr4500: 12.79,
         afr5000: 12.76,
+        afr5500: 12.77,
         afrWot: 12.78,
+        peakRpm: 5900,
         notes: 'Bolted on 1 DME with HQRA shield; strong mid-corner torque.'
       },
       {
@@ -227,7 +233,9 @@
         afr4000: 12.80,
         afr4500: 12.75,
         afr5000: 12.71,
+        afr5500: 12.72,
         afrWot: 12.72,
+        peakRpm: 5950,
         notes: 'Qualified P2; slight richness as track air warmed.'
       },
       {
@@ -247,7 +255,9 @@
         afr4000: 12.60,
         afr4500: 12.55,
         afr5000: 12.52,
+        afr5500: 12.51,
         afrWot: 12.50,
+        peakRpm: 5900,
         notes: 'Safe rich slipstream setup (2.000mm drill in #77 body); 5.0 psi steady at block boss.'
       },
       {
@@ -267,8 +277,10 @@
         afr4000: 12.88,
         afr4500: 12.84,
         afr5000: 12.81,
+        afr5500: 12.82,
         afrWot: 12.82,
-        notes: 'Stepped leaner to #78 — dead in 12.8-12.9 HQ 202 sweet spot, pulled hard to 5400.'
+        peakRpm: 5950,
+        notes: 'Stepped leaner to #78 — dead in 12.8-12.9 HQ 202 sweet spot, pulled hard to 5950.'
       },
       {
         id: 'calder_r3',
@@ -287,7 +299,9 @@
         afr4000: 12.91,
         afr4500: 12.88,
         afr5000: 12.86,
+        afr5500: 12.87,
         afrWot: 12.87,
+        peakRpm: 6000,
         notes: 'Late cool change on SNB Carby; zero stumble off hairpin, P1 finish.'
       }
     ];
@@ -312,7 +326,9 @@
           { rpm: 4750, hp: 135.4, tq: 149.7, afr: 12.53 },
           { rpm: 5000, hp: 136.6, tq: 143.5, afr: 12.50 },
           { rpm: 5250, hp: 135.1, tq: 135.2, afr: 12.48 },
-          { rpm: 5500, hp: 131.4, tq: 125.5, afr: 12.46 }
+          { rpm: 5500, hp: 131.4, tq: 125.5, afr: 12.46 },
+          { rpm: 5750, hp: 127.0, tq: 116.0, afr: 12.45 },
+          { rpm: 6000, hp: 121.8, tq: 106.6, afr: 12.44 }
         ]
       },
       {
@@ -332,7 +348,9 @@
           { rpm: 4750, hp: 139.8, tq: 154.6, afr: 12.84 },
           { rpm: 5000, hp: 141.3, tq: 148.4, afr: 12.82 },
           { rpm: 5250, hp: 140.4, tq: 140.5, afr: 12.80 },
-          { rpm: 5500, hp: 136.8, tq: 130.6, afr: 12.79 }
+          { rpm: 5500, hp: 136.8, tq: 130.6, afr: 12.79 },
+          { rpm: 5750, hp: 132.8, tq: 121.3, afr: 12.78 },
+          { rpm: 6000, hp: 128.0, tq: 112.0, afr: 12.78 }
         ]
       },
       {
@@ -352,7 +370,9 @@
           { rpm: 4750, hp: 139.3, tq: 154.0, afr: 12.87 },
           { rpm: 5000, hp: 140.8, tq: 147.9, afr: 12.86 },
           { rpm: 5250, hp: 140.1, tq: 140.2, afr: 12.85 },
-          { rpm: 5500, hp: 136.5, tq: 130.3, afr: 12.84 }
+          { rpm: 5500, hp: 136.5, tq: 130.3, afr: 12.84 },
+          { rpm: 5750, hp: 132.4, tq: 120.9, afr: 12.83 },
+          { rpm: 6000, hp: 127.6, tq: 111.7, afr: 12.83 }
         ]
       }
     ];
@@ -394,15 +414,41 @@
     if (typeof b.weatherOnly !== 'boolean') {
       b.weatherOnly = !hasNumericAfr;
     }
+    if (!Number.isFinite(Number(b.peakRpm))) {
+      b.peakRpm = 5900;
+    }
     candidate.baseline = b;
 
-    candidate.sessions = (candidate.sessions || []).map((s) => ({
-      ...s,
-      afrStatus: s.afrStatus || 'verified'
-    }));
+    candidate.sessions = (candidate.sessions || []).map((s) => {
+      const a50 = Number.isFinite(Number(s.afr5000)) ? Number(s.afr5000) : 12.80;
+      const aWot = Number.isFinite(Number(s.afrWot)) ? Number(s.afrWot) : a50;
+      const a55 = Number.isFinite(Number(s.afr5500))
+        ? Number(s.afr5500)
+        : Number(((a50 + aWot) / 2).toFixed(2));
+      const peakRpm = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
+      return {
+        ...s,
+        afr5500: a55,
+        peakRpm,
+        afrStatus: s.afrStatus || 'verified'
+      };
+    });
 
+    const defaultPulls = createDefaultDynoPulls();
     if (!Array.isArray(candidate.dynoPulls)) {
-      candidate.dynoPulls = createDefaultDynoPulls();
+      candidate.dynoPulls = defaultPulls;
+    } else {
+      candidate.dynoPulls = candidate.dynoPulls.map((p) => {
+        const defPull = defaultPulls.find((d) => d.id === p.id);
+        const has6000 = Array.isArray(p.points) && p.points.some((pt) => pt.rpm >= 6000);
+        if (defPull && !has6000) {
+          return {
+            ...p,
+            points: defPull.points
+          };
+        }
+        return p;
+      });
     }
     return candidate;
   }
@@ -1231,8 +1277,10 @@
       afr3500: Number((predWot + 0.14).toFixed(2)),
       afr4000: Number((predWot + 0.08).toFixed(2)),
       afr4500: Number((predWot + 0.04).toFixed(2)),
-      afr5000: Number((predWot + 0.01).toFixed(2)),
+      afr5000: Number((predWot + 0.02).toFixed(2)),
+      afr5500: Number((predWot + 0.01).toFixed(2)),
       afrWot: predWot,
+      peakRpm: 5900,
       afrStatus: 'estimated',
       notes
     };
@@ -1256,6 +1304,7 @@
       rad: Number(phys.effectiveNewRad.toFixed(1)),
       fuelSg: Number(phys.sgNew.toFixed(3)),
       wotAfr: predWot,
+      peakRpm: 5900,
       afrStatus: 'estimated',
       weatherOnly: false,
       timing: Number(phys.totalTiming.toFixed(1)),
@@ -1312,6 +1361,10 @@
           : prot.level === 'danger'
           ? 'txt-danger'
           : 'txt-emerald';
+        const a55Val = Number.isFinite(Number(s.afr5500))
+          ? Number(s.afr5500)
+          : (Number(s.afr5000) + Number(s.afrWot)) / 2;
+        const peakRpmVal = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
 
         return `
           <article class="session-card ${isBaseline ? 'is-baseline' : ''}" data-session-id="${escapeHtml(s.id)}">
@@ -1357,8 +1410,12 @@
                 <span class="afr-pill-rpm">5000</span>
                 <span class="afr-pill-val">${Number(s.afr5000).toFixed(2)}</span>
               </div>
+              <div class="afr-pill">
+                <span class="afr-pill-rpm">5500</span>
+                <span class="afr-pill-val">${a55Val.toFixed(2)}</span>
+              </div>
               <div class="afr-pill wot-pill">
-                <span class="afr-pill-rpm">WOT</span>
+                <span class="afr-pill-rpm">WOT @ ${peakRpmVal}</span>
                 <span class="afr-pill-val ${wotValClass}">${Number(s.afrWot).toFixed(2)}</span>
               </div>
             </div>
@@ -1386,11 +1443,16 @@
   }
 
   function renderInlineSessionAfrEditor(s) {
+    const a55Val = Number.isFinite(Number(s.afr5500))
+      ? Number(s.afr5500)
+      : (Number(s.afr5000) + Number(s.afrWot)) / 2;
+    const peakRpmVal = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
     const fields = [
       { key: '3500', label: '3500 RPM', val: s.afr3500 },
       { key: '4000', label: '4000 RPM', val: s.afr4000 },
       { key: '4500', label: '4500 RPM', val: s.afr4500 },
       { key: '5000', label: '5000 RPM', val: s.afr5000 },
+      { key: '5500', label: '5500 RPM AFR', val: a55Val },
       { key: 'Wot', label: 'WOT Collector AFR', val: s.afrWot }
     ];
     return `
@@ -1412,6 +1474,17 @@
             `
             )
             .join('')}
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="inlinePeakRpm_${escapeHtml(s.id)}">Top WOT RPM</label>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="inlinePeakRpm_${escapeHtml(s.id)}" data-step="-50" aria-label="Decrease Top WOT RPM">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="inlinePeakRpm_${escapeHtml(s.id)}" class="num-input" value="${peakRpmVal}" min="5000" max="6600" step="50" />
+                <span class="num-unit-badge">RPM</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="inlinePeakRpm_${escapeHtml(s.id)}" data-step="50" aria-label="Increase Top WOT RPM">+</button>
+            </div>
+          </div>
         </div>
         <button type="button" class="btn btn-confirm btn-full" data-save-session-afr="${escapeHtml(s.id)}">
           Save Post-Race AFRs
@@ -1436,31 +1509,41 @@
       'AFR_4000',
       'AFR_4500',
       'AFR_5000',
+      'AFR_5500',
       'AFR_WOT',
+      'Peak_WOT_RPM',
       'AFR_Status',
       'EndCyl_1_6_Est',
       'Notes'
     ];
-    const rows = state.sessions.map((s) => [
-      s.sessionName,
-      s.venue || 'Calder Park',
-      s.timestamp || '',
-      s.carbyId,
-      s.jetLabel,
-      s.jetMm.toFixed(4),
-      s.rad.toFixed(1),
-      s.fuelSg.toFixed(3),
-      s.timing.toFixed(1),
-      s.fuelPsi.toFixed(1),
-      Number(s.afr3500).toFixed(2),
-      Number(s.afr4000).toFixed(2),
-      Number(s.afr4500).toFixed(2),
-      Number(s.afr5000).toFixed(2),
-      Number(s.afrWot).toFixed(2),
-      s.afrStatus === 'estimated' ? 'ESTIMATED' : 'VERIFIED',
-      (Number(s.afrWot) + END_CYL_LEAN_OFFSET).toFixed(2),
-      s.notes || ''
-    ]);
+    const rows = state.sessions.map((s) => {
+      const a55Val = Number.isFinite(Number(s.afr5500))
+        ? Number(s.afr5500)
+        : (Number(s.afr5000) + Number(s.afrWot)) / 2;
+      const peakRpmVal = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
+      return [
+        s.sessionName,
+        s.venue || 'Calder Park',
+        s.timestamp || '',
+        s.carbyId,
+        s.jetLabel,
+        s.jetMm.toFixed(4),
+        s.rad.toFixed(1),
+        s.fuelSg.toFixed(3),
+        s.timing.toFixed(1),
+        s.fuelPsi.toFixed(1),
+        Number(s.afr3500).toFixed(2),
+        Number(s.afr4000).toFixed(2),
+        Number(s.afr4500).toFixed(2),
+        Number(s.afr5000).toFixed(2),
+        a55Val.toFixed(2),
+        Number(s.afrWot).toFixed(2),
+        String(peakRpmVal),
+        s.afrStatus === 'estimated' ? 'ESTIMATED' : 'VERIFIED',
+        (Number(s.afrWot) + END_CYL_LEAN_OFFSET).toFixed(2),
+        s.notes || ''
+      ];
+    });
 
     const csvText = [headers, ...rows]
       .map((r) => r.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
@@ -1525,13 +1608,14 @@
   const DYNO_COLORS = ['#F59E0B', '#10B981', '#38BDF8', '#FB7185', '#A3E635', '#F472B6'];
 
   function renderDynoRpmFormInputs() {
-    const rpms = [3500, 4000, 4500, 5000, 5500];
+    const rpms = [3500, 4000, 4500, 5000, 5500, 6000];
     const defaults = {
       3500: { hp: 109.5, tq: 164.3, afr: 12.90 },
       4000: { hp: 125.0, tq: 164.1, afr: 12.86 },
       4500: { hp: 136.0, tq: 158.7, afr: 12.84 },
       5000: { hp: 140.5, tq: 147.6, afr: 12.82 },
-      5500: { hp: 136.0, tq: 129.9, afr: 12.80 }
+      5500: { hp: 136.0, tq: 129.9, afr: 12.80 },
+      6000: { hp: 128.5, tq: 112.5, afr: 12.79 }
     };
     const container = $('dynoRpmInputsContainer');
     if (!container) return;
@@ -1664,12 +1748,12 @@
     const topY = 18;
     const topH = 166;
 
-    // Lower Plot: Wideband AFR 3500-5500 RPM (y: 214 -> 358)
+    // Lower Plot: Wideband AFR 3500-6000 RPM (y: 214 -> 358)
     const botY = 214;
     const botH = 144;
 
     const minRpm = 3500;
-    const maxRpm = 5500;
+    const maxRpm = 6000;
     const xForRpm = (rpm) => padL + ((rpm - minRpm) / (maxRpm - minRpm)) * plotW;
 
     // Determine Y ranges
@@ -1693,8 +1777,8 @@
     ctx.font = '700 10px ui-monospace, SFMono-Regular, monospace';
     ctx.fillStyle = '#94A3B8';
 
-    // Vertical RPM grid lines (3500 to 5500 every 250 RPM)
-    for (let rpm = 3500; rpm <= 5500; rpm += 250) {
+    // Vertical RPM grid lines (3500 to 6000 every 250 RPM)
+    for (let rpm = 3500; rpm <= 6000; rpm += 250) {
       const x = xForRpm(rpm);
       ctx.beginPath();
       ctx.moveTo(x, topY);
@@ -1726,7 +1810,7 @@
     ctx.fillStyle = '#CBD5E1';
     ctx.font = '800 10px -apple-system, BlinkMacSystemFont, sans-serif';
     ctx.fillText('RWHP (SOLID) & TORQUE FT·LB (DASHED)', padL + 4, topY - 4);
-    ctx.fillText('WIDEBAND COLLECTOR AFR (3500–5500 RPM)', padL + 4, botY - 5);
+    ctx.fillText('WIDEBAND COLLECTOR AFR (3500–6000 RPM)', padL + 4, botY - 5);
 
     // Lower Plot: Shaded 12.75–12.95 Sweet-Spot Band
     const ySweetTop = yForAfr(12.95);
@@ -2103,15 +2187,34 @@
       b.wotAfr !== null && b.wotAfr !== undefined && Number.isFinite(Number(b.wotAfr))
         ? Number(b.wotAfr)
         : 12.80;
+    const linked = state.sessions.find((s) => s.id === b.linkedSessionId);
+    const peakRpm =
+      linked && Number.isFinite(Number(linked.peakRpm))
+        ? Math.round(Number(linked.peakRpm))
+        : Number.isFinite(Number(b.peakRpm))
+        ? Math.round(Number(b.peakRpm))
+        : 5900;
+
     $('postRaceModalSessionLabel').textContent = `${b.sessionName} (${b.carbyId} • ${b.jetLabel})`;
+    if ($('modalPostPeakRpm')) {
+      $('modalPostPeakRpm').value = String(peakRpm);
+    }
     $('modalPostWotAfr').value = refAfr.toFixed(2);
     $('modalPostEndCylPreview').textContent = `#1/#6 Est: ${(refAfr + END_CYL_LEAN_OFFSET).toFixed(2)}`;
 
-    const linked = state.sessions.find((s) => s.id === b.linkedSessionId);
     $('modalPost3500').value = linked ? Number(linked.afr3500).toFixed(2) : (refAfr + 0.16).toFixed(2);
     $('modalPost4000').value = linked ? Number(linked.afr4000).toFixed(2) : (refAfr + 0.10).toFixed(2);
     $('modalPost4500').value = linked ? Number(linked.afr4500).toFixed(2) : (refAfr + 0.05).toFixed(2);
     $('modalPost5000').value = linked ? Number(linked.afr5000).toFixed(2) : (refAfr + 0.02).toFixed(2);
+    if ($('modalPost5500')) {
+      const a55 =
+        linked && Number.isFinite(Number(linked.afr5500))
+          ? Number(linked.afr5500)
+          : linked
+          ? (Number(linked.afr5000) + Number(linked.afrWot)) / 2
+          : refAfr + 0.01;
+      $('modalPost5500').value = a55.toFixed(2);
+    }
 
     openModal('modalPostRaceAfr');
   }
@@ -2121,13 +2224,16 @@
       state.baseline.wotAfr !== null && Number.isFinite(Number(state.baseline.wotAfr))
         ? Number(state.baseline.wotAfr)
         : 12.80;
+    const peakRpm = Math.round(readNum('modalPostPeakRpm', 5900));
     const wot = readNum('modalPostWotAfr', fallbackAfr);
     const a35 = readNum('modalPost3500', wot + 0.15);
     const a40 = readNum('modalPost4000', wot + 0.10);
     const a45 = readNum('modalPost4500', wot + 0.05);
     const a50 = readNum('modalPost5000', wot + 0.02);
+    const a55 = readNum('modalPost5500', wot + 0.01);
 
     state.baseline.wotAfr = Number(wot.toFixed(2));
+    state.baseline.peakRpm = peakRpm;
     state.baseline.afrStatus = 'verified';
     state.baseline.weatherOnly = false;
     ui.weatherOnly = false;
@@ -2138,7 +2244,9 @@
       linked.afr4000 = Number(a40.toFixed(2));
       linked.afr4500 = Number(a45.toFixed(2));
       linked.afr5000 = Number(a50.toFixed(2));
+      linked.afr5500 = Number(a55.toFixed(2));
       linked.afrWot = Number(wot.toFixed(2));
+      linked.peakRpm = peakRpm;
       linked.afrStatus = 'verified';
     }
 
@@ -2157,7 +2265,7 @@
     saveState();
     closeModal('modalPostRaceAfr');
     renderAll();
-    showToast(`Verified Post-Race WOT AFR (${wot.toFixed(2)}) on Track`);
+    showToast(`Verified Post-Race WOT AFR (${wot.toFixed(2)} @ ${peakRpm} RPM) on Track`);
   }
 
   function syncEditBaselineModalWeatherOnlyUi() {
@@ -2473,10 +2581,13 @@
           sess.afr4000 = Number(readNum(`inlineAfr_${sid}_4000`, sess.afr4000).toFixed(2));
           sess.afr4500 = Number(readNum(`inlineAfr_${sid}_4500`, sess.afr4500).toFixed(2));
           sess.afr5000 = Number(readNum(`inlineAfr_${sid}_5000`, sess.afr5000).toFixed(2));
+          sess.afr5500 = Number(readNum(`inlineAfr_${sid}_5500`, sess.afr5500 ?? sess.afr5000).toFixed(2));
           sess.afrWot = Number(readNum(`inlineAfr_${sid}_Wot`, sess.afrWot).toFixed(2));
+          sess.peakRpm = Math.round(readNum(`inlinePeakRpm_${sid}`, sess.peakRpm || 5900));
           sess.afrStatus = 'verified';
           if (state.baseline.linkedSessionId === sid) {
             state.baseline.wotAfr = sess.afrWot;
+            state.baseline.peakRpm = sess.peakRpm;
             state.baseline.afrStatus = 'verified';
             state.baseline.weatherOnly = false;
             ui.weatherOnly = false;
@@ -2503,6 +2614,7 @@
             rad: sess.rad,
             fuelSg: sess.fuelSg,
             wotAfr: sess.afrWot,
+            peakRpm: sess.peakRpm || 5900,
             afrStatus: sess.afrStatus || 'verified',
             weatherOnly: false,
             timing: sess.timing,
@@ -2744,7 +2856,7 @@
     });
 
     $('btnSaveManualDynoPull').addEventListener('click', () => {
-      const rpms = [3500, 4000, 4500, 5000, 5500];
+      const rpms = [3500, 4000, 4500, 5000, 5500, 6000];
       const points = rpms.map((rpm) => ({
         rpm,
         hp: readNum(`dynoHp_${rpm}`, 130),
@@ -2786,7 +2898,8 @@
         '4000,126.8,166.5,12.86',
         '4500,137.5,160.5,12.84',
         '5000,142.0,149.2,12.82',
-        '5500,137.4,131.2,12.80'
+        '5500,137.4,131.2,12.80',
+        '6000,129.8,113.6,12.79'
       ].join('\n');
       triggerDownload(sample, 'hq202-dyno-sample.csv', 'text/csv;charset=utf-8;');
       showToast('Downloaded Sample Dyno CSV');
@@ -2800,7 +2913,7 @@
       const padR = 14;
       const plotW = Math.max(1, rect.width - padL - padR);
       const relX = Math.max(0, Math.min(plotW, clientX - rect.left - padL));
-      ui.dynoScrubRpm = 3500 + (relX / plotW) * 2000;
+      ui.dynoScrubRpm = 3500 + (relX / plotW) * 2500;
       renderDynoCanvas();
     };
     canvas.addEventListener('pointerdown', (e) => handleScrub(e.clientX));

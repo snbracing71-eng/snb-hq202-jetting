@@ -557,7 +557,7 @@
       <div class="card">
         <div class="section-head">
           <div>
-            <div class="section-eyebrow">3500&ndash;5500 RPM Telemetry</div>
+            <div class="section-eyebrow">3500&ndash;6000 RPM Telemetry</div>
             <h2 class="section-title">HQ 202 Dyno Lab &amp; AFR Overlay</h2>
           </div>
         </div>
@@ -588,7 +588,7 @@
         </div>
         <div style="margin-top: 8px;">
           <button type="button" class="btn btn-secondary btn-full" id="btnDownloadDynoTemplate">
-            Download Sample Dyno CSV Template (3500&ndash;5500 RPM)
+            Download Sample Dyno CSV Template (3500&ndash;6000 RPM)
           </button>
         </div>
       </div>
@@ -806,23 +806,40 @@
         Enter the logged wideband AFR from <strong id="postRaceModalSessionLabel">Race 1 (1 DME)</strong>. Updates Locked Baseline and syncs matching Session Log run.
       </p>
 
-      <div class="field-group">
-        <div class="field-label-row">
-          <label class="field-label" for="modalPostWotAfr">Logged WOT Collector AFR</label>
-          <span class="field-hint emerald" id="modalPostEndCylPreview">#1/#6 Est: 12.77</span>
-        </div>
-        <div class="num-stepper">
-          <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="-0.05" aria-label="Decrease Post-Race WOT AFR">&minus;</button>
-          <div class="num-input-wrap">
-            <input type="number" id="modalPostWotAfr" class="num-input" value="12.50" min="10.50" max="15.50" step="0.05" />
-            <span class="num-unit-badge">WOT</span>
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 12px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="modalPostPeakRpm">Top / Peak WOT RPM</label>
+            <span class="field-hint">Tach Recall</span>
           </div>
-          <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="0.05" aria-label="Increase Post-Race WOT AFR">+</button>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostPeakRpm" data-step="-50" aria-label="Decrease Peak WOT RPM">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="modalPostPeakRpm" class="num-input" value="5900" min="5000" max="6600" step="50" />
+              <span class="num-unit-badge">RPM</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostPeakRpm" data-step="50" aria-label="Increase Peak WOT RPM">+</button>
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="modalPostWotAfr">Logged Peak WOT AFR</label>
+            <span class="field-hint emerald" id="modalPostEndCylPreview">#1/#6 Est: 12.77</span>
+          </div>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="-0.05" aria-label="Decrease Post-Race WOT AFR">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="modalPostWotAfr" class="num-input" value="12.50" min="10.50" max="15.50" step="0.05" />
+              <span class="num-unit-badge">WOT</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="0.05" aria-label="Increase Post-Race WOT AFR">+</button>
+          </div>
         </div>
       </div>
 
-      <div class="form-grid-2">
-        <div class="field-group">
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 14px;">
+        <div class="field-group" style="margin-bottom: 0;">
           <label class="field-label" for="modalPost3500">3500 RPM AFR</label>
           <div class="num-stepper">
             <button type="button" class="stepper-btn" data-stepper-target="modalPost3500" data-step="-0.05" aria-label="Decrease 3500 AFR">&minus;</button>
@@ -832,7 +849,7 @@
             <button type="button" class="stepper-btn" data-stepper-target="modalPost3500" data-step="0.05" aria-label="Increase 3500 AFR">+</button>
           </div>
         </div>
-        <div class="field-group">
+        <div class="field-group" style="margin-bottom: 0;">
           <label class="field-label" for="modalPost4000">4000 RPM AFR</label>
           <div class="num-stepper">
             <button type="button" class="stepper-btn" data-stepper-target="modalPost4000" data-step="-0.05" aria-label="Decrease 4000 AFR">&minus;</button>
@@ -842,7 +859,7 @@
             <button type="button" class="stepper-btn" data-stepper-target="modalPost4000" data-step="0.05" aria-label="Increase 4000 AFR">+</button>
           </div>
         </div>
-        <div class="field-group">
+        <div class="field-group" style="margin-bottom: 0;">
           <label class="field-label" for="modalPost4500">4500 RPM AFR</label>
           <div class="num-stepper">
             <button type="button" class="stepper-btn" data-stepper-target="modalPost4500" data-step="-0.05" aria-label="Decrease 4500 AFR">&minus;</button>
@@ -852,7 +869,7 @@
             <button type="button" class="stepper-btn" data-stepper-target="modalPost4500" data-step="0.05" aria-label="Increase 4500 AFR">+</button>
           </div>
         </div>
-        <div class="field-group">
+        <div class="field-group" style="margin-bottom: 0;">
           <label class="field-label" for="modalPost5000">5000 RPM AFR</label>
           <div class="num-stepper">
             <button type="button" class="stepper-btn" data-stepper-target="modalPost5000" data-step="-0.05" aria-label="Decrease 5000 AFR">&minus;</button>
@@ -860,6 +877,16 @@
               <input type="number" id="modalPost5000" class="num-input" value="12.52" min="10.50" max="15.50" step="0.05" />
             </div>
             <button type="button" class="stepper-btn" data-stepper-target="modalPost5000" data-step="0.05" aria-label="Increase 5000 AFR">+</button>
+          </div>
+        </div>
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="modalPost5500">5500 RPM AFR</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="modalPost5500" data-step="-0.05" aria-label="Decrease 5500 AFR">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="modalPost5500" class="num-input" value="12.51" min="10.50" max="15.50" step="0.05" />
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPost5500" data-step="0.05" aria-label="Increase 5500 AFR">+</button>
           </div>
         </div>
       </div>
