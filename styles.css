@@ -2549,6 +2549,12 @@ textarea:focus-visible {
   color: #FDE047;
 }
 
+.tyre-laps-badge.danger {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: rgba(248, 113, 113, 0.65);
+  color: #FECACA;
+}
+
 .tyre-mount-select {
   min-height: 40px;
   padding: 6px 34px 6px 10px;
@@ -2604,4 +2610,184 @@ textarea:focus-visible {
   font-weight: 700;
   color: #94A3B8;
 }
+
+/* ============================================================================
+   INLINE TYRE STOCK & WEAR MANAGER (#tab-tyres Card 2)
+   ============================================================================ */
+.tyre-stock-section-head {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tyre-stock-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tyre-stock-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tyre-stock-card {
+  padding: 12px;
+  border-radius: 12px;
+  background:
+    radial-gradient(ellipse 80% 45% at 50% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 70%),
+    linear-gradient(180deg, #161E2B 0%, #0C1119 100%);
+  border: 1.5px solid #35455B;
+  border-top-color: #4D6280;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 5px 14px rgba(0, 0, 0, 0.82);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tyre-stock-card.is-mounted {
+  border-color: rgba(16, 185, 129, 0.65);
+  border-top-color: #6EE7B7;
+}
+
+.tyre-stock-card.tread-warn {
+  border-color: rgba(245, 158, 11, 0.72);
+  border-top-color: #FDE047;
+}
+
+.tyre-stock-card.tread-danger {
+  border-color: rgba(239, 68, 68, 0.85);
+  border-top-color: #FCA5A5;
+  background:
+    radial-gradient(ellipse 80% 45% at 50% 0%, rgba(239, 68, 68, 0.14) 0%, transparent 70%),
+    linear-gradient(180deg, #271217 0%, #11090C 100%);
+}
+
+.tyre-stock-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.tyre-stock-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.tyre-stock-name-input {
+  width: 128px;
+  min-height: 36px;
+  padding: 4px 9px;
+  border-radius: 8px;
+  background: #080B10;
+  border: 1.5px solid #334358;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.9);
+  color: #FFFFFF;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.tyre-stock-name-input:focus {
+  outline: none;
+  border-color: var(--amber);
+}
+
+.tyre-pos-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tyre-pos-badge.mounted {
+  background: linear-gradient(180deg, #0D593E 0%, #063323 100%);
+  border: 1.5px solid #10B981;
+  border-top-color: #6EE7B7;
+  color: #ECFDF5;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.65);
+}
+
+.tyre-pos-badge.spare {
+  background: linear-gradient(180deg, #273244 0%, #151C27 100%);
+  border: 1.5px solid #475569;
+  border-top-color: #64748B;
+  color: #E2E8F0;
+}
+
+.tyre-stock-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tyre-total-laps-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: #070A0F;
+  border: 1.5px solid rgba(52, 211, 153, 0.5);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.85);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 900;
+  color: #6EE7B7;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.tyre-delete-btn {
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 900;
+  border-radius: 8px;
+}
+
+.tyre-stock-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-items: end;
+}
+
+.tyre-stock-controls-grid > .tyre-date-col {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 640px) {
+  .tyre-stock-controls-grid {
+    grid-template-columns: 1.05fr 1.2fr 1.2fr;
+  }
+
+  .tyre-stock-controls-grid > .tyre-date-col {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 390px) {
+  .tyre-stock-controls-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 

@@ -505,10 +505,54 @@
 
   function createDefaultTyrePool() {
     return [
-      { id: 'K1', code: 'K1', stamp: 'HQRA #101 (Kenda KR15)', treadMm: 4.8, baseLaps: 14, retired: false },
-      { id: 'K2', code: 'K2', stamp: 'HQRA #102 (Kenda KR15)', treadMm: 4.6, baseLaps: 14, retired: false },
-      { id: 'K3', code: 'K3', stamp: 'HQRA #103 (Kenda KR15)', treadMm: 5.0, baseLaps: 14, retired: false },
-      { id: 'K4', code: 'K4', stamp: 'HQRA #104 (Kenda KR15)', treadMm: 4.9, baseLaps: 14, retired: false }
+      {
+        id: 'K1',
+        code: 'K1',
+        label: 'K1',
+        stamp: 'HQRA #101 (Kenda KR15)',
+        purchaseDate: '2026-01-01',
+        treadMm: 4.8,
+        durometer: 62,
+        baseLaps: 14,
+        totalLaps: 24,
+        retired: false
+      },
+      {
+        id: 'K2',
+        code: 'K2',
+        label: 'K2',
+        stamp: 'HQRA #102 (Kenda KR15)',
+        purchaseDate: '2026-01-01',
+        treadMm: 4.6,
+        durometer: 63,
+        baseLaps: 14,
+        totalLaps: 24,
+        retired: false
+      },
+      {
+        id: 'K3',
+        code: 'K3',
+        label: 'K3',
+        stamp: 'HQRA #103 (Kenda KR15)',
+        purchaseDate: '2026-01-01',
+        treadMm: 5.0,
+        durometer: 62,
+        baseLaps: 14,
+        totalLaps: 24,
+        retired: false
+      },
+      {
+        id: 'K4',
+        code: 'K4',
+        label: 'K4',
+        stamp: 'HQRA #104 (Kenda KR15)',
+        purchaseDate: '2026-01-01',
+        treadMm: 4.9,
+        durometer: 62,
+        baseLaps: 14,
+        totalLaps: 24,
+        retired: false
+      }
     ];
   }
 
@@ -612,27 +656,41 @@
     }
 
     const defTyrePool = createDefaultTyrePool();
-    if (!Array.isArray(candidate.tyrePool) || candidate.tyrePool.length === 0) {
+    if (!Array.isArray(candidate.tyrePool)) {
       candidate.tyrePool = defTyrePool;
     } else {
       candidate.tyrePool = candidate.tyrePool.map((t, idx) => {
-        const id = String(t.id || t.code || `K${idx + 1}`).trim();
-        const code = String(t.code || id).trim();
+        const id = String(t.id || t.label || t.code || `K${idx + 1}`).trim();
+        const label = String(t.label || t.code || id).trim();
+        const code = label;
+        const isSeed = ['K1', 'K2', 'K3', 'K4'].includes(id);
+        const purchaseDate =
+          typeof t.purchaseDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(t.purchaseDate.trim())
+            ? t.purchaseDate.trim()
+            : isSeed
+            ? '2026-01-01'
+            : todayIso;
+        const rawTread = Number(t.treadMm ?? t.treadDepthMm);
+        const treadMm = Number.isFinite(rawTread) ? Number(rawTread.toFixed(1)) : isSeed ? 4.8 : 7.5;
+        const rawDuro = Number(t.durometer ?? t.hardness);
+        const durometer = Number.isFinite(rawDuro) ? Math.max(40, Math.min(95, Math.round(rawDuro))) : 62;
+        const baseLaps = Number.isFinite(Number(t.baseLaps ?? t.initialLaps))
+          ? Math.max(0, Math.round(Number(t.baseLaps ?? t.initialLaps)))
+          : isSeed
+          ? 14
+          : 0;
         return {
           id,
           code,
-          stamp: typeof t.stamp === 'string' ? t.stamp : 'Kenda KR15',
-          treadMm: Number.isFinite(Number(t.treadMm)) ? Number(Number(t.treadMm).toFixed(1)) : 4.8,
-          baseLaps: Number.isFinite(Number(t.baseLaps ?? t.initialLaps))
-            ? Math.max(0, Math.round(Number(t.baseLaps ?? t.initialLaps)))
-            : 0,
+          label,
+          stamp: typeof t.stamp === 'string' && t.stamp.trim() ? t.stamp.trim() : `Kenda KR15 (${label})`,
+          purchaseDate,
+          treadMm,
+          durometer,
+          baseLaps,
+          totalLaps: baseLaps,
           retired: Boolean(t.retired)
         };
-      });
-      defTyrePool.forEach((dt) => {
-        if (!candidate.tyrePool.some((pt) => pt.id === dt.id)) {
-          candidate.tyrePool.push({ ...dt });
-        }
       });
     }
 
@@ -798,9 +856,25 @@
 
       const ht = (ch.hotTyres && typeof ch.hotTyres === 'object') ? ch.hotTyres : {};
       const mt = (ch.mountedTyres && typeof ch.mountedTyres === 'object') ? ch.mountedTyres : {};
+      const usedCornerTyres = new Set();
       const validTyreId = (val, fallback) => {
         const str = typeof val === 'string' && val.trim() ? val.trim() : fallback;
-        return candidate.tyrePool.some((t) => t.id === str) ? str : fallback;
+        if (str === 'UNASSIGNED') return 'UNASSIGNED';
+        if (candidate.tyrePool.some((t) => t.id === str) && !usedCornerTyres.has(str)) {
+          usedCornerTyres.add(str);
+          return str;
+        }
+        if (candidate.tyrePool.some((t) => t.id === fallback) && !usedCornerTyres.has(fallback)) {
+          usedCornerTyres.add(fallback);
+          return fallback;
+        }
+        const spare = candidate.tyrePool.find((t) => !t.retired && !usedCornerTyres.has(t.id)) ||
+                      candidate.tyrePool.find((t) => !usedCornerTyres.has(t.id));
+        if (spare) {
+          usedCornerTyres.add(spare.id);
+          return spare.id;
+        }
+        return 'UNASSIGNED';
       };
 
       // Migrate any legacy standalone pumpRuns or historyRuns into unified candidate.sessions
@@ -891,6 +965,20 @@
       };
     }
 
+    // Compute live totalLaps = baseLaps + sum(session.racedLaps) for every tyre in candidate.tyrePool
+    candidate.tyrePool.forEach((t) => {
+      let sessLaps = 0;
+      (candidate.sessions || []).forEach((s) => {
+        if (!s || !s.tyres || typeof s.tyres !== 'object') return;
+        const laps = Number(s.racedLaps);
+        if (!Number.isFinite(laps) || laps <= 0) return;
+        if (['FL', 'FR', 'RL', 'RR'].some((c) => s.tyres[c] && s.tyres[c].tyreId === t.id)) {
+          sessLaps += Math.round(laps);
+        }
+      });
+      t.totalLaps = (Number(t.baseLaps) || 0) + sessLaps;
+    });
+
     return candidate;
   }
 
@@ -935,6 +1023,7 @@
     confirmDeleteSessionId: null,
     confirmDeletePumpRunId: null,
     confirmDeleteTyreLogId: null,
+    confirmDeleteTyreId: null,
     dynoScrubRpm: 5000
   };
 
@@ -2164,8 +2253,10 @@
     }
     return state.tyrePool.find((t) => t.id === tyreId) || null;
   }
+  const findTyreInPool = getTyreById;
 
   function getTyreCumulativeLaps(tyreId) {
+    if (!tyreId || tyreId === 'UNASSIGNED') return 0;
     const tyre = getTyreById(tyreId);
     const baseLaps = tyre && Number.isFinite(Number(tyre.baseLaps)) ? Math.max(0, Math.round(Number(tyre.baseLaps))) : 0;
     let sessionLaps = 0;
@@ -2182,24 +2273,71 @@
       }
     });
 
-    return baseLaps + sessionLaps;
+    const total = baseLaps + sessionLaps;
+    if (tyre) {
+      tyre.totalLaps = total;
+    }
+    return total;
+  }
+
+  function getTreadStatusInfo(treadMmVal) {
+    const mm = Number.isFinite(Number(treadMmVal)) ? Number(treadMmVal) : 7.5;
+    if (mm < 1.5) {
+      return {
+        text: 'ILLEGAL <1.5MM',
+        hintClass: 'field-hint txt-danger',
+        cardClass: 'tread-danger',
+        badgeClass: 'tyre-laps-badge danger'
+      };
+    }
+    if (mm <= 2.0) {
+      return {
+        text: 'LOW TREAD',
+        hintClass: 'field-hint amber',
+        cardClass: 'tread-warn',
+        badgeClass: 'tyre-laps-badge warn'
+      };
+    }
+    return {
+      text: `${mm.toFixed(1)}mm OK`,
+      hintClass: 'field-hint emerald',
+      cardClass: '',
+      badgeClass: 'tyre-laps-badge'
+    };
   }
 
   function ensureMountedTyresState() {
     if (!state.chassis) {
       state.chassis = createDefaultChassisState();
     }
-    if (!Array.isArray(state.tyrePool) || state.tyrePool.length === 0) {
+    if (!Array.isArray(state.tyrePool)) {
       state.tyrePool = createDefaultTyrePool();
     }
     if (!state.chassis.mountedTyres || typeof state.chassis.mountedTyres !== 'object') {
       state.chassis.mountedTyres = { FL: 'K1', FR: 'K2', RL: 'K3', RR: 'K4' };
     }
+
+    const usedIds = new Set();
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const curId = state.chassis.mountedTyres[c];
+      if (curId && curId !== 'UNASSIGNED' && state.tyrePool.some((t) => t.id === curId) && !usedIds.has(curId)) {
+        usedIds.add(curId);
+      }
+    });
+
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const curId = state.chassis.mountedTyres[c];
+      if (curId === 'UNASSIGNED') return;
       if (!curId || !state.tyrePool.some((t) => t.id === curId)) {
-        const fallback = DEFAULT_CORNER_TYRE_IDS[c] || state.tyrePool[0].id;
-        state.chassis.mountedTyres[c] = fallback;
+        const spare =
+          state.tyrePool.find((t) => !t.retired && !usedIds.has(t.id)) ||
+          state.tyrePool.find((t) => !usedIds.has(t.id));
+        if (spare) {
+          state.chassis.mountedTyres[c] = spare.id;
+          usedIds.add(spare.id);
+        } else {
+          state.chassis.mountedTyres[c] = 'UNASSIGNED';
+        }
       }
     });
     return state.chassis.mountedTyres;
@@ -2212,11 +2350,12 @@
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const selEl = $(`selectMountedTyre_${c}`);
       const badgeEl = $(`outTyreTotalLaps_${c}`);
-      const mountedId = mounted[c];
-      const mountedTyre = getTyreById(mountedId) || pool[0];
+      const mountedId = mounted[c] || 'UNASSIGNED';
+      const mountedTyre = mountedId !== 'UNASSIGNED' ? getTyreById(mountedId) : null;
       const totalLaps = mountedTyre ? getTyreCumulativeLaps(mountedTyre.id) : 0;
-      const treadMm = mountedTyre && Number.isFinite(Number(mountedTyre.treadMm)) ? Number(mountedTyre.treadMm) : 4.8;
-      const isLowTread = treadMm <= 1.8;
+      const treadMm = mountedTyre && Number.isFinite(Number(mountedTyre.treadMm)) ? Number(mountedTyre.treadMm) : 7.5;
+      const duro = mountedTyre && Number.isFinite(Number(mountedTyre.durometer)) ? Math.round(Number(mountedTyre.durometer)) : 62;
+      const treadStatus = getTreadStatusInfo(treadMm);
 
       if (selEl) {
         const options = pool
@@ -2225,26 +2364,354 @@
             const laps = getTyreCumulativeLaps(t.id);
             const cornerEntry = Object.entries(mounted).find(([, tid]) => tid === t.id);
             const locSuffix = cornerEntry && cornerEntry[0] !== c ? ` [on ${cornerEntry[0]}]` : '';
-            const treadStr = Number.isFinite(Number(t.treadMm)) ? ` • ${Number(t.treadMm).toFixed(1)}mm` : '';
-            return `<option value="${escapeHtml(t.id)}">${escapeHtml(t.code)} — ${laps} Laps${escapeHtml(treadStr)}${escapeHtml(locSuffix)}</option>`;
-          })
-          .join('');
-        selEl.innerHTML = options;
-        selEl.value = mountedId;
+            const tMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : 7.5;
+            const tDuro = Number.isFinite(Number(t.durometer)) ? Math.round(Number(t.durometer)) : 62;
+            const displayLabel = t.label || t.code || t.id;
+            return `<option value="${escapeHtml(t.id)}">${escapeHtml(displayLabel)} — ${laps} Laps • ${tMm.toFixed(1)}mm • ${tDuro}A${escapeHtml(locSuffix)}</option>`;
+          });
+        if (mountedId === 'UNASSIGNED' || pool.length < 4) {
+          options.push(`<option value="UNASSIGNED">UNASSIGNED — Spare Rack</option>`);
+        }
+        selEl.innerHTML = options.join('');
+        selEl.value = mountedTyre ? mountedId : 'UNASSIGNED';
       }
 
       if (badgeEl) {
-        const treadAlert = isLowTread ? ` • ${treadMm.toFixed(1)}mm!` : '';
-        badgeEl.textContent = `Total: ${totalLaps} laps from new${treadAlert}`;
-        badgeEl.className = isLowTread ? 'tyre-laps-badge warn' : 'tyre-laps-badge';
+        if (!mountedTyre) {
+          badgeEl.textContent = 'UNASSIGNED • Select Tyre';
+          badgeEl.className = 'tyre-laps-badge warn';
+        } else {
+          const warnSuffix = treadMm < 1.5 ? ' (ILLEGAL <1.5mm!)' : treadMm <= 2.0 ? ' (LOW TREAD)' : '';
+          badgeEl.textContent = `Total: ${totalLaps} laps • ${treadMm.toFixed(1)}mm • ${duro}A${warnSuffix}`;
+          badgeEl.className = treadStatus.badgeClass;
+        }
       }
     });
+  }
+
+  function renderTyreStockList() {
+    const container = $('tyreStockListContainer');
+    const countBadge = $('tyreStockCountBadge');
+    const mounted = ensureMountedTyresState();
+    const pool = state.tyrePool || [];
+
+    if (countBadge) {
+      countBadge.textContent = `${pool.length} Tyre${pool.length === 1 ? '' : 's'} in Stock`;
+    }
+
+    const newDateInp = $('newTyreDate');
+    if (newDateInp && !newDateInp.value) {
+      newDateInp.value = getLocalTodayIso();
+    }
+    const newLabelInp = $('newTyreLabel');
+    if (newLabelInp && !newLabelInp.value.trim()) {
+      newLabelInp.placeholder = `e.g. K${pool.length + 1} or HQRA-12`;
+    }
+
+    if (!container) return;
+
+    if (pool.length === 0) {
+      container.innerHTML = `
+        <div class="card-elevated" style="text-align: center; padding: 16px;">
+          <div style="font-size: 15px; font-weight: 800; color: var(--text-secondary);">
+            No Kenda KR15 tyres in stock. Tap "+ Add New Tyre" above to add tyres to your inventory.
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = pool
+      .map((t) => {
+        const totalLaps = getTyreCumulativeLaps(t.id);
+        const mountedCorner = Object.entries(mounted).find(([, tid]) => tid === t.id);
+        const isMounted = Boolean(mountedCorner);
+        const posBadgeHtml = isMounted
+          ? `<span class="tyre-pos-badge mounted" id="stockPosBadge_${escapeHtml(t.id)}">MOUNTED: ${mountedCorner[0]}</span>`
+          : `<span class="tyre-pos-badge spare" id="stockPosBadge_${escapeHtml(t.id)}">SPARE RACK</span>`;
+
+        const treadMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : 7.5;
+        const duro = Number.isFinite(Number(t.durometer)) ? Math.round(Number(t.durometer)) : 62;
+        const purchaseDate = t.purchaseDate || getLocalTodayIso();
+        const treadStatus = getTreadStatusInfo(treadMm);
+        const isConfirmingDelete = ui.confirmDeleteTyreId === t.id;
+        const cardClasses = [
+          'tyre-stock-card',
+          isMounted ? 'is-mounted' : '',
+          treadStatus.cardClass
+        ]
+          .filter(Boolean)
+          .join(' ');
+
+        return `
+          <article class="${cardClasses}" id="tyreStockCard_${escapeHtml(t.id)}" data-tyre-stock-card="${escapeHtml(t.id)}">
+            <div class="tyre-stock-top">
+              <div class="tyre-stock-left">
+                <input
+                  type="text"
+                  class="tyre-stock-name-input"
+                  data-tyre-label="${escapeHtml(t.id)}"
+                  value="${escapeHtml(t.label || t.code || t.id)}"
+                  aria-label="Tyre Name or Stamp for ${escapeHtml(t.id)}"
+                  title="Edit Tyre Label / Stamp"
+                />
+                ${posBadgeHtml}
+              </div>
+              <div class="tyre-stock-right">
+                <span class="tyre-total-laps-pill" id="stockTotalLaps_${escapeHtml(t.id)}">TOTAL: ${totalLaps} LAPS</span>
+                <button
+                  type="button"
+                  class="btn btn-danger tyre-delete-btn"
+                  data-delete-tyre="${escapeHtml(t.id)}"
+                >
+                  ${isConfirmingDelete ? 'Tap Confirm Delete' : 'Delete'}
+                </button>
+              </div>
+            </div>
+
+            <div class="tyre-stock-controls-grid">
+              <div class="field-group tyre-date-col" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <label class="field-label" for="stockDate_${escapeHtml(t.id)}">Purchased</label>
+                  <span class="field-hint">Batch Date</span>
+                </div>
+                <input
+                  type="date"
+                  id="stockDate_${escapeHtml(t.id)}"
+                  class="text-input"
+                  value="${escapeHtml(purchaseDate)}"
+                  data-tyre-date="${escapeHtml(t.id)}"
+                  aria-label="Purchase Date for ${escapeHtml(t.label || t.id)}"
+                />
+              </div>
+
+              <div class="field-group" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <label class="field-label" for="stockTread_${escapeHtml(t.id)}">Tread Depth (mm)</label>
+                  <span class="${treadStatus.hintClass}" id="stockTreadStatus_${escapeHtml(t.id)}">${escapeHtml(treadStatus.text)}</span>
+                </div>
+                <div class="num-stepper">
+                  <button type="button" class="stepper-btn" data-stepper-target="stockTread_${escapeHtml(t.id)}" data-step="-0.1" aria-label="Decrease ${escapeHtml(t.label || t.id)} Tread">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input
+                      type="number"
+                      id="stockTread_${escapeHtml(t.id)}"
+                      class="num-input"
+                      value="${treadMm.toFixed(1)}"
+                      min="0.0"
+                      max="10.0"
+                      step="0.1"
+                      inputmode="decimal"
+                      data-tyre-tread="${escapeHtml(t.id)}"
+                    />
+                    <span class="num-unit-badge">mm</span>
+                  </div>
+                  <button type="button" class="stepper-btn" data-stepper-target="stockTread_${escapeHtml(t.id)}" data-step="0.1" aria-label="Increase ${escapeHtml(t.label || t.id)} Tread">+</button>
+                </div>
+              </div>
+
+              <div class="field-group" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <label class="field-label" for="stockHardness_${escapeHtml(t.id)}">Rubber Hardness (Shore A)</label>
+                  <span class="field-hint amber" id="stockHardnessStatus_${escapeHtml(t.id)}">${duro} Shore A</span>
+                </div>
+                <div class="num-stepper">
+                  <button type="button" class="stepper-btn" data-stepper-target="stockHardness_${escapeHtml(t.id)}" data-step="-1" aria-label="Decrease ${escapeHtml(t.label || t.id)} Hardness">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input
+                      type="number"
+                      id="stockHardness_${escapeHtml(t.id)}"
+                      class="num-input"
+                      value="${duro}"
+                      min="40"
+                      max="95"
+                      step="1"
+                      inputmode="numeric"
+                      data-tyre-hardness="${escapeHtml(t.id)}"
+                    />
+                    <span class="num-unit-badge">A</span>
+                  </div>
+                  <button type="button" class="stepper-btn" data-stepper-target="stockHardness_${escapeHtml(t.id)}" data-step="1" aria-label="Increase ${escapeHtml(t.label || t.id)} Hardness">+</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      })
+      .join('');
+  }
+
+  function addInlineTyreToStock() {
+    if (!Array.isArray(state.tyrePool)) {
+      state.tyrePool = createDefaultTyrePool();
+    }
+    const rawLabel = (($('newTyreLabel') && $('newTyreLabel').value) || '').trim();
+    let nextNum = state.tyrePool.length + 1;
+    while (state.tyrePool.some((t) => t.id.toLowerCase() === `k${nextNum}`)) {
+      nextNum++;
+    }
+    const label = rawLabel || `K${nextNum}`;
+    const id = label.replace(/\s+/g, '_');
+
+    if (state.tyrePool.some((t) => t.id.toLowerCase() === id.toLowerCase())) {
+      showToast(`Tyre "${label}" is already in stock`);
+      return;
+    }
+
+    const rawDate = (($('newTyreDate') && $('newTyreDate').value) || '').trim();
+    const purchaseDate = /^\d{4}-\d{2}-\d{2}$/.test(rawDate) ? rawDate : getLocalTodayIso();
+    const treadMm = Number(Math.max(0.0, readNum('newTyreTread', 7.5)).toFixed(1));
+    const durometer = Math.max(40, Math.min(95, Math.round(readNum('newTyreHardness', 62))));
+    const baseLaps = Math.max(0, Math.round(readNum('newTyreBaseLaps', 0)));
+
+    const newTyre = {
+      id,
+      code: label,
+      label,
+      stamp: `Kenda KR15 (${label})`,
+      purchaseDate,
+      treadMm,
+      durometer,
+      baseLaps,
+      totalLaps: baseLaps,
+      retired: false
+    };
+    state.tyrePool.push(newTyre);
+
+    // If any corner is currently UNASSIGNED, automatically mount this new tyre there
+    if (state.chassis && state.chassis.mountedTyres) {
+      const unassignedCorner = ['FL', 'FR', 'RL', 'RR'].find((c) => state.chassis.mountedTyres[c] === 'UNASSIGNED');
+      if (unassignedCorner) {
+        state.chassis.mountedTyres[unassignedCorner] = newTyre.id;
+      }
+    }
+
+    if ($('newTyreLabel')) $('newTyreLabel').value = '';
+    if ($('newTyreDate')) $('newTyreDate').value = getLocalTodayIso();
+    if ($('newTyreTread')) $('newTyreTread').value = '7.5';
+    if ($('newTyreHardness')) $('newTyreHardness').value = '62';
+    if ($('newTyreBaseLaps')) $('newTyreBaseLaps').value = '0';
+
+    const panel = $('addTyreInlinePanel');
+    const toggleBtn = $('btnToggleAddTyreForm');
+    if (panel) panel.style.display = 'none';
+    if (toggleBtn) {
+      toggleBtn.setAttribute('aria-expanded', 'false');
+      toggleBtn.textContent = '+ Add New Tyre';
+    }
+
+    saveState();
+    renderMountedTyreSelectors();
+    renderTyreStockList();
+    renderTyrePoolModal();
+    recalcTyres();
+    showToast(`Added ${label} (${treadMm.toFixed(1)}mm • ${durometer}A) to Tyre Stock`);
+  }
+
+  function deleteTyreFromStock(tyreId) {
+    const tyre = getTyreById(tyreId);
+    if (!tyre) return;
+
+    if (ui.confirmDeleteTyreId !== tyreId) {
+      ui.confirmDeleteTyreId = tyreId;
+      renderTyreStockList();
+      showToast(`Tap "Tap Confirm Delete" within 3.5s to remove ${tyre.label || tyre.id}`);
+      setTimeout(() => {
+        if (ui.confirmDeleteTyreId === tyreId) {
+          ui.confirmDeleteTyreId = null;
+          renderTyreStockList();
+        }
+      }, 3500);
+      return;
+    }
+
+    ui.confirmDeleteTyreId = null;
+    const removedLabel = tyre.label || tyre.code || tyre.id;
+    state.tyrePool = (state.tyrePool || []).filter((t) => t.id !== tyreId);
+
+    // If that tyre was mounted on FL, FR, RL, or RR, automatically assign the first available spare (or UNASSIGNED)
+    if (state.chassis && state.chassis.mountedTyres) {
+      const mt = state.chassis.mountedTyres;
+      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+        if (mt[c] === tyreId) {
+          const currentlyMounted = new Set(
+            ['FL', 'FR', 'RL', 'RR']
+              .filter((k) => k !== c)
+              .map((k) => mt[k])
+              .filter((id) => id && id !== tyreId && id !== 'UNASSIGNED')
+          );
+          const spare =
+            state.tyrePool.find((t) => !t.retired && !currentlyMounted.has(t.id)) ||
+            state.tyrePool.find((t) => !currentlyMounted.has(t.id));
+          mt[c] = spare ? spare.id : 'UNASSIGNED';
+        }
+      });
+    }
+
+    saveState();
+    renderMountedTyreSelectors();
+    renderTyreStockList();
+    renderTyrePoolModal();
+    recalcTyres();
+    showToast(`Deleted ${removedLabel} from Tyre Stock`);
+  }
+
+  function exportTyreStockCsv() {
+    const mounted = ensureMountedTyresState();
+    const pool = state.tyrePool || [];
+    const headers = [
+      'tyre_id',
+      'label',
+      'mounted_position',
+      'purchase_date',
+      'tread_mm',
+      'tread_status',
+      'durometer_shore_a',
+      'base_laps',
+      'logged_session_laps',
+      'total_laps'
+    ];
+    const rows = pool.map((t) => {
+      const totalLaps = getTyreCumulativeLaps(t.id);
+      const baseLaps = Number(t.baseLaps) || 0;
+      const sessLaps = Math.max(0, totalLaps - baseLaps);
+      const mountedCorner = Object.entries(mounted).find(([, tid]) => tid === t.id);
+      const pos = mountedCorner ? mountedCorner[0] : 'SPARE_RACK';
+      const treadMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : 7.5;
+      const status = treadMm < 1.5 ? 'ILLEGAL_<1.5MM' : treadMm <= 2.0 ? 'LOW_TREAD' : 'LEGAL_OK';
+      const duro = Number.isFinite(Number(t.durometer)) ? Math.round(Number(t.durometer)) : 62;
+      return [
+        t.id,
+        `"${String(t.label || t.code || t.id).replace(/"/g, '""')}"`,
+        pos,
+        t.purchaseDate || getLocalTodayIso(),
+        treadMm.toFixed(1),
+        status,
+        duro,
+        baseLaps,
+        sessLaps,
+        totalLaps
+      ].join(',');
+    });
+    const csv = [headers.join(','), ...rows].join('\n');
+    triggerDownload(csv, 'snb-hq202-tyre-stock.csv', 'text/csv;charset=utf-8;');
+    showToast('Exported Tyre Stock CSV');
   }
 
   function handleCornerTyreSelectChange(corner, newTyreId) {
     const mounted = ensureMountedTyresState();
     const prevTyreOnCorner = mounted[corner];
     if (!newTyreId || newTyreId === prevTyreOnCorner) return;
+
+    if (newTyreId === 'UNASSIGNED') {
+      mounted[corner] = 'UNASSIGNED';
+      saveState();
+      renderMountedTyreSelectors();
+      renderTyreStockList();
+      recalcTyres();
+      showToast(`Set ${corner} to UNASSIGNED`);
+      return;
+    }
 
     const otherCornerEntry = Object.entries(mounted).find(([cKey, tId]) => cKey !== corner && tId === newTyreId);
     if (otherCornerEntry) {
@@ -2253,12 +2720,14 @@
       mounted[corner] = newTyreId;
       saveState();
       renderMountedTyreSelectors();
+      renderTyreStockList();
       recalcTyres();
       showToast(`Swapped ${newTyreId} (${corner}) ↔ ${prevTyreOnCorner} (${otherCorner})`);
     } else {
       mounted[corner] = newTyreId;
       saveState();
       renderMountedTyreSelectors();
+      renderTyreStockList();
       recalcTyres();
       showToast(`Mounted ${newTyreId} on ${corner}`);
     }
@@ -2276,6 +2745,7 @@
     mounted.RR = rl;
     saveState();
     renderMountedTyreSelectors();
+    renderTyreStockList();
     recalcTyres();
     showToast(`Swapped Left ↔ Right: FL ${mounted.FL} | FR ${mounted.FR} • RL ${mounted.RL} | RR ${mounted.RR}`);
   }
@@ -2292,6 +2762,7 @@
     mounted.RR = fr;
     saveState();
     renderMountedTyreSelectors();
+    renderTyreStockList();
     recalcTyres();
     showToast(`Swapped Front ↕ Rear: FL ${mounted.FL} | FR ${mounted.FR} • RL ${mounted.RL} | RR ${mounted.RR}`);
   }
@@ -2308,6 +2779,7 @@
     mounted.RL = fr;
     saveState();
     renderMountedTyreSelectors();
+    renderTyreStockList();
     renderTyrePoolModal();
     recalcTyres();
     showToast(`Cross-Rotated X: FL ${mounted.FL} | FR ${mounted.FR} • RL ${mounted.RL} | RR ${mounted.RR}`);
@@ -2325,6 +2797,7 @@
     mounted.FL = rl;
     saveState();
     renderMountedTyreSelectors();
+    renderTyreStockList();
     renderTyrePoolModal();
     recalcTyres();
     showToast(`Rotated Clockwise: FL ${mounted.FL} → FR ${mounted.FR} → RR ${mounted.RR} → RL ${mounted.RL}`);
@@ -2352,17 +2825,18 @@
           : t.retired
           ? `<span class="afr-status-badge estimated">RETIRED</span>`
           : `<span class="afr-status-badge verified">SPARE IN POOL</span>`;
-        const treadMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : 4.8;
-        const treadWarn = treadMm <= 1.8;
+        const treadMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : 7.5;
+        const duro = Number.isFinite(Number(t.durometer)) ? Math.round(Number(t.durometer)) : 62;
+        const treadWarn = treadMm <= 2.0;
 
         return `
           <div class="tyre-pool-item ${t.retired ? 'is-retired' : ''}">
             <div class="tyre-pool-head">
               <div>
-                <div class="tyre-pool-title">${escapeHtml(t.code)} &bull; <span class="mono txt-emerald">${totalLaps} Laps From New</span></div>
+                <div class="tyre-pool-title">${escapeHtml(t.label || t.code)} &bull; <span class="mono txt-emerald">${totalLaps} Laps From New</span></div>
                 <div class="tyre-pool-meta">
-                  ${escapeHtml(t.stamp || 'Kenda KR15 205/65R15')} &bull; Base: ${Number(t.baseLaps) || 0} + Logged: ${sessLaps} laps &bull;
-                  <span class="${treadWarn ? 'txt-amber' : 'txt-emerald'}">Tread: ${treadMm.toFixed(1)} mm${treadWarn ? ' (Near 1.5mm limit!)' : ''}</span>
+                  Purchased: ${escapeHtml(t.purchaseDate || '2026-01-01')} &bull; Base: ${Number(t.baseLaps) || 0} + Logged: ${sessLaps} laps &bull;
+                  <span class="${treadMm < 1.5 ? 'txt-danger' : treadWarn ? 'txt-amber' : 'txt-emerald'}">Tread: ${treadMm.toFixed(1)} mm</span> &bull; ${duro}A
                 </div>
               </div>
               ${cornerBadge}
@@ -2371,12 +2845,12 @@
               <div class="field-group" style="margin-bottom: 0;">
                 <label class="field-label" style="font-size: 13px;" for="poolTread_${escapeHtml(t.id)}">Tread Depth (mm)</label>
                 <div class="num-stepper">
-                  <button type="button" class="stepper-btn" data-stepper-target="poolTread_${escapeHtml(t.id)}" data-step="-0.2">&minus;</button>
+                  <button type="button" class="stepper-btn" data-stepper-target="poolTread_${escapeHtml(t.id)}" data-step="-0.1">&minus;</button>
                   <div class="num-input-wrap">
-                    <input type="number" id="poolTread_${escapeHtml(t.id)}" class="num-input" value="${treadMm.toFixed(1)}" min="0.5" max="8.0" step="0.1" data-pool-tread-id="${escapeHtml(t.id)}" />
+                    <input type="number" id="poolTread_${escapeHtml(t.id)}" class="num-input" value="${treadMm.toFixed(1)}" min="0.0" max="10.0" step="0.1" data-pool-tread-id="${escapeHtml(t.id)}" />
                     <span class="num-unit-badge">mm</span>
                   </div>
-                  <button type="button" class="stepper-btn" data-stepper-target="poolTread_${escapeHtml(t.id)}" data-step="0.2">+</button>
+                  <button type="button" class="stepper-btn" data-stepper-target="poolTread_${escapeHtml(t.id)}" data-step="0.1">+</button>
                 </div>
               </div>
               <div class="field-group" style="margin-bottom: 0;">
@@ -2392,8 +2866,8 @@
               </div>
             </div>
             <div style="display: flex; justify-content: flex-end; gap: 8px;">
-              <button type="button" class="btn ${t.retired ? 'btn-secondary' : 'btn-danger'} btn-xs" data-toggle-retire-tyre="${escapeHtml(t.id)}">
-                ${t.retired ? 'Restore Tyre to Active Pool' : 'Retire Tyre'}
+              <button type="button" class="btn btn-danger btn-xs" data-delete-tyre="${escapeHtml(t.id)}">
+                ${ui.confirmDeleteTyreId === t.id ? 'Tap Confirm Delete' : 'Delete Tyre'}
               </button>
             </div>
           </div>
@@ -2407,7 +2881,10 @@
       state.tyrePool = createDefaultTyrePool();
     }
     const rawCode = (($('inputNewTyreCode') && $('inputNewTyreCode').value) || '').trim();
-    const nextIdx = state.tyrePool.length + 1;
+    let nextIdx = state.tyrePool.length + 1;
+    while (state.tyrePool.some((t) => t.id.toLowerCase() === `k${nextIdx}`)) {
+      nextIdx++;
+    }
     const code = rawCode || `K${nextIdx}`;
     const id = code.replace(/\s+/g, '_');
 
@@ -2417,27 +2894,32 @@
     }
 
     const stamp = (($('inputNewTyreStamp') && $('inputNewTyreStamp').value) || '').trim() || `HQRA Kenda KR15 (${code})`;
-    const treadMm = Number(Math.max(0.5, readNum('inputNewTyreTreadMm', 5.5)).toFixed(1));
+    const treadMm = Number(Math.max(0.0, readNum('inputNewTyreTreadMm', 7.5)).toFixed(1));
     const baseLaps = Math.max(0, Math.round(readNum('inputNewTyreBaseLaps', 0)));
 
     state.tyrePool.push({
       id,
       code,
+      label: code,
       stamp,
+      purchaseDate: getLocalTodayIso(),
       treadMm,
+      durometer: 62,
       baseLaps,
+      totalLaps: baseLaps,
       retired: false
     });
 
     if ($('inputNewTyreCode')) $('inputNewTyreCode').value = '';
     if ($('inputNewTyreStamp')) $('inputNewTyreStamp').value = '';
-    if ($('inputNewTyreTreadMm')) $('inputNewTyreTreadMm').value = '5.5';
+    if ($('inputNewTyreTreadMm')) $('inputNewTyreTreadMm').value = '7.5';
     if ($('inputNewTyreBaseLaps')) $('inputNewTyreBaseLaps').value = '0';
 
     saveState();
     renderMountedTyreSelectors();
+    renderTyreStockList();
     renderTyrePoolModal();
-    showToast(`Added ${code} (${treadMm.toFixed(1)} mm • ${baseLaps} base laps) to Tyre Pool`);
+    showToast(`Added ${code} (${treadMm.toFixed(1)} mm • ${baseLaps} base laps) to Tyre Stock`);
   }
 
   function hydrateFuelAndTyreInputs() {
@@ -2493,6 +2975,7 @@
     });
 
     renderMountedTyreSelectors();
+    renderTyreStockList();
   }
 
   function recalcFuelAndWeight() {
@@ -2930,6 +3413,7 @@
     saveState();
     recalcFuelAndWeight();
     recalcTyres();
+    renderTyreStockList();
     renderSessionLog();
 
     const learnedFuel = getTrackLearnedFuelStats(fuelSnap.venue);
@@ -2982,6 +3466,7 @@
     }
     saveState();
     recalcTyres();
+    renderTyreStockList();
     renderSessionLog();
     showToast(`Saved Tyres & Laps (${racedLapsToSave} laps) to ${unified.sessionName} • Auto-Updated Learned Cold PSI`);
   }
@@ -3445,6 +3930,11 @@
   }
 
   function backupJsonState() {
+    if (Array.isArray(state.tyrePool)) {
+      state.tyrePool.forEach((t) => {
+        t.totalLaps = getTyreCumulativeLaps(t.id);
+      });
+    }
     const payload = JSON.stringify(
       {
         app: 'SNB Racing — HQ 202 Jetting & AFR (v0.3 Dark Edition)',
@@ -4610,6 +5100,7 @@
     }
     if (tabId === 'tab-tyres') {
       recalcTyres();
+      renderTyreStockList();
     }
     if (tabId === 'tab-dyno') {
       requestAnimationFrame(() => renderDynoCanvas());
@@ -4635,6 +5126,7 @@
     }
     recalcFuelAndWeight();
     recalcTyres();
+    renderTyreStockList();
     renderSessionLog();
     renderDynoPullList();
     if (ui.activeTab === 'tab-dyno') {
@@ -4884,6 +5376,13 @@
         return;
       }
 
+      const deleteTyreBtn = e.target.closest('[data-delete-tyre]');
+      if (deleteTyreBtn) {
+        const tid = deleteTyreBtn.getAttribute('data-delete-tyre');
+        deleteTyreFromStock(tid);
+        return;
+      }
+
       const toggleRetireTyreBtn = e.target.closest('[data-toggle-retire-tyre]');
       if (toggleRetireTyreBtn) {
         const tid = toggleRetireTyreBtn.getAttribute('data-toggle-retire-tyre');
@@ -4892,13 +5391,14 @@
           tyre.retired = !tyre.retired;
           saveState();
           renderMountedTyreSelectors();
+          renderTyreStockList();
           renderTyrePoolModal();
           showToast(`${tyre.id} marked ${tyre.retired ? 'Retired' : 'Active'}`);
         }
       }
     });
 
-    // Delegated document-level input/change listener for guaranteed live reactivity on Tab 2 (Fuel & Wt), Tab 3 (Tyres), and Tyre Pool modal
+    // Delegated document-level input/change listener for guaranteed live reactivity on Tab 2 (Fuel & Wt), Tab 3 (Tyres), and Tyre Stock Manager
     const handleLiveFuelOrTyreInput = (e) => {
       const target = e.target;
       if (!target) return;
@@ -4909,13 +5409,85 @@
         return;
       }
 
+      const stockTreadId = target.getAttribute && target.getAttribute('data-tyre-tread');
+      if (stockTreadId) {
+        const tyre = findTyreInPool(stockTreadId);
+        const val = parseFloat(target.value);
+        if (tyre && Number.isFinite(val)) {
+          tyre.treadMm = Number(Math.max(0, val).toFixed(1));
+          const st = getTreadStatusInfo(tyre.treadMm);
+          const statusEl = $(`stockTreadStatus_${stockTreadId}`);
+          if (statusEl) {
+            statusEl.textContent = st.text;
+            statusEl.className = st.hintClass;
+          }
+          const cardEl = $(`tyreStockCard_${stockTreadId}`);
+          if (cardEl) {
+            const mounted = ensureMountedTyresState();
+            const isMounted = Object.values(mounted).includes(stockTreadId);
+            cardEl.className = ['tyre-stock-card', isMounted ? 'is-mounted' : '', st.cardClass]
+              .filter(Boolean)
+              .join(' ');
+          }
+          saveState();
+          renderMountedTyreSelectors();
+          renderTyrePoolModal();
+        }
+        return;
+      }
+
+      const stockHardnessId = target.getAttribute && target.getAttribute('data-tyre-hardness');
+      if (stockHardnessId) {
+        const tyre = findTyreInPool(stockHardnessId);
+        const val = parseFloat(target.value);
+        if (tyre && Number.isFinite(val)) {
+          tyre.durometer = Math.max(40, Math.min(95, Math.round(val)));
+          const statusEl = $(`stockHardnessStatus_${stockHardnessId}`);
+          if (statusEl) {
+            statusEl.textContent = `${tyre.durometer} Shore A`;
+          }
+          saveState();
+          renderMountedTyreSelectors();
+          renderTyrePoolModal();
+        }
+        return;
+      }
+
+      const stockDateId = target.getAttribute && target.getAttribute('data-tyre-date');
+      if (stockDateId) {
+        const tyre = findTyreInPool(stockDateId);
+        if (tyre && target.value) {
+          tyre.purchaseDate = target.value;
+          saveState();
+          renderTyrePoolModal();
+        }
+        return;
+      }
+
+      const stockLabelId = target.getAttribute && target.getAttribute('data-tyre-label');
+      if (stockLabelId) {
+        const tyre = findTyreInPool(stockLabelId);
+        if (tyre) {
+          const nextLabel = target.value.trim() || tyre.id;
+          tyre.label = nextLabel;
+          tyre.code = nextLabel;
+          tyre.stamp = `Kenda KR15 (${nextLabel})`;
+          saveState();
+          renderMountedTyreSelectors();
+          renderTyrePoolModal();
+        }
+        return;
+      }
+
       const poolTreadId = target.getAttribute && target.getAttribute('data-pool-tread-id');
       if (poolTreadId) {
         const tyre = findTyreInPool(poolTreadId);
         const val = parseFloat(target.value);
         if (tyre && Number.isFinite(val)) {
-          tyre.treadDepthMm = val;
+          tyre.treadMm = Number(Math.max(0, val).toFixed(1));
           saveState();
+          renderMountedTyreSelectors();
+          renderTyreStockList();
         }
         return;
       }
@@ -4928,6 +5500,7 @@
           tyre.baseLaps = Math.max(0, Math.round(val));
           saveState();
           renderMountedTyreSelectors();
+          renderTyreStockList();
           recalcTyres();
         }
         return;
@@ -4936,7 +5509,7 @@
       if (!target.id) return;
       if (target.closest('#tab-fuel') || target.id === 'inputFuelSg') {
         recalcFuelAndWeight();
-      } else if (target.closest('#tab-tyres')) {
+      } else if (target.closest('#tab-tyres') && !target.closest('#tyreStockManagerCard')) {
         recalcTyres();
       }
     };
@@ -5073,7 +5646,7 @@
 
     $('selectCalcCarby').addEventListener('change', updateCarbySwapHint);
 
-    // Tab 2 (Fuel & Wt) and Tab 3 (Tyres) unified session save & rotation buttons
+    // Tab 2 (Fuel & Wt) and Tab 3 (Tyres) unified session save, rotation, & Tyre Stock buttons
     if ($('btnSaveFuelWeightSession')) {
       $('btnSaveFuelWeightSession').addEventListener('click', saveFuelAndWeightToSession);
     }
@@ -5106,6 +5679,26 @@
     }
     if ($('btnAddNewTyreToPool')) {
       $('btnAddNewTyreToPool').addEventListener('click', addNewTyreToPool);
+    }
+    if ($('btnToggleAddTyreForm')) {
+      $('btnToggleAddTyreForm').addEventListener('click', () => {
+        const panel = $('addTyreInlinePanel');
+        const btn = $('btnToggleAddTyreForm');
+        if (!panel || !btn) return;
+        const isHidden = panel.style.display === 'none';
+        panel.style.display = isHidden ? 'block' : 'none';
+        btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+        btn.textContent = isHidden ? '− Hide Add Tyre' : '+ Add New Tyre';
+        if (isHidden && $('newTyreDate') && !$('newTyreDate').value) {
+          $('newTyreDate').value = getLocalTodayIso();
+        }
+      });
+    }
+    if ($('btnAddTyreToStock')) {
+      $('btnAddTyreToStock').addEventListener('click', addInlineTyreToStock);
+    }
+    if ($('btnExportTyreStockCsv')) {
+      $('btnExportTyreStockCsv').addEventListener('click', exportTyreStockCsv);
     }
 
     if ($('btnTogglePostMidSweep')) {
