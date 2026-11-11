@@ -171,6 +171,12 @@
     return Number.isFinite(num) && num > 0 ? Number(num.toFixed(2)) : null;
   }
 
+  function normalizeOptionalWaterTemp(val) {
+    if (val === null || val === undefined || val === '') return null;
+    const num = Number(val);
+    return Number.isFinite(num) && num > 0 ? Math.round(num) : null;
+  }
+
   function createDefaultBaseline() {
     const todayIso = getLocalTodayIso();
     return {
@@ -190,6 +196,7 @@
       weatherOnly: false,
       timing: 33.0,
       fuelPsi: 5.0,
+      waterTempC: 84,
       linkedSessionId: 'calder_r1'
     };
   }
@@ -213,6 +220,7 @@
         fuelSg: 0.740,
         timing: 32.0,
         fuelPsi: 5.0,
+        waterTempC: 82,
         afr3500: 13.05,
         afr4000: 12.98,
         afr4500: 12.92,
@@ -237,6 +245,7 @@
         fuelSg: 0.740,
         timing: 33.0,
         fuelPsi: 5.0,
+        waterTempC: 85,
         afr3500: 13.22,
         afr4000: 13.15,
         afr4500: 13.10,
@@ -261,6 +270,7 @@
         fuelSg: 0.740,
         timing: 33.0,
         fuelPsi: 5.0,
+        waterTempC: 84,
         afr3500: 12.90,
         afr4000: 12.84,
         afr4500: 12.79,
@@ -285,6 +295,7 @@
         fuelSg: 0.740,
         timing: 33.5,
         fuelPsi: 5.0,
+        waterTempC: 86,
         afr3500: 12.86,
         afr4000: 12.80,
         afr4500: 12.75,
@@ -309,6 +320,7 @@
         fuelSg: 0.740,
         timing: 33.0,
         fuelPsi: 5.0,
+        waterTempC: 84,
         afr3500: 12.68,
         afr4000: 12.60,
         afr4500: 12.55,
@@ -333,6 +345,7 @@
         fuelSg: 0.740,
         timing: 33.0,
         fuelPsi: 5.0,
+        waterTempC: 87,
         afr3500: 12.92,
         afr4000: 12.88,
         afr4500: 12.84,
@@ -357,6 +370,7 @@
         fuelSg: 0.740,
         timing: 33.0,
         fuelPsi: 5.0,
+        waterTempC: 83,
         afr3500: 12.96,
         afr4000: 12.91,
         afr4500: 12.88,
@@ -490,7 +504,13 @@
     if (!Number.isFinite(Number(b.peakRpm))) {
       b.peakRpm = 5900;
     }
+    if (b.waterTempC === undefined) {
+      b.waterTempC = b.linkedSessionId === 'calder_r1' || b.sessionName === 'Race 1' ? 84 : null;
+    } else {
+      b.waterTempC = normalizeOptionalWaterTemp(b.waterTempC);
+    }
     candidate.baseline = b;
+    candidate.awaitingPostRaceId = candidate.awaitingPostRaceId || null;
 
     candidate.sessions = (candidate.sessions || []).map((s) => {
       const venue =
@@ -509,11 +529,13 @@
         a55 = Number(((a50 + aWot) / 2).toFixed(2));
       }
       const peakRpm = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
+      const waterTempC = normalizeOptionalWaterTemp(s.waterTempC);
       return {
         ...s,
         venue,
         sessionDateIso,
         sessionDate,
+        waterTempC,
         afr3500: a35,
         afr4000: a40,
         afr4500: a45,
@@ -558,6 +580,7 @@
     }
     return hydrateState({
       baseline: createDefaultBaseline(),
+      awaitingPostRaceId: null,
       jets: createDefaultJets(),
       carbies: createDefaultCarbies(),
       sessions: createDefaultSessions(),
@@ -576,6 +599,7 @@
     weatherOnly: Boolean(state.baseline.weatherOnly || state.baseline.wotAfr === null),
     editBaseWeatherOnly: false,
     editCarbyAnchorUntested: false,
+    postRaceTargetSessionId: null,
     selectedJetId: null,   // selected jet in Step 2
     editingSessionId: null,
     dynoScrubRpm: 5000
@@ -862,6 +886,19 @@
   /* ------------------------------------------------------------------------
      5. RENDERING: TAB 1 (CALCULATOR & LOCKED BASELINE)
      ------------------------------------------------------------------------ */
+  function getPendingPostRaceSession() {
+    if (state.awaitingPostRaceId) {
+      const found = state.sessions.find((s) => s.id === state.awaitingPostRaceId);
+      if (found) return found;
+    }
+    for (let i = state.sessions.length - 1; i >= 0; i--) {
+      if (state.sessions[i].afrStatus === 'estimated') {
+        return state.sessions[i];
+      }
+    }
+    return null;
+  }
+
   function renderLockedBaselineBar() {
     const b = state.baseline;
     const venueStr = b.venue || 'Calder Park Raceway';
@@ -915,7 +952,45 @@
 
     $('baseCarbyOnly').textContent = b.carbyId;
     $('baseTimingLabel').textContent = `${b.timing.toFixed(1)}° BTDC`;
-    $('baseFuelPsiLabel').textContent = `${b.fuelPsi.toFixed(1)} psi`;
+
+    const waterTemp = normalizeOptionalWaterTemp(b.waterTempC);
+    const fuelPsiEl = $('baseFuelPsiLabel');
+    const waterSubEl = $('baseWaterSubLabel');
+    if (waterTemp !== null) {
+      fuelPsiEl.textContent = `${b.fuelPsi.toFixed(1)} psi • ${waterTemp}°C`;
+      fuelPsiEl.className =
+        waterTemp >= 98
+          ? 'telem-val txt-danger'
+          : waterTemp >= 92
+          ? 'telem-val txt-amber'
+          : 'telem-val';
+      if (waterSubEl) {
+        waterSubEl.textContent =
+          waterTemp >= 98 ? 'WARN: Coolant ≥ 98°C!' : 'Block boss • Coolant';
+        waterSubEl.className = waterTemp >= 98 ? 'telem-sub txt-danger' : 'telem-sub';
+      }
+    } else {
+      fuelPsiEl.textContent = `${b.fuelPsi.toFixed(1)} psi • —°C`;
+      fuelPsiEl.className = 'telem-val';
+      if (waterSubEl) {
+        waterSubEl.textContent = 'Block boss • Coolant';
+        waterSubEl.className = 'telem-sub';
+      }
+    }
+
+    // Update standalone "UPDATE POST RACE SESSION" button above Step 1 / Step 2
+    const mainBtnText = $('btnOpenPostRaceMainText');
+    const subBtnText = $('btnOpenPostRaceSubText');
+    const pendingSess = getPendingPostRaceSession();
+    if (mainBtnText && subBtnText) {
+      if (pendingSess) {
+        mainBtnText.textContent = `UPDATE POST RACE SESSION — ${pendingSess.sessionName.toUpperCase()}`;
+        subBtnText.textContent = `Awaiting Track Telemetry • ${pendingSess.carbyId} (${pendingSess.jetLabel} @ ${pendingSess.rad.toFixed(1)}% RAD)`;
+      } else {
+        mainBtnText.textContent = `UPDATE POST RACE SESSION — ${b.sessionName.toUpperCase()}`;
+        subBtnText.textContent = `${venueStr} • ${b.carbyId} (${b.jetLabel}) — Log RPM, AFR, Fuel PSI & Water °C`;
+      }
+    }
   }
 
   function populateCarbySelects() {
@@ -1018,10 +1093,15 @@
     wrap.style.display = sel.value === '__CUSTOM__' ? 'block' : 'none';
   }
 
-  function syncSessionSelectFromBaseline() {
+  function syncSessionSelectFromBaseline(refSessionName) {
     const sel = $('selectSessionName');
     if (!sel) return;
-    const baseName = (state.baseline && state.baseline.sessionName) || '';
+    const pendingSess = getPendingPostRaceSession();
+    const baseName =
+      refSessionName ||
+      (pendingSess && pendingSess.sessionName) ||
+      (state.baseline && state.baseline.sessionName) ||
+      '';
     const idx = SESSION_PROGRESSION.indexOf(baseName);
     if (idx !== -1 && idx + 1 < SESSION_PROGRESSION.length) {
       sel.value = SESSION_PROGRESSION[idx + 1];
@@ -1070,8 +1150,10 @@
       weatherOnly: !hasVerified,
       timing: Number(a.timing || 33.0),
       fuelPsi: Number(a.fuelPsi || 5.0),
+      waterTempC: normalizeOptionalWaterTemp(a.waterTempC),
       linkedSessionId: null
     };
+    state.awaitingPostRaceId = null;
 
     ui.weatherOnly = !hasVerified;
 
@@ -1405,7 +1487,7 @@
     const modeNote = phys.isWeatherOnly ? 'Weather-Only 1.000× AFR' : `${ui.weatherMode.toUpperCase()} mode`;
     const notes =
       ($('inputRunNotes').value || '').trim() ||
-      `Locked pre-run at ${venue} (${sessionDate}) from ${phys.base.sessionName} (${modeNote}) — awaiting track wideband read.`;
+      `Locked pre-run at ${venue} (${sessionDate}) from ${phys.base.sessionName} (${modeNote}) — awaiting track gauge telemetry.`;
 
     const predWot = Number(
       calculatePredictedAfr(
@@ -1437,6 +1519,7 @@
       fuelSg: Number(phys.sgNew.toFixed(3)),
       timing: Number(phys.totalTiming.toFixed(1)),
       fuelPsi: state.baseline.fuelPsi,
+      waterTempC: null,
       afr3500: null,
       afr4000: null,
       afr4500: null,
@@ -1449,6 +1532,7 @@
     };
 
     state.sessions.push(newSession);
+    state.awaitingPostRaceId = newSessionId;
 
     // Update fitted jet on carby fleet record too
     const carbyObj = state.carbies.find((c) => c.id === carbyId);
@@ -1456,43 +1540,50 @@
       carbyObj.fittedJetId = chosenJet.id;
     }
 
-    // Lock as new Baseline with Predicted_AFR stored as ESTIMATED (Awaiting Track Read)
-    // so chained weather calculations into Practice 2 still work mathematically!
-    state.baseline = {
-      venue,
-      sessionDateIso,
-      sessionDate,
-      sessionName,
-      carbyId,
-      jetId: chosenJet.id,
-      jetLabel: chosenJet.label,
-      jetMm: chosenJet.mm,
-      rad: Number(phys.effectiveNewRad.toFixed(1)),
-      fuelSg: Number(phys.sgNew.toFixed(3)),
-      wotAfr: predWot,
-      peakRpm: 5900,
-      afrStatus: 'estimated',
-      weatherOnly: false,
-      timing: Number(phys.totalTiming.toFixed(1)),
-      fuelPsi: state.baseline.fuelPsi,
-      linkedSessionId: newSessionId
-    };
-    ui.weatherOnly = false;
+    // If Baseline was untested/Practice 1, update Baseline to this pre-race setup;
+    // otherwise keep Locked Baseline on the last verified post-race setup until Save Post Race Session promotes it!
+    const wasUntested =
+      state.baseline.afrStatus === 'untested' ||
+      state.baseline.wotAfr === null ||
+      state.baseline.wotAfr === undefined;
+    if (wasUntested) {
+      state.baseline = {
+        venue,
+        sessionDateIso,
+        sessionDate,
+        sessionName,
+        carbyId,
+        jetId: chosenJet.id,
+        jetLabel: chosenJet.label,
+        jetMm: chosenJet.mm,
+        rad: Number(phys.effectiveNewRad.toFixed(1)),
+        fuelSg: Number(phys.sgNew.toFixed(3)),
+        wotAfr: predWot,
+        peakRpm: 5900,
+        afrStatus: 'estimated',
+        weatherOnly: false,
+        timing: Number(phys.totalTiming.toFixed(1)),
+        fuelPsi: state.baseline.fuelPsi,
+        waterTempC: null,
+        linkedSessionId: newSessionId
+      };
+      ui.weatherOnly = false;
+    }
 
     saveState();
 
     // Sync Step 1 live RAD to the newly locked RAD & advance suggested session dropdown
-    $('inputRadPct').value = state.baseline.rad.toFixed(1);
+    $('inputRadPct').value = newSession.rad.toFixed(1);
     $('inputRunNotes').value = '';
     if ($('inputCustomSessionName')) {
       $('inputCustomSessionName').value = '';
     }
-    syncSessionSelectFromBaseline();
+    syncSessionSelectFromBaseline(sessionName);
 
     renderAll();
     setCalculatorStep(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    showToast(`Locked ${sessionName} @ ${venue} (${chosenJet.label}) — Est AFR ${predWot.toFixed(2)}`);
+    showToast(`Locked ${sessionName} (${chosenJet.label}) — Tap "Update Post Race Session" after run`);
   }
 
   /* ------------------------------------------------------------------------
@@ -1536,6 +1627,11 @@
         const venueLabel = s.venue || 'Calder Park Raceway';
         const dateLabel = s.sessionDate || formatIsoDateDisplay(s.sessionDateIso || getLocalTodayIso());
         const timePart = s.timestamp ? ` (${s.timestamp})` : '';
+        const waterTemp = normalizeOptionalWaterTemp(s.waterTempC);
+        const waterHtml =
+          waterTemp !== null
+            ? `<span class="${waterTemp >= 98 ? 'txt-danger' : waterTemp >= 92 ? 'txt-amber' : ''}">${waterTemp}&deg;C H&#8322;O</span>`
+            : `<span>&mdash;&deg;C H&#8322;O</span>`;
 
         const stages = [
           { rpm: '3500', val: normalizeOptionalAfr(s.afr3500) },
@@ -1555,7 +1651,7 @@
                 <div class="session-meta-line">
                   <strong>${escapeHtml(venueLabel)}</strong> &bull; ${escapeHtml(dateLabel)}${escapeHtml(timePart)} &bull;
                   <strong>${escapeHtml(s.jetLabel)}</strong> (${s.jetMm.toFixed(3)}mm) &bull;
-                  ${s.rad.toFixed(1)}% RAD &bull; ${s.timing.toFixed(1)}&deg; &bull; ${s.fuelPsi.toFixed(1)} psi
+                  ${s.rad.toFixed(1)}% RAD &bull; ${s.timing.toFixed(1)}&deg; &bull; ${s.fuelPsi.toFixed(1)} psi &bull; ${waterHtml}
                 </div>
               </div>
               <div style="text-align: right; flex-shrink: 0;">
@@ -1615,6 +1711,7 @@
     const peakRpmVal = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
     const dateIsoVal = s.sessionDateIso || getLocalTodayIso();
     const venueVal = s.venue || 'Calder Park Raceway';
+    const waterVal = normalizeOptionalWaterTemp(s.waterTempC);
     const optStages = [
       { key: '3500', label: '3500 RPM AFR (Optional)', val: normalizeOptionalAfr(s.afr3500) },
       { key: '4000', label: '4000 RPM AFR (Optional)', val: normalizeOptionalAfr(s.afr4000) },
@@ -1626,8 +1723,8 @@
       <div class="inline-afr-editor">
         <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
           <div class="field-group" style="margin-bottom: 0;">
-            <label class="field-label" for="inlineSessionName_${escapeHtml(s.id)}">Session Name</label>
-            <input type="text" id="inlineSessionName_${escapeHtml(s.id)}" class="text-input" value="${escapeHtml(s.sessionName)}" />
+            <label class="field-label" for="inlineName_${escapeHtml(s.id)}">Session Name</label>
+            <input type="text" id="inlineName_${escapeHtml(s.id)}" class="text-input" value="${escapeHtml(s.sessionName)}" />
           </div>
           <div class="field-group" style="margin-bottom: 0;">
             <label class="field-label" for="inlineVenue_${escapeHtml(s.id)}">Circuit / Track</label>
@@ -1635,9 +1732,9 @@
           </div>
         </div>
 
-        <div class="field-group" style="margin-bottom: 12px;">
-          <label class="field-label" for="inlineSessionDate_${escapeHtml(s.id)}">Session Date</label>
-          <input type="date" id="inlineSessionDate_${escapeHtml(s.id)}" class="text-input" value="${escapeHtml(dateIsoVal)}" />
+        <div class="field-group" style="margin-bottom: 10px;">
+          <label class="field-label" for="inlineDate_${escapeHtml(s.id)}">Session Date</label>
+          <input type="date" id="inlineDate_${escapeHtml(s.id)}" class="text-input" value="${escapeHtml(dateIsoVal)}" />
         </div>
 
         <div class="field-group" style="margin-bottom: 10px;">
@@ -1645,23 +1742,52 @@
           <div class="num-stepper">
             <button type="button" class="stepper-btn" data-stepper-target="inlinePeakRpm_${escapeHtml(s.id)}" data-step="-50" aria-label="Decrease Top WOT RPM">&minus;</button>
             <div class="num-input-wrap">
-              <input type="number" id="inlinePeakRpm_${escapeHtml(s.id)}" class="num-input" value="${peakRpmVal}" min="5000" max="6600" step="50" />
+              <input type="number" id="inlinePeakRpm_${escapeHtml(s.id)}" class="num-input" value="${peakRpmVal}" min="4500" max="6800" step="50" />
               <span class="num-unit-badge">RPM</span>
             </div>
             <button type="button" class="stepper-btn" data-stepper-target="inlinePeakRpm_${escapeHtml(s.id)}" data-step="50" aria-label="Increase Top WOT RPM">+</button>
           </div>
         </div>
 
-        <div class="field-group" style="margin-bottom: 12px;">
+        <div class="field-group" style="margin-bottom: 10px;">
           <label class="field-label" for="inlineAfr_${escapeHtml(s.id)}_Wot">Logged Peak WOT AFR</label>
           <div class="num-stepper">
             <button type="button" class="stepper-btn" data-stepper-target="inlineAfr_${escapeHtml(s.id)}_Wot" data-step="-0.05" aria-label="Decrease WOT Collector AFR">&minus;</button>
             <div class="num-input-wrap">
               <input type="number" id="inlineAfr_${escapeHtml(s.id)}_Wot" class="num-input" value="${Number(s.afrWot).toFixed(2)}" min="10.00" max="16.00" step="0.05" />
-              <span class="num-unit-badge">WOT</span>
+              <span class="num-unit-badge">AFR</span>
             </div>
             <button type="button" class="stepper-btn" data-stepper-target="inlineAfr_${escapeHtml(s.id)}_Wot" data-step="0.05" aria-label="Increase WOT Collector AFR">+</button>
           </div>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 10px;">
+          <label class="field-label" for="inlineFuelPsi_${escapeHtml(s.id)}">WOT Fuel Pressure (psi)</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="inlineFuelPsi_${escapeHtml(s.id)}" data-step="-0.1" aria-label="Decrease Session Fuel Pressure">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="inlineFuelPsi_${escapeHtml(s.id)}" class="num-input" value="${Number(s.fuelPsi ?? 5.0).toFixed(1)}" min="2.0" max="8.5" step="0.1" />
+              <span class="num-unit-badge">psi</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="inlineFuelPsi_${escapeHtml(s.id)}" data-step="0.1" aria-label="Increase Session Fuel Pressure">+</button>
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 10px;">
+          <label class="field-label" for="inlineWaterTemp_${escapeHtml(s.id)}">Peak Water Temp (&deg;C)</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="inlineWaterTemp_${escapeHtml(s.id)}" data-step="-1" aria-label="Decrease Session Water Temp">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="inlineWaterTemp_${escapeHtml(s.id)}" class="num-input" value="${waterVal !== null ? waterVal : ''}" placeholder="&mdash;" min="50" max="125" step="1" />
+              <span class="num-unit-badge">&deg;C</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="inlineWaterTemp_${escapeHtml(s.id)}" data-step="1" aria-label="Increase Session Water Temp">+</button>
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 12px;">
+          <label class="field-label" for="inlineNotes_${escapeHtml(s.id)}">Session Notes</label>
+          <input type="text" id="inlineNotes_${escapeHtml(s.id)}" class="text-input" value="${escapeHtml(s.notes || '')}" />
         </div>
 
         <div class="mid-sweep-panel" style="margin-bottom: 12px;">
@@ -1691,7 +1817,7 @@
         </div>
 
         <button type="button" class="btn btn-confirm btn-full" data-save-session-afr="${escapeHtml(s.id)}">
-          Save Session &amp; Post-Race AFRs
+          Save Session &amp; Post-Race Telemetry
         </button>
       </div>
     `;
@@ -1710,6 +1836,7 @@
       'Fuel_SG',
       'Timing_BTDC',
       'Fuel_PSI',
+      'Water_Temp_C',
       'AFR_3500',
       'AFR_4000',
       'AFR_4500',
@@ -1727,6 +1854,7 @@
       const a45 = normalizeOptionalAfr(s.afr4500);
       const a50 = normalizeOptionalAfr(s.afr5000);
       const a55 = normalizeOptionalAfr(s.afr5500);
+      const waterVal = normalizeOptionalWaterTemp(s.waterTempC);
       const peakRpmVal = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
       const dateStr = s.sessionDate || formatIsoDateDisplay(s.sessionDateIso || getLocalTodayIso());
       return [
@@ -1741,6 +1869,7 @@
         s.fuelSg.toFixed(3),
         s.timing.toFixed(1),
         s.fuelPsi.toFixed(1),
+        waterVal !== null ? String(waterVal) : '',
         a35 !== null ? a35.toFixed(2) : '',
         a40 !== null ? a40.toFixed(2) : '',
         a45 !== null ? a45.toFixed(2) : '',
@@ -2399,13 +2528,70 @@
     return Number.isFinite(n) && n > 0 ? Number(n.toFixed(2)) : null;
   }
 
+  function readOptionalWaterTemp(id) {
+    const el = $(id);
+    if (!el) return null;
+    const raw = String(el.value || '').trim();
+    if (raw === '') return null;
+    const n = parseFloat(raw);
+    return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
+  }
+
+  function syncPostRaceSkipAfrUi() {
+    const skipEl = $('modalPostSkipAfr');
+    const wrapEl = $('modalPostWotAfrStepperWrap');
+    const previewEl = $('modalPostEndCylPreview');
+    if (!skipEl || !wrapEl) return;
+    const skipped = Boolean(skipEl.checked);
+    wrapEl.classList.toggle('field-disabled-overlay', skipped);
+    if (previewEl) {
+      if (skipped) {
+        previewEl.textContent = 'AFR Unchanged / Skipped';
+        previewEl.className = 'field-hint amber';
+      } else {
+        const wot = readNum('modalPostWotAfr', 12.50);
+        previewEl.textContent = `#1/#6 Est: ${(wot + END_CYL_LEAN_OFFSET).toFixed(2)}`;
+        previewEl.className = 'field-hint emerald';
+      }
+    }
+  }
+
+  function syncPostRaceWaterHintUi() {
+    const hintEl = $('modalPostWaterHint');
+    if (!hintEl) return;
+    const wt = readOptionalWaterTemp('modalPostWaterTemp');
+    if (wt !== null && wt >= 98) {
+      hintEl.textContent = `HOT ALERT: ${wt}°C (≥ 98°C)`;
+      hintEl.className = 'field-hint danger';
+    } else {
+      hintEl.textContent = 'warn ≥ 98°C';
+      hintEl.className = 'field-hint amber';
+    }
+  }
+
   function openPostRaceAfrModal() {
     const b = state.baseline;
+    const pendingSess = getPendingPostRaceSession();
+    const linked =
+      pendingSess ||
+      state.sessions.find((s) => s.id === b.linkedSessionId) ||
+      state.sessions[state.sessions.length - 1] ||
+      null;
+
+    ui.postRaceTargetSessionId = linked ? linked.id : null;
+
+    const sessionLabelName = linked ? linked.sessionName : b.sessionName;
+    const sessionVenue = (linked && linked.venue) || b.venue || 'Calder Park Raceway';
+    const sessionCarby = (linked && linked.carbyId) || b.carbyId;
+    const sessionJet = (linked && linked.jetLabel) || b.jetLabel;
+
     const refAfr =
-      b.wotAfr !== null && b.wotAfr !== undefined && Number.isFinite(Number(b.wotAfr))
+      linked && Number.isFinite(Number(linked.afrWot))
+        ? Number(linked.afrWot)
+        : b.wotAfr !== null && b.wotAfr !== undefined && Number.isFinite(Number(b.wotAfr))
         ? Number(b.wotAfr)
         : 12.80;
-    const linked = state.sessions.find((s) => s.id === b.linkedSessionId);
+
     const peakRpm =
       linked && Number.isFinite(Number(linked.peakRpm))
         ? Math.round(Number(linked.peakRpm))
@@ -2413,12 +2599,41 @@
         ? Math.round(Number(b.peakRpm))
         : 5900;
 
-    $('postRaceModalSessionLabel').textContent = `${b.sessionName} • ${b.venue || 'Calder Park Raceway'} (${b.carbyId} • ${b.jetLabel})`;
+    const fuelPsi =
+      linked && Number.isFinite(Number(linked.fuelPsi))
+        ? Number(linked.fuelPsi)
+        : Number.isFinite(Number(b.fuelPsi))
+        ? Number(b.fuelPsi)
+        : 5.0;
+
+    const waterTemp =
+      linked && normalizeOptionalWaterTemp(linked.waterTempC) !== null
+        ? normalizeOptionalWaterTemp(linked.waterTempC)
+        : normalizeOptionalWaterTemp(b.waterTempC) !== null
+        ? normalizeOptionalWaterTemp(b.waterTempC)
+        : 85;
+
+    $('postRaceModalSessionLabel').textContent = `${sessionLabelName} • ${sessionVenue} (${sessionCarby} • ${sessionJet})`;
     if ($('modalPostPeakRpm')) {
       $('modalPostPeakRpm').value = String(peakRpm);
     }
     $('modalPostWotAfr').value = refAfr.toFixed(2);
-    $('modalPostEndCylPreview').textContent = `#1/#6 Est: ${(refAfr + END_CYL_LEAN_OFFSET).toFixed(2)}`;
+    if ($('modalPostSkipAfr')) {
+      $('modalPostSkipAfr').checked = false;
+    }
+    syncPostRaceSkipAfrUi();
+
+    if ($('modalPostFuelPsi')) {
+      $('modalPostFuelPsi').value = fuelPsi.toFixed(1);
+    }
+    if ($('modalPostWaterTemp')) {
+      $('modalPostWaterTemp').value = String(waterTemp);
+    }
+    syncPostRaceWaterHintUi();
+
+    if ($('modalPostNotes')) {
+      $('modalPostNotes').value = linked && linked.notes ? linked.notes : '';
+    }
 
     const fmtOpt = (val) => {
       const norm = normalizeOptionalAfr(val);
@@ -2451,35 +2666,88 @@
   }
 
   function savePostRaceAfrModal() {
+    const linked =
+      (ui.postRaceTargetSessionId && state.sessions.find((s) => s.id === ui.postRaceTargetSessionId)) ||
+      getPendingPostRaceSession() ||
+      state.sessions.find((s) => s.id === state.baseline.linkedSessionId) ||
+      null;
+
     const fallbackAfr =
-      state.baseline.wotAfr !== null && Number.isFinite(Number(state.baseline.wotAfr))
+      linked && Number.isFinite(Number(linked.afrWot))
+        ? Number(linked.afrWot)
+        : state.baseline.wotAfr !== null && Number.isFinite(Number(state.baseline.wotAfr))
         ? Number(state.baseline.wotAfr)
         : 12.80;
+
+    const skipAfr = Boolean($('modalPostSkipAfr') && $('modalPostSkipAfr').checked);
     const peakRpm = Math.round(readNum('modalPostPeakRpm', 5900));
-    const wot = readNum('modalPostWotAfr', fallbackAfr);
+    const wot = skipAfr ? fallbackAfr : Number(readNum('modalPostWotAfr', fallbackAfr).toFixed(2));
+    const fuelPsi = Number(readNum('modalPostFuelPsi', state.baseline.fuelPsi || 5.0).toFixed(1));
+    const waterTempC = readOptionalWaterTemp('modalPostWaterTemp');
+    const notesVal = ($('modalPostNotes') && $('modalPostNotes').value.trim()) || '';
+
     const a35 = readOptionalAfr('modalPost3500');
     const a40 = readOptionalAfr('modalPost4000');
     const a45 = readOptionalAfr('modalPost4500');
     const a50 = readOptionalAfr('modalPost5000');
     const a55 = readOptionalAfr('modalPost5500');
 
-    state.baseline.wotAfr = Number(wot.toFixed(2));
-    state.baseline.peakRpm = peakRpm;
-    state.baseline.afrStatus = 'verified';
-    state.baseline.weatherOnly = false;
-    ui.weatherOnly = false;
-
-    const linked = state.sessions.find((s) => s.id === state.baseline.linkedSessionId);
     if (linked) {
       linked.afr3500 = a35;
       linked.afr4000 = a40;
       linked.afr4500 = a45;
       linked.afr5000 = a50;
       linked.afr5500 = a55;
-      linked.afrWot = Number(wot.toFixed(2));
+      if (!skipAfr) {
+        linked.afrWot = wot;
+        linked.afrStatus = 'verified';
+      } else if (!linked.afrStatus || linked.afrStatus === 'estimated') {
+        linked.afrStatus = 'verified';
+      }
       linked.peakRpm = peakRpm;
-      linked.afrStatus = 'verified';
+      linked.fuelPsi = fuelPsi;
+      linked.waterTempC = waterTempC;
+      if (notesVal) {
+        linked.notes = notesVal;
+      }
+
+      // Promote this verified post-race session into Locked Baseline
+      const iso = linked.sessionDateIso || state.baseline.sessionDateIso || getLocalTodayIso();
+      state.baseline = {
+        venue: linked.venue || state.baseline.venue || 'Calder Park Raceway',
+        sessionDateIso: iso,
+        sessionDate: linked.sessionDate || formatIsoDateDisplay(iso),
+        sessionName: linked.sessionName,
+        carbyId: linked.carbyId,
+        jetId: linked.jetId,
+        jetLabel: linked.jetLabel,
+        jetMm: linked.jetMm,
+        rad: linked.rad,
+        fuelSg: linked.fuelSg,
+        wotAfr: skipAfr && state.baseline.afrStatus === 'untested' ? null : linked.afrWot,
+        peakRpm: linked.peakRpm,
+        afrStatus: skipAfr && state.baseline.afrStatus === 'untested' ? 'untested' : 'verified',
+        weatherOnly: Boolean(skipAfr && state.baseline.afrStatus === 'untested'),
+        timing: linked.timing,
+        fuelPsi: linked.fuelPsi,
+        waterTempC: linked.waterTempC,
+        linkedSessionId: linked.id
+      };
+      ui.weatherOnly = state.baseline.weatherOnly;
+    } else {
+      if (!skipAfr) {
+        state.baseline.wotAfr = wot;
+        state.baseline.afrStatus = 'verified';
+        state.baseline.weatherOnly = false;
+        ui.weatherOnly = false;
+      }
+      state.baseline.peakRpm = peakRpm;
+      state.baseline.fuelPsi = fuelPsi;
+      state.baseline.waterTempC = waterTempC;
     }
+
+    state.awaitingPostRaceId = null;
+    ui.postRaceTargetSessionId = null;
 
     // Update the matching carby's saved baseline anchor with the newly verified track reading
     const carby = state.carbies.find((c) => c.id === state.baseline.carbyId);
@@ -2489,14 +2757,29 @@
       carby.baselineAnchor.jetMm = state.baseline.jetMm;
       carby.baselineAnchor.rad = state.baseline.rad;
       carby.baselineAnchor.fuelSg = state.baseline.fuelSg;
-      carby.baselineAnchor.verifiedAfr = state.baseline.wotAfr;
+      if (!skipAfr && state.baseline.wotAfr !== null) {
+        carby.baselineAnchor.verifiedAfr = state.baseline.wotAfr;
+      }
+      carby.baselineAnchor.fuelPsi = state.baseline.fuelPsi;
+      carby.baselineAnchor.waterTempC = state.baseline.waterTempC;
       carby.baselineAnchor.sourceLabel = state.baseline.sessionName;
+    }
+
+    if ($('selectCalcCarby')) {
+      $('selectCalcCarby').value = state.baseline.carbyId;
+    }
+    if ($('inputRadPct')) {
+      $('inputRadPct').value = state.baseline.rad.toFixed(1);
     }
 
     saveState();
     closeModal('modalPostRaceAfr');
+    syncSessionSelectFromBaseline(state.baseline.sessionName);
     renderAll();
-    showToast(`Verified Post-Race WOT AFR (${wot.toFixed(2)} @ ${peakRpm} RPM) on Track`);
+    const waterMsg = waterTempC !== null ? ` • ${waterTempC}°C` : '';
+    showToast(
+      `Saved ${state.baseline.sessionName}: ${wot.toFixed(2)} AFR @ ${peakRpm} RPM • ${fuelPsi.toFixed(1)} psi${waterMsg}`
+    );
   }
 
   function syncEditBaselineModalWeatherOnlyUi() {
@@ -2557,6 +2840,10 @@
 
     $('editBaseTiming').value = b.timing.toFixed(1);
     $('editBaseFuelPsi').value = b.fuelPsi.toFixed(1);
+    if ($('editBaseWaterTemp')) {
+      const wt = normalizeOptionalWaterTemp(b.waterTempC);
+      $('editBaseWaterTemp').value = wt !== null ? String(wt) : '';
+    }
 
     openModal('modalEditBaseline');
   }
@@ -2579,6 +2866,7 @@
       ($('editBaseDate') && $('editBaseDate').value.trim()) ||
       state.baseline.sessionDateIso ||
       getLocalTodayIso();
+    const waterTempC = readOptionalWaterTemp('editBaseWaterTemp');
 
     state.baseline = {
       sessionName: ($('editBaseSession').value || '').trim() || 'Baseline',
@@ -2597,8 +2885,10 @@
       weatherOnly: isWo,
       timing: Number(readNum('editBaseTiming', 33.0).toFixed(1)),
       fuelPsi: Number(readNum('editBaseFuelPsi', 5.0).toFixed(1)),
+      waterTempC,
       linkedSessionId: null
     };
+    state.awaitingPostRaceId = null;
     ui.weatherOnly = isWo;
 
     if ($('selectCalcCarby')) {
@@ -2719,8 +3009,15 @@
     const stepStr = String(Math.abs(delta));
     const decimals = stepStr.includes('.') ? stepStr.split('.')[1].length : 0;
 
-    // If an optional AFR field is blank, start at 12.80 when stepping
-    const fallbackBase = min >= 10 && max <= 16.5 ? 12.80 : Number.isFinite(min) ? min : 0;
+    // If an optional AFR or Water Temp field is blank, start at a sensible default when stepping
+    const fallbackBase =
+      min >= 10 && max <= 16.5
+        ? 12.80
+        : min >= 45 && max <= 130
+        ? 85
+        : Number.isFinite(min)
+        ? min
+        : 0;
     const baseVal = Number.isFinite(current) ? current : fallbackBase;
     let next = baseVal + (Number.isFinite(current) ? delta : 0);
     if (Number.isFinite(min)) next = Math.max(min, next);
@@ -2843,6 +3140,7 @@
           const nameInput = $(`inlineName_${sid}`);
           const venueInput = $(`inlineVenue_${sid}`);
           const dateInput = $(`inlineDate_${sid}`);
+          const notesInput = $(`inlineNotes_${sid}`);
           if (nameInput && nameInput.value.trim()) {
             sess.sessionName = nameInput.value.trim();
           }
@@ -2853,6 +3151,9 @@
             sess.sessionDateIso = dateInput.value.trim();
             sess.sessionDate = formatIsoDateDisplay(sess.sessionDateIso);
           }
+          if (notesInput) {
+            sess.notes = notesInput.value.trim();
+          }
 
           sess.afr3500 = readOptionalAfr(`inlineAfr_${sid}_3500`);
           sess.afr4000 = readOptionalAfr(`inlineAfr_${sid}_4000`);
@@ -2861,7 +3162,13 @@
           sess.afr5500 = readOptionalAfr(`inlineAfr_${sid}_5500`);
           sess.afrWot = Number(readNum(`inlineAfr_${sid}_Wot`, sess.afrWot ?? 12.80).toFixed(2));
           sess.peakRpm = Math.round(readNum(`inlinePeakRpm_${sid}`, sess.peakRpm || 5900));
+          sess.fuelPsi = Number(readNum(`inlineFuelPsi_${sid}`, sess.fuelPsi ?? 5.0).toFixed(1));
+          sess.waterTempC = readOptionalWaterTemp(`inlineWaterTemp_${sid}`);
           sess.afrStatus = 'verified';
+
+          if (state.awaitingPostRaceId === sid) {
+            state.awaitingPostRaceId = null;
+          }
           if (state.baseline.linkedSessionId === sid) {
             state.baseline.sessionName = sess.sessionName;
             state.baseline.venue = sess.venue;
@@ -2869,6 +3176,8 @@
             state.baseline.sessionDate = sess.sessionDate;
             state.baseline.wotAfr = sess.afrWot;
             state.baseline.peakRpm = sess.peakRpm;
+            state.baseline.fuelPsi = sess.fuelPsi;
+            state.baseline.waterTempC = sess.waterTempC;
             state.baseline.afrStatus = 'verified';
             state.baseline.weatherOnly = false;
             ui.weatherOnly = false;
@@ -2904,14 +3213,16 @@
             weatherOnly: false,
             timing: sess.timing,
             fuelPsi: sess.fuelPsi,
+            waterTempC: normalizeOptionalWaterTemp(sess.waterTempC),
             linkedSessionId: sess.id
           };
+          state.awaitingPostRaceId = null;
           ui.weatherOnly = false;
           if ($('selectCalcCarby')) {
             $('selectCalcCarby').value = sess.carbyId;
           }
           saveState();
-          syncSessionSelectFromBaseline();
+          syncSessionSelectFromBaseline(sess.sessionName);
           renderAll();
           showToast(`Locked ${sess.sessionName} • ${state.baseline.venue} (${sess.jetLabel}) as Baseline`);
         }
@@ -3083,9 +3394,14 @@
     $('btnOpenPostRaceAfr').addEventListener('click', openPostRaceAfrModal);
     $('btnSavePostRaceAfr').addEventListener('click', savePostRaceAfrModal);
     $('modalPostWotAfr').addEventListener('input', () => {
-      const wot = readNum('modalPostWotAfr', 12.50);
-      $('modalPostEndCylPreview').textContent = `#1/#6 Est: ${(wot + END_CYL_LEAN_OFFSET).toFixed(2)}`;
+      syncPostRaceSkipAfrUi();
     });
+    if ($('modalPostSkipAfr')) {
+      $('modalPostSkipAfr').addEventListener('change', syncPostRaceSkipAfrUi);
+    }
+    if ($('modalPostWaterTemp')) {
+      $('modalPostWaterTemp').addEventListener('input', syncPostRaceWaterHintUi);
+    }
 
     $('btnOpenEditBaseline').addEventListener('click', openEditBaselineModal);
     $('btnSaveEditBaseline').addEventListener('click', saveEditBaselineModal);
@@ -3150,6 +3466,7 @@
     $('btnResetDemoData').addEventListener('click', () => {
       state = {
         baseline: createDefaultBaseline(),
+        awaitingPostRaceId: null,
         jets: createDefaultJets(),
         carbies: createDefaultCarbies(),
         sessions: createDefaultSessions(),

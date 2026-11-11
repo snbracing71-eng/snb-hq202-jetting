@@ -133,21 +133,29 @@
             <span class="telem-sub">32&ndash;34&deg; Window</span>
           </div>
           <div class="telem-cell">
-            <span class="telem-label">Fuel Pressure</span>
-            <span class="telem-val" id="baseFuelPsiLabel">5.0 psi</span>
-            <span class="telem-sub">Block pump boss</span>
+            <span class="telem-label">Fuel PSI / Water &deg;C</span>
+            <span class="telem-val" id="baseFuelPsiLabel">5.0 psi &bull; 84&deg;C</span>
+            <span class="telem-sub" id="baseWaterSubLabel">Block boss &bull; Coolant</span>
           </div>
         </div>
 
         <div class="baseline-btn-row">
-          <button type="button" class="btn btn-emerald-outline" id="btnOpenPostRaceAfr">
-            Update Post-Race AFR
-          </button>
-          <button type="button" class="btn btn-secondary" id="btnOpenEditBaseline">
+          <button type="button" class="btn btn-secondary btn-full" id="btnOpenEditBaseline">
             Edit Baseline
           </button>
         </div>
       </div>
+
+      <!-- Standalone Full-Width 3D Anodized Emerald Post-Race Session Button (Visible on Both Step 1 & Step 2) -->
+      <button
+        type="button"
+        class="btn btn-confirm btn-full btn-post-race-hero"
+        id="btnOpenPostRaceAfr"
+        style="margin-bottom: 14px;"
+      >
+        <span id="btnOpenPostRaceMainText">UPDATE POST RACE SESSION</span>
+        <span id="btnOpenPostRaceSubText" class="btn-post-race-sub">Log WOT RPM, AFR, Fuel PSI &amp; Water Temp</span>
+      </button>
 
       <!-- Step Progress Navigation -->
       <div class="calc-step-nav" role="tablist" aria-label="Jetting Calculator Steps">
@@ -864,25 +872,25 @@
   </nav>
 
   <!-- =========================================================
-       MODAL 1: UPDATE POST-RACE AFR (Quick Wideband Sync)
+       MODAL 1: UPDATE POST RACE SESSION (Post-Session Gauge Telemetry)
        ========================================================= -->
   <div class="modal-backdrop" id="modalPostRaceAfr" role="dialog" aria-modal="true" aria-labelledby="modalPostRaceTitle">
     <div class="modal-sheet">
       <div class="modal-head">
         <div>
-          <div class="section-eyebrow">Wideband O&#8322; Telemetry Sync</div>
-          <h2 class="section-title" id="modalPostRaceTitle">Update Post-Race AFR</h2>
+          <div class="section-eyebrow">Post-Session Gauge Telemetry</div>
+          <h2 class="section-title" id="modalPostRaceTitle">Update Post Race Session</h2>
         </div>
-        <button type="button" class="btn btn-danger" data-close-modal="modalPostRaceAfr" aria-label="Close Post-Race AFR Modal">
+        <button type="button" class="btn btn-danger" data-close-modal="modalPostRaceAfr" aria-label="Close Update Post Race Session Modal">
           Close
         </button>
       </div>
 
       <p style="margin: 0 0 12px; font-size: 0.85rem; color: var(--text-secondary);">
-        Enter the logged wideband AFR from <strong id="postRaceModalSessionLabel">Race 1 (1 DME)</strong>. Updates Locked Baseline and syncs matching Session Log run.
+        Log post-session gauge readings from <strong id="postRaceModalSessionLabel">Race 1 (1 DME)</strong>. Promotes verified setup to Locked Baseline &amp; updates Session Log.
       </p>
 
-      <!-- Full-Width Stacked Hero Rows so 5900 RPM and 12.50 WOT never squish or clip -->
+      <!-- 1. Top / Peak WOT RPM (Full-Width) -->
       <div class="field-group" style="margin-bottom: 12px;">
         <div class="field-label-row">
           <label class="field-label" for="modalPostPeakRpm">Top / Peak WOT RPM</label>
@@ -891,26 +899,78 @@
         <div class="num-stepper">
           <button type="button" class="stepper-btn" data-stepper-target="modalPostPeakRpm" data-step="-50" aria-label="Decrease Peak WOT RPM">&minus;</button>
           <div class="num-input-wrap">
-            <input type="number" id="modalPostPeakRpm" class="num-input" value="5900" min="5000" max="6600" step="50" />
+            <input type="number" id="modalPostPeakRpm" class="num-input" value="5900" min="4500" max="6800" step="50" />
             <span class="num-unit-badge">RPM</span>
           </div>
           <button type="button" class="stepper-btn" data-stepper-target="modalPostPeakRpm" data-step="50" aria-label="Increase Peak WOT RPM">+</button>
         </div>
       </div>
 
-      <div class="field-group" style="margin-bottom: 14px;">
+      <!-- 2. Peak WOT Collector AFR (Full-Width + Skip Toggle if AFR Gauge Not Read) -->
+      <div class="field-group" style="margin-bottom: 12px;">
         <div class="field-label-row">
-          <label class="field-label" for="modalPostWotAfr">Logged Peak WOT AFR</label>
+          <label class="field-label" for="modalPostWotAfr">Peak WOT Collector AFR</label>
           <span class="field-hint emerald" id="modalPostEndCylPreview">#1/#6 Est: 12.77</span>
         </div>
-        <div class="num-stepper">
+        <div class="num-stepper" id="modalPostWotAfrStepperWrap">
           <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="-0.05" aria-label="Decrease Post-Race WOT AFR">&minus;</button>
           <div class="num-input-wrap">
             <input type="number" id="modalPostWotAfr" class="num-input" value="12.50" min="10.50" max="15.50" step="0.05" />
-            <span class="num-unit-badge">WOT</span>
+            <span class="num-unit-badge">AFR</span>
           </div>
           <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="0.05" aria-label="Increase Post-Race WOT AFR">+</button>
         </div>
+        <label class="post-afr-skip-row" for="modalPostSkipAfr">
+          <input type="checkbox" id="modalPostSkipAfr" />
+          <span>AFR gauge not read (log RPM, Fuel PSI &amp; Water Temp without overwriting AFR)</span>
+        </label>
+      </div>
+
+      <!-- 3. WOT Fuel Pressure (Full-Width) -->
+      <div class="field-group" style="margin-bottom: 12px;">
+        <div class="field-label-row">
+          <label class="field-label" for="modalPostFuelPsi">WOT Fuel Pressure</label>
+          <span class="field-hint emerald" id="modalPostFuelPsiHint">4.0&ndash;5.5 psi target</span>
+        </div>
+        <div class="num-stepper">
+          <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelPsi" data-step="-0.1" aria-label="Decrease Post-Race Fuel Pressure">&minus;</button>
+          <div class="num-input-wrap">
+            <input type="number" id="modalPostFuelPsi" class="num-input" value="5.0" min="2.0" max="8.5" step="0.1" />
+            <span class="num-unit-badge">psi</span>
+          </div>
+          <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelPsi" data-step="0.1" aria-label="Increase Post-Race Fuel Pressure">+</button>
+        </div>
+      </div>
+
+      <!-- 4. Peak Water Temp (Full-Width) -->
+      <div class="field-group" style="margin-bottom: 12px;">
+        <div class="field-label-row">
+          <label class="field-label" for="modalPostWaterTemp">Peak Water Temp</label>
+          <span class="field-hint amber" id="modalPostWaterHint">warn &ge; 98&deg;C</span>
+        </div>
+        <div class="num-stepper">
+          <button type="button" class="stepper-btn" data-stepper-target="modalPostWaterTemp" data-step="-1" aria-label="Decrease Peak Water Temp">&minus;</button>
+          <div class="num-input-wrap">
+            <input type="number" id="modalPostWaterTemp" class="num-input" value="85" min="50" max="125" step="1" />
+            <span class="num-unit-badge">&deg;C</span>
+          </div>
+          <button type="button" class="stepper-btn" data-stepper-target="modalPostWaterTemp" data-step="1" aria-label="Increase Peak Water Temp">+</button>
+        </div>
+      </div>
+
+      <!-- 5. Post-Session Notes -->
+      <div class="field-group" style="margin-bottom: 14px;">
+        <div class="field-label-row">
+          <label class="field-label" for="modalPostNotes">Post-Session Notes</label>
+          <span class="field-hint">Track &amp; Gauge Notes</span>
+        </div>
+        <input
+          type="text"
+          id="modalPostNotes"
+          class="text-input"
+          placeholder="e.g. Steady 5.0 psi at 5900, water crept to 92°C in traffic"
+          autocomplete="off"
+        />
       </div>
 
       <!-- Collapsible 3D Metal Toggle Bar for Optional Mid-Range RPM Sweep (3500-5500 RPM) -->
@@ -996,7 +1056,7 @@
       </div>
 
       <button type="button" class="btn btn-confirm btn-full" id="btnSavePostRaceAfr">
-        Save Post-Race Wideband AFR
+        SAVE POST RACE SESSION
       </button>
     </div>
   </div>
@@ -1134,15 +1194,29 @@
         </div>
       </div>
 
-      <div class="field-group" style="margin-bottom: 14px;">
-        <label class="field-label" for="editBaseFuelPsi">Fuel Pressure (at Block Pump Boss)</label>
-        <div class="num-stepper">
-          <button type="button" class="stepper-btn" data-stepper-target="editBaseFuelPsi" data-step="-0.1" aria-label="Decrease Fuel Pressure">&minus;</button>
-          <div class="num-input-wrap">
-            <input type="number" id="editBaseFuelPsi" class="num-input" value="5.0" min="2.5" max="8.5" step="0.1" />
-            <span class="num-unit-badge">psi</span>
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 14px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editBaseFuelPsi">Fuel Pressure (Pump Boss)</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="editBaseFuelPsi" data-step="-0.1" aria-label="Decrease Fuel Pressure">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="editBaseFuelPsi" class="num-input" value="5.0" min="2.0" max="8.5" step="0.1" />
+              <span class="num-unit-badge">psi</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="editBaseFuelPsi" data-step="0.1" aria-label="Increase Fuel Pressure">+</button>
           </div>
-          <button type="button" class="stepper-btn" data-stepper-target="editBaseFuelPsi" data-step="0.1" aria-label="Increase Fuel Pressure">+</button>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editBaseWaterTemp">Peak Water Temp (&deg;C)</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="editBaseWaterTemp" data-step="-1" aria-label="Decrease Baseline Water Temp">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="editBaseWaterTemp" class="num-input" value="84" placeholder="&mdash;" min="50" max="125" step="1" />
+              <span class="num-unit-badge">&deg;C</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="editBaseWaterTemp" data-step="1" aria-label="Increase Baseline Water Temp">+</button>
+          </div>
         </div>
       </div>
 
