@@ -68,7 +68,18 @@
         spillMm: 15.0,
         gasketStack: 'HQRA heat shield between 2x std 40mm gaskets',
         fittedJetId: 'drill_2000',
-        notes: 'Primary race unit — crisp booster signal, Race 1 baseline carby.'
+        baselineAnchor: {
+          sourceLabel: 'Calder Race 1',
+          jetId: 'drill_2000',
+          jetLabel: 'Jet #77 / 2.000 mm',
+          jetMm: 2.000,
+          rad: 94.3,
+          fuelSg: 0.740,
+          verifiedAfr: 12.50,
+          timing: 33.0,
+          fuelPsi: 5.0
+        },
+        notes: 'Primary race unit — crisp booster signal, Calder Race 1 verified baseline.'
       },
       {
         id: '2 DME',
@@ -79,8 +90,19 @@
         exitMm: 39.95,
         spillMm: 15.0,
         gasketStack: 'HQRA heat shield between 2x std 40mm gaskets',
-        fittedJetId: 'm1_76',
-        notes: 'Spare / hot-track & high-humidity backup unit, flow-checked.'
+        fittedJetId: 'm1_74',
+        baselineAnchor: {
+          sourceLabel: 'Untested / DME Build Sheet',
+          jetId: 'm1_74',
+          jetLabel: '#74 DME Spec / 1.880 mm',
+          jetMm: 1.880,
+          rad: 100.0,
+          fuelSg: 0.740,
+          verifiedAfr: null,
+          timing: 33.0,
+          fuelPsi: 5.0
+        },
+        notes: 'Untested DME build-sheet unit — #74 (1.880 mm) @ 100.0% RAD, Weather-Only until run.'
       },
       {
         id: 'SNB Carby',
@@ -91,8 +113,19 @@
         exitMm: 40.00,
         spillMm: 15.0,
         gasketStack: 'HQRA heat shield between 2x std 40mm gaskets',
-        fittedJetId: 'm1_78',
-        notes: 'Fast-track development BXUV-3 — 15.0 mm spill height, max legal exit.'
+        fittedJetId: 'm1_70',
+        baselineAnchor: {
+          sourceLabel: 'Calder P2',
+          jetId: 'm1_70',
+          jetLabel: '#70 / 1.788 mm',
+          jetMm: 1.788,
+          rad: 96.0,
+          fuelSg: 0.740,
+          verifiedAfr: 11.90,
+          timing: 33.0,
+          fuelPsi: 5.0
+        },
+        notes: 'Development 40mm BXUV-3 — 15.0 mm spill, #70 (1.788 mm) verified 11.90 AFR at Calder P2.'
       }
     ];
   }
@@ -107,6 +140,8 @@
       rad: 94.3,
       fuelSg: 0.740,
       wotAfr: 12.50,
+      afrStatus: 'verified', // 'verified' | 'estimated' | 'untested'
+      weatherOnly: false,
       timing: 33.0,
       fuelPsi: 5.0,
       linkedSessionId: 'calder_r1'
@@ -326,26 +361,71 @@
   /* ------------------------------------------------------------------------
      2. APPLICATION STATE & PERSISTENCE
      ------------------------------------------------------------------------ */
+  function hydrateState(candidate) {
+    const defaultCarbies = createDefaultCarbies();
+    candidate.jets = sortJetsByDiameter(candidate.jets || createDefaultJets());
+
+    if (!Array.isArray(candidate.carbies) || candidate.carbies.length === 0) {
+      candidate.carbies = defaultCarbies;
+    } else {
+      candidate.carbies = candidate.carbies.map((c) => {
+        const def = defaultCarbies.find((d) => d.id === c.id);
+        if (!c.baselineAnchor && def) {
+          return {
+            ...c,
+            fittedJetId: c.id === '2 DME' && c.fittedJetId === 'm1_76' ? 'm1_74' : c.fittedJetId,
+            baselineAnchor: { ...def.baselineAnchor },
+            notes: def.notes
+          };
+        }
+        return c;
+      });
+    }
+
+    const b = candidate.baseline || createDefaultBaseline();
+    const hasNumericAfr = b.wotAfr !== null && b.wotAfr !== undefined && Number.isFinite(Number(b.wotAfr));
+    if (!b.afrStatus) {
+      b.afrStatus = hasNumericAfr ? 'verified' : 'untested';
+    }
+    if (!hasNumericAfr) {
+      b.wotAfr = null;
+      b.afrStatus = 'untested';
+    }
+    if (typeof b.weatherOnly !== 'boolean') {
+      b.weatherOnly = !hasNumericAfr;
+    }
+    candidate.baseline = b;
+
+    candidate.sessions = (candidate.sessions || []).map((s) => ({
+      ...s,
+      afrStatus: s.afrStatus || 'verified'
+    }));
+
+    if (!Array.isArray(candidate.dynoPulls)) {
+      candidate.dynoPulls = createDefaultDynoPulls();
+    }
+    return candidate;
+  }
+
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed && parsed.baseline && Array.isArray(parsed.jets) && Array.isArray(parsed.sessions)) {
-          parsed.jets = sortJetsByDiameter(parsed.jets);
-          return parsed;
+          return hydrateState(parsed);
         }
       }
     } catch (err) {
       console.warn('Restoring default state due to storage parse issue:', err);
     }
-    return {
+    return hydrateState({
       baseline: createDefaultBaseline(),
       jets: createDefaultJets(),
       carbies: createDefaultCarbies(),
       sessions: createDefaultSessions(),
       dynoPulls: createDefaultDynoPulls()
-    };
+    });
   }
 
   let state = loadState();
@@ -356,6 +436,9 @@
     calcStep: 1,
     weatherMode: 'rad',    // 'rad' | 'raw'
     pressUnit: 'hPa',      // 'hPa' | 'psi'
+    weatherOnly: Boolean(state.baseline.weatherOnly || state.baseline.wotAfr === null),
+    editBaseWeatherOnly: false,
+    editCarbyAnchorUntested: false,
     selectedJetId: null,   // selected jet in Step 2
     editingSessionId: null,
     dynoScrubRpm: 5000
@@ -424,14 +507,20 @@
 
   /**
    * Venturi Fourth-Root Orifice Equations:
-   * Ideal_Jet_mm = Base_Jet_mm * ((rho_ratio)^0.25) * sqrt(Logged_AFR / Target_AFR) * ((SG_base / SG_new)^0.25)
-   * Predicted_AFR = Logged_AFR * sqrt(rho_ratio) * ((Base_Jet_mm / Chosen_Jet_mm)^2) * sqrt(SG_base / SG_new)
+   * Standard Mode:
+   *   Ideal_Jet_mm = Base_Jet_mm * ((rho_ratio)^0.25) * sqrt(Logged_AFR / Target_AFR) * ((SG_base / SG_new)^0.25)
+   * Weather-Only / Practice 1 Mode (No Verified AFR or O2 Switch ON -> sqrt(Logged_AFR / Target_AFR) = 1.000):
+   *   Ideal_Jet_mm = Base_Jet_mm * ((rho_ratio)^0.25) * ((SG_base / SG_new)^0.25)
+   * Predicted_AFR = Base_Ref_AFR * sqrt(rho_ratio) * ((Base_Jet_mm / Chosen_Jet_mm)^2) * sqrt(SG_base / SG_new)
    */
-  function calculateIdealJetMm(baseJetMm, rhoRatio, loggedAfr, targetAfr, sgBase, sgNew) {
+  function calculateIdealJetMm(baseJetMm, rhoRatio, loggedAfr, targetAfr, sgBase, sgNew, weatherOnly = false) {
     const safeRho = Math.max(0.5, rhoRatio);
-    const safeAfrRatio = Math.max(0.5, loggedAfr / targetAfr);
     const safeSgRatio = Math.max(0.5, sgBase / sgNew);
-    return baseJetMm * Math.pow(safeRho, 0.25) * Math.sqrt(safeAfrRatio) * Math.pow(safeSgRatio, 0.25);
+    const hasLogged = loggedAfr !== null && loggedAfr !== undefined && Number.isFinite(Number(loggedAfr));
+    const afrMultiplier = weatherOnly || !hasLogged
+      ? 1.000
+      : Math.sqrt(Math.max(0.5, Number(loggedAfr) / targetAfr));
+    return baseJetMm * Math.pow(safeRho, 0.25) * afrMultiplier * Math.pow(safeSgRatio, 0.25);
   }
 
   function calculatePredictedAfr(loggedAfr, rhoRatio, baseJetMm, chosenJetMm, sgBase, sgNew) {
@@ -524,11 +613,33 @@
     return state.jets.find((j) => j.id === id) || null;
   }
 
+  function findNearestJetByMm(mmVal) {
+    const sorted = sortJetsByDiameter(state.jets);
+    let best = sorted[0] || null;
+    let bestDiff = Infinity;
+    sorted.forEach((j) => {
+      const d = Math.abs(j.mm - mmVal);
+      if (d < bestDiff) {
+        bestDiff = d;
+        best = j;
+      }
+    });
+    return best;
+  }
+
   function getActiveCalcPhysics() {
     const base = state.baseline;
     const targetAfr = readNum('inputTargetAfr', 12.85);
     const sgNew = readNum('inputFuelSg', 0.740);
     const totalTiming = readNum('inputTotalTiming', 33.0);
+
+    const hasNumericBaseAfr =
+      base.wotAfr !== null && base.wotAfr !== undefined && Number.isFinite(Number(base.wotAfr));
+    const isWeatherOnly = Boolean(!hasNumericBaseAfr || ui.weatherOnly || base.weatherOnly);
+    const effectiveBaseAfr = hasNumericBaseAfr ? Number(base.wotAfr) : targetAfr;
+    const afrMultiplier = isWeatherOnly
+      ? 1.000
+      : Math.sqrt(Math.max(0.5, Number(base.wotAfr) / targetAfr));
 
     let rhoRatio = 1.0;
     let effectiveNewRad = base.rad;
@@ -555,11 +666,12 @@
       base.wotAfr,
       targetAfr,
       base.fuelSg,
-      sgNew
+      sgNew,
+      isWeatherOnly
     );
 
     const unchangedAfr = calculatePredictedAfr(
-      base.wotAfr,
+      effectiveBaseAfr,
       rhoRatio,
       base.jetMm,
       base.jetMm,
@@ -569,6 +681,10 @@
 
     return {
       base,
+      hasNumericBaseAfr,
+      isWeatherOnly,
+      effectiveBaseAfr,
+      afrMultiplier,
       targetAfr,
       sgNew,
       totalTiming,
@@ -613,13 +729,51 @@
     const b = state.baseline;
     $('baseSessionCarbyLabel').textContent = `${b.sessionName} • ${b.carbyId}`;
     $('baseJetLabel').textContent = b.jetLabel;
-    $('baseJetSub').textContent = `${orificeAreaMm2(b.jetMm).toFixed(3)} mm² (${mmToInch(b.jetMm).toFixed(4)}")`;
+    $('baseJetSub').textContent = `${b.jetMm.toFixed(3)} mm • ${orificeAreaMm2(b.jetMm).toFixed(3)} mm² (${mmToInch(b.jetMm).toFixed(4)}")`;
     $('baseRadLabel').textContent = `${b.rad.toFixed(1)}% RAD`;
     $('baseSgLabel').textContent = `SG ${b.fuelSg.toFixed(3)} kg/L`;
-    $('baseAfrLabel').textContent = b.wotAfr.toFixed(2);
-    const endCyl = b.wotAfr + END_CYL_LEAN_OFFSET;
-    $('baseEndCylLabel').textContent = `#1/#6: ${endCyl.toFixed(2)}`;
-    $('baseEndCylLabel').className = endCyl >= 13.25 ? 'telem-sub txt-danger' : 'telem-sub';
+
+    const afrCell = $('baseAfrCell');
+    const afrTitle = $('baseAfrTitleLabel');
+    const afrValEl = $('baseAfrLabel');
+    const afrBadge = $('baseAfrStatusBadge');
+    const endCylEl = $('baseEndCylLabel');
+
+    const hasAfr = b.wotAfr !== null && b.wotAfr !== undefined && Number.isFinite(Number(b.wotAfr));
+
+    if (!hasAfr || b.afrStatus === 'untested') {
+      afrCell.className = 'telem-cell afr-estimated-cell';
+      afrTitle.textContent = 'Baseline WOT AFR';
+      afrValEl.textContent = 'Untested';
+      afrValEl.className = 'telem-val txt-amber';
+      afrBadge.textContent = 'WEATHER-ONLY (No Track AFR)';
+      afrBadge.className = 'afr-status-badge estimated';
+      endCylEl.textContent = 'Pure RAD % & SG 4th-root';
+      endCylEl.className = 'telem-sub';
+    } else if (b.afrStatus === 'estimated') {
+      const numericAfr = Number(b.wotAfr);
+      const endCyl = numericAfr + END_CYL_LEAN_OFFSET;
+      afrCell.className = 'telem-cell afr-estimated-cell';
+      afrTitle.textContent = 'Predicted WOT AFR';
+      afrValEl.textContent = numericAfr.toFixed(2);
+      afrValEl.className = 'telem-val txt-amber';
+      afrBadge.textContent = 'ESTIMATED (Awaiting Track Read)';
+      afrBadge.className = 'afr-status-badge estimated';
+      endCylEl.textContent = `#1/#6 Est: ${endCyl.toFixed(2)}`;
+      endCylEl.className = endCyl >= 13.25 ? 'telem-sub txt-danger' : 'telem-sub';
+    } else {
+      const numericAfr = Number(b.wotAfr);
+      const endCyl = numericAfr + END_CYL_LEAN_OFFSET;
+      afrCell.className = 'telem-cell afr-verified-cell';
+      afrTitle.textContent = 'Logged WOT AFR';
+      afrValEl.textContent = numericAfr.toFixed(2);
+      afrValEl.className = 'telem-val';
+      afrBadge.textContent = 'VERIFIED ON TRACK';
+      afrBadge.className = 'afr-status-badge verified';
+      endCylEl.textContent = `#1/#6: ${endCyl.toFixed(2)}`;
+      endCylEl.className = endCyl >= 13.25 ? 'telem-sub txt-danger' : 'telem-sub';
+    }
+
     $('baseCarbyOnly').textContent = b.carbyId;
     $('baseTimingLabel').textContent = `${b.timing.toFixed(1)}° BTDC`;
     $('baseFuelPsiLabel').textContent = `${b.fuelPsi.toFixed(1)} psi`;
@@ -690,16 +844,140 @@
     return sel.value || 'Race 1';
   }
 
+  function applyCarbyBaselineAnchor(carbyId) {
+    const carby = state.carbies.find((c) => c.id === carbyId);
+    if (!carby || !carby.baselineAnchor) return;
+
+    const prevBaseName = state.baseline.sessionName;
+    const a = carby.baselineAnchor;
+    const hasVerified =
+      a.verifiedAfr !== null && a.verifiedAfr !== undefined && Number.isFinite(Number(a.verifiedAfr));
+
+    state.baseline = {
+      sessionName: a.sourceLabel || `${carby.name} Anchor`,
+      carbyId: carby.id,
+      jetId: a.jetId || carby.fittedJetId,
+      jetLabel: a.jetLabel || `#Jet (${Number(a.jetMm).toFixed(3)} mm)`,
+      jetMm: Number(a.jetMm),
+      rad: Number(a.rad),
+      fuelSg: Number(a.fuelSg),
+      wotAfr: hasVerified ? Number(a.verifiedAfr) : null,
+      afrStatus: hasVerified ? 'verified' : 'untested',
+      weatherOnly: !hasVerified,
+      timing: Number(a.timing || 33.0),
+      fuelPsi: Number(a.fuelPsi || 5.0),
+      linkedSessionId: null
+    };
+
+    ui.weatherOnly = !hasVerified;
+
+    if ($('selectCalcCarby')) {
+      $('selectCalcCarby').value = carby.id;
+    }
+    if ($('inputFuelSg')) {
+      $('inputFuelSg').value = state.baseline.fuelSg.toFixed(3);
+    }
+    if ($('inputTotalTiming')) {
+      $('inputTotalTiming').value = state.baseline.timing.toFixed(1);
+    }
+
+    // If session dropdown was still sitting on default Race 2 from Race 1 seed when bolting on a spare/P1 carby, default to Practice 1
+    const sessSel = $('selectSessionName');
+    if (sessSel && sessSel.value === 'Race 2' && prevBaseName === 'Race 1' && carby.id !== '1 DME') {
+      sessSel.value = 'Practice 1';
+      updateCustomSessionVisibility();
+    }
+
+    saveState();
+    renderAll();
+    if (ui.calcStep === 2) {
+      renderStep2Calculator(true);
+    }
+    showToast(
+      `Loaded ${carby.name} anchor (${state.baseline.jetMm.toFixed(3)} mm @ ${state.baseline.rad.toFixed(1)}% RAD)`
+    );
+  }
+
   function updateCarbySwapHint() {
     const sel = $('selectCalcCarby');
     const hint = $('carbySwapHint');
+    const banner1 = $('carbySwitchBanner');
+    const banner2 = $('step2CarbyMismatchBanner');
     if (!sel || !hint) return;
+
     if (sel.value === state.baseline.carbyId) {
       hint.textContent = 'Matches Baseline';
       hint.className = 'field-hint emerald';
+      if (banner1) banner1.style.display = 'none';
+      if (banner2) banner2.style.display = 'none';
+      return;
+    }
+
+    hint.textContent = `Baseline is ${state.baseline.carbyId}`;
+    hint.className = 'field-hint amber';
+
+    const targetCarby = state.carbies.find((c) => c.id === sel.value);
+    if (!targetCarby || !targetCarby.baselineAnchor) return;
+
+    const a = targetCarby.baselineAnchor;
+    const hasVerified =
+      a.verifiedAfr !== null && a.verifiedAfr !== undefined && Number.isFinite(Number(a.verifiedAfr));
+    const afrSummary = hasVerified
+      ? `${Number(a.verifiedAfr).toFixed(2)} Verified AFR (${a.sourceLabel})`
+      : `Untested / DME Build Sheet (Weather-Only)`;
+
+    const titleText = `Switched to ${targetCarby.name} — Load ${targetCarby.name}'s saved baseline anchor?`;
+    const descText = `Active Locked Baseline is still ${state.baseline.carbyId} (${state.baseline.jetMm.toFixed(3)} mm @ ${state.baseline.rad.toFixed(1)}% RAD). Tap below to load ${targetCarby.name}: ${a.jetLabel} (${Number(a.jetMm).toFixed(3)} mm), ${Number(a.rad).toFixed(1)}% RAD, ${Number(a.fuelSg).toFixed(3)} SG • ${afrSummary}.`;
+    const btnText = `LOAD ${targetCarby.name.toUpperCase()} SAVED BASELINE ANCHOR`;
+
+    if (banner1) {
+      $('carbySwitchBannerTitle').textContent = titleText;
+      $('carbySwitchBannerDesc').textContent = descText;
+      $('btnLoadSwitchedCarbyAnchor').textContent = btnText;
+      banner1.style.display = 'block';
+    }
+    if (banner2) {
+      $('step2CarbyMismatchTitle').textContent = titleText;
+      $('step2CarbyMismatchDesc').textContent = descText;
+      $('btnStep2LoadCarbyAnchor').textContent = btnText;
+      banner2.style.display = 'block';
+    }
+  }
+
+  function renderStep1WeatherOnlySwitch(phys) {
+    const btn = $('btnToggleStep1WeatherOnly');
+    const sub = $('step1WeatherOnlySub');
+    const pill = $('step1WeatherOnlyPill');
+    const multHint = $('step1AfrMultiplierHint');
+    const tgtHint = $('targetAfrHint');
+    if (!btn || !sub || !pill) return;
+
+    btn.classList.toggle('active', phys.isWeatherOnly);
+    btn.setAttribute('aria-checked', phys.isWeatherOnly ? 'true' : 'false');
+    pill.textContent = phys.isWeatherOnly ? 'ON' : 'OFF';
+
+    if (!phys.hasNumericBaseAfr) {
+      sub.textContent = 'AUTO ON • Baseline has no track AFR (√AFR = 1.000×)';
+    } else if (phys.isWeatherOnly) {
+      sub.textContent = 'ON • Scaling purely from Kestrel RAD % & Fuel SG (1.000×)';
+    } else if (phys.base.afrStatus === 'estimated') {
+      sub.textContent = `OFF • Chaining from ${Number(phys.base.wotAfr).toFixed(2)} Estimated AFR`;
     } else {
-      hint.textContent = `Swapping from ${state.baseline.carbyId}`;
-      hint.className = 'field-hint amber';
+      sub.textContent = `OFF • Scaling from ${Number(phys.base.wotAfr).toFixed(2)} Verified AFR`;
+    }
+
+    if (multHint) {
+      multHint.textContent = phys.isWeatherOnly
+        ? '√AFR mult: 1.000× (Weather-Only)'
+        : `√AFR mult: ${phys.afrMultiplier.toFixed(3)}×`;
+      multHint.className = phys.isWeatherOnly ? 'field-hint amber' : 'field-hint emerald';
+    }
+
+    if (tgtHint) {
+      tgtHint.textContent = phys.isWeatherOnly
+        ? 'Est. AFR ref only (Jet mult = 1.000×)'
+        : '12.8–12.9 Power Window';
+      tgtHint.className = phys.isWeatherOnly ? 'field-hint amber' : 'field-hint emerald';
     }
   }
 
@@ -717,6 +995,9 @@
       const tc = readNum('inputTempC', 24.0);
       $('liveKelvinReadout').textContent = `${(tc + 273.15).toFixed(2)} K`;
     }
+
+    renderStep1WeatherOnlySwitch(phys);
+    updateCarbySwapHint();
   }
 
   function renderStep2Calculator(autoPickRecommended = false) {
@@ -726,6 +1007,8 @@
     if (autoPickRecommended || !ui.selectedJetId || !findJetById(ui.selectedJetId)) {
       ui.selectedJetId = triplet.recommended ? triplet.recommended.id : state.jets[0].id;
     }
+
+    updateCarbySwapHint();
 
     const shiftSign = phys.densityShiftPct >= 0 ? '+' : '';
     const shiftEl = $('outDensityShift');
@@ -739,7 +1022,9 @@
 
     $('outDensitySub').textContent = `${phys.base.rad.toFixed(1)}% → ${phys.effectiveNewRad.toFixed(1)}% RAD`;
     $('outIdealOrifice').textContent = `${phys.idealJetMm.toFixed(3)} mm (${phys.idealJetInch.toFixed(4)}")`;
-    $('outIdealInchArea').textContent = `${phys.idealAreaMm2.toFixed(3)} mm² flow area`;
+    $('outIdealInchArea').textContent = phys.isWeatherOnly
+      ? `${phys.idealAreaMm2.toFixed(3)} mm² • Weather-Only (1.000× AFR)`
+      : `${phys.idealAreaMm2.toFixed(3)} mm² • √AFR ${phys.afrMultiplier.toFixed(3)}×`;
 
     $('unchangedJetName').textContent = phys.base.jetLabel;
     $('unchangedPredAfr').textContent = phys.unchangedAfr.toFixed(2);
@@ -749,7 +1034,9 @@
         : phys.unchangedAfr >= 12.75 && phys.unchangedAfr <= 12.95
         ? 'jet-afr-big txt-emerald'
         : 'jet-afr-big txt-amber';
-    $('unchangedEndCylText').textContent = `#1 & #6 End-Cyl Est: ${phys.unchangedEndCyl.toFixed(2)} AFR`;
+    $('unchangedEndCylText').textContent = phys.hasNumericBaseAfr
+      ? `#1 & #6 End-Cyl Est: ${phys.unchangedEndCyl.toFixed(2)} AFR`
+      : `Weather-Only Est (#1/#6: ${phys.unchangedEndCyl.toFixed(2)} AFR)`;
 
     const activeCount = state.jets.filter((j) => j.inToolbox).length;
     $('activeToolboxCountHint').textContent = `${activeCount} active in toolbox`;
@@ -759,6 +1046,8 @@
       { role: 'Recommended Kit Jet', jet: triplet.recommended, isRec: true },
       { role: '1 Step Richer', jet: triplet.richer, isRec: false }
     ];
+
+    const afrUnitLabel = phys.hasNumericBaseAfr ? 'AFR' : 'Est AFR';
 
     const container = $('toolboxJetCardsContainer');
     container.innerHTML = slots
@@ -776,7 +1065,7 @@
         }
 
         const predAfr = calculatePredictedAfr(
-          phys.base.wotAfr,
+          phys.effectiveBaseAfr,
           phys.rhoRatio,
           phys.base.jetMm,
           slot.jet.mm,
@@ -818,7 +1107,7 @@
             </div>
             <div class="jet-card-main">
               <span class="jet-name-big">${escapeHtml(slot.jet.label)}</span>
-              <span class="jet-afr-big ${afrColorClass}">${predAfr.toFixed(2)} <small style="font-size: 15px;">AFR</small></span>
+              <span class="jet-afr-big ${afrColorClass}">${predAfr.toFixed(2)} <small style="font-size: 15px;">${afrUnitLabel}</small></span>
             </div>
             <div class="jet-card-meta">
               <span class="${prot.endCylAfr >= 13.25 ? 'txt-danger' : ''}">#1/#6 Est: ${prot.endCylAfr.toFixed(2)}</span>
@@ -834,7 +1123,7 @@
     fullSelect.innerHTML = sortJetsByDiameter(state.jets)
       .map((j) => {
         const pred = calculatePredictedAfr(
-          phys.base.wotAfr,
+          phys.effectiveBaseAfr,
           phys.rhoRatio,
           phys.base.jetMm,
           j.mm,
@@ -855,7 +1144,7 @@
     if (!chosenJet) return;
 
     const predAfr = calculatePredictedAfr(
-      phys.base.wotAfr,
+      phys.effectiveBaseAfr,
       phys.rhoRatio,
       phys.base.jetMm,
       chosenJet.mm,
@@ -864,11 +1153,13 @@
     );
     const prot = evaluateManifoldProtection(predAfr, phys.totalTiming);
 
-    $('selectedJetQuickSummary').textContent = `Selected: ${chosenJet.label} (${predAfr.toFixed(2)} AFR)`;
+    $('selectedJetQuickSummary').textContent = `Selected: ${chosenJet.label} (${predAfr.toFixed(2)} ${phys.hasNumericBaseAfr ? 'AFR' : 'Est AFR'})`;
     const banner = $('manifoldProtectionAlert');
     banner.className = `manifold-alert ${prot.level}`;
     $('manifoldAlertTitle').textContent = prot.title;
-    $('manifoldAlertBody').textContent = prot.message;
+    $('manifoldAlertBody').textContent = phys.isWeatherOnly
+      ? `[Weather-Only 1.000× AFR Mode] ${prot.message}`
+      : prot.message;
   }
 
   function setCalculatorStep(stepNum, autoPick = false) {
@@ -904,11 +1195,14 @@
 
     const sessionName = getSelectedSessionName();
     const carbyId = $('selectCalcCarby').value || state.baseline.carbyId;
-    const notes = ($('inputRunNotes').value || '').trim() || `Locked from ${phys.base.sessionName} baseline (${ui.weatherMode.toUpperCase()} mode).`;
+    const modeNote = phys.isWeatherOnly ? 'Weather-Only 1.000× AFR' : `${ui.weatherMode.toUpperCase()} mode`;
+    const notes =
+      ($('inputRunNotes').value || '').trim() ||
+      `Locked pre-run from ${phys.base.sessionName} (${modeNote}) — awaiting track wideband read.`;
 
     const predWot = Number(
       calculatePredictedAfr(
-        phys.base.wotAfr,
+        phys.effectiveBaseAfr,
         phys.rhoRatio,
         phys.base.jetMm,
         chosenJet.mm,
@@ -939,6 +1233,7 @@
       afr4500: Number((predWot + 0.04).toFixed(2)),
       afr5000: Number((predWot + 0.01).toFixed(2)),
       afrWot: predWot,
+      afrStatus: 'estimated',
       notes
     };
 
@@ -950,7 +1245,8 @@
       carbyObj.fittedJetId = chosenJet.id;
     }
 
-    // Lock as new Baseline
+    // Lock as new Baseline with Predicted_AFR stored as ESTIMATED (Awaiting Track Read)
+    // so chained weather calculations into Practice 2 still work mathematically!
     state.baseline = {
       sessionName,
       carbyId,
@@ -960,10 +1256,13 @@
       rad: Number(phys.effectiveNewRad.toFixed(1)),
       fuelSg: Number(phys.sgNew.toFixed(3)),
       wotAfr: predWot,
+      afrStatus: 'estimated',
+      weatherOnly: false,
       timing: Number(phys.totalTiming.toFixed(1)),
       fuelPsi: state.baseline.fuelPsi,
       linkedSessionId: newSessionId
     };
+    ui.weatherOnly = false;
 
     saveState();
 
@@ -978,7 +1277,7 @@
     renderAll();
     setCalculatorStep(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    showToast(`Locked ${sessionName} (${chosenJet.label}) & appended to Session Log`);
+    showToast(`Locked ${sessionName} (${chosenJet.label}) — Estimated AFR ${predWot.toFixed(2)} awaiting track read`);
   }
 
   /* ------------------------------------------------------------------------
@@ -1007,6 +1306,12 @@
         const prot = evaluateManifoldProtection(s.afrWot, s.timing);
         const endCylClass = prot.level === 'danger' ? 'txt-danger' : 'txt-emerald';
         const isEditing = ui.editingSessionId === s.id;
+        const isEstimated = s.afrStatus === 'estimated';
+        const wotValClass = isEstimated
+          ? 'txt-amber'
+          : prot.level === 'danger'
+          ? 'txt-danger'
+          : 'txt-emerald';
 
         return `
           <article class="session-card ${isBaseline ? 'is-baseline' : ''}" data-session-id="${escapeHtml(s.id)}">
@@ -1027,6 +1332,11 @@
                     ? '<span class="locked-badge">Baseline</span>'
                     : `<span class="mono ${endCylClass}" style="font-size: 0.75rem; font-weight: 800;">#1/#6: ${prot.endCylAfr.toFixed(2)}</span>`
                 }
+                <div style="margin-top: 4px;">
+                  <span class="afr-status-badge ${isEstimated ? 'estimated' : 'verified'}">
+                    ${isEstimated ? 'ESTIMATED' : 'VERIFIED'}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -1049,7 +1359,7 @@
               </div>
               <div class="afr-pill wot-pill">
                 <span class="afr-pill-rpm">WOT</span>
-                <span class="afr-pill-val ${prot.level === 'danger' ? 'txt-danger' : 'txt-emerald'}">${Number(s.afrWot).toFixed(2)}</span>
+                <span class="afr-pill-val ${wotValClass}">${Number(s.afrWot).toFixed(2)}</span>
               </div>
             </div>
 
@@ -1127,6 +1437,7 @@
       'AFR_4500',
       'AFR_5000',
       'AFR_WOT',
+      'AFR_Status',
       'EndCyl_1_6_Est',
       'Notes'
     ];
@@ -1146,6 +1457,7 @@
       Number(s.afr4500).toFixed(2),
       Number(s.afr5000).toFixed(2),
       Number(s.afrWot).toFixed(2),
+      s.afrStatus === 'estimated' ? 'ESTIMATED' : 'VERIFIED',
       (Number(s.afrWot) + END_CYL_LEAN_OFFSET).toFixed(2),
       s.notes || ''
     ]);
@@ -1182,8 +1494,8 @@
         if (!candidate.baseline || !Array.isArray(candidate.sessions) || !Array.isArray(candidate.jets)) {
           throw new Error('Invalid SNB backup schema');
         }
-        candidate.jets = sortJetsByDiameter(candidate.jets);
-        state = candidate;
+        state = hydrateState(candidate);
+        ui.weatherOnly = Boolean(state.baseline.weatherOnly || state.baseline.wotAfr === null);
         saveState();
         syncSessionSelectFromBaseline();
         renderAll();
@@ -1622,6 +1934,20 @@
         const exitLegal = c.exitMm <= 40.00;
         const allLegal = venturiLegal && exitLegal && c.studsMm === 75.0;
 
+        const a = c.baselineAnchor || {
+          jetLabel: jetText,
+          jetMm: fittedJet ? fittedJet.mm : 2.000,
+          rad: 94.3,
+          fuelSg: 0.740,
+          verifiedAfr: null,
+          sourceLabel: 'Fleet Anchor'
+        };
+        const hasVerifiedAfr =
+          a.verifiedAfr !== null && a.verifiedAfr !== undefined && Number.isFinite(Number(a.verifiedAfr));
+        const anchorAfrText = hasVerifiedAfr
+          ? `${Number(a.verifiedAfr).toFixed(2)} Verified AFR (${a.sourceLabel})`
+          : `Untested / Weather-Only (${a.sourceLabel})`;
+
         return `
           <div class="carby-card">
             <div class="session-head" style="margin-bottom: 6px;">
@@ -1646,22 +1972,27 @@
                 <span class="telem-sub">&le; 40.00 mm &bull; 15.0 spill</span>
               </div>
               <div class="telem-cell">
-                <span class="telem-label">Bench Fitted Jet</span>
-                <span class="telem-val txt-amber">${escapeHtml(jetText)}</span>
-                <span class="telem-sub">M1 Stromberg thread</span>
+                <span class="telem-label">Saved Baseline Anchor</span>
+                <span class="telem-val txt-amber">${Number(a.jetMm).toFixed(3)} mm @ ${Number(a.rad).toFixed(1)}%</span>
+                <span class="telem-sub">${escapeHtml(a.jetLabel)} &bull; SG ${Number(a.fuelSg).toFixed(3)}</span>
               </div>
               <div class="telem-cell">
-                <span class="telem-label">Insulator Stack</span>
-                <span class="telem-val">HQRA Shield</span>
-                <span class="telem-sub">2&times; std 40mm gaskets</span>
+                <span class="telem-label">Anchor WOT AFR</span>
+                <span class="telem-val ${hasVerifiedAfr ? 'txt-emerald' : 'txt-amber'}">${hasVerifiedAfr ? Number(a.verifiedAfr).toFixed(2) : 'Untested'}</span>
+                <span class="telem-sub">${escapeHtml(anchorAfrText)}</span>
               </div>
             </div>
 
-            <p style="margin: 6px 0 8px; font-size: 0.76rem; color: var(--text-secondary);">${escapeHtml(c.notes || '')}</p>
+            <p style="margin: 6px 0 10px; font-size: 0.78rem; color: var(--text-secondary);">${escapeHtml(c.notes || '')}</p>
 
-            <button type="button" class="btn btn-secondary btn-full" data-edit-carby="${escapeHtml(c.id)}">
-              Edit ${escapeHtml(c.name)} Bench Specs
-            </button>
+            <div class="form-grid-2">
+              <button type="button" class="btn btn-amber-outline" data-load-carby-anchor="${escapeHtml(c.id)}">
+                Load ${escapeHtml(c.name)} Anchor
+              </button>
+              <button type="button" class="btn btn-secondary" data-edit-carby="${escapeHtml(c.id)}">
+                Edit Bench Specs
+              </button>
+            </div>
           </div>
         `;
       })
@@ -1768,27 +2099,38 @@
 
   function openPostRaceAfrModal() {
     const b = state.baseline;
+    const refAfr =
+      b.wotAfr !== null && b.wotAfr !== undefined && Number.isFinite(Number(b.wotAfr))
+        ? Number(b.wotAfr)
+        : 12.80;
     $('postRaceModalSessionLabel').textContent = `${b.sessionName} (${b.carbyId} • ${b.jetLabel})`;
-    $('modalPostWotAfr').value = b.wotAfr.toFixed(2);
-    $('modalPostEndCylPreview').textContent = `#1/#6 Est: ${(b.wotAfr + END_CYL_LEAN_OFFSET).toFixed(2)}`;
+    $('modalPostWotAfr').value = refAfr.toFixed(2);
+    $('modalPostEndCylPreview').textContent = `#1/#6 Est: ${(refAfr + END_CYL_LEAN_OFFSET).toFixed(2)}`;
 
     const linked = state.sessions.find((s) => s.id === b.linkedSessionId);
-    $('modalPost3500').value = linked ? Number(linked.afr3500).toFixed(2) : (b.wotAfr + 0.16).toFixed(2);
-    $('modalPost4000').value = linked ? Number(linked.afr4000).toFixed(2) : (b.wotAfr + 0.10).toFixed(2);
-    $('modalPost4500').value = linked ? Number(linked.afr4500).toFixed(2) : (b.wotAfr + 0.05).toFixed(2);
-    $('modalPost5000').value = linked ? Number(linked.afr5000).toFixed(2) : (b.wotAfr + 0.02).toFixed(2);
+    $('modalPost3500').value = linked ? Number(linked.afr3500).toFixed(2) : (refAfr + 0.16).toFixed(2);
+    $('modalPost4000').value = linked ? Number(linked.afr4000).toFixed(2) : (refAfr + 0.10).toFixed(2);
+    $('modalPost4500').value = linked ? Number(linked.afr4500).toFixed(2) : (refAfr + 0.05).toFixed(2);
+    $('modalPost5000').value = linked ? Number(linked.afr5000).toFixed(2) : (refAfr + 0.02).toFixed(2);
 
     openModal('modalPostRaceAfr');
   }
 
   function savePostRaceAfrModal() {
-    const wot = readNum('modalPostWotAfr', state.baseline.wotAfr);
+    const fallbackAfr =
+      state.baseline.wotAfr !== null && Number.isFinite(Number(state.baseline.wotAfr))
+        ? Number(state.baseline.wotAfr)
+        : 12.80;
+    const wot = readNum('modalPostWotAfr', fallbackAfr);
     const a35 = readNum('modalPost3500', wot + 0.15);
     const a40 = readNum('modalPost4000', wot + 0.10);
     const a45 = readNum('modalPost4500', wot + 0.05);
     const a50 = readNum('modalPost5000', wot + 0.02);
 
     state.baseline.wotAfr = Number(wot.toFixed(2));
+    state.baseline.afrStatus = 'verified';
+    state.baseline.weatherOnly = false;
+    ui.weatherOnly = false;
 
     const linked = state.sessions.find((s) => s.id === state.baseline.linkedSessionId);
     if (linked) {
@@ -1797,12 +2139,47 @@
       linked.afr4500 = Number(a45.toFixed(2));
       linked.afr5000 = Number(a50.toFixed(2));
       linked.afrWot = Number(wot.toFixed(2));
+      linked.afrStatus = 'verified';
+    }
+
+    // Update the matching carby's saved baseline anchor with the newly verified track reading
+    const carby = state.carbies.find((c) => c.id === state.baseline.carbyId);
+    if (carby && carby.baselineAnchor) {
+      carby.baselineAnchor.jetId = state.baseline.jetId;
+      carby.baselineAnchor.jetLabel = state.baseline.jetLabel;
+      carby.baselineAnchor.jetMm = state.baseline.jetMm;
+      carby.baselineAnchor.rad = state.baseline.rad;
+      carby.baselineAnchor.fuelSg = state.baseline.fuelSg;
+      carby.baselineAnchor.verifiedAfr = state.baseline.wotAfr;
+      carby.baselineAnchor.sourceLabel = state.baseline.sessionName;
     }
 
     saveState();
     closeModal('modalPostRaceAfr');
     renderAll();
-    showToast(`Updated Baseline Post-Race WOT AFR to ${wot.toFixed(2)}`);
+    showToast(`Verified Post-Race WOT AFR (${wot.toFixed(2)}) on Track`);
+  }
+
+  function syncEditBaselineModalWeatherOnlyUi() {
+    const btn = $('btnToggleEditBaseWeatherOnly');
+    const pill = $('editBaseWeatherOnlyPill');
+    const sub = $('editBaseWeatherOnlySub');
+    const hint = $('editBaseWeatherOnlyHint');
+    const afrGroup = $('editBaseWotAfrGroup');
+    if (!btn || !pill || !sub || !afrGroup) return;
+
+    const isWo = Boolean(ui.editBaseWeatherOnly);
+    btn.classList.toggle('active', isWo);
+    btn.setAttribute('aria-checked', isWo ? 'true' : 'false');
+    pill.textContent = isWo ? 'ON (1.000×)' : 'OFF';
+    sub.textContent = isWo
+      ? 'ON • No Verified AFR — scales purely from RAD % & SG'
+      : 'OFF • Baseline has Verified Track AFR';
+    if (hint) {
+      hint.textContent = isWo ? 'Weather-Only (1.000×)' : 'Verified AFR Mode';
+      hint.className = isWo ? 'field-hint amber' : 'field-hint emerald';
+    }
+    afrGroup.classList.toggle('field-disabled-overlay', isWo);
   }
 
   function openEditBaselineModal() {
@@ -1815,10 +2192,24 @@
 
     $('editBaseSession').value = b.sessionName;
     $('editBaseCarby').value = b.carbyId;
-    jetSel.value = b.jetId;
+    if (state.jets.some((j) => j.id === b.jetId)) {
+      jetSel.value = b.jetId;
+    } else {
+      const near = findNearestJetByMm(b.jetMm);
+      if (near) jetSel.value = near.id;
+    }
+    if ($('editBaseJetMm')) {
+      $('editBaseJetMm').value = Number(b.jetMm).toFixed(3);
+    }
     $('editBaseRad').value = b.rad.toFixed(1);
     $('editBaseSg').value = b.fuelSg.toFixed(3);
-    $('editBaseWotAfr').value = b.wotAfr.toFixed(2);
+
+    const hasNumericAfr =
+      b.wotAfr !== null && b.wotAfr !== undefined && Number.isFinite(Number(b.wotAfr));
+    ui.editBaseWeatherOnly = Boolean(b.weatherOnly || !hasNumericAfr || b.afrStatus === 'untested');
+    $('editBaseWotAfr').value = hasNumericAfr ? Number(b.wotAfr).toFixed(2) : '12.50';
+    syncEditBaselineModalWeatherOnlyUi();
+
     $('editBaseTiming').value = b.timing.toFixed(1);
     $('editBaseFuelPsi').value = b.fuelPsi.toFixed(1);
 
@@ -1827,24 +2218,59 @@
 
   function saveEditBaselineModal() {
     const jet = findJetById($('editBaseJet').value) || state.jets[0];
+    const jetMm = Number(readNum('editBaseJetMm', jet.mm).toFixed(4));
+    const isCustomMm = Math.abs(jetMm - jet.mm) > 0.0015;
+    const jetLabel = isCustomMm
+      ? `${jet.label.split('/')[0].trim()} / ${jetMm.toFixed(3)} mm`
+      : jet.label;
+
+    const isWo = Boolean(ui.editBaseWeatherOnly);
+    const wotAfrVal = isWo ? null : Number(readNum('editBaseWotAfr', 12.50).toFixed(2));
+
     state.baseline = {
       sessionName: ($('editBaseSession').value || '').trim() || 'Baseline',
       carbyId: $('editBaseCarby').value || '1 DME',
       jetId: jet.id,
-      jetLabel: jet.label,
-      jetMm: jet.mm,
+      jetLabel,
+      jetMm,
       rad: Number(readNum('editBaseRad', 94.3).toFixed(1)),
       fuelSg: Number(readNum('editBaseSg', 0.740).toFixed(3)),
-      wotAfr: Number(readNum('editBaseWotAfr', 12.50).toFixed(2)),
+      wotAfr: wotAfrVal,
+      afrStatus: isWo ? 'untested' : 'verified',
+      weatherOnly: isWo,
       timing: Number(readNum('editBaseTiming', 33.0).toFixed(1)),
       fuelPsi: Number(readNum('editBaseFuelPsi', 5.0).toFixed(1)),
       linkedSessionId: null
     };
+    ui.weatherOnly = isWo;
+
+    if ($('selectCalcCarby')) {
+      $('selectCalcCarby').value = state.baseline.carbyId;
+    }
     saveState();
     closeModal('modalEditBaseline');
     syncSessionSelectFromBaseline();
     renderAll();
-    showToast(`Locked ${state.baseline.sessionName} (${jet.label}) as Baseline`);
+    showToast(
+      `Locked ${state.baseline.sessionName} (${state.baseline.jetMm.toFixed(3)} mm${isWo ? ' • Weather-Only' : ''})`
+    );
+  }
+
+  function syncEditCarbyAnchorUntestedUi() {
+    const btn = $('btnToggleCarbyAnchorUntested');
+    const pill = $('editCarbyAnchorUntestedPill');
+    const sub = $('editCarbyAnchorUntestedSub');
+    const group = $('editCarbyAnchorAfrGroup');
+    if (!btn || !pill || !sub || !group) return;
+
+    const untested = Boolean(ui.editCarbyAnchorUntested);
+    btn.classList.toggle('active', untested);
+    btn.setAttribute('aria-checked', untested ? 'true' : 'false');
+    pill.textContent = untested ? 'UNTESTED' : 'VERIFIED';
+    sub.textContent = untested
+      ? 'ON • Untested / DME Build Sheet (Weather-Only 1.000×)'
+      : 'OFF • Has Verified Track AFR';
+    group.classList.toggle('field-disabled-overlay', untested);
   }
 
   function openEditCarbyModal(carbyId) {
@@ -1863,6 +2289,24 @@
       .map((j) => `<option value="${escapeHtml(j.id)}">${escapeHtml(j.label)} (${j.mm.toFixed(3)} mm)</option>`)
       .join('');
     jetSel.value = carby.fittedJetId;
+
+    const a = carby.baselineAnchor || {
+      jetMm: 2.000,
+      rad: 94.3,
+      fuelSg: 0.740,
+      verifiedAfr: null,
+      sourceLabel: 'Fleet Anchor'
+    };
+    $('editCarbyAnchorJetMm').value = Number(a.jetMm).toFixed(3);
+    $('editCarbyAnchorRad').value = Number(a.rad).toFixed(1);
+    $('editCarbyAnchorSg').value = Number(a.fuelSg).toFixed(3);
+    $('editCarbyAnchorSource').value = a.sourceLabel || '';
+
+    const hasVerified =
+      a.verifiedAfr !== null && a.verifiedAfr !== undefined && Number.isFinite(Number(a.verifiedAfr));
+    ui.editCarbyAnchorUntested = !hasVerified;
+    $('editCarbyAnchorAfr').value = hasVerified ? Number(a.verifiedAfr).toFixed(2) : '12.50';
+    syncEditCarbyAnchorUntestedUi();
 
     openModal('modalEditCarby');
   }
@@ -1883,10 +2327,27 @@
     carby.fittedJetId = $('editCarbyJet').value;
     carby.notes = ($('editCarbyNotes').value || '').trim();
 
+    const fittedJet = findJetById(carby.fittedJetId);
+    const anchorJetMm = Number(readNum('editCarbyAnchorJetMm', fittedJet ? fittedJet.mm : 2.000).toFixed(4));
+    const nearestJet = findNearestJetByMm(anchorJetMm) || fittedJet || state.jets[0];
+    const untested = Boolean(ui.editCarbyAnchorUntested);
+
+    carby.baselineAnchor = {
+      jetId: nearestJet.id,
+      jetLabel: `${nearestJet.label.split('/')[0].trim()} / ${anchorJetMm.toFixed(3)} mm`,
+      jetMm: anchorJetMm,
+      rad: Number(readNum('editCarbyAnchorRad', 94.3).toFixed(1)),
+      fuelSg: Number(readNum('editCarbyAnchorSg', 0.740).toFixed(3)),
+      verifiedAfr: untested ? null : Number(readNum('editCarbyAnchorAfr', 12.50).toFixed(2)),
+      sourceLabel: ($('editCarbyAnchorSource').value || '').trim() || `${carby.name} Anchor`,
+      timing: carby.baselineAnchor && carby.baselineAnchor.timing ? carby.baselineAnchor.timing : 33.0,
+      fuelPsi: carby.baselineAnchor && carby.baselineAnchor.fuelPsi ? carby.baselineAnchor.fuelPsi : 5.0
+    };
+
     saveState();
     closeModal('modalEditCarby');
     renderAll();
-    showToast(`Saved ${carby.name} Group 3H specs`);
+    showToast(`Saved ${carby.name} specs & baseline anchor`);
   }
 
   /* ------------------------------------------------------------------------
@@ -2013,13 +2474,17 @@
           sess.afr4500 = Number(readNum(`inlineAfr_${sid}_4500`, sess.afr4500).toFixed(2));
           sess.afr5000 = Number(readNum(`inlineAfr_${sid}_5000`, sess.afr5000).toFixed(2));
           sess.afrWot = Number(readNum(`inlineAfr_${sid}_Wot`, sess.afrWot).toFixed(2));
+          sess.afrStatus = 'verified';
           if (state.baseline.linkedSessionId === sid) {
             state.baseline.wotAfr = sess.afrWot;
+            state.baseline.afrStatus = 'verified';
+            state.baseline.weatherOnly = false;
+            ui.weatherOnly = false;
           }
           ui.editingSessionId = null;
           saveState();
           renderAll();
-          showToast(`Saved Post-Race AFR for ${sess.sessionName}`);
+          showToast(`Verified Post-Race AFR for ${sess.sessionName}`);
         }
         return;
       }
@@ -2038,10 +2503,16 @@
             rad: sess.rad,
             fuelSg: sess.fuelSg,
             wotAfr: sess.afrWot,
+            afrStatus: sess.afrStatus || 'verified',
+            weatherOnly: false,
             timing: sess.timing,
             fuelPsi: sess.fuelPsi,
             linkedSessionId: sess.id
           };
+          ui.weatherOnly = false;
+          if ($('selectCalcCarby')) {
+            $('selectCalcCarby').value = sess.carbyId;
+          }
           saveState();
           syncSessionSelectFromBaseline();
           renderAll();
@@ -2060,6 +2531,14 @@
           renderDynoPullList();
           renderDynoCanvas();
         }
+        return;
+      }
+
+      const loadAnchorBtn = e.target.closest('[data-load-carby-anchor]');
+      if (loadAnchorBtn) {
+        const cid = loadAnchorBtn.getAttribute('data-load-carby-anchor');
+        applyCarbyBaselineAnchor(cid);
+        switchTab('tab-calc');
         return;
       }
 
@@ -2106,6 +2585,39 @@
     $('selectSessionName').addEventListener('change', updateCustomSessionVisibility);
     $('selectCalcCarby').addEventListener('change', updateCarbySwapHint);
 
+    if ($('btnLoadSwitchedCarbyAnchor')) {
+      $('btnLoadSwitchedCarbyAnchor').addEventListener('click', () => {
+        applyCarbyBaselineAnchor($('selectCalcCarby').value);
+      });
+    }
+    if ($('btnStep2LoadCarbyAnchor')) {
+      $('btnStep2LoadCarbyAnchor').addEventListener('click', () => {
+        applyCarbyBaselineAnchor($('selectCalcCarby').value);
+      });
+    }
+
+    if ($('btnToggleStep1WeatherOnly')) {
+      $('btnToggleStep1WeatherOnly').addEventListener('click', () => {
+        const hasBaseAfr =
+          state.baseline.wotAfr !== null &&
+          state.baseline.wotAfr !== undefined &&
+          Number.isFinite(Number(state.baseline.wotAfr));
+        if (!hasBaseAfr || state.baseline.afrStatus === 'untested') {
+          showToast('Baseline has no AFR reading — Weather-Only (1.000×) stays active until Post-Race AFR is saved');
+          return;
+        }
+        ui.weatherOnly = !ui.weatherOnly;
+        state.baseline.weatherOnly = ui.weatherOnly;
+        saveState();
+        renderAll();
+        showToast(
+          ui.weatherOnly
+            ? 'Weather-Only Mode ON — √(Logged/Target) = 1.000×'
+            : 'Wideband AFR Correction Active'
+        );
+      });
+    }
+
     // Station pressure unit toggle (hPa <-> psi)
     $('btnTogglePressUnit').addEventListener('click', () => {
       const curVal = readNum('inputPressure', 997.0);
@@ -2151,6 +2663,52 @@
     $('btnSaveEditBaseline').addEventListener('click', saveEditBaselineModal);
     $('btnSaveCarbySpec').addEventListener('click', saveEditCarbyModal);
 
+    if ($('btnToggleEditBaseWeatherOnly')) {
+      $('btnToggleEditBaseWeatherOnly').addEventListener('click', () => {
+        ui.editBaseWeatherOnly = !ui.editBaseWeatherOnly;
+        syncEditBaselineModalWeatherOnlyUi();
+      });
+    }
+    if ($('editBaseJet')) {
+      $('editBaseJet').addEventListener('change', () => {
+        const j = findJetById($('editBaseJet').value);
+        if (j && $('editBaseJetMm')) {
+          $('editBaseJetMm').value = j.mm.toFixed(3);
+        }
+      });
+    }
+    if ($('btnEditModalLoadAnchor')) {
+      $('btnEditModalLoadAnchor').addEventListener('click', () => {
+        const carbyId = $('editBaseCarby').value;
+        const carby = state.carbies.find((c) => c.id === carbyId);
+        if (!carby || !carby.baselineAnchor) return;
+        const a = carby.baselineAnchor;
+        $('editBaseSession').value = a.sourceLabel || `${carby.name} Anchor`;
+        if (state.jets.some((j) => j.id === a.jetId)) {
+          $('editBaseJet').value = a.jetId;
+        }
+        if ($('editBaseJetMm')) {
+          $('editBaseJetMm').value = Number(a.jetMm).toFixed(3);
+        }
+        $('editBaseRad').value = Number(a.rad).toFixed(1);
+        $('editBaseSg').value = Number(a.fuelSg).toFixed(3);
+        const hasVer =
+          a.verifiedAfr !== null && a.verifiedAfr !== undefined && Number.isFinite(Number(a.verifiedAfr));
+        ui.editBaseWeatherOnly = !hasVer;
+        if (hasVer) {
+          $('editBaseWotAfr').value = Number(a.verifiedAfr).toFixed(2);
+        }
+        syncEditBaselineModalWeatherOnlyUi();
+        showToast(`Loaded ${carby.name} anchor into editor`);
+      });
+    }
+    if ($('btnToggleCarbyAnchorUntested')) {
+      $('btnToggleCarbyAnchorUntested').addEventListener('click', () => {
+        ui.editCarbyAnchorUntested = !ui.editCarbyAnchorUntested;
+        syncEditCarbyAnchorUntestedUi();
+      });
+    }
+
     // Session Log toolbar
     $('filterLogCarby').addEventListener('change', renderSessionLog);
     $('btnExportSessionsCsv').addEventListener('click', exportSessionsCsv);
@@ -2169,6 +2727,10 @@
         sessions: createDefaultSessions(),
         dynoPulls: createDefaultDynoPulls()
       };
+      ui.weatherOnly = false;
+      if ($('selectCalcCarby')) {
+        $('selectCalcCarby').value = state.baseline.carbyId;
+      }
       saveState();
       syncSessionSelectFromBaseline();
       renderAll();

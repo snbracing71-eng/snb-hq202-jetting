@@ -350,6 +350,142 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+.telem-cell.afr-estimated-cell {
+  border-color: rgba(245, 158, 11, 0.55);
+  background: rgba(245, 158, 11, 0.07);
+}
+
+.telem-cell.afr-verified-cell {
+  border-color: rgba(16, 185, 129, 0.42);
+}
+
+.afr-status-badge {
+  display: inline-block;
+  margin-top: 5px;
+  margin-bottom: 2px;
+  padding: 3px 7px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+.afr-status-badge.verified {
+  color: var(--emerald-bright);
+  background: var(--emerald-dim);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+}
+
+.afr-status-badge.estimated {
+  color: var(--amber-bright);
+  background: var(--amber-dim);
+  border: 1px solid rgba(245, 158, 11, 0.55);
+}
+
+/* Carby-Switch Safety Prompt Banner */
+.carby-switch-banner {
+  background: rgba(245, 158, 11, 0.14);
+  border: 2px solid var(--amber);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.carby-switch-banner-title {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.28;
+  color: var(--amber-bright);
+  margin-bottom: 6px;
+}
+
+.carby-switch-banner-desc {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-label);
+}
+
+/* Weather-Only / No O2 Sensor Toggle Switch */
+.weather-only-toggle {
+  width: 100%;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  color: #FFFFFF;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.weather-only-toggle.active {
+  background: rgba(245, 158, 11, 0.14);
+  border-color: var(--amber);
+}
+
+.wo-toggle-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.wo-toggle-title {
+  font-size: 17.5px;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.25;
+}
+
+.wo-toggle-sub {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+.weather-only-toggle.active .wo-toggle-sub {
+  color: var(--amber-bright);
+}
+
+.wo-pill {
+  flex-shrink: 0;
+  min-width: 62px;
+  min-height: 38px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.weather-only-toggle.active .wo-pill {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: #090B0E;
+}
+
+.field-disabled-overlay {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
 .baseline-btn-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

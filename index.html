@@ -116,9 +116,10 @@
             <span class="telem-val" id="baseRadLabel">94.3% RAD</span>
             <span class="telem-sub" id="baseSgLabel">SG 0.740 kg/L</span>
           </div>
-          <div class="telem-cell">
-            <span class="telem-label">Logged WOT AFR</span>
+          <div class="telem-cell afr-verified-cell" id="baseAfrCell">
+            <span class="telem-label" id="baseAfrTitleLabel">Logged WOT AFR</span>
             <span class="telem-val" id="baseAfrLabel">12.50</span>
+            <span class="afr-status-badge verified" id="baseAfrStatusBadge">VERIFIED ON TRACK</span>
             <span class="telem-sub" id="baseEndCylLabel">#1/#6: 12.77</span>
           </div>
           <div class="telem-cell">
@@ -200,6 +201,17 @@
               </div>
               <select id="selectCalcCarby" class="select-input" aria-label="Select 40mm BXUV-3 Carby"></select>
             </div>
+          </div>
+
+          <!-- Carby-Switch Safety Prompt Banner (1-tap Load Saved Baseline Anchor) -->
+          <div id="carbySwitchBanner" class="carby-switch-banner" style="display: none;" role="region" aria-live="polite">
+            <div class="carby-switch-banner-title" id="carbySwitchBannerTitle">
+              Switched to 2 DME &mdash; Load 2 DME's saved baseline anchor?
+            </div>
+            <p class="carby-switch-banner-desc" id="carbySwitchBannerDesc"></p>
+            <button type="button" id="btnLoadSwitchedCarbyAnchor" class="btn btn-primary btn-full">
+              LOAD SAVED BASELINE ANCHOR
+            </button>
           </div>
 
           <div id="customSessionWrap" class="field-group" style="display: none;">
@@ -337,8 +349,28 @@
 
           <div class="field-group">
             <div class="field-label-row">
+              <span class="field-label">Practice 1 / O&#8322; Mode</span>
+              <span class="field-hint emerald" id="step1AfrMultiplierHint">AFR mult: 0.986&times;</span>
+            </div>
+            <button
+              type="button"
+              id="btnToggleStep1WeatherOnly"
+              class="weather-only-toggle"
+              role="switch"
+              aria-checked="false"
+            >
+              <span class="wo-toggle-text">
+                <span class="wo-toggle-title">Weather-Only / No O&#8322; Sensor</span>
+                <span class="wo-toggle-sub" id="step1WeatherOnlySub">OFF &bull; Scaling jet with Logged vs Target AFR</span>
+              </span>
+              <span class="wo-pill" id="step1WeatherOnlyPill">OFF</span>
+            </button>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label-row">
               <label class="field-label" for="inputTargetAfr">Target WOT Collector AFR</label>
-              <span class="field-hint emerald">12.8&ndash;12.9 Power Window</span>
+              <span class="field-hint emerald" id="targetAfrHint">12.8&ndash;12.9 Power Window</span>
             </div>
             <div class="num-stepper">
               <button type="button" class="stepper-btn" data-stepper-target="inputTargetAfr" data-step="-0.05" aria-label="Decrease Target WOT AFR">&minus;</button>
@@ -379,6 +411,14 @@
           <div class="step2-top-back-bar">
             <button type="button" id="btnBackToStep1Top" class="btn btn-back-step">
               &larr; BACK TO STEP 1
+            </button>
+          </div>
+
+          <div id="step2CarbyMismatchBanner" class="carby-switch-banner" style="display: none;" role="region" aria-live="polite">
+            <div class="carby-switch-banner-title" id="step2CarbyMismatchTitle"></div>
+            <p class="carby-switch-banner-desc" id="step2CarbyMismatchDesc"></p>
+            <button type="button" id="btnStep2LoadCarbyAnchor" class="btn btn-primary btn-full">
+              LOAD SAVED BASELINE ANCHOR
             </button>
           </div>
 
@@ -856,12 +896,31 @@
         </div>
       </div>
 
-      <div class="field-group">
-        <label class="field-label" for="editBaseJet">Fitted Main Jet</label>
-        <select id="editBaseJet" class="select-input"></select>
+      <div class="field-group" style="margin-bottom: 12px;">
+        <button type="button" id="btnEditModalLoadAnchor" class="btn btn-amber-outline btn-full">
+          Load Selected Carby's Saved Fleet Anchor
+        </button>
       </div>
 
-      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 12px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editBaseJet">Fitted Main Jet</label>
+          <select id="editBaseJet" class="select-input"></select>
+        </div>
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editBaseJetMm">Exact Base Orifice</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="editBaseJetMm" data-step="-0.005" aria-label="Decrease Base Jet Orifice">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="editBaseJetMm" class="num-input" value="2.000" min="1.500" max="2.400" step="0.001" />
+              <span class="num-unit-badge">mm</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="editBaseJetMm" data-step="0.005" aria-label="Increase Base Jet Orifice">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 12px;">
         <div class="field-group" style="margin-bottom: 0;">
           <label class="field-label" for="editBaseRad">Baseline RAD %</label>
           <div class="num-stepper">
@@ -887,8 +946,28 @@
         </div>
       </div>
 
-      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
-        <div class="field-group" style="margin-bottom: 0;">
+      <div class="field-group" style="margin-bottom: 12px;">
+        <div class="field-label-row">
+          <span class="field-label">Baseline O&#8322; / AFR Status</span>
+          <span class="field-hint amber" id="editBaseWeatherOnlyHint">Verified AFR Mode</span>
+        </div>
+        <button
+          type="button"
+          id="btnToggleEditBaseWeatherOnly"
+          class="weather-only-toggle"
+          role="switch"
+          aria-checked="false"
+        >
+          <span class="wo-toggle-text">
+            <span class="wo-toggle-title">Weather-Only / No O&#8322; Sensor</span>
+            <span class="wo-toggle-sub" id="editBaseWeatherOnlySub">OFF &bull; Baseline has Verified Track AFR</span>
+          </span>
+          <span class="wo-pill" id="editBaseWeatherOnlyPill">OFF</span>
+        </button>
+      </div>
+
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 12px;">
+        <div class="field-group" id="editBaseWotAfrGroup" style="margin-bottom: 0;">
           <label class="field-label" for="editBaseWotAfr">Logged WOT AFR</label>
           <div class="num-stepper">
             <button type="button" class="stepper-btn" data-stepper-target="editBaseWotAfr" data-step="-0.05" aria-label="Decrease Baseline WOT AFR">&minus;</button>
@@ -932,7 +1011,7 @@
   </div>
 
   <!-- =========================================================
-       MODAL 3: EDIT 40MM BXUV-3 CARBY SPECS
+       MODAL 3: EDIT 40MM BXUV-3 CARBY SPECS & SAVED ANCHOR
        ========================================================= -->
   <div class="modal-backdrop" id="modalEditCarby" role="dialog" aria-modal="true" aria-labelledby="modalEditCarbyTitle">
     <div class="modal-sheet">
@@ -996,6 +1075,82 @@
       <div class="field-group">
         <label class="field-label" for="editCarbyJet">Currently Fitted Bench Jet</label>
         <select id="editCarbyJet" class="select-input"></select>
+      </div>
+
+      <div class="card-elevated" style="margin-bottom: 14px;">
+        <div class="section-eyebrow">Saved Baseline Anchor (Auto-Load on Switch)</div>
+        <div class="form-grid-2 stack-mobile" style="margin-top: 8px; margin-bottom: 10px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="editCarbyAnchorJetMm">Anchor Jet (mm)</label>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="editCarbyAnchorJetMm" data-step="-0.005" aria-label="Decrease Anchor Jet mm">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="editCarbyAnchorJetMm" class="num-input" value="2.000" min="1.500" max="2.400" step="0.001" />
+                <span class="num-unit-badge">mm</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="editCarbyAnchorJetMm" data-step="0.005" aria-label="Increase Anchor Jet mm">+</button>
+            </div>
+          </div>
+
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="editCarbyAnchorRad">Anchor RAD %</label>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="editCarbyAnchorRad" data-step="-0.1" aria-label="Decrease Anchor RAD">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="editCarbyAnchorRad" class="num-input" value="94.3" min="70.0" max="115.0" step="0.1" />
+                <span class="num-unit-badge">%</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="editCarbyAnchorRad" data-step="0.1" aria-label="Increase Anchor RAD">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="editCarbyAnchorSg">Anchor Fuel SG</label>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="editCarbyAnchorSg" data-step="-0.001" aria-label="Decrease Anchor SG">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="editCarbyAnchorSg" class="num-input" value="0.740" min="0.680" max="0.820" step="0.001" />
+                <span class="num-unit-badge">kg/L</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="editCarbyAnchorSg" data-step="0.001" aria-label="Increase Anchor SG">+</button>
+            </div>
+          </div>
+
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="editCarbyAnchorSource">Anchor Reference</label>
+            <input type="text" id="editCarbyAnchorSource" class="text-input" value="Calder Race 1" />
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 10px;">
+          <button
+            type="button"
+            id="btnToggleCarbyAnchorUntested"
+            class="weather-only-toggle"
+            role="switch"
+            aria-checked="false"
+          >
+            <span class="wo-toggle-text">
+              <span class="wo-toggle-title">Untested / No Verified AFR</span>
+              <span class="wo-toggle-sub" id="editCarbyAnchorUntestedSub">OFF &bull; Has Verified Track AFR</span>
+            </span>
+            <span class="wo-pill" id="editCarbyAnchorUntestedPill">OFF</span>
+          </button>
+        </div>
+
+        <div class="field-group" id="editCarbyAnchorAfrGroup" style="margin-bottom: 0;">
+          <label class="field-label" for="editCarbyAnchorAfr">Verified WOT AFR</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="editCarbyAnchorAfr" data-step="-0.05" aria-label="Decrease Anchor Verified AFR">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="editCarbyAnchorAfr" class="num-input" value="12.50" min="10.50" max="15.50" step="0.05" />
+              <span class="num-unit-badge">AFR</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="editCarbyAnchorAfr" data-step="0.05" aria-label="Increase Anchor Verified AFR">+</button>
+          </div>
+        </div>
       </div>
 
       <div class="field-group" style="margin-bottom: 14px;">
