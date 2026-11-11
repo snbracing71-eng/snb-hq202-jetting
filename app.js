@@ -643,6 +643,53 @@
     updateCarbySwapHint();
   }
 
+  const SESSION_PROGRESSION = [
+    'Practice 1',
+    'Practice 2',
+    'Practice 3',
+    'Practice 4',
+    'Practice 5',
+    'Practice 6',
+    'Practice 7',
+    'Qualifying',
+    'Warm Up',
+    'Race 1',
+    'Race 2',
+    'Race 3',
+    'Race 4',
+    'Final'
+  ];
+
+  function updateCustomSessionVisibility() {
+    const sel = $('selectSessionName');
+    const wrap = $('customSessionWrap');
+    if (!sel || !wrap) return;
+    wrap.style.display = sel.value === '__CUSTOM__' ? 'block' : 'none';
+  }
+
+  function syncSessionSelectFromBaseline() {
+    const sel = $('selectSessionName');
+    if (!sel) return;
+    const baseName = (state.baseline && state.baseline.sessionName) || '';
+    const idx = SESSION_PROGRESSION.indexOf(baseName);
+    if (idx !== -1 && idx + 1 < SESSION_PROGRESSION.length) {
+      sel.value = SESSION_PROGRESSION[idx + 1];
+    } else {
+      sel.value = 'Race 1';
+    }
+    updateCustomSessionVisibility();
+  }
+
+  function getSelectedSessionName() {
+    const sel = $('selectSessionName');
+    if (!sel) return `Session ${state.sessions.length + 1}`;
+    if (sel.value === '__CUSTOM__') {
+      const customVal = ($('inputCustomSessionName') && $('inputCustomSessionName').value || '').trim();
+      return customVal || 'Custom Session';
+    }
+    return sel.value || 'Race 1';
+  }
+
   function updateCarbySwapHint() {
     const sel = $('selectCalcCarby');
     const hint = $('carbySwapHint');
@@ -765,13 +812,13 @@
           >
             <div class="jet-card-top">
               <span class="jet-role-tag">${escapeHtml(slot.role)}</span>
-              <span class="mono" style="font-size: 0.74rem; color: var(--text-secondary);">
+              <span class="mono" style="font-size: 15px; font-weight: 700; color: var(--text-secondary);">
                 ${slot.jet.mm.toFixed(3)} mm (${mmToInch(slot.jet.mm).toFixed(4)}")
               </span>
             </div>
             <div class="jet-card-main">
               <span class="jet-name-big">${escapeHtml(slot.jet.label)}</span>
-              <span class="jet-afr-big ${afrColorClass}">${predAfr.toFixed(2)} <small style="font-size: 0.68rem;">AFR</small></span>
+              <span class="jet-afr-big ${afrColorClass}">${predAfr.toFixed(2)} <small style="font-size: 15px;">AFR</small></span>
             </div>
             <div class="jet-card-meta">
               <span class="${prot.endCylAfr >= 13.25 ? 'txt-danger' : ''}">#1/#6 Est: ${prot.endCylAfr.toFixed(2)}</span>
@@ -794,8 +841,8 @@
           phys.base.fuelSg,
           phys.sgNew
         );
-        const boxStatus = j.inToolbox ? 'In Box' : 'Out';
-        return `<option value="${escapeHtml(j.id)}">${escapeHtml(j.label)} — ${j.mm.toFixed(3)} mm (${mmToInch(j.mm).toFixed(4)}") → ${pred.toFixed(2)} AFR [${boxStatus}]</option>`;
+        const boxTag = j.inToolbox ? 'Box' : 'Out';
+        return `<option value="${escapeHtml(j.id)}">${escapeHtml(j.label)} (${j.mm.toFixed(3)}mm) ${pred.toFixed(2)} AFR [${boxTag}]</option>`;
       })
       .join('');
     fullSelect.value = ui.selectedJetId;
@@ -855,7 +902,7 @@
     const chosenJet = findJetById(ui.selectedJetId);
     if (!chosenJet) return;
 
-    const sessionName = ($('inputSessionName').value || '').trim() || `Session ${state.sessions.length + 1}`;
+    const sessionName = getSelectedSessionName();
     const carbyId = $('selectCalcCarby').value || state.baseline.carbyId;
     const notes = ($('inputRunNotes').value || '').trim() || `Locked from ${phys.base.sessionName} baseline (${ui.weatherMode.toUpperCase()} mode).`;
 
@@ -920,13 +967,13 @@
 
     saveState();
 
-    // Sync Step 1 live RAD to the newly locked RAD & advance suggested session name
+    // Sync Step 1 live RAD to the newly locked RAD & advance suggested session dropdown
     $('inputRadPct').value = state.baseline.rad.toFixed(1);
     $('inputRunNotes').value = '';
-    const raceMatch = sessionName.match(/^Race\s+(\d+)$/i);
-    if (raceMatch) {
-      $('inputSessionName').value = `Race ${parseInt(raceMatch[1], 10) + 1}`;
+    if ($('inputCustomSessionName')) {
+      $('inputCustomSessionName').value = '';
     }
+    syncSessionSelectFromBaseline();
 
     renderAll();
     setCalculatorStep(1);
@@ -1138,6 +1185,7 @@
         candidate.jets = sortJetsByDiameter(candidate.jets);
         state = candidate;
         saveState();
+        syncSessionSelectFromBaseline();
         renderAll();
         showToast(`Restored ${state.sessions.length} sessions from JSON backup`);
       } catch (err) {
@@ -1794,6 +1842,7 @@
     };
     saveState();
     closeModal('modalEditBaseline');
+    syncSessionSelectFromBaseline();
     renderAll();
     showToast(`Locked ${state.baseline.sessionName} (${jet.label}) as Baseline`);
   }
@@ -1922,12 +1971,6 @@
         return;
       }
 
-      const presetBtn = e.target.closest('[data-session-preset]');
-      if (presetBtn) {
-        $('inputSessionName').value = presetBtn.getAttribute('data-session-preset');
-        return;
-      }
-
       const modeBtn = e.target.closest('[data-weather-mode]');
       if (modeBtn) {
         ui.weatherMode = modeBtn.getAttribute('data-weather-mode');
@@ -2000,6 +2043,7 @@
             linkedSessionId: sess.id
           };
           saveState();
+          syncSessionSelectFromBaseline();
           renderAll();
           showToast(`Locked ${sess.sessionName} (${sess.jetLabel}) as Baseline`);
         }
@@ -2038,16 +2082,28 @@
       }
     });
 
-    // Calculator buttons
+    // Calculator buttons & Back navigation (preserving all Step 1 inputs)
+    const scrollToStepNav = () => {
+      const stepNav = document.querySelector('.calc-step-nav');
+      if (stepNav) {
+        stepNav.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    };
+    const returnToStep1 = () => {
+      setCalculatorStep(1);
+      scrollToStepNav();
+    };
     $('btnStep1Nav').addEventListener('click', () => setCalculatorStep(1));
     $('btnStep2Nav').addEventListener('click', () => setCalculatorStep(2, true));
     $('btnNextCalculateJet').addEventListener('click', () => {
       setCalculatorStep(2, true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToStepNav();
     });
-    $('btnBackToStep1').addEventListener('click', () => setCalculatorStep(1));
+    $('btnBackToStep1Top').addEventListener('click', returnToStep1);
+    $('btnBackToStep1Bottom').addEventListener('click', returnToStep1);
     $('btnConfirmLockJet').addEventListener('click', confirmJetAndLockForNextRace);
 
+    $('selectSessionName').addEventListener('change', updateCustomSessionVisibility);
     $('selectCalcCarby').addEventListener('change', updateCarbySwapHint);
 
     // Station pressure unit toggle (hPa <-> psi)
@@ -2114,6 +2170,7 @@
         dynoPulls: createDefaultDynoPulls()
       };
       saveState();
+      syncSessionSelectFromBaseline();
       renderAll();
       showToast('Restored Calder Park Race 1 Seed Data');
     });
@@ -2269,6 +2326,7 @@
   // Boot app
   renderDynoRpmFormInputs();
   bindEvents();
+  syncSessionSelectFromBaseline();
   renderAll();
   registerServiceWorker();
 })();

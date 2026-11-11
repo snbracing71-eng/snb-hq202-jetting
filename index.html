@@ -168,36 +168,52 @@
             </div>
           </div>
 
-          <div class="form-grid-2 stack-mobile" style="margin-bottom: 12px;">
+          <div class="form-grid-2 stack-mobile" style="margin-bottom: 16px;">
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
-                <label class="field-label" for="inputSessionName">Session Name</label>
+                <label class="field-label" for="selectSessionName">Session Name</label>
                 <span class="field-hint">Calder / Track Run</span>
               </div>
-              <input
-                type="text"
-                id="inputSessionName"
-                class="text-input"
-                value="Race 2"
-                autocomplete="off"
-              />
+              <select id="selectSessionName" class="select-input" aria-label="Select Session Name">
+                <option value="Practice 1">Practice 1</option>
+                <option value="Practice 2">Practice 2</option>
+                <option value="Practice 3">Practice 3</option>
+                <option value="Practice 4">Practice 4</option>
+                <option value="Practice 5">Practice 5</option>
+                <option value="Practice 6">Practice 6</option>
+                <option value="Practice 7">Practice 7</option>
+                <option value="Qualifying">Qualifying</option>
+                <option value="Warm Up">Warm Up</option>
+                <option value="Race 1">Race 1</option>
+                <option value="Race 2" selected>Race 2</option>
+                <option value="Race 3">Race 3</option>
+                <option value="Race 4">Race 4</option>
+                <option value="Final">Final</option>
+                <option value="__CUSTOM__">Custom Session...</option>
+              </select>
             </div>
 
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
                 <label class="field-label" for="selectCalcCarby">Carby ID</label>
-                <span class="field-hint" id="carbySwapHint">Matches Baseline</span>
+                <span class="field-hint emerald" id="carbySwapHint">Matches Baseline</span>
               </div>
               <select id="selectCalcCarby" class="select-input" aria-label="Select 40mm BXUV-3 Carby"></select>
             </div>
           </div>
 
-          <div class="chip-row" style="margin-bottom: 14px;" aria-label="Quick Session Presets">
-            <button type="button" class="chip-btn" data-session-preset="Practice">Practice</button>
-            <button type="button" class="chip-btn" data-session-preset="Qualifying">Qualifying</button>
-            <button type="button" class="chip-btn" data-session-preset="Race 2">Race 2</button>
-            <button type="button" class="chip-btn" data-session-preset="Race 3">Race 3</button>
-            <button type="button" class="chip-btn" data-session-preset="Final">Final</button>
+          <div id="customSessionWrap" class="field-group" style="display: none;">
+            <div class="field-label-row">
+              <label class="field-label" for="inputCustomSessionName">Custom Session Name</label>
+              <span class="field-hint amber">Type Custom Run Label</span>
+            </div>
+            <input
+              type="text"
+              id="inputCustomSessionName"
+              class="text-input"
+              placeholder="e.g. Trophy Dash / Feature"
+              autocomplete="off"
+            />
           </div>
 
           <!-- Weather Mode Toggle (No Double Counting) -->
@@ -253,7 +269,7 @@
               <div class="field-label-row">
                 <label class="field-label" for="inputPressure">Station Pressure (Absolute)</label>
                 <div style="display: flex; gap: 4px;">
-                  <button type="button" id="btnTogglePressUnit" class="btn" style="min-height: 48px; padding: 4px 10px; font-size: 0.74rem;">
+                  <button type="button" id="btnTogglePressUnit" class="btn" style="min-height: 48px; padding: 6px 12px; font-size: 15px;">
                     Unit: <span id="pressUnitBtnLabel">hPa</span> &harr;
                   </button>
                 </div>
@@ -360,14 +376,17 @@
       <!-- STEP 2: PICK JET & CONFIRM -->
       <div id="calcStep2View" style="display: none;">
         <div class="card">
+          <div class="step2-top-back-bar">
+            <button type="button" id="btnBackToStep1Top" class="btn btn-back-step">
+              &larr; BACK TO STEP 1
+            </button>
+          </div>
+
           <div class="section-head">
             <div>
               <div class="section-eyebrow">Step 2 of 2 &bull; Venturi 4th-Root Physics</div>
               <h2 class="section-title">Orifice Demand &amp; Toolbox Selection</h2>
             </div>
-            <button type="button" id="btnBackToStep1" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; white-space: nowrap; flex-shrink: 0;">
-              &larr; Step 1
-            </button>
           </div>
 
           <!-- Air-Density Shift & Ideal Orifice -->
@@ -397,7 +416,7 @@
           </div>
 
           <!-- 3 Tappable Toolbox Jet Cards -->
-          <div class="field-label-row" style="margin-bottom: 8px;">
+          <div class="field-label-row" style="margin-bottom: 10px;">
             <span class="field-label">Active Toolbox Jet Options (Tap to Select)</span>
             <span class="field-hint" id="activeToolboxCountHint">15 in toolbox</span>
           </div>
@@ -405,7 +424,7 @@
           <div class="jet-cards-stack" id="toolboxJetCardsContainer"></div>
 
           <!-- Full-Kit Dropdown -->
-          <div class="field-group" style="margin-bottom: 12px;">
+          <div class="field-group" style="margin-bottom: 14px;">
             <div class="field-label-row">
               <label class="field-label" for="selectFullJetKit">Full M1 Jet Kit &amp; Custom Drills</label>
               <span class="field-hint" id="selectedJetQuickSummary">Selected: #78</span>
@@ -420,7 +439,7 @@
           </div>
 
           <!-- Optional Pit Run Note -->
-          <div class="field-group" style="margin-bottom: 14px;">
+          <div class="field-group" style="margin-bottom: 16px;">
             <div class="field-label-row">
               <label class="field-label" for="inputRunNotes">Session Setup Note (Optional)</label>
               <span class="field-hint">Saved to Session Log</span>
@@ -434,9 +453,14 @@
             />
           </div>
 
-          <button type="button" id="btnConfirmLockJet" class="btn btn-confirm btn-full">
-            CONFIRM JET &amp; LOCK FOR NEXT RACE
-          </button>
+          <div class="step2-bottom-actions">
+            <button type="button" id="btnBackToStep1Bottom" class="btn btn-back-step btn-full">
+              &larr; BACK / EDIT INPUTS
+            </button>
+            <button type="button" id="btnConfirmLockJet" class="btn btn-confirm btn-full">
+              CONFIRM JET &amp; LOCK FOR NEXT RACE
+            </button>
+          </div>
         </div>
       </div>
     </section>
