@@ -1974,14 +1974,14 @@ textarea:focus-visible {
 }
 
 .fuel-telem-2col .telem-val {
-  font-size: clamp(28px, 6vw, 32px);
+  font-size: clamp(28px, 5.5vw, 30px);
   font-weight: 900;
   line-height: 1.08;
   margin: 4px 0;
 }
 
 .fuel-telem-2col .afr-verified-cell .telem-val {
-  font-size: clamp(28px, 6vw, 32px);
+  font-size: clamp(30px, 6vw, 32px);
   font-weight: 900;
   line-height: 1.08;
   color: var(--emerald-bright);

@@ -2012,10 +2012,9 @@
     if ($('inputPumpAfterL')) $('inputPumpAfterL').value = Number(ch.pumpAfterL).toFixed(1);
     if ($('inputPumpLaps')) $('inputPumpLaps').value = String(ch.pumpLaps);
 
-    if ($('inputMinLegalKg')) $('inputMinLegalKg').value = Number(ch.minLegalKg).toFixed(1);
     if ($('inputScaleCheckKg')) {
       const scVal = Number(ch.scaleCheckKg);
-      $('inputScaleCheckKg').value = Number.isFinite(scVal) && scVal > 0 ? scVal.toFixed(1) : '0.0';
+      $('inputScaleCheckKg').value = Number.isFinite(scVal) && scVal > 0 ? scVal.toFixed(1) : '';
     }
     if ($('inputScaleCheckFuelL')) $('inputScaleCheckFuelL').value = Number(ch.scaleCheckFuelL).toFixed(1);
     if ($('inputTyreHotTarget')) $('inputTyreHotTarget').value = Number(ch.tyreHotTarget).toFixed(1);
@@ -2045,15 +2044,14 @@
     const venue = getSelectedFuelTrackVenue();
     const prof = ensureTrackProfile(venue);
 
+    const LEGAL_MIN_KG = 1365.0;
+    const TARGET_POST_RACE_KG = 1370.0; // Fixed 1365kg + 5kg buffer
+
     const activeFuelSg = Math.max(0.65, readNum('inputFuelSg', (state.baseline && state.baseline.fuelSg) || 0.740));
     const trackBurnLPerLap = Math.max(0.2, readNum('inputTrackBurnLPerLap', prof.burnLPerLap || 1.30));
     const racedLaps = Math.max(1, Math.round(readNum('inputRaceLaps', ch.raceLaps || 12)));
-    const baselineFloorL = Math.max(0, readNum('inputFuelFloorL', ch.fuelFloorL ?? 12.0));
+    const surgeFloorL = Math.max(0, readNum('inputFuelFloorL', ch.fuelFloorL ?? 12.0));
     const tankResidualL = 0.0; // Tank is always pumped empty before pouring
-
-    // Weekend Track Scales & 1365 kg Scrutineering Check (+5.0 kg Target Safety Buffer -> 1370.0 kg)
-    const minLegalKg = readNum('inputMinLegalKg', ch.minLegalKg || 1365.0);
-    const targetPostRaceKg = minLegalKg + 5.0;
 
     const scaleInputEl = $('inputScaleCheckKg');
     const rawScaleStr = scaleInputEl ? String(scaleInputEl.value || '').trim() : String(ch.scaleCheckKg ?? 1377.0);
@@ -2066,31 +2064,26 @@
 
     // Exact Live Fuel + Weight Coupling
     const expectedBurnL = racedLaps * trackBurnLPerLap;
-    const basePourL = baselineFloorL + expectedBurnL;
 
     let dryCarDriverKg = 0;
-    let unadjustedPostRaceKg = 0;
-    let extraWeightFuelL = 0.0;
+    let postRaceKgAtSurgeFloor = 0;
+    let extraBufferFuelL = 0.0;
 
     if (hasValidScales) {
-      dryCarDriverKg = scaleCheckKg - scaleFuelMassKg;
-      unadjustedPostRaceKg = dryCarDriverKg + baselineFloorL * activeFuelSg;
-      if (unadjustedPostRaceKg < targetPostRaceKg) {
-        const shortfallKg = targetPostRaceKg - unadjustedPostRaceKg;
-        extraWeightFuelL = Math.ceil((shortfallKg / activeFuelSg) * 10) / 10;
-      } else {
-        extraWeightFuelL = 0.0;
-      }
+      dryCarDriverKg = scaleCheckKg - scaleCheckFuelL * activeFuelSg;
+      postRaceKgAtSurgeFloor = dryCarDriverKg + surgeFloorL * activeFuelSg;
+      const shortfallTo1370Kg = Math.max(0, TARGET_POST_RACE_KG - postRaceKgAtSurgeFloor);
+      extraBufferFuelL = shortfallTo1370Kg > 0 ? Math.ceil((shortfallTo1370Kg / activeFuelSg) * 10) / 10 : 0.0;
     }
 
-    const litresToPourL = basePourL + extraWeightFuelL;
+    const litresToPourL = expectedBurnL + surgeFloorL + extraBufferFuelL;
     const totalStartingFuelL = litresToPourL;
     const startFuelMassKg = totalStartingFuelL * activeFuelSg;
 
-    const endFuelL = baselineFloorL + extraWeightFuelL;
+    const endFuelL = surgeFloorL + extraBufferFuelL;
     const endFuelKg = endFuelL * activeFuelSg;
     const predictedPostRaceKg = hasValidScales ? dryCarDriverKg + endFuelKg : 0;
-    const marginKg = hasValidScales ? predictedPostRaceKg - minLegalKg : 0;
+    const marginKg = hasValidScales ? predictedPostRaceKg - LEGAL_MIN_KG : 0;
 
     // Pump-Out L/Lap Refiner
     const pumpBeforeL = Math.max(0, readNum('inputPumpBeforeL', ch.pumpBeforeL ?? 36.0));
@@ -2103,12 +2096,12 @@
     // Persist Fuel & Weight state
     prof.burnLPerLap = Number(trackBurnLPerLap.toFixed(2));
     ch.raceLaps = racedLaps;
-    ch.fuelFloorL = Number(baselineFloorL.toFixed(1));
+    ch.fuelFloorL = Number(surgeFloorL.toFixed(1));
     ch.currentTankL = 0.0;
     ch.pumpBeforeL = Number(pumpBeforeL.toFixed(1));
     ch.pumpAfterL = Number(pumpAfterL.toFixed(1));
     ch.pumpLaps = pumpLaps;
-    ch.minLegalKg = Number(minLegalKg.toFixed(1));
+    ch.minLegalKg = LEGAL_MIN_KG;
     ch.scaleCheckKg = Number(scaleCheckKg.toFixed(1));
     ch.scaleCheckFuelL = Number(scaleCheckFuelL.toFixed(1));
 
@@ -2126,7 +2119,7 @@
           : 'Track Base';
     }
 
-    // Sub-Section A: Pre-Race Fuel Load Planner (2 Large Side-by-Side Boxes)
+    // Sub-Section A: Pre-Race Fuel Load Planner (ONLY 2 Large Side-by-Side Boxes)
     if ($('outFuelExpectedBurnL')) {
       $('outFuelExpectedBurnL').textContent = `${expectedBurnL.toFixed(1)} L`;
     }
@@ -2149,11 +2142,14 @@
       if (litresToPourL > 74.0) {
         pourSub.textContent = `OVER 74.0 L TANK! (${startFuelMassKg.toFixed(1)} kg)`;
         pourSub.className = 'telem-sub txt-danger';
-      } else if (extraWeightFuelL > 0) {
-        pourSub.textContent = `${baselineFloorL.toFixed(1)}L + ${expectedBurnL.toFixed(1)}L burn + ${extraWeightFuelL.toFixed(1)}L for ${targetPostRaceKg.toFixed(0)}kg!`;
+      } else if (extraBufferFuelL > 0) {
+        pourSub.textContent = `${expectedBurnL.toFixed(1)}L burn + ${surgeFloorL.toFixed(1)}L surge + ${extraBufferFuelL.toFixed(1)}L (1370kg buffer)`;
         pourSub.className = 'telem-sub txt-amber';
+      } else if (hasValidScales) {
+        pourSub.textContent = `${expectedBurnL.toFixed(1)}L burn + ${surgeFloorL.toFixed(1)}L surge • >=1370kg OK`;
+        pourSub.className = 'telem-sub txt-emerald';
       } else {
-        pourSub.textContent = `${baselineFloorL.toFixed(1)}L surge + ${expectedBurnL.toFixed(1)}L burn`;
+        pourSub.textContent = `${expectedBurnL.toFixed(1)}L burn + ${surgeFloorL.toFixed(1)}L surge`;
         pourSub.className = 'telem-sub';
       }
     }
@@ -2166,25 +2162,12 @@
       $('outPumpUsedL').textContent = `Used: ${pumpUsedL.toFixed(2)} L (${pumpUsedKg.toFixed(1)} kg)`;
     }
 
-    // Card 2: Weekend Track Scales & 1365 kg Check (+5.0 kg Target Buffer)
+    // Card 2: Weekend Track Scales & 1365 kg Check (Fixed 1365.0 kg Min / 1370.0 kg Target)
     if ($('minWeightBadge')) {
-      $('minWeightBadge').textContent = `Target ${targetPostRaceKg.toFixed(0)} kg`;
-    }
-    if ($('targetPostRaceHint')) {
-      $('targetPostRaceHint').textContent = `Target: ${targetPostRaceKg.toFixed(1)} kg (+5 kg buffer)`;
+      $('minWeightBadge').textContent = `Legal Min: ${LEGAL_MIN_KG.toFixed(1)} kg • Target w/ +5 kg Buffer: ${TARGET_POST_RACE_KG.toFixed(1)} kg`;
     }
     if ($('scaleFuelMassHint')) {
       $('scaleFuelMassHint').textContent = `${scaleFuelMassKg.toFixed(1)} kg @ SG`;
-    }
-
-    if ($('outEndFuelRemL')) {
-      $('outEndFuelRemL').textContent = `${endFuelL.toFixed(1)} L`;
-    }
-    if ($('outEndFuelRemMassHint')) {
-      $('outEndFuelRemMassHint').textContent =
-        extraWeightFuelL > 0
-          ? `${endFuelKg.toFixed(1)} kg (${baselineFloorL.toFixed(1)}L surge + ${extraWeightFuelL.toFixed(1)}L wt)`
-          : `${endFuelKg.toFixed(1)} kg @ ${activeFuelSg.toFixed(3)} SG`;
     }
 
     const predWeightCell = $('cellPredPostRaceWeight');
@@ -2199,7 +2182,7 @@
         $('outDryCarDriverKg').textContent = 'Not Weighed';
       }
       if ($('outDryCarDriverSub')) {
-        $('outDryCarDriverSub').textContent = 'Enter Official Scale Wt (kg) when checked';
+        $('outDryCarDriverSub').textContent = 'Enter Official Track Scale Wt (kg)';
       }
       if (predWeightVal) {
         predWeightVal.textContent = '— kg';
@@ -2209,13 +2192,13 @@
         predWeightCell.className = 'telem-cell afr-estimated-cell';
       }
       if (predMarginEl) {
-        predMarginEl.textContent = `Surge + Burn only (${litresToPourL.toFixed(1)} L pour)`;
+        predMarginEl.textContent = `${endFuelL.toFixed(1)} L end fuel • Surge + Burn mode`;
         predMarginEl.className = 'telem-sub txt-amber';
       }
       if (weightAlert && weightTitle && weightBody) {
         weightAlert.className = 'manifold-alert warning';
         weightTitle.textContent = `TRACK SCALES NOT ENTERED — SURGE + BURN MODE (${litresToPourL.toFixed(1)} L)`;
-        weightBody.textContent = `Enter your car + driver weight from the weekend track scales above to auto-adjust Litres to Pour for a ${targetPostRaceKg.toFixed(1)} kg (+5.0 kg buffer over ${minLegalKg.toFixed(0)} kg) post-race target.`;
+        weightBody.textContent = `Enter your car + driver weight from the weekend track scales above to auto-adjust Litres to Pour for a ${TARGET_POST_RACE_KG.toFixed(1)} kg (+5.0 kg buffer over ${LEGAL_MIN_KG.toFixed(0)} kg) post-race target.`;
       }
     } else {
       if ($('outDryCarDriverKg')) {
@@ -2239,7 +2222,7 @@
       }
       if (predMarginEl) {
         const sign = marginKg >= 0 ? '+' : '';
-        predMarginEl.textContent = `${sign}${marginKg.toFixed(1)} kg vs ${minLegalKg.toFixed(1)} kg min`;
+        predMarginEl.textContent = `${endFuelL.toFixed(1)} L end fuel • ${sign}${marginKg.toFixed(1)} kg vs ${LEGAL_MIN_KG.toFixed(1)} kg min`;
         predMarginEl.className =
           marginKg < 0 ? 'telem-sub txt-danger' : marginKg < 4.95 ? 'telem-sub txt-amber' : 'telem-sub txt-emerald';
       }
@@ -2248,15 +2231,15 @@
         if (litresToPourL > 74.0) {
           weightAlert.className = 'manifold-alert danger';
           weightTitle.textContent = `TANK CAPACITY EXCEEDED (${litresToPourL.toFixed(1)} L > 74.0 L MAX)`;
-          weightBody.textContent = `Reaching ${targetPostRaceKg.toFixed(1)} kg requires ${litresToPourL.toFixed(1)} L, which exceeds the 74.0 L tank limit! Bolt in physical lead ballast so less fuel mass is required.`;
-        } else if (extraWeightFuelL > 0) {
+          weightBody.textContent = `Reaching ${TARGET_POST_RACE_KG.toFixed(1)} kg requires ${litresToPourL.toFixed(1)} L, which exceeds the 74.0 L tank limit! Bolt in physical lead ballast so less fuel mass is required.`;
+        } else if (extraBufferFuelL > 0) {
           weightAlert.className = 'manifold-alert safe';
           weightTitle.textContent = `SCRUTINEERING WEIGHT SAFE (+${marginKg.toFixed(1)} KG BUFFER @ ${predictedPostRaceKg.toFixed(1)} KG)`;
-          weightBody.textContent = `With ${baselineFloorL.toFixed(1)} L surge floor alone, post-race weight would be ${unadjustedPostRaceKg.toFixed(1)} kg. Auto-added +${extraWeightFuelL.toFixed(1)} L weight-buffer fuel to Litres to Pour (${litresToPourL.toFixed(1)} L total) so car finishes with ${endFuelL.toFixed(1)} L (${endFuelKg.toFixed(1)} kg) at ${predictedPostRaceKg.toFixed(1)} kg!`;
+          weightBody.textContent = `Auto-added +${extraBufferFuelL.toFixed(1)} L (1370kg buffer) to Litres to Pour (${litresToPourL.toFixed(1)} L total) so car crosses post-race scales at ${predictedPostRaceKg.toFixed(1)} kg (+${marginKg.toFixed(1)} kg buffer over ${LEGAL_MIN_KG.toFixed(1)} kg legal min).`;
         } else {
           weightAlert.className = 'manifold-alert safe';
           weightTitle.textContent = `SCRUTINEERING WEIGHT SAFE (+${marginKg.toFixed(1)} KG BUFFER @ ${predictedPostRaceKg.toFixed(1)} KG)`;
-          weightBody.textContent = `Car + Driver dry weight is ${dryCarDriverKg.toFixed(1)} kg. Finishing with the ${baselineFloorL.toFixed(1)} L surge floor (${endFuelKg.toFixed(1)} kg) puts post-race weight at ${predictedPostRaceKg.toFixed(1)} kg (+${marginKg.toFixed(1)} kg above ${minLegalKg.toFixed(1)} kg min — no extra weight fuel needed).`;
+          weightBody.textContent = `Dry Car + Driver is ${dryCarDriverKg.toFixed(1)} kg. Finishing with ${surgeFloorL.toFixed(1)} L surge floor (${endFuelKg.toFixed(1)} kg) puts post-race weight at ${predictedPostRaceKg.toFixed(1)} kg (+${marginKg.toFixed(1)} kg over ${LEGAL_MIN_KG.toFixed(1)} kg legal min — no extra buffer fuel needed).`;
         }
       }
     }
@@ -2268,10 +2251,12 @@
       activeFuelSg,
       burnLPerLap: trackBurnLPerLap,
       raceLaps: racedLaps,
-      safeFloorL: baselineFloorL,
+      safeFloorL: surgeFloorL,
+      surgeFloorL,
       currentResidualL: tankResidualL,
       expectedBurnL,
-      extraWeightFuelL,
+      extraBufferFuelL,
+      extraWeightFuelL: extraBufferFuelL,
       startingFuelReqL: totalStartingFuelL,
       litresToPourL,
       startFuelMassKg,
@@ -2280,8 +2265,8 @@
       pumpLaps,
       pumpUsedL,
       pumpMeasuredBurn,
-      minLegalKg,
-      targetPostRaceKg,
+      minLegalKg: LEGAL_MIN_KG,
+      targetPostRaceKg: TARGET_POST_RACE_KG,
       hasValidScales,
       scaleCheckKg,
       scaleCheckFuelL,
@@ -4525,11 +4510,8 @@
     $('selectCalcCarby').addEventListener('change', updateCarbySwapHint);
 
     // Tab 2 (Fuel & Wt) and Tab 3 (Tyres) unified session save buttons
-    if ($('btnLogPumpOut')) {
-      $('btnLogPumpOut').addEventListener('click', () => saveFuelAndWeightToSession(true));
-    }
     if ($('btnSaveFuelWeightSession')) {
-      $('btnSaveFuelWeightSession').addEventListener('click', () => saveFuelAndWeightToSession(false));
+      $('btnSaveFuelWeightSession').addEventListener('click', saveFuelAndWeightToSession);
     }
     if ($('btnSaveTrackColdTyres')) {
       $('btnSaveTrackColdTyres').addEventListener('click', saveColdStartsToTrackProfile);
