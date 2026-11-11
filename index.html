@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.4.5" />
+  <link rel="stylesheet" href="./styles.css?v=0.4.6" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -687,7 +687,7 @@
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
               <label class="field-label" for="inputTrackBurnLPerLap">Track Burn (L/lap)</label>
-              <span class="field-hint emerald" id="trackBurnSourceHint">Calder Avg</span>
+              <span class="field-hint emerald" id="trackBurnSourceHint">Auto-Learned</span>
             </div>
             <div class="num-stepper">
               <button type="button" class="stepper-btn" data-stepper-target="inputTrackBurnLPerLap" data-step="-0.02" aria-label="Decrease Track L per Lap">&minus;</button>
@@ -698,6 +698,10 @@
               <button type="button" class="stepper-btn" data-stepper-target="inputTrackBurnLPerLap" data-step="0.02" aria-label="Increase Track L per Lap">+</button>
             </div>
           </div>
+        </div>
+
+        <div id="trackBurnLearnedBanner" class="auto-learned-strip">
+          Auto-learned: <strong>1.30 L/lap</strong> (1.30&ndash;1.30 range, 1 run) &bull; Live from Session Log
         </div>
 
         <div id="customFuelSessionWrap" class="field-group" style="display: none; margin-bottom: 12px;">
@@ -836,7 +840,7 @@
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
                 <label class="field-label" for="inputScaleCheckKg">Official Track Scale Wt (kg)</label>
-                <span class="field-hint">Car + Driver (blank = unweighed)</span>
+                <span class="field-hint">Car + Driver</span>
               </div>
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputScaleCheckKg" data-step="-0.5" aria-label="Decrease Official Track Scale Weight">&minus;</button>
@@ -911,7 +915,7 @@
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
               <label class="field-label" for="selectTyreTrack">Circuit / Track</label>
-              <span class="field-hint emerald">Cold Baseline</span>
+              <span class="field-hint emerald" id="tyreTrackLearnedHint">Auto-Learned</span>
             </div>
             <select id="selectTyreTrack" class="select-input" aria-label="Select Circuit for Tyre Profile">
               <optgroup label="VIC">
@@ -970,7 +974,7 @@
         </div>
 
         <!-- Shared Active Session Bar Row 2: Session Name + Hot Target PSI -->
-        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 12px;">
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
               <label class="field-label" for="selectTyreSessionName">Session Name</label>
@@ -1011,22 +1015,67 @@
           </div>
         </div>
 
-        <div id="customTyreSessionWrap" class="field-group" style="display: none; margin-bottom: 12px;">
+        <div id="customTyreSessionWrap" class="field-group" style="display: none; margin-bottom: 10px;">
           <label class="field-label" for="inputCustomTyreSessionName">Custom Session Name</label>
           <input type="text" id="inputCustomTyreSessionName" class="text-input" placeholder="e.g. Trophy Race / Feature" autocomplete="off" />
+        </div>
+
+        <!-- Row 3: Session Laps (for Tyre Life Tracking) + Live Auto-Learned Cold Stagger Summary -->
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px; align-items: stretch;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="inputTyreSessionLaps">Session Laps</label>
+              <span class="field-hint">Added to Tyre Life</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="inputTyreSessionLaps" data-step="-1" aria-label="Decrease Tyre Session Laps">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="inputTyreSessionLaps" class="num-input" value="12" min="1" max="100" step="1" inputmode="numeric" />
+                <span class="num-unit-badge">laps</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="inputTyreSessionLaps" data-step="1" aria-label="Increase Tyre Session Laps">+</button>
+            </div>
+          </div>
+
+          <div class="telem-cell" style="justify-content: center;">
+            <span class="telem-label">Track Learned Cold Stagger</span>
+            <span class="telem-val txt-emerald" id="outTyreTrackLearnedSummary" style="font-size: 16.5px;">FL 30.2 &bull; FR 29.5 &bull; RL 30.5 &bull; RR 29.8</span>
+            <span class="telem-sub" id="outTyreTrackLearnedSub">Auto-learned from 1 run at Calder Park Raceway</span>
+          </div>
+        </div>
+
+        <!-- 1-Tap Quick Tyre Rotation & Inventory Bar -->
+        <div class="tyre-rotation-bar">
+          <button type="button" class="btn btn-secondary tyre-rot-btn" id="btnSwapTyresLR">
+            Swap Left &harr; Right
+          </button>
+          <button type="button" class="btn btn-secondary tyre-rot-btn" id="btnSwapTyresFR">
+            Swap Front &varr; Rear
+          </button>
+          <button type="button" class="btn btn-amber-outline tyre-rot-btn" id="btnOpenTyrePool">
+            Cross / Manage Tyre Pool
+          </button>
         </div>
 
         <div class="car-orientation-banner">
           <span>&uarr; FRONT OF RACE CAR &uarr;</span>
         </div>
 
-        <!-- Strict 2x2 Visual Car Chassis Grid: FL | FR on Top, RL | RR on Bottom (ONLY Cold PSI + Hot PSI per corner) -->
+        <!-- Strict 2x2 Visual Car Chassis Grid: FL | FR on Top, RL | RR on Bottom -->
         <div class="tyre-chassis-grid">
           <!-- FL: Front Left -->
           <div class="card-elevated tyre-corner-card">
             <div class="tyre-corner-head">
               <span class="tyre-corner-badge">FL &mdash; FRONT LEFT</span>
               <span class="afr-status-badge estimated" id="outTyreAction_FL">HOT PSI?</span>
+            </div>
+
+            <div class="tyre-mount-box">
+              <div class="tyre-mount-top">
+                <label class="tyre-mount-label" for="selectMountedTyre_FL">Mounted Tyre</label>
+                <span class="tyre-laps-badge" id="outTyreTotalLaps_FL">Total: 24 laps from new</span>
+              </div>
+              <select id="selectMountedTyre_FL" class="select-input tyre-mount-select" data-corner-tyre-select="FL" aria-label="Select Mounted Tyre for Front Left"></select>
             </div>
 
             <div class="field-group tyre-stack-field">
@@ -1062,6 +1111,10 @@
                 <span class="telem-label" style="margin: 0;">Next Cold Set:</span>
                 <span class="mono txt-emerald" style="font-weight: 900;" id="outTyreNextCold_FL">30.0 psi</span>
               </div>
+              <div class="tyre-telem-line tyre-learned-line">
+                <span class="telem-label" style="margin: 0;">Learned Cold:</span>
+                <span class="mono txt-amber" id="outTyreLearnedCold_FL">30.2 psi (1 run)</span>
+              </div>
             </div>
           </div>
 
@@ -1070,6 +1123,14 @@
             <div class="tyre-corner-head">
               <span class="tyre-corner-badge">FR &mdash; FRONT RIGHT</span>
               <span class="afr-status-badge estimated" id="outTyreAction_FR">HOT PSI?</span>
+            </div>
+
+            <div class="tyre-mount-box">
+              <div class="tyre-mount-top">
+                <label class="tyre-mount-label" for="selectMountedTyre_FR">Mounted Tyre</label>
+                <span class="tyre-laps-badge" id="outTyreTotalLaps_FR">Total: 24 laps from new</span>
+              </div>
+              <select id="selectMountedTyre_FR" class="select-input tyre-mount-select" data-corner-tyre-select="FR" aria-label="Select Mounted Tyre for Front Right"></select>
             </div>
 
             <div class="field-group tyre-stack-field">
@@ -1105,6 +1166,10 @@
                 <span class="telem-label" style="margin: 0;">Next Cold Set:</span>
                 <span class="mono txt-emerald" style="font-weight: 900;" id="outTyreNextCold_FR">30.0 psi</span>
               </div>
+              <div class="tyre-telem-line tyre-learned-line">
+                <span class="telem-label" style="margin: 0;">Learned Cold:</span>
+                <span class="mono txt-amber" id="outTyreLearnedCold_FR">29.5 psi (1 run)</span>
+              </div>
             </div>
           </div>
 
@@ -1113,6 +1178,14 @@
             <div class="tyre-corner-head">
               <span class="tyre-corner-badge">RL &mdash; REAR LEFT</span>
               <span class="afr-status-badge estimated" id="outTyreAction_RL">HOT PSI?</span>
+            </div>
+
+            <div class="tyre-mount-box">
+              <div class="tyre-mount-top">
+                <label class="tyre-mount-label" for="selectMountedTyre_RL">Mounted Tyre</label>
+                <span class="tyre-laps-badge" id="outTyreTotalLaps_RL">Total: 24 laps from new</span>
+              </div>
+              <select id="selectMountedTyre_RL" class="select-input tyre-mount-select" data-corner-tyre-select="RL" aria-label="Select Mounted Tyre for Rear Left"></select>
             </div>
 
             <div class="field-group tyre-stack-field">
@@ -1148,6 +1221,10 @@
                 <span class="telem-label" style="margin: 0;">Next Cold Set:</span>
                 <span class="mono txt-emerald" style="font-weight: 900;" id="outTyreNextCold_RL">30.0 psi</span>
               </div>
+              <div class="tyre-telem-line tyre-learned-line">
+                <span class="telem-label" style="margin: 0;">Learned Cold:</span>
+                <span class="mono txt-amber" id="outTyreLearnedCold_RL">30.5 psi (1 run)</span>
+              </div>
             </div>
           </div>
 
@@ -1156,6 +1233,14 @@
             <div class="tyre-corner-head">
               <span class="tyre-corner-badge">RR &mdash; REAR RIGHT</span>
               <span class="afr-status-badge estimated" id="outTyreAction_RR">HOT PSI?</span>
+            </div>
+
+            <div class="tyre-mount-box">
+              <div class="tyre-mount-top">
+                <label class="tyre-mount-label" for="selectMountedTyre_RR">Mounted Tyre</label>
+                <span class="tyre-laps-badge" id="outTyreTotalLaps_RR">Total: 24 laps from new</span>
+              </div>
+              <select id="selectMountedTyre_RR" class="select-input tyre-mount-select" data-corner-tyre-select="RR" aria-label="Select Mounted Tyre for Rear Right"></select>
             </div>
 
             <div class="field-group tyre-stack-field">
@@ -1191,6 +1276,10 @@
                 <span class="telem-label" style="margin: 0;">Next Cold Set:</span>
                 <span class="mono txt-emerald" style="font-weight: 900;" id="outTyreNextCold_RR">30.0 psi</span>
               </div>
+              <div class="tyre-telem-line tyre-learned-line">
+                <span class="telem-label" style="margin: 0;">Learned Cold:</span>
+                <span class="mono txt-amber" id="outTyreLearnedCold_RR">29.8 psi (1 run)</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1209,15 +1298,10 @@
           />
         </div>
 
-        <!-- Side-by-Side 3D Metal Action Buttons -->
-        <div class="form-grid-2" style="margin-top: 12px;">
-          <button type="button" class="btn btn-amber-outline" id="btnSaveTrackColdTyres">
-            Save Cold PSI to Track
-          </button>
-          <button type="button" class="btn btn-confirm" id="btnSaveTyresSession">
-            Save Tyres to Session
-          </button>
-        </div>
+        <!-- Standalone Full-Width 3D Emerald Action Button -->
+        <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveTyresSession" style="margin-top: 12px;">
+          SAVE TYRES TO SESSION
+        </button>
       </div>
     </section>
 
@@ -1929,9 +2013,99 @@
     </div>
   </div>
 
+  <!-- ===========================================================
+       MODAL 4: KENDA KR15 TYRE POOL & CROSS-ROTATION MANAGER
+       =========================================================== -->
+  <div id="modalTyrePool" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTyrePoolTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">Kenda KR15 (205/65R15) &bull; Group 3H 1.5 mm Limit</div>
+          <h3 class="modal-title" id="modalTyrePoolTitle">Tyre Pool &amp; Cross Rotation</h3>
+        </div>
+        <button type="button" class="btn btn-back-red" data-close-modal="modalTyrePool">
+          Close
+        </button>
+      </div>
+
+      <!-- Quick Cross-Rotation Buttons inside Modal -->
+      <div class="card-elevated" style="margin-bottom: 12px;">
+        <div class="section-eyebrow" style="margin-bottom: 8px;">1-Tap Cross / Diagonal Rotation</div>
+        <div class="form-grid-2" style="gap: 8px;">
+          <button type="button" class="btn btn-secondary" id="btnCrossSwapTyresX" style="font-size: 14px; min-height: 46px; padding: 8px 10px;">
+            Cross X (FL&harr;RR &amp; FR&harr;RL)
+          </button>
+          <button type="button" class="btn btn-secondary" id="btnRotateClockwiseTyres" style="font-size: 14px; min-height: 46px; padding: 8px 10px;">
+            Rotate Clockwise (FL&rarr;FR&rarr;RR&rarr;RL)
+          </button>
+        </div>
+      </div>
+
+      <!-- Add New Tyre to Pool -->
+      <div class="card-elevated" style="margin-bottom: 12px;">
+        <div class="section-eyebrow" style="margin-bottom: 8px;">Add New / Spare Tyre to Inventory</div>
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="inputNewTyreCode">Tyre ID / Code</label>
+              <span class="field-hint">e.g. K5, K6</span>
+            </div>
+            <input type="text" id="inputNewTyreCode" class="text-input" placeholder="e.g. K5" autocomplete="off" />
+          </div>
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="inputNewTyreStamp">HQRA Stamp / Notes</label>
+              <span class="field-hint">Optional</span>
+            </div>
+            <input type="text" id="inputNewTyreStamp" class="text-input" placeholder="e.g. HQRA #412 / New" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="inputNewTyreTreadMm">Tread Depth (mm)</label>
+              <span class="field-hint amber">1.5 mm min</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="inputNewTyreTreadMm" data-step="-0.2" aria-label="Decrease New Tyre Tread Depth">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="inputNewTyreTreadMm" class="num-input" value="5.5" min="0.5" max="8.0" step="0.1" inputmode="decimal" />
+                <span class="num-unit-badge">mm</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="inputNewTyreTreadMm" data-step="0.2" aria-label="Increase New Tyre Tread Depth">+</button>
+            </div>
+          </div>
+
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="inputNewTyreBaseLaps">Starting Laps</label>
+              <span class="field-hint">0 if brand new</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="inputNewTyreBaseLaps" data-step="-1" aria-label="Decrease Starting Laps">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="inputNewTyreBaseLaps" class="num-input" value="0" min="0" max="500" step="1" inputmode="numeric" />
+                <span class="num-unit-badge">laps</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="inputNewTyreBaseLaps" data-step="1" aria-label="Increase Starting Laps">+</button>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-confirm btn-full" id="btnAddNewTyreToPool">
+          + Add Tyre to Kenda Pool
+        </button>
+      </div>
+
+      <div class="section-eyebrow" style="margin-bottom: 8px;">Active &amp; Retired Kenda KR15 Tyres</div>
+      <div id="tyrePoolModalList" class="tyre-pool-list"></div>
+    </div>
+  </div>
+
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.4.5"></script>
+  <script src="./app.js?v=0.4.6"></script>
 </body>
 </html>
