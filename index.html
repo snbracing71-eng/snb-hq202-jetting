@@ -582,7 +582,7 @@
     </section>
 
     <!-- =========================================================
-         TAB 2: FUEL & WT (Condensed 2x2 Litres Planner, Pump-Out & 1365kg Scales)
+         TAB 2: FUEL & WT (Condensed Litres Planner, Pump-Out & 1365kg Scales)
          ========================================================= -->
     <section id="tab-fuel" class="tab-panel" aria-labelledby="navTabFuel">
       <!-- CARD 1: PRE-RACE FUEL LOAD & L/LAP CALIBRATOR -->
@@ -595,8 +595,8 @@
           <span class="locked-badge" id="fuelActiveSgBadge">SG 0.740 kg/L</span>
         </div>
 
-        <!-- Top Compact 2-Column Row: Circuit / Track + Track Burn Rate (L/lap) -->
-        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 12px;">
+        <!-- Shared Active Session Bar: Circuit / Track + Session Date -->
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
               <label class="field-label" for="selectFuelTrack">Circuit / Track</label>
@@ -646,6 +646,46 @@
 
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
+              <label class="field-label" for="inputFuelSessionDate">Session Date</label>
+              <span class="field-hint" id="fuelSessionDateHint">Synced</span>
+            </div>
+            <input type="date" id="inputFuelSessionDate" class="text-input" aria-label="Fuel Session Date" />
+          </div>
+        </div>
+
+        <div id="customFuelTrackWrap" class="field-group" style="display: none; margin-bottom: 10px;">
+          <label class="field-label" for="inputCustomFuelTrack">Custom Circuit Name</label>
+          <input type="text" id="inputCustomFuelTrack" class="text-input" placeholder="e.g. Wakefield / Test Track" autocomplete="off" />
+        </div>
+
+        <!-- Shared Active Session Bar Row 2: Session Name + Track Burn (L/lap) -->
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 12px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="selectFuelSessionName">Session Name</label>
+              <span class="field-hint emerald">Unified Log</span>
+            </div>
+            <select id="selectFuelSessionName" class="select-input" aria-label="Select Fuel Session Name">
+              <option value="Practice 1">Practice 1</option>
+              <option value="Practice 2">Practice 2</option>
+              <option value="Practice 3">Practice 3</option>
+              <option value="Practice 4">Practice 4</option>
+              <option value="Practice 5">Practice 5</option>
+              <option value="Practice 6">Practice 6</option>
+              <option value="Practice 7">Practice 7</option>
+              <option value="Qualifying">Qualifying</option>
+              <option value="Warm Up">Warm Up</option>
+              <option value="Race 1">Race 1</option>
+              <option value="Race 2" selected>Race 2</option>
+              <option value="Race 3">Race 3</option>
+              <option value="Race 4">Race 4</option>
+              <option value="Final">Final</option>
+              <option value="__CUSTOM__">Custom Session...</option>
+            </select>
+          </div>
+
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
               <label class="field-label" for="inputTrackBurnLPerLap">Track Burn (L/lap)</label>
               <span class="field-hint emerald" id="trackBurnSourceHint">Calder Avg</span>
             </div>
@@ -660,97 +700,80 @@
           </div>
         </div>
 
-        <div id="customFuelTrackWrap" class="field-group" style="display: none; margin-bottom: 12px;">
-          <label class="field-label" for="inputCustomFuelTrack">Custom Circuit Name</label>
-          <input type="text" id="inputCustomFuelTrack" class="text-input" placeholder="e.g. Wakefield / Test Track" autocomplete="off" />
+        <div id="customFuelSessionWrap" class="field-group" style="display: none; margin-bottom: 12px;">
+          <label class="field-label" for="inputCustomFuelSessionName">Custom Session Name</label>
+          <input type="text" id="inputCustomFuelSessionName" class="text-input" placeholder="e.g. Trophy Race / Feature" autocomplete="off" />
         </div>
 
-        <!-- Sub-section A: Pre-Race Fuel Load Planner (Condensed 2x2 Grid + 3-Col Readout) -->
+        <!-- Sub-section A: Pre-Race Fuel Load Planner (No Out/Cool Laps — Included in Pump-Out L/Lap) -->
         <div class="card-elevated" style="margin-bottom: 14px;">
           <div class="section-eyebrow" style="margin-bottom: 10px;">Sub-Section A &bull; Pre-Race Fuel Load Planner (Litres)</div>
 
-          <!-- Row 1: Race Laps | Out / Cool Laps -->
+          <!-- Row 1: Raced Laps | Baseline Pickup Floor (L) -->
           <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
-                <label class="field-label" for="inputFuelRaceLaps">Race Laps</label>
+                <label class="field-label" for="inputRaceLaps">Raced Laps</label>
                 <span class="field-hint">Scheduled</span>
               </div>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputFuelRaceLaps" data-step="-1" aria-label="Decrease Race Laps">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputRaceLaps" data-step="-1" aria-label="Decrease Raced Laps">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputFuelRaceLaps" class="num-input" value="12" min="1" max="100" step="1" inputmode="numeric" />
+                  <input type="number" id="inputRaceLaps" class="num-input" value="12" min="1" max="100" step="1" inputmode="numeric" />
                   <span class="num-unit-badge">laps</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputFuelRaceLaps" data-step="1" aria-label="Increase Race Laps">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputRaceLaps" data-step="1" aria-label="Increase Raced Laps">+</button>
               </div>
             </div>
 
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
-                <label class="field-label" for="inputFuelExtraLaps">Out / Cool Laps</label>
-                <span class="field-hint">Warm-up + In</span>
-              </div>
-              <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputFuelExtraLaps" data-step="-0.5" aria-label="Decrease Extra Laps">&minus;</button>
-                <div class="num-input-wrap">
-                  <input type="number" id="inputFuelExtraLaps" class="num-input" value="1.0" min="0.0" max="15.0" step="0.5" inputmode="decimal" />
-                  <span class="num-unit-badge">laps</span>
-                </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputFuelExtraLaps" data-step="0.5" aria-label="Increase Extra Laps">+</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Row 2: Safe Pickup Floor (L) | Tank Residual Now (L) -->
-          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 12px;">
-            <div class="field-group" style="margin-bottom: 0;">
-              <div class="field-label-row">
-                <label class="field-label" for="inputFuelFloorL">Safe Pickup Floor (L)</label>
+                <label class="field-label" for="inputFuelFloorL">Baseline Pickup Floor (L)</label>
                 <span class="field-hint amber">19.0 L surge min</span>
               </div>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputFuelFloorL" data-step="-0.5" aria-label="Decrease Safe Tank Pickup Floor">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputFuelFloorL" data-step="-0.5" aria-label="Decrease Baseline Pickup Floor">&minus;</button>
                 <div class="num-input-wrap">
                   <input type="number" id="inputFuelFloorL" class="num-input" value="19.0" min="5.0" max="45.0" step="0.5" inputmode="decimal" />
                   <span class="num-unit-badge">L</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputFuelFloorL" data-step="0.5" aria-label="Increase Safe Tank Pickup Floor">+</button>
-              </div>
-            </div>
-
-            <div class="field-group" style="margin-bottom: 0;">
-              <div class="field-label-row">
-                <label class="field-label" for="inputCurrentTankL">Tank Residual Now (L)</label>
-                <span class="field-hint">Before pour</span>
-              </div>
-              <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputCurrentTankL" data-step="-0.5" aria-label="Decrease Current Tank Residual">&minus;</button>
-                <div class="num-input-wrap">
-                  <input type="number" id="inputCurrentTankL" class="num-input" value="0.0" min="0.0" max="74.0" step="0.5" inputmode="decimal" />
-                  <span class="num-unit-badge">L</span>
-                </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputCurrentTankL" data-step="0.5" aria-label="Increase Current Tank Residual">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputFuelFloorL" data-step="0.5" aria-label="Increase Baseline Pickup Floor">+</button>
               </div>
             </div>
           </div>
 
-          <!-- Compact 3-Column Live Fuel Planner Output Row -->
+          <!-- Row 2: Tank Residual Before Pour (L) -->
+          <div class="field-group" style="margin-bottom: 12px;">
+            <div class="field-label-row">
+              <label class="field-label" for="inputCurrentTankL">Tank Residual Before Pour (L)</label>
+              <span class="field-hint">0.0 L when pumped empty (or fuel left in tank)</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="inputCurrentTankL" data-step="-0.5" aria-label="Decrease Tank Residual Before Pour">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="inputCurrentTankL" class="num-input" value="0.0" min="0.0" max="74.0" step="0.5" inputmode="decimal" />
+                <span class="num-unit-badge">L</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="inputCurrentTankL" data-step="0.5" aria-label="Increase Tank Residual Before Pour">+</button>
+            </div>
+          </div>
+
+          <!-- Compact 3-Column Live Fuel Planner Output Row (Green Highlight on LITRES TO POUR) -->
           <div class="fuel-telem-3col">
             <div class="telem-cell">
               <span class="telem-label">Expected Burn (L)</span>
-              <span class="telem-val txt-amber" id="outFuelExpectedBurnL">16.9 L</span>
-              <span class="telem-sub" id="outFuelExpectedBurnSub">13.0 laps &times; 1.30 L/lap</span>
+              <span class="telem-val txt-amber" id="outFuelExpectedBurnL">15.6 L</span>
+              <span class="telem-sub" id="outFuelExpectedBurnSub">12 laps &times; 1.30 L/lap</span>
             </div>
-            <div class="telem-cell afr-verified-cell" id="cellFuelStartReq">
+            <div class="telem-cell" id="cellFuelStartReq">
               <span class="telem-label">Starting Fuel Req (L)</span>
-              <span class="telem-val txt-emerald" id="outFuelStartReqL">35.9 L</span>
-              <span class="telem-sub" id="outFuelStartMassHint">26.6 kg @ 0.740 SG</span>
+              <span class="telem-val" id="outFuelStartReqL">34.6 L</span>
+              <span class="telem-sub" id="outFuelStartMassHint">25.6 kg @ 0.740 SG</span>
             </div>
-            <div class="telem-cell">
+            <div class="telem-cell afr-verified-cell" id="cellFuelPourJugs">
               <span class="telem-label">Litres to Pour (L)</span>
-              <span class="telem-val" id="outFuelPourJugsL">35.9 L</span>
-              <span class="telem-sub" id="outFuelPourJugsSub">From 0.0 L residual</span>
+              <span class="telem-val txt-emerald" id="outFuelPourJugsL">34.6 L</span>
+              <span class="telem-sub" id="outFuelPourJugsSub">19.0L base + 15.6L burn</span>
             </div>
           </div>
         </div>
@@ -792,20 +815,20 @@
             </div>
           </div>
 
-          <!-- Row 2: Laps Driven | Live Measured Burn & Used Readout Box -->
+          <!-- Row 2: Raced Laps Completed | Live Measured Burn & Used Readout Box -->
           <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 12px; align-items: stretch;">
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
-                <label class="field-label" for="inputPumpLaps">Laps Driven</label>
-                <span class="field-hint">Include Out/In</span>
+                <label class="field-label" for="inputPumpLaps">Raced Laps Completed</label>
+                <span class="field-hint">Out/In baked in</span>
               </div>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputPumpLaps" data-step="-1" aria-label="Decrease Total Laps Driven">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputPumpLaps" data-step="-1" aria-label="Decrease Raced Laps Completed">&minus;</button>
                 <div class="num-input-wrap">
                   <input type="number" id="inputPumpLaps" class="num-input" value="10" min="1" max="100" step="1" inputmode="numeric" />
                   <span class="num-unit-badge">laps</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputPumpLaps" data-step="1" aria-label="Increase Total Laps Driven">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputPumpLaps" data-step="1" aria-label="Increase Raced Laps Completed">+</button>
               </div>
             </div>
 
@@ -816,11 +839,9 @@
             </div>
           </div>
 
-          <button type="button" class="btn btn-confirm btn-full" id="btnLogPumpOut">
-            LOG PUMP-OUT &amp; UPDATE L/LAP
+          <button type="button" class="btn btn-amber-outline btn-full" id="btnLogPumpOut">
+            Calibrate Track L/Lap &amp; Save to Session
           </button>
-
-          <div id="pumpOutHistoryList" style="margin-top: 10px;"></div>
         </div>
       </div>
 
@@ -908,12 +929,16 @@
         </div>
 
         <!-- Live Post-Race Scrutineering Weight Status Banner -->
-        <div id="scrutineerWeightAlert" class="manifold-alert safe" style="margin-bottom: 0;" role="region" aria-live="polite">
+        <div id="scrutineerWeightAlert" class="manifold-alert safe" style="margin-bottom: 12px;" role="region" aria-live="polite">
           <h4 class="alert-title" id="scrutineerAlertTitle">SCRUTINEERING WEIGHT SAFE (+6.1 KG BUFFER)</h4>
           <p class="alert-body" id="scrutineerAlertBody">
             Car + Driver dry baseline is 1357.0 kg. Finishing with 19.0 L (14.1 kg @ 0.740 SG) puts post-race weight at 1371.1 kg (+6.1 kg legal buffer).
           </p>
         </div>
+
+        <button type="button" class="btn btn-confirm btn-full" id="btnSaveFuelWeightSession">
+          Save Fuel &amp; Weight to Session
+        </button>
       </div>
     </section>
 
@@ -925,13 +950,13 @@
         <div class="section-head">
           <div>
             <div class="section-eyebrow">Kenda KR15 Control Tyre (205/65R15) &bull; Visual Car Layout</div>
-            <h2 class="section-title">4-Corner Tyre Pressure &amp; Temp Matrix</h2>
+            <h2 class="section-title">4-Corner Tyre Pressure Matrix</h2>
           </div>
           <span class="locked-badge" id="tyreTargetBadge">Target 44.0 PSI</span>
         </div>
 
-        <!-- Top Compact 2-Column Header Row: Circuit / Track | Hot Target PSI -->
-        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 12px;">
+        <!-- Shared Active Session Bar Row 1: Circuit / Track + Session Date -->
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
               <label class="field-label" for="selectTyreTrack">Circuit / Track</label>
@@ -981,6 +1006,46 @@
 
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
+              <label class="field-label" for="inputTyreSessionDate">Session Date</label>
+              <span class="field-hint" id="tyreSessionDateHint">Synced</span>
+            </div>
+            <input type="date" id="inputTyreSessionDate" class="text-input" aria-label="Tyre Session Date" />
+          </div>
+        </div>
+
+        <div id="customTyreTrackWrap" class="field-group" style="display: none; margin-bottom: 10px;">
+          <label class="field-label" for="inputCustomTyreTrack">Custom Circuit Name</label>
+          <input type="text" id="inputCustomTyreTrack" class="text-input" placeholder="e.g. Wakefield / Test Track" autocomplete="off" />
+        </div>
+
+        <!-- Shared Active Session Bar Row 2: Session Name + Hot Target PSI -->
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 12px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="selectTyreSessionName">Session Name</label>
+              <span class="field-hint emerald">Unified Log</span>
+            </div>
+            <select id="selectTyreSessionName" class="select-input" aria-label="Select Tyre Session Name">
+              <option value="Practice 1">Practice 1</option>
+              <option value="Practice 2">Practice 2</option>
+              <option value="Practice 3">Practice 3</option>
+              <option value="Practice 4">Practice 4</option>
+              <option value="Practice 5">Practice 5</option>
+              <option value="Practice 6">Practice 6</option>
+              <option value="Practice 7">Practice 7</option>
+              <option value="Qualifying">Qualifying</option>
+              <option value="Warm Up">Warm Up</option>
+              <option value="Race 1">Race 1</option>
+              <option value="Race 2" selected>Race 2</option>
+              <option value="Race 3">Race 3</option>
+              <option value="Race 4">Race 4</option>
+              <option value="Final">Final</option>
+              <option value="__CUSTOM__">Custom Session...</option>
+            </select>
+          </div>
+
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
               <label class="field-label" for="inputTyreHotTarget">Hot Target PSI</label>
               <span class="field-hint emerald">KR15 44.0</span>
             </div>
@@ -995,16 +1060,16 @@
           </div>
         </div>
 
-        <div id="customTyreTrackWrap" class="field-group" style="display: none; margin-bottom: 12px;">
-          <label class="field-label" for="inputCustomTyreTrack">Custom Circuit Name</label>
-          <input type="text" id="inputCustomTyreTrack" class="text-input" placeholder="e.g. Wakefield / Test Track" autocomplete="off" />
+        <div id="customTyreSessionWrap" class="field-group" style="display: none; margin-bottom: 12px;">
+          <label class="field-label" for="inputCustomTyreSessionName">Custom Session Name</label>
+          <input type="text" id="inputCustomTyreSessionName" class="text-input" placeholder="e.g. Trophy Race / Feature" autocomplete="off" />
         </div>
 
         <div class="car-orientation-banner">
           <span>&uarr; FRONT OF RACE CAR &uarr;</span>
         </div>
 
-        <!-- Strict 2x2 Visual Car Chassis Grid: FL | FR on Top, RL | RR on Bottom -->
+        <!-- Strict 2x2 Visual Car Chassis Grid: FL | FR on Top, RL | RR on Bottom (ONLY Cold PSI + Hot PSI per corner) -->
         <div class="tyre-chassis-grid">
           <!-- FL: Front Left -->
           <div class="card-elevated tyre-corner-card">
@@ -1014,7 +1079,7 @@
             </div>
 
             <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputColdPsi_FL">Cold Start PSI</label>
+              <label class="field-label" for="inputColdPsi_FL">Cold PSI</label>
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FL" data-step="-0.5" aria-label="Decrease FL Cold PSI">&minus;</button>
                 <div class="num-input-wrap">
@@ -1026,7 +1091,7 @@
             </div>
 
             <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputHotPsi_FL">Hot Off-Track PSI</label>
+              <label class="field-label" for="inputHotPsi_FL">Hot PSI</label>
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_FL" data-step="-0.2" aria-label="Decrease FL Hot PSI">&minus;</button>
                 <div class="num-input-wrap">
@@ -1034,30 +1099,6 @@
                   <span class="num-unit-badge">psi</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_FL" data-step="0.2" aria-label="Increase FL Hot PSI">+</button>
-              </div>
-            </div>
-
-            <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputColdTemp_FL">Cold Temp (&deg;C)</label>
-              <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputColdTemp_FL" data-step="-1" aria-label="Decrease FL Cold Temp">&minus;</button>
-                <div class="num-input-wrap">
-                  <input type="number" id="inputColdTemp_FL" class="num-input" value="22" min="0" max="80" step="1" inputmode="numeric" />
-                  <span class="num-unit-badge">&deg;C</span>
-                </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputColdTemp_FL" data-step="1" aria-label="Increase FL Cold Temp">+</button>
-              </div>
-            </div>
-
-            <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputHotTemp_FL">Hot Temp (&deg;C)</label>
-              <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputHotTemp_FL" data-step="-1" aria-label="Decrease FL Hot Temp">&minus;</button>
-                <div class="num-input-wrap">
-                  <input type="number" id="inputHotTemp_FL" class="num-input" value="" placeholder="&mdash;" min="20" max="135" step="1" inputmode="numeric" />
-                  <span class="num-unit-badge">&deg;C</span>
-                </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputHotTemp_FL" data-step="1" aria-label="Increase FL Hot Temp">+</button>
               </div>
             </div>
 
@@ -1081,7 +1122,7 @@
             </div>
 
             <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputColdPsi_FR">Cold Start PSI</label>
+              <label class="field-label" for="inputColdPsi_FR">Cold PSI</label>
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FR" data-step="-0.5" aria-label="Decrease FR Cold PSI">&minus;</button>
                 <div class="num-input-wrap">
@@ -1093,7 +1134,7 @@
             </div>
 
             <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputHotPsi_FR">Hot Off-Track PSI</label>
+              <label class="field-label" for="inputHotPsi_FR">Hot PSI</label>
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_FR" data-step="-0.2" aria-label="Decrease FR Hot PSI">&minus;</button>
                 <div class="num-input-wrap">
@@ -1101,30 +1142,6 @@
                   <span class="num-unit-badge">psi</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_FR" data-step="0.2" aria-label="Increase FR Hot PSI">+</button>
-              </div>
-            </div>
-
-            <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputColdTemp_FR">Cold Temp (&deg;C)</label>
-              <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputColdTemp_FR" data-step="-1" aria-label="Decrease FR Cold Temp">&minus;</button>
-                <div class="num-input-wrap">
-                  <input type="number" id="inputColdTemp_FR" class="num-input" value="22" min="0" max="80" step="1" inputmode="numeric" />
-                  <span class="num-unit-badge">&deg;C</span>
-                </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputColdTemp_FR" data-step="1" aria-label="Increase FR Cold Temp">+</button>
-              </div>
-            </div>
-
-            <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputHotTemp_FR">Hot Temp (&deg;C)</label>
-              <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputHotTemp_FR" data-step="-1" aria-label="Decrease FR Hot Temp">&minus;</button>
-                <div class="num-input-wrap">
-                  <input type="number" id="inputHotTemp_FR" class="num-input" value="" placeholder="&mdash;" min="20" max="135" step="1" inputmode="numeric" />
-                  <span class="num-unit-badge">&deg;C</span>
-                </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputHotTemp_FR" data-step="1" aria-label="Increase FR Hot Temp">+</button>
               </div>
             </div>
 
@@ -1148,7 +1165,7 @@
             </div>
 
             <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputColdPsi_RL">Cold Start PSI</label>
+              <label class="field-label" for="inputColdPsi_RL">Cold PSI</label>
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RL" data-step="-0.5" aria-label="Decrease RL Cold PSI">&minus;</button>
                 <div class="num-input-wrap">
@@ -1160,7 +1177,7 @@
             </div>
 
             <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputHotPsi_RL">Hot Off-Track PSI</label>
+              <label class="field-label" for="inputHotPsi_RL">Hot PSI</label>
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_RL" data-step="-0.2" aria-label="Decrease RL Hot PSI">&minus;</button>
                 <div class="num-input-wrap">
@@ -1168,30 +1185,6 @@
                   <span class="num-unit-badge">psi</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_RL" data-step="0.2" aria-label="Increase RL Hot PSI">+</button>
-              </div>
-            </div>
-
-            <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputColdTemp_RL">Cold Temp (&deg;C)</label>
-              <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputColdTemp_RL" data-step="-1" aria-label="Decrease RL Cold Temp">&minus;</button>
-                <div class="num-input-wrap">
-                  <input type="number" id="inputColdTemp_RL" class="num-input" value="22" min="0" max="80" step="1" inputmode="numeric" />
-                  <span class="num-unit-badge">&deg;C</span>
-                </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputColdTemp_RL" data-step="1" aria-label="Increase RL Cold Temp">+</button>
-              </div>
-            </div>
-
-            <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputHotTemp_RL">Hot Temp (&deg;C)</label>
-              <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputHotTemp_RL" data-step="-1" aria-label="Decrease RL Hot Temp">&minus;</button>
-                <div class="num-input-wrap">
-                  <input type="number" id="inputHotTemp_RL" class="num-input" value="" placeholder="&mdash;" min="20" max="135" step="1" inputmode="numeric" />
-                  <span class="num-unit-badge">&deg;C</span>
-                </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputHotTemp_RL" data-step="1" aria-label="Increase RL Hot Temp">+</button>
               </div>
             </div>
 
@@ -1215,7 +1208,7 @@
             </div>
 
             <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputColdPsi_RR">Cold Start PSI</label>
+              <label class="field-label" for="inputColdPsi_RR">Cold PSI</label>
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RR" data-step="-0.5" aria-label="Decrease RR Cold PSI">&minus;</button>
                 <div class="num-input-wrap">
@@ -1227,7 +1220,7 @@
             </div>
 
             <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputHotPsi_RR">Hot Off-Track PSI</label>
+              <label class="field-label" for="inputHotPsi_RR">Hot PSI</label>
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_RR" data-step="-0.2" aria-label="Decrease RR Hot PSI">&minus;</button>
                 <div class="num-input-wrap">
@@ -1235,30 +1228,6 @@
                   <span class="num-unit-badge">psi</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_RR" data-step="0.2" aria-label="Increase RR Hot PSI">+</button>
-              </div>
-            </div>
-
-            <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputColdTemp_RR">Cold Temp (&deg;C)</label>
-              <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputColdTemp_RR" data-step="-1" aria-label="Decrease RR Cold Temp">&minus;</button>
-                <div class="num-input-wrap">
-                  <input type="number" id="inputColdTemp_RR" class="num-input" value="22" min="0" max="80" step="1" inputmode="numeric" />
-                  <span class="num-unit-badge">&deg;C</span>
-                </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputColdTemp_RR" data-step="1" aria-label="Increase RR Cold Temp">+</button>
-              </div>
-            </div>
-
-            <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputHotTemp_RR">Hot Temp (&deg;C)</label>
-              <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputHotTemp_RR" data-step="-1" aria-label="Decrease RR Hot Temp">&minus;</button>
-                <div class="num-input-wrap">
-                  <input type="number" id="inputHotTemp_RR" class="num-input" value="" placeholder="&mdash;" min="20" max="135" step="1" inputmode="numeric" />
-                  <span class="num-unit-badge">&deg;C</span>
-                </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputHotTemp_RR" data-step="1" aria-label="Increase RR Hot Temp">+</button>
               </div>
             </div>
 
@@ -1278,7 +1247,7 @@
         <div class="field-group" style="margin-top: 12px;">
           <div class="field-label-row">
             <label class="field-label" for="inputTyreRunNotes">Tyre Run Notes (Optional)</label>
-            <span class="field-hint">Saved to Tyre History</span>
+            <span class="field-hint">Saved to Unified Session Log</span>
           </div>
           <input
             type="text"
@@ -1294,29 +1263,10 @@
           <button type="button" class="btn btn-amber-outline" id="btnSaveTrackColdTyres">
             Save Cold PSI to Track
           </button>
-          <button type="button" class="btn btn-confirm" id="btnLogTyreSession">
-            Log Tyre Session
+          <button type="button" class="btn btn-confirm" id="btnSaveTyresSession">
+            Save Tyres to Session
           </button>
         </div>
-      </div>
-
-      <!-- LOGGED TYRE SESSION HISTORY CARD -->
-      <div class="card">
-        <div class="section-head">
-          <div>
-            <div class="section-eyebrow">Persistent 4-Corner Kenda KR15 Log</div>
-            <h2 class="section-title">Logged Tyre Session History</h2>
-          </div>
-          <span class="locked-badge" id="tyreLogCountBadge">1 Run</span>
-        </div>
-
-        <div style="margin-bottom: 12px;">
-          <button type="button" class="btn btn-secondary btn-full" id="btnExportTyresCsv">
-            Export Tyre History CSV
-          </button>
-        </div>
-
-        <div id="tyreHistoryList"></div>
       </div>
     </section>
 

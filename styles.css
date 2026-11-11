@@ -1976,6 +1976,13 @@ textarea:focus-visible {
   font-size: 18px;
 }
 
+.fuel-telem-3col .afr-verified-cell .telem-val {
+  font-size: 21.5px;
+  font-weight: 900;
+  color: var(--emerald-bright);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+}
+
 .fuel-telem-3col .telem-sub {
   font-size: 12px;
 }
@@ -1984,6 +1991,66 @@ textarea:focus-visible {
   .fuel-telem-3col {
     grid-template-columns: 1fr;
   }
+}
+
+.unified-session-subblock {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 6%, rgba(255, 255, 255, 0.07) 0%, transparent 70%),
+    linear-gradient(180deg, #090C12 0%, #121824 100%);
+  border: 1.5px solid #2E3B4E;
+  border-top-color: #18202C;
+  border-bottom-color: #465873;
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.9),
+    0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.unified-subblock-title {
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--amber-bright);
+  margin-bottom: 4px;
+}
+
+.unified-fuel-line {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #F8FAFC;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.unified-tyre-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 4px;
+}
+
+@media (min-width: 560px) {
+  .unified-tyre-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.unified-tyre-pill {
+  padding: 5px 7px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #151C28 0%, #0C1018 100%);
+  border: 1px solid #35445B;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+  color: #F8FAFC;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
 }
 
 .car-orientation-banner {

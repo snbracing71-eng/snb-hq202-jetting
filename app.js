@@ -333,6 +333,24 @@
         afr5500: 12.51,
         afrWot: 12.50,
         peakRpm: 5900,
+        litresToPourL: 34.6,
+        startingFuelReqL: 34.6,
+        expectedBurnL: 15.6,
+        fuelFloorL: 19.0,
+        fuelInL: 36.0,
+        fuelOutL: 23.0,
+        fuelUsedL: 13.0,
+        racedLaps: 10,
+        measuredBurnLPerLap: 1.30,
+        scaleWeightKg: 1377.0,
+        postRaceEstKg: 1371.1,
+        tyreHotTarget: 44.0,
+        tyres: {
+          FL: { cold: 30.0, hot: 43.8, build: 13.8, nextCold: 30.2 },
+          FR: { cold: 30.0, hot: 44.6, build: 14.6, nextCold: 29.5 },
+          RL: { cold: 30.0, hot: 43.4, build: 13.4, nextCold: 30.5 },
+          RR: { cold: 30.0, hot: 44.2, build: 14.2, nextCold: 29.8 }
+        },
         notes: 'Safe rich slipstream setup (2.000mm drill in #77 body); 5.0 psi steady at block boss.'
       },
       {
@@ -497,11 +515,8 @@
   }
 
   function createDefaultChassisState() {
-    const todayIso = getLocalTodayIso();
-    const todayDisp = formatIsoDateDisplay(todayIso);
     return {
       raceLaps: 12,
-      extraLaps: 1.0,
       fuelFloorL: 19.0,
       currentTankL: 0.0,
       pumpBeforeL: 36.0,
@@ -512,52 +527,39 @@
       scaleCheckFuelL: 27.0,
       tyreHotTarget: 44.0,
       hotTyres: { FL: null, FR: null, RL: null, RR: null },
-      coldTemps: { FL: 22, FR: 22, RL: 22, RR: 22 },
-      hotTemps: { FL: null, FR: null, RL: null, RR: null },
       trackProfiles: createDefaultTrackProfiles(),
-      pumpRuns: [
-        {
-          id: 'pump_calder_seed',
-          venue: 'Calder Park Raceway',
-          sessionDate: todayDisp,
-          sessionName: 'Race 1',
-          beforeL: 36.0,
-          afterL: 23.0,
-          usedL: 13.0,
-          laps: 10,
-          burnLPerLap: 1.30
-        }
-      ],
-      historyRuns: [
-        {
-          id: 'chassis_calder_seed',
-          venue: 'Calder Park Raceway',
-          sessionDateIso: todayIso,
-          sessionDate: todayDisp,
-          sessionName: 'Race 1',
-          timestamp: 'Sun 10:50',
-          burnLPerLap: 1.30,
-          raceLaps: 12,
-          extraLaps: 1.0,
-          fuelFloorL: 19.0,
-          expectedBurnL: 16.9,
-          startFuelReqL: 35.9,
-          pourJugsL: 35.9,
-          endFuelL: 19.0,
-          fuelSg: 0.740,
-          dryCarDriverKg: 1357.0,
-          predPostRaceKg: 1371.1,
-          minLegalKg: 1365.0,
-          tyreHotTarget: 44.0,
-          notes: 'Calder Race 1 Kenda KR15 baseline — balanced turn-in and traction.',
-          corners: {
-            FL: { cold: 30.0, hot: 43.8, coldTemp: 22, hotTemp: 68, build: 13.8, nextCold: 30.2 },
-            FR: { cold: 30.0, hot: 44.6, coldTemp: 22, hotTemp: 72, build: 14.6, nextCold: 29.5 },
-            RL: { cold: 30.0, hot: 43.4, coldTemp: 22, hotTemp: 64, build: 13.4, nextCold: 30.5 },
-            RR: { cold: 30.0, hot: 44.2, coldTemp: 22, hotTemp: 69, build: 14.2, nextCold: 29.8 }
-          }
-        }
-      ]
+      pumpRuns: [],
+      historyRuns: []
+    };
+  }
+
+  function normalizeTyreCornersObject(rawCorners) {
+    if (!rawCorners || typeof rawCorners !== 'object') return null;
+    const pickOpt = (v) => (v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v)) ? Number(v) : null);
+    const normCorner = (newKey, oldKey) => {
+      const src = rawCorners[newKey] || rawCorners[oldKey];
+      if (!src || typeof src !== 'object') return null;
+      const cold = Number.isFinite(Number(src.cold)) ? Number(Number(src.cold).toFixed(1)) : 30.0;
+      const hot = pickOpt(src.hot);
+      const build = hot !== null ? Number((hot - cold).toFixed(1)) : pickOpt(src.build);
+      const nextCold = Number.isFinite(Number(src.nextCold)) ? Number(Number(src.nextCold).toFixed(1)) : cold;
+      return {
+        cold,
+        hot: hot !== null ? Number(hot.toFixed(1)) : null,
+        build,
+        nextCold
+      };
+    };
+    const fl = normCorner('FL', 'LF');
+    const fr = normCorner('FR', 'RF');
+    const rl = normCorner('RL', 'LR');
+    const rr = normCorner('RR', 'RR');
+    if (!fl && !fr && !rl && !rr) return null;
+    return {
+      FL: fl || { cold: 30.0, hot: null, build: null, nextCold: 30.0 },
+      FR: fr || { cold: 30.0, hot: null, build: null, nextCold: 30.0 },
+      RL: rl || { cold: 30.0, hot: null, build: null, nextCold: 30.0 },
+      RR: rr || { cold: 30.0, hot: null, build: null, nextCold: 30.0 }
     };
   }
 
@@ -568,6 +570,8 @@
     const defaultCarbies = createDefaultCarbies();
     const todayIso = getLocalTodayIso();
     const todayDisp = formatIsoDateDisplay(todayIso);
+    const pickOptNum = (v) => (v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v)) ? Number(v) : null);
+
     candidate.jets = sortJetsByDiameter(candidate.jets || createDefaultJets());
 
     if (!Array.isArray(candidate.carbies) || candidate.carbies.length === 0) {
@@ -619,6 +623,9 @@
     candidate.baseline = b;
     candidate.awaitingPostRaceId = candidate.awaitingPostRaceId || null;
 
+    const defaultSessions = createDefaultSessions();
+    const defCalderR1 = defaultSessions.find((ds) => ds.id === 'calder_r1');
+
     candidate.sessions = (candidate.sessions || []).map((s) => {
       const venue =
         !s.venue || s.venue === 'Calder Park' || s.venue === 'Calder Park / Track'
@@ -638,6 +645,38 @@
       const peakRpm = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
       const waterTempC = normalizeOptionalWaterTemp(s.waterTempC);
       const fuelTempC = Number.isFinite(Number(s.fuelTempC)) ? Number(Number(s.fuelTempC).toFixed(1)) : 20.0;
+
+      let tyres = normalizeTyreCornersObject(s.tyres || s.corners);
+      let litresToPourL = pickOptNum(s.litresToPourL ?? s.pourJugsL);
+      let startingFuelReqL = pickOptNum(s.startingFuelReqL ?? s.startFuelReqL);
+      let expectedBurnL = pickOptNum(s.expectedBurnL);
+      let fuelFloorL = pickOptNum(s.fuelFloorL);
+      let fuelInL = pickOptNum(s.fuelInL ?? s.beforeL);
+      let fuelOutL = pickOptNum(s.fuelOutL ?? s.afterL);
+      let fuelUsedL = pickOptNum(s.fuelUsedL ?? s.usedL);
+      let racedLaps = pickOptNum(s.racedLaps ?? s.laps);
+      let measuredBurnLPerLap = pickOptNum(s.measuredBurnLPerLap ?? s.burnLPerLap);
+      let scaleWeightKg = pickOptNum(s.scaleWeightKg);
+      let postRaceEstKg = pickOptNum(s.postRaceEstKg ?? s.predPostRaceKg);
+      let tyreHotTarget = pickOptNum(s.tyreHotTarget);
+
+      // Back-fill seed Race 1 with unified Fuel/Weight & Tyres if not yet populated
+      if (s.id === 'calder_r1' && defCalderR1) {
+        if (!tyres) tyres = normalizeTyreCornersObject(defCalderR1.tyres);
+        if (litresToPourL === null) litresToPourL = defCalderR1.litresToPourL;
+        if (startingFuelReqL === null) startingFuelReqL = defCalderR1.startingFuelReqL;
+        if (expectedBurnL === null) expectedBurnL = defCalderR1.expectedBurnL;
+        if (fuelFloorL === null) fuelFloorL = defCalderR1.fuelFloorL;
+        if (fuelInL === null) fuelInL = defCalderR1.fuelInL;
+        if (fuelOutL === null) fuelOutL = defCalderR1.fuelOutL;
+        if (fuelUsedL === null) fuelUsedL = defCalderR1.fuelUsedL;
+        if (racedLaps === null) racedLaps = defCalderR1.racedLaps;
+        if (measuredBurnLPerLap === null) measuredBurnLPerLap = defCalderR1.measuredBurnLPerLap;
+        if (scaleWeightKg === null) scaleWeightKg = defCalderR1.scaleWeightKg;
+        if (postRaceEstKg === null) postRaceEstKg = defCalderR1.postRaceEstKg;
+        if (tyreHotTarget === null) tyreHotTarget = defCalderR1.tyreHotTarget;
+      }
+
       return {
         ...s,
         venue,
@@ -652,7 +691,20 @@
         afr5500: a55,
         afrWot: aWot,
         peakRpm,
-        afrStatus: s.afrStatus || 'verified'
+        afrStatus: s.afrStatus || 'verified',
+        litresToPourL,
+        startingFuelReqL,
+        expectedBurnL,
+        fuelFloorL,
+        fuelInL,
+        fuelOutL,
+        fuelUsedL,
+        racedLaps: racedLaps !== null ? Math.round(racedLaps) : null,
+        measuredBurnLPerLap,
+        scaleWeightKg,
+        postRaceEstKg,
+        tyreHotTarget,
+        tyres
       };
     });
 
@@ -700,40 +752,63 @@
       }
 
       const ht = (ch.hotTyres && typeof ch.hotTyres === 'object') ? ch.hotTyres : {};
-      const pickOptNum = (v) => (v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v)) ? Number(v) : null);
 
-      const cTemps = (ch.coldTemps && typeof ch.coldTemps === 'object') ? ch.coldTemps : {};
-      const hTemps = (ch.hotTemps && typeof ch.hotTemps === 'object') ? ch.hotTemps : {};
+      // Migrate any legacy standalone pumpRuns or historyRuns into unified candidate.sessions
+      const findSessionForLegacy = (venue, dateDisp, sessName) => {
+        const vNorm = venue || 'Calder Park Raceway';
+        const sNorm = sessName || 'Race 1';
+        for (let i = candidate.sessions.length - 1; i >= 0; i--) {
+          const s = candidate.sessions[i];
+          if (s.venue === vNorm && s.sessionName === sNorm && (!dateDisp || s.sessionDate === dateDisp)) {
+            return s;
+          }
+        }
+        for (let i = candidate.sessions.length - 1; i >= 0; i--) {
+          const s = candidate.sessions[i];
+          if (s.venue === vNorm && s.sessionName === sNorm) {
+            return s;
+          }
+        }
+        return null;
+      };
 
-      const migratedHistory = Array.isArray(ch.historyRuns)
-        ? ch.historyRuns.map((hr) => {
-            const c = (hr && hr.corners) || {};
-            const normCorner = (newKey, oldKey) => {
-              const src = c[newKey] || c[oldKey] || { cold: 30.0, hot: null, nextCold: 30.0 };
-              return {
-                cold: Number.isFinite(Number(src.cold)) ? Number(src.cold) : 30.0,
-                hot: pickOptNum(src.hot),
-                coldTemp: pickOptNum(src.coldTemp) ?? 22,
-                hotTemp: pickOptNum(src.hotTemp),
-                build: pickOptNum(src.build),
-                nextCold: Number.isFinite(Number(src.nextCold)) ? Number(src.nextCold) : 30.0
-              };
-            };
-            return {
-              ...hr,
-              corners: {
-                FL: normCorner('FL', 'LF'),
-                FR: normCorner('FR', 'RF'),
-                RL: normCorner('RL', 'LR'),
-                RR: normCorner('RR', 'RR')
-              }
-            };
-          })
-        : defChassis.historyRuns;
+      if (Array.isArray(ch.pumpRuns) && ch.pumpRuns.length > 0) {
+        ch.pumpRuns.forEach((pr) => {
+          if (!pr || pr.id === 'pump_calder_seed') return;
+          const target = findSessionForLegacy(pr.venue, pr.sessionDate, pr.sessionName);
+          if (target) {
+            target.fuelInL = pickOptNum(pr.beforeL) ?? target.fuelInL;
+            target.fuelOutL = pickOptNum(pr.afterL) ?? target.fuelOutL;
+            target.fuelUsedL = pickOptNum(pr.usedL) ?? target.fuelUsedL;
+            target.racedLaps = pickOptNum(pr.laps) !== null ? Math.round(Number(pr.laps)) : target.racedLaps;
+            target.measuredBurnLPerLap = pickOptNum(pr.burnLPerLap) ?? target.measuredBurnLPerLap;
+          }
+        });
+      }
+
+      if (Array.isArray(ch.historyRuns) && ch.historyRuns.length > 0) {
+        ch.historyRuns.forEach((hr) => {
+          if (!hr || hr.id === 'chassis_calder_seed') return;
+          const target = findSessionForLegacy(hr.venue, hr.sessionDate, hr.sessionName);
+          const normTyres = normalizeTyreCornersObject(hr.corners);
+          if (target) {
+            if (normTyres) target.tyres = normTyres;
+            if (pickOptNum(hr.tyreHotTarget) !== null) target.tyreHotTarget = Number(hr.tyreHotTarget);
+            if (pickOptNum(hr.pourJugsL) !== null && target.litresToPourL === null) {
+              target.litresToPourL = Number(hr.pourJugsL);
+            }
+            if (pickOptNum(hr.startFuelReqL) !== null && target.startingFuelReqL === null) {
+              target.startingFuelReqL = Number(hr.startFuelReqL);
+            }
+            if (pickOptNum(hr.predPostRaceKg) !== null && target.postRaceEstKg === null) {
+              target.postRaceEstKg = Number(hr.predPostRaceKg);
+            }
+          }
+        });
+      }
 
       candidate.chassis = {
         raceLaps: Number.isFinite(Number(ch.raceLaps)) ? Math.round(Number(ch.raceLaps)) : defChassis.raceLaps,
-        extraLaps: Number.isFinite(Number(ch.extraLaps)) ? Number(ch.extraLaps) : defChassis.extraLaps,
         fuelFloorL: Number.isFinite(Number(ch.fuelFloorL)) ? Number(ch.fuelFloorL) : defChassis.fuelFloorL,
         currentTankL: Number.isFinite(Number(ch.currentTankL)) ? Number(ch.currentTankL) : defChassis.currentTankL,
         pumpBeforeL: Number.isFinite(Number(ch.pumpBeforeL)) ? Number(ch.pumpBeforeL) : defChassis.pumpBeforeL,
@@ -751,21 +826,9 @@
           RL: pickOptNum(ht.RL ?? ht.LR),
           RR: pickOptNum(ht.RR)
         },
-        coldTemps: {
-          FL: pickOptNum(cTemps.FL) ?? 22,
-          FR: pickOptNum(cTemps.FR) ?? 22,
-          RL: pickOptNum(cTemps.RL) ?? 22,
-          RR: pickOptNum(cTemps.RR) ?? 22
-        },
-        hotTemps: {
-          FL: pickOptNum(hTemps.FL),
-          FR: pickOptNum(hTemps.FR),
-          RL: pickOptNum(hTemps.RL),
-          RR: pickOptNum(hTemps.RR)
-        },
         trackProfiles: mergedProfiles,
-        pumpRuns: Array.isArray(ch.pumpRuns) ? ch.pumpRuns : defChassis.pumpRuns,
-        historyRuns: migratedHistory
+        pumpRuns: [],
+        historyRuns: []
       };
     }
 
@@ -1283,17 +1346,56 @@
     hintEl.textContent = formatIsoDateDisplay(iso) || 'Auto-Today';
   }
 
+  function setSessionDateOnAllTabs(dateIso) {
+    const iso = (dateIso || '').trim() || getLocalTodayIso();
+    ['inputSessionDate', 'inputFuelSessionDate', 'inputTyreSessionDate'].forEach((id) => {
+      const el = $(id);
+      if (el) el.value = iso;
+    });
+    updateSessionDateHint();
+  }
+
+  function updateCustomSessionVisibility() {
+    [
+      ['selectSessionName', 'customSessionWrap'],
+      ['selectFuelSessionName', 'customFuelSessionWrap'],
+      ['selectTyreSessionName', 'customTyreSessionWrap']
+    ].forEach(([selId, wrapId]) => {
+      const sel = $(selId);
+      const wrap = $(wrapId);
+      if (sel && wrap) {
+        wrap.style.display = sel.value === '__CUSTOM__' ? 'block' : 'none';
+      }
+    });
+  }
+
+  function setSessionNameOnAllTabs(sessionName) {
+    const targetName = (sessionName || '').trim() || 'Race 1';
+    [
+      ['selectSessionName', 'inputCustomSessionName'],
+      ['selectFuelSessionName', 'inputCustomFuelSessionName'],
+      ['selectTyreSessionName', 'inputCustomTyreSessionName']
+    ].forEach(([selId, customId]) => {
+      const sel = $(selId);
+      const customInp = $(customId);
+      if (!sel) return;
+      const hasOption = Array.from(sel.options).some((opt) => opt.value === targetName && opt.value !== '__CUSTOM__');
+      if (hasOption) {
+        sel.value = targetName;
+      } else {
+        sel.value = '__CUSTOM__';
+        if (customInp) customInp.value = targetName;
+      }
+    });
+    updateCustomSessionVisibility();
+  }
+
   function syncTrackAndDateFromBaseline() {
-    const dateInput = $('inputSessionDate');
     const baseVenue = (state.baseline && state.baseline.venue) || 'Calder Park Raceway';
     const baseIso = (state.baseline && state.baseline.sessionDateIso) || getLocalTodayIso();
 
     setVenueOnAllTrackSelectors(baseVenue, true);
-
-    if (dateInput) {
-      dateInput.value = baseIso;
-      updateSessionDateHint();
-    }
+    setSessionDateOnAllTabs(baseIso);
   }
 
   function readVenueFromSelectorPair(selId, customId) {
@@ -1323,7 +1425,7 @@
   }
 
   function getSelectedSessionDate() {
-    const dateInput = $('inputSessionDate');
+    const dateInput = $('inputSessionDate') || $('inputFuelSessionDate') || $('inputTyreSessionDate');
     const iso = (dateInput && dateInput.value) ? dateInput.value : getLocalTodayIso();
     return {
       iso,
@@ -1331,16 +1433,21 @@
     };
   }
 
-  function updateCustomSessionVisibility() {
-    const sel = $('selectSessionName');
-    const wrap = $('customSessionWrap');
-    if (!sel || !wrap) return;
-    wrap.style.display = sel.value === '__CUSTOM__' ? 'block' : 'none';
+  function readSessionNameFromSelectorPair(selId, customId) {
+    const sel = $(selId);
+    if (!sel) return 'Race 1';
+    if (sel.value === '__CUSTOM__') {
+      const customVal = (($(customId) && $(customId).value) || '').trim();
+      return customVal || 'Custom Session';
+    }
+    return sel.value || 'Race 1';
+  }
+
+  function getSelectedSessionName() {
+    return readSessionNameFromSelectorPair('selectSessionName', 'inputCustomSessionName');
   }
 
   function syncSessionSelectFromBaseline(refSessionName) {
-    const sel = $('selectSessionName');
-    if (!sel) return;
     const pendingSess = getPendingPostRaceSession();
     const baseName =
       refSessionName ||
@@ -1348,23 +1455,116 @@
       (state.baseline && state.baseline.sessionName) ||
       '';
     const idx = SESSION_PROGRESSION.indexOf(baseName);
-    if (idx !== -1 && idx + 1 < SESSION_PROGRESSION.length) {
-      sel.value = SESSION_PROGRESSION[idx + 1];
-    } else {
-      sel.value = 'Race 1';
-    }
-    updateCustomSessionVisibility();
+    const nextSessionName =
+      idx !== -1 && idx + 1 < SESSION_PROGRESSION.length ? SESSION_PROGRESSION[idx + 1] : 'Race 1';
+
+    setSessionNameOnAllTabs(nextSessionName);
     syncTrackAndDateFromBaseline();
   }
 
-  function getSelectedSessionName() {
-    const sel = $('selectSessionName');
-    if (!sel) return `Session ${state.sessions.length + 1}`;
-    if (sel.value === '__CUSTOM__') {
-      const customVal = ($('inputCustomSessionName') && $('inputCustomSessionName').value || '').trim();
-      return customVal || 'Custom Session';
+  /**
+   * Upserts a unified session record in state.sessions matching (venue + sessionDateIso/sessionDate + sessionName)
+   * or an explicit session id, merging Tune, Fuel/Weight, and 4-Corner Tyre telemetry into ONE unified session card.
+   */
+  function upsertUnifiedSession(patch) {
+    const venue = (patch.venue || getSelectedTrackVenue() || 'Calder Park Raceway').trim();
+    const { iso: activeIso, display: activeDisp } = getSelectedSessionDate();
+    const sessionDateIso = patch.sessionDateIso || activeIso;
+    const sessionDate = patch.sessionDate || formatIsoDateDisplay(sessionDateIso) || activeDisp;
+    const sessionName = (patch.sessionName || getSelectedSessionName() || 'Race 1').trim();
+    const now = new Date();
+    const timeLabel = now.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+    let existing = null;
+    if (patch.id) {
+      existing = state.sessions.find((s) => s.id === patch.id) || null;
     }
-    return sel.value || 'Race 1';
+    if (!existing) {
+      for (let i = state.sessions.length - 1; i >= 0; i--) {
+        const s = state.sessions[i];
+        const sameVenue = (s.venue || 'Calder Park Raceway') === venue;
+        const sameName = (s.sessionName || '') === sessionName;
+        const sameDate = s.sessionDateIso === sessionDateIso || s.sessionDate === sessionDate;
+        if (sameVenue && sameName && sameDate) {
+          existing = s;
+          break;
+        }
+      }
+    }
+
+    if (existing) {
+      Object.keys(patch).forEach((k) => {
+        if (k === 'id' || k === 'appendNote') return;
+        if (patch[k] !== undefined) {
+          existing[k] = patch[k];
+        }
+      });
+      if (patch.appendNote) {
+        const cleanNote = String(patch.appendNote).trim();
+        if (cleanNote && (!existing.notes || !existing.notes.includes(cleanNote))) {
+          existing.notes = existing.notes ? `${existing.notes} • ${cleanNote}` : cleanNote;
+        }
+      }
+      existing.timestamp = patch.timestamp || `Pit ${timeLabel}`;
+      return existing;
+    }
+
+    const base = state.baseline || createDefaultBaseline();
+    const activeCarbyId = patch.carbyId || ($('selectCalcCarby') && $('selectCalcCarby').value) || base.carbyId || '1 DME';
+    const carbyObj = state.carbies.find((c) => c.id === activeCarbyId);
+    const fallbackJet =
+      (carbyObj && findJetById(carbyObj.fittedJetId)) ||
+      findJetById(base.jetId) ||
+      state.jets[0];
+
+    const created = {
+      id: patch.id || `run_${Date.now()}`,
+      venue,
+      sessionDateIso,
+      sessionDate,
+      sessionName,
+      timestamp: patch.timestamp || `Pit ${timeLabel}`,
+      carbyId: activeCarbyId,
+      jetId: patch.jetId || (fallbackJet ? fallbackJet.id : base.jetId),
+      jetLabel: patch.jetLabel || (fallbackJet ? fallbackJet.label : base.jetLabel),
+      jetMm: patch.jetMm !== undefined ? patch.jetMm : fallbackJet ? fallbackJet.mm : base.jetMm,
+      rad: patch.rad !== undefined ? patch.rad : Number(readNum('inputRadPct', base.rad).toFixed(1)),
+      fuelSg: patch.fuelSg !== undefined ? patch.fuelSg : Number(readNum('inputFuelSg', base.fuelSg).toFixed(3)),
+      fuelTempC: patch.fuelTempC !== undefined ? patch.fuelTempC : Number(readNum('inputFuelTempC', 20.0).toFixed(1)),
+      timing: patch.timing !== undefined ? patch.timing : Number(readNum('inputTotalTiming', base.timing).toFixed(1)),
+      fuelPsi: patch.fuelPsi !== undefined ? patch.fuelPsi : base.fuelPsi || 5.0,
+      waterTempC: patch.waterTempC !== undefined ? patch.waterTempC : null,
+      afr3500: patch.afr3500 !== undefined ? patch.afr3500 : null,
+      afr4000: patch.afr4000 !== undefined ? patch.afr4000 : null,
+      afr4500: patch.afr4500 !== undefined ? patch.afr4500 : null,
+      afr5000: patch.afr5000 !== undefined ? patch.afr5000 : null,
+      afr5500: patch.afr5500 !== undefined ? patch.afr5500 : null,
+      afrWot:
+        patch.afrWot !== undefined
+          ? patch.afrWot
+          : base.wotAfr !== null && Number.isFinite(Number(base.wotAfr))
+          ? Number(base.wotAfr)
+          : 12.80,
+      peakRpm: patch.peakRpm || base.peakRpm || 5900,
+      afrStatus: patch.afrStatus || 'estimated',
+      litresToPourL: patch.litresToPourL !== undefined ? patch.litresToPourL : null,
+      startingFuelReqL: patch.startingFuelReqL !== undefined ? patch.startingFuelReqL : null,
+      expectedBurnL: patch.expectedBurnL !== undefined ? patch.expectedBurnL : null,
+      fuelFloorL: patch.fuelFloorL !== undefined ? patch.fuelFloorL : null,
+      fuelInL: patch.fuelInL !== undefined ? patch.fuelInL : null,
+      fuelOutL: patch.fuelOutL !== undefined ? patch.fuelOutL : null,
+      fuelUsedL: patch.fuelUsedL !== undefined ? patch.fuelUsedL : null,
+      racedLaps: patch.racedLaps !== undefined ? patch.racedLaps : null,
+      measuredBurnLPerLap: patch.measuredBurnLPerLap !== undefined ? patch.measuredBurnLPerLap : null,
+      scaleWeightKg: patch.scaleWeightKg !== undefined ? patch.scaleWeightKg : null,
+      postRaceEstKg: patch.postRaceEstKg !== undefined ? patch.postRaceEstKg : null,
+      tyreHotTarget: patch.tyreHotTarget !== undefined ? patch.tyreHotTarget : null,
+      tyres: patch.tyres || null,
+      notes: patch.notes || patch.appendNote || ''
+    };
+
+    state.sessions.push(created);
+    return created;
   }
 
   function applyCarbyBaselineAnchor(carbyId) {
@@ -1415,8 +1615,7 @@
     // If session dropdown was still sitting on default Race 2 from Race 1 seed when bolting on a spare/P1 carby, default to Practice 1
     const sessSel = $('selectSessionName');
     if (sessSel && sessSel.value === 'Race 2' && prevBaseName === 'Race 1' && carby.id !== '1 DME') {
-      sessSel.value = 'Practice 1';
-      updateCustomSessionVisibility();
+      setSessionNameOnAllTabs('Practice 1');
     }
 
     saveState();
@@ -1567,7 +1766,7 @@
                 <span class="jet-role-tag">${escapeHtml(slot.role)}</span>
               </div>
               <div class="jet-name-big">End of Toolbox Range</div>
-              <div class="jet-card-meta"><span>Enable more jets in Tab 4</span></div>
+              <div class="jet-card-meta"><span>Enable more jets in Tab 5</span></div>
             </div>
           `;
         }
@@ -1706,9 +1905,8 @@
     const sessionName = getSelectedSessionName();
     const carbyId = $('selectCalcCarby').value || state.baseline.carbyId;
     const modeNote = phys.isWeatherOnly ? 'Weather-Only 1.000× AFR' : `${ui.weatherMode.toUpperCase()} mode`;
-    const notes =
-      ($('inputRunNotes').value || '').trim() ||
-      `Locked pre-run at ${venue} (${sessionDate}) from ${phys.base.sessionName} (${modeNote}) — awaiting track gauge telemetry.`;
+    const userNotes = ($('inputRunNotes').value || '').trim();
+    const defaultNote = `Locked pre-run at ${venue} (${sessionDate}) from ${phys.base.sessionName} (${modeNote}).`;
 
     const predWot = Number(
       calculatePredictedAfr(
@@ -1721,17 +1919,11 @@
       ).toFixed(2)
     );
 
-    const newSessionId = `run_${Date.now()}`;
-    const now = new Date();
-    const timeLabel = now.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false });
-
-    const newSession = {
-      id: newSessionId,
+    const unifiedSession = upsertUnifiedSession({
       venue,
       sessionDateIso,
       sessionDate,
       sessionName,
-      timestamp: `Pit ${timeLabel}`,
       carbyId,
       jetId: chosenJet.id,
       jetLabel: chosenJet.label,
@@ -1741,20 +1933,13 @@
       fuelTempC: Number(phys.fuelTempC.toFixed(1)),
       timing: Number(phys.totalTiming.toFixed(1)),
       fuelPsi: state.baseline.fuelPsi,
-      waterTempC: null,
-      afr3500: null,
-      afr4000: null,
-      afr4500: null,
-      afr5000: null,
-      afr5500: null,
       afrWot: predWot,
       peakRpm: 5900,
       afrStatus: 'estimated',
-      notes
-    };
+      appendNote: userNotes || defaultNote
+    });
 
-    state.sessions.push(newSession);
-    state.awaitingPostRaceId = newSessionId;
+    state.awaitingPostRaceId = unifiedSession.id;
 
     // Update fitted jet on carby fleet record too
     const carbyObj = state.carbies.find((c) => c.id === carbyId);
@@ -1787,25 +1972,22 @@
         timing: Number(phys.totalTiming.toFixed(1)),
         fuelPsi: state.baseline.fuelPsi,
         waterTempC: null,
-        linkedSessionId: newSessionId
+        linkedSessionId: unifiedSession.id
       };
       ui.weatherOnly = false;
     }
 
     saveState();
 
-    // Sync Step 1 live RAD to the newly locked RAD & advance suggested session dropdown
-    $('inputRadPct').value = newSession.rad.toFixed(1);
+    // Sync Step 1 live RAD to the newly locked RAD & keep active session synced across Tabs 1-3
+    $('inputRadPct').value = unifiedSession.rad.toFixed(1);
     $('inputRunNotes').value = '';
-    if ($('inputCustomSessionName')) {
-      $('inputCustomSessionName').value = '';
-    }
-    syncSessionSelectFromBaseline(sessionName);
+    setSessionNameOnAllTabs(sessionName);
 
     renderAll();
     setCalculatorStep(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    showToast(`Locked ${sessionName} (${chosenJet.label}) — Tap "Update Post Race Session" after run`);
+    showToast(`Locked ${sessionName} (${chosenJet.label}) to Unified Session Log`);
   }
 
   /* ------------------------------------------------------------------------
@@ -1820,8 +2002,7 @@
     const prof = ensureTrackProfile(venue);
 
     if ($('inputTrackBurnLPerLap')) $('inputTrackBurnLPerLap').value = Number(prof.burnLPerLap).toFixed(2);
-    if ($('inputFuelRaceLaps')) $('inputFuelRaceLaps').value = String(ch.raceLaps);
-    if ($('inputFuelExtraLaps')) $('inputFuelExtraLaps').value = Number(ch.extraLaps).toFixed(1);
+    if ($('inputRaceLaps')) $('inputRaceLaps').value = String(ch.raceLaps);
     if ($('inputFuelFloorL')) $('inputFuelFloorL').value = Number(ch.fuelFloorL).toFixed(1);
     if ($('inputCurrentTankL')) $('inputCurrentTankL').value = Number(ch.currentTankL).toFixed(1);
 
@@ -1848,20 +2029,6 @@
             : null;
         hotEl.value = hotVal !== null ? hotVal.toFixed(1) : '';
       }
-      const coldTempEl = $(`inputColdTemp_${c}`);
-      if (coldTempEl) {
-        const cTemp =
-          ch.coldTemps && Number.isFinite(Number(ch.coldTemps[c])) ? Math.round(Number(ch.coldTemps[c])) : 22;
-        coldTempEl.value = String(cTemp);
-      }
-      const hotTempEl = $(`inputHotTemp_${c}`);
-      if (hotTempEl) {
-        const hTemp =
-          ch.hotTemps && ch.hotTemps[c] !== null && Number.isFinite(Number(ch.hotTemps[c]))
-            ? Math.round(Number(ch.hotTemps[c]))
-            : null;
-        hotTempEl.value = hTemp !== null ? String(hTemp) : '';
-      }
     });
   }
 
@@ -1874,18 +2041,16 @@
     const prof = ensureTrackProfile(venue);
 
     const activeFuelSg = readNum('inputFuelSg', (state.baseline && state.baseline.fuelSg) || 0.740);
-    const burnLPerLap = Math.max(0.2, readNum('inputTrackBurnLPerLap', prof.burnLPerLap || 1.30));
-    const raceLaps = Math.max(1, Math.round(readNum('inputFuelRaceLaps', ch.raceLaps || 12)));
-    const outCoolLaps = Math.max(0, readNum('inputFuelExtraLaps', ch.extraLaps ?? 1.0));
-    const safeFloorL = Math.max(0, readNum('inputFuelFloorL', ch.fuelFloorL ?? 19.0));
-    const currentResidualL = Math.max(0, readNum('inputCurrentTankL', ch.currentTankL ?? 0.0));
+    const trackBurnLPerLap = Math.max(0.2, readNum('inputTrackBurnLPerLap', prof.burnLPerLap || 1.30));
+    const racedLaps = Math.max(1, Math.round(readNum('inputRaceLaps', ch.raceLaps || 12)));
+    const baselineFloorL = Math.max(0, readNum('inputFuelFloorL', ch.fuelFloorL ?? 19.0));
+    const tankResidualL = Math.max(0, readNum('inputCurrentTankL', ch.currentTankL ?? 0.0));
 
-    // Exact Litres-only Fuel Load formulas
-    const totalLaps = raceLaps + outCoolLaps;
-    const expectedBurnL = totalLaps * burnLPerLap;
-    const startingFuelReqL = expectedBurnL + safeFloorL;
-    const litresToPourL = Math.max(0, startingFuelReqL - currentResidualL);
-    const startFuelMassKg = startingFuelReqL * activeFuelSg;
+    // Exact Litres-only Fuel Load formulas (Out/Cool laps are already baked into track L/lap)
+    const expectedBurnL = racedLaps * trackBurnLPerLap;
+    const totalStartingFuelL = baselineFloorL + expectedBurnL;
+    const litresToPourL = Math.max(0, totalStartingFuelL - tankResidualL);
+    const startFuelMassKg = totalStartingFuelL * activeFuelSg;
 
     // Pump-Out L/Lap Refiner
     const pumpBeforeL = Math.max(0, readNum('inputPumpBeforeL', ch.pumpBeforeL ?? 36.0));
@@ -1902,18 +2067,17 @@
     const scaleFuelMassKg = scaleCheckFuelL * activeFuelSg;
     const dryCarDriverKg = scaleCheckKg - scaleFuelMassKg;
 
-    const actualStartFuelL = Math.max(startingFuelReqL, currentResidualL);
+    const actualStartFuelL = Math.max(totalStartingFuelL, tankResidualL);
     const endFuelL = Math.max(0, actualStartFuelL - expectedBurnL);
     const endFuelKg = endFuelL * activeFuelSg;
     const predictedPostRaceKg = dryCarDriverKg + endFuelKg;
     const marginKg = predictedPostRaceKg - minLegalKg;
 
     // Persist Fuel & Weight state
-    prof.burnLPerLap = Number(burnLPerLap.toFixed(2));
-    ch.raceLaps = raceLaps;
-    ch.extraLaps = Number(outCoolLaps.toFixed(1));
-    ch.fuelFloorL = Number(safeFloorL.toFixed(1));
-    ch.currentTankL = Number(currentResidualL.toFixed(1));
+    prof.burnLPerLap = Number(trackBurnLPerLap.toFixed(2));
+    ch.raceLaps = racedLaps;
+    ch.fuelFloorL = Number(baselineFloorL.toFixed(1));
+    ch.currentTankL = Number(tankResidualL.toFixed(1));
     ch.pumpBeforeL = Number(pumpBeforeL.toFixed(1));
     ch.pumpAfterL = Number(pumpAfterL.toFixed(1));
     ch.pumpLaps = pumpLaps;
@@ -1925,11 +2089,13 @@
       $('fuelActiveSgBadge').textContent = `SG ${activeFuelSg.toFixed(3)} kg/L`;
     }
 
-    const runsForTrack = (ch.pumpRuns || []).filter((r) => r.venue === venue);
+    const sessionsWithPumpForTrack = (state.sessions || []).filter(
+      (s) => s.venue === venue && Number.isFinite(Number(s.measuredBurnLPerLap)) && Number(s.measuredBurnLPerLap) > 0
+    );
     if ($('trackBurnSourceHint')) {
       $('trackBurnSourceHint').textContent =
-        runsForTrack.length > 0
-          ? `${runsForTrack.length} pump-out${runsForTrack.length === 1 ? '' : 's'}`
+        sessionsWithPumpForTrack.length > 0
+          ? `${sessionsWithPumpForTrack.length} pump-out${sessionsWithPumpForTrack.length === 1 ? '' : 's'}`
           : 'Track Base';
     }
 
@@ -1938,38 +2104,46 @@
       $('outFuelExpectedBurnL').textContent = `${expectedBurnL.toFixed(1)} L`;
     }
     if ($('outFuelExpectedBurnSub')) {
-      $('outFuelExpectedBurnSub').textContent = `${totalLaps.toFixed(1)} laps × ${burnLPerLap.toFixed(2)} L/lap`;
+      $('outFuelExpectedBurnSub').textContent = `${racedLaps} laps × ${trackBurnLPerLap.toFixed(2)} L/lap`;
+    }
+
+    const pourCell = $('cellFuelPourJugs');
+    const pourVal = $('outFuelPourJugsL');
+    const pourSub = $('outFuelPourJugsSub');
+    if (pourVal) {
+      pourVal.textContent = `${litresToPourL.toFixed(1)} L`;
+      pourVal.className = totalStartingFuelL > 74.0 ? 'telem-val txt-danger' : 'telem-val txt-emerald';
+    }
+    if (pourCell) {
+      pourCell.className =
+        totalStartingFuelL > 74.0 ? 'telem-cell afr-estimated-cell' : 'telem-cell afr-verified-cell';
+    }
+    if (pourSub) {
+      pourSub.textContent =
+        tankResidualL > 0
+          ? `${baselineFloorL.toFixed(1)}L base + ${expectedBurnL.toFixed(1)}L burn − ${tankResidualL.toFixed(1)}L tank`
+          : `${baselineFloorL.toFixed(1)}L base + ${expectedBurnL.toFixed(1)}L burn`;
     }
 
     const startReqCell = $('cellFuelStartReq');
     const startReqVal = $('outFuelStartReqL');
     const startMassHint = $('outFuelStartMassHint');
     if (startReqVal) {
-      startReqVal.textContent = `${startingFuelReqL.toFixed(1)} L`;
-      startReqVal.className = startingFuelReqL > 74.0 ? 'telem-val txt-danger' : 'telem-val txt-emerald';
+      startReqVal.textContent = `${totalStartingFuelL.toFixed(1)} L`;
+      startReqVal.className = totalStartingFuelL > 74.0 ? 'telem-val txt-danger' : 'telem-val';
     }
     if (startReqCell) {
       startReqCell.className =
-        startingFuelReqL > 74.0 ? 'telem-cell afr-estimated-cell' : 'telem-cell afr-verified-cell';
+        totalStartingFuelL > 74.0 ? 'telem-cell afr-estimated-cell' : 'telem-cell';
     }
     if (startMassHint) {
-      if (startingFuelReqL > 74.0) {
+      if (totalStartingFuelL > 74.0) {
         startMassHint.textContent = `OVER 74.0 L TANK! (${startFuelMassKg.toFixed(1)} kg)`;
         startMassHint.className = 'telem-sub txt-danger';
       } else {
         startMassHint.textContent = `${startFuelMassKg.toFixed(1)} kg @ ${activeFuelSg.toFixed(3)} SG`;
         startMassHint.className = 'telem-sub';
       }
-    }
-
-    if ($('outFuelPourJugsL')) {
-      $('outFuelPourJugsL').textContent = `${litresToPourL.toFixed(1)} L`;
-    }
-    if ($('outFuelPourJugsSub')) {
-      $('outFuelPourJugsSub').textContent =
-        currentResidualL > 0
-          ? `${startingFuelReqL.toFixed(1)} L − ${currentResidualL.toFixed(1)} L in tank`
-          : `From ${currentResidualL.toFixed(1)} L residual`;
     }
 
     // Sub-Section B: Post-Session Pump-Out L/Lap Refiner
@@ -1979,8 +2153,6 @@
     if ($('outPumpUsedL')) {
       $('outPumpUsedL').textContent = `Used: ${pumpUsedL.toFixed(2)} L (${pumpUsedKg.toFixed(1)} kg)`;
     }
-
-    renderPumpOutHistoryList(venue);
 
     // Card 2: Weekend Track Scales & 1365 kg Check
     if ($('minWeightBadge')) {
@@ -2053,14 +2225,12 @@
     return {
       venue,
       activeFuelSg,
-      burnLPerLap,
-      raceLaps,
-      outCoolLaps,
-      totalLaps,
-      safeFloorL,
-      currentResidualL,
+      burnLPerLap: trackBurnLPerLap,
+      raceLaps: racedLaps,
+      safeFloorL: baselineFloorL,
+      currentResidualL: tankResidualL,
       expectedBurnL,
-      startingFuelReqL,
+      startingFuelReqL: totalStartingFuelL,
       litresToPourL,
       startFuelMassKg,
       pumpBeforeL,
@@ -2103,12 +2273,6 @@
       const parsedHot = rawHot !== '' ? parseFloat(rawHot) : NaN;
       const hot = Number.isFinite(parsedHot) && parsedHot > 0 ? Number(parsedHot.toFixed(1)) : null;
 
-      const coldTemp = Math.round(readNum(`inputColdTemp_${c}`, (ch.coldTemps && ch.coldTemps[c]) ?? 22));
-      const hotTempEl = $(`inputHotTemp_${c}`);
-      const rawHotTemp = hotTempEl ? String(hotTempEl.value || '').trim() : '';
-      const parsedHotTemp = rawHotTemp !== '' ? parseFloat(rawHotTemp) : NaN;
-      const hotTemp = Number.isFinite(parsedHotTemp) && parsedHotTemp > 0 ? Math.round(parsedHotTemp) : null;
-
       const build = hot !== null ? Number((hot - cold).toFixed(1)) : null;
       const diff = hot !== null ? Number((hot - tyreHotTarget).toFixed(1)) : null;
       const nextCold =
@@ -2116,11 +2280,9 @@
           ? Number((((tyreHotTarget + 14.7) * (cold + 14.7)) / (hot + 14.7) - 14.7).toFixed(1))
           : Number(cold.toFixed(1));
 
-      corners[c] = { cold, hot, coldTemp, hotTemp, build, diff, nextCold };
+      corners[c] = { cold, hot, build, diff, nextCold };
 
       ch.hotTyres[c] = hot;
-      ch.coldTemps[c] = coldTemp;
-      ch.hotTemps[c] = hotTemp;
 
       const buildEl = $(`outTyreBuild_${c}`);
       const actionEl = $(`outTyreAction_${c}`);
@@ -2128,7 +2290,7 @@
 
       if (hot === null) {
         if (buildEl) {
-          buildEl.textContent = hotTemp !== null ? `— (${hotTemp}°C)` : '—';
+          buildEl.textContent = '—';
           buildEl.className = 'mono txt-amber';
         }
         if (actionEl) {
@@ -2140,9 +2302,8 @@
         }
       } else {
         const bSign = build >= 0 ? '+' : '';
-        const tempSuffix = hotTemp !== null ? ` (${coldTemp}→${hotTemp}°C)` : '';
         if (buildEl) {
-          buildEl.textContent = `${bSign}${build.toFixed(1)} psi${tempSuffix}`;
+          buildEl.textContent = `${bSign}${build.toFixed(1)} psi`;
           buildEl.className = build >= 8.0 && build <= 16.0 ? 'mono txt-emerald' : 'mono txt-amber';
         }
         if (actionEl) {
@@ -2163,7 +2324,6 @@
       }
     });
 
-    renderTyreHistoryList();
     saveState();
 
     return {
@@ -2173,89 +2333,70 @@
     };
   }
 
-  function renderPumpOutHistoryList(activeVenue) {
-    const listEl = $('pumpOutHistoryList');
-    if (!listEl) return;
-    const runs = (state.chassis && state.chassis.pumpRuns) || [];
-    const matching = runs.filter((r) => r.venue === activeVenue);
-    if (matching.length === 0) {
-      listEl.innerHTML = `
-        <div class="field-hint" style="margin-top: 6px; text-align: center;">
-          No pump-out runs logged yet for ${escapeHtml(activeVenue)} — using ${Number(ensureTrackProfile(activeVenue).burnLPerLap).toFixed(2)} L/lap baseline.
-        </div>
-      `;
-      return;
-    }
-
-    listEl.innerHTML = [...matching]
-      .reverse()
-      .map((r) => {
-        const isConfirming = ui.confirmDeletePumpRunId === r.id;
-        return `
-          <div class="pump-run-row">
-            <div>
-              <div style="font-size: 14.5px; font-weight: 900; color: #FFFFFF;">
-                ${escapeHtml(r.sessionName || 'Run')} &bull; ${escapeHtml(r.venue)}
-                <span class="txt-emerald mono" style="margin-left: 6px;">${Number(r.burnLPerLap).toFixed(2)} L/lap</span>
-              </div>
-              <div class="field-hint" style="font-size: 13px;">
-                ${Number(r.beforeL).toFixed(1)} L in &rarr; ${Number(r.afterL).toFixed(1)} L out (${Number(r.usedL).toFixed(2)} L / ${r.laps} laps) &bull; ${escapeHtml(r.sessionDate || '')}
-              </div>
-            </div>
-            <button
-              type="button"
-              class="btn btn-danger btn-xs"
-              data-delete-pump-run="${escapeHtml(r.id)}"
-            >
-              ${isConfirming ? 'Tap Again' : 'Remove'}
-            </button>
-          </div>
-        `;
-      })
-      .join('');
-  }
-
-  function logPumpOutAndUpdateTrackAvg() {
-    const fuelSnap = recalcFuelAndWeight();
-    if (fuelSnap.pumpUsedL <= 0 || fuelSnap.pumpLaps <= 0) {
-      showToast('Fuel In Before Run (L) must be greater than Fuel Pumped Out (L)');
-      return;
-    }
-
-    const { display: sessionDate } = getSelectedSessionDate();
-    const sessionName = getSelectedSessionName();
-    const measured = Number(fuelSnap.pumpMeasuredBurn.toFixed(2));
-
-    const entry = {
-      id: `pump_${Date.now()}`,
-      venue: fuelSnap.venue,
-      sessionDate,
-      sessionName,
-      beforeL: Number(fuelSnap.pumpBeforeL.toFixed(1)),
-      afterL: Number(fuelSnap.pumpAfterL.toFixed(1)),
-      usedL: Number(fuelSnap.pumpUsedL.toFixed(2)),
-      laps: fuelSnap.pumpLaps,
-      burnLPerLap: measured
-    };
-
-    state.chassis.pumpRuns.push(entry);
-    recalculateTrackAverageBurn(fuelSnap.venue);
-    recalcFuelAndWeight();
-    const newAvg = ensureTrackProfile(fuelSnap.venue).burnLPerLap;
-    showToast(`Logged ${measured.toFixed(2)} L/lap • ${fuelSnap.venue} Avg updated to ${newAvg.toFixed(2)} L/lap`);
-  }
-
   function recalculateTrackAverageBurn(venueName) {
     const prof = ensureTrackProfile(venueName);
-    const trackRuns = (state.chassis.pumpRuns || []).filter((r) => r.venue === venueName);
-    if (trackRuns.length > 0) {
-      const avg = trackRuns.reduce((acc, r) => acc + Number(r.burnLPerLap), 0) / trackRuns.length;
+    const sessionsForTrack = (state.sessions || []).filter(
+      (s) => s.venue === venueName && Number.isFinite(Number(s.measuredBurnLPerLap)) && Number(s.measuredBurnLPerLap) > 0
+    );
+    if (sessionsForTrack.length > 0) {
+      const avg =
+        sessionsForTrack.reduce((acc, s) => acc + Number(s.measuredBurnLPerLap), 0) / sessionsForTrack.length;
       prof.burnLPerLap = Number(avg.toFixed(2));
     } else {
       prof.burnLPerLap = DEFAULT_TRACK_BURN_L[venueName] || 1.30;
     }
     if (getSelectedFuelTrackVenue() === venueName && $('inputTrackBurnLPerLap')) {
       $('inputTrackBurnLPerLap').value = prof.burnLPerLap.toFixed(2);
+    }
+  }
+
+  function saveFuelAndWeightToSession(calibratePumpOut = false) {
+    const fuelSnap = recalcFuelAndWeight();
+    if (calibratePumpOut && (fuelSnap.pumpUsedL <= 0 || fuelSnap.pumpLaps <= 0)) {
+      showToast('Fuel In Before Run (L) must be greater than Fuel Pumped Out (L)');
+      return;
+    }
+
+    const { iso: sessionDateIso, display: sessionDate } = getSelectedSessionDate();
+    const sessionName = getSelectedSessionName();
+    const hasValidPump = fuelSnap.pumpUsedL > 0 && fuelSnap.pumpLaps > 0;
+    const measured = hasValidPump ? Number(fuelSnap.pumpMeasuredBurn.toFixed(2)) : null;
+
+    const unified = upsertUnifiedSession({
+      venue: fuelSnap.venue,
+      sessionDateIso,
+      sessionDate,
+      sessionName,
+      litresToPourL: Number(fuelSnap.litresToPourL.toFixed(1)),
+      startingFuelReqL: Number(fuelSnap.startingFuelReqL.toFixed(1)),
+      expectedBurnL: Number(fuelSnap.expectedBurnL.toFixed(1)),
+      fuelFloorL: Number(fuelSnap.safeFloorL.toFixed(1)),
+      fuelInL: hasValidPump ? Number(fuelSnap.pumpBeforeL.toFixed(1)) : null,
+      fuelOutL: hasValidPump ? Number(fuelSnap.pumpAfterL.toFixed(1)) : null,
+      fuelUsedL: hasValidPump ? Number(fuelSnap.pumpUsedL.toFixed(2)) : null,
+      racedLaps: hasValidPump ? fuelSnap.pumpLaps : fuelSnap.raceLaps,
+      measuredBurnLPerLap: measured !== null ? measured : Number(fuelSnap.burnLPerLap.toFixed(2)),
+      scaleWeightKg: Number(fuelSnap.scaleCheckKg.toFixed(1)),
+      postRaceEstKg: Number(fuelSnap.predictedPostRaceKg.toFixed(1))
+    });
+
+    if (calibratePumpOut && measured !== null) {
+      recalculateTrackAverageBurn(fuelSnap.venue);
+    }
+
+    saveState();
+    recalcFuelAndWeight();
+    renderSessionLog();
+
+    if (calibratePumpOut && measured !== null) {
+      const newAvg = ensureTrackProfile(fuelSnap.venue).burnLPerLap;
+      showToast(
+        `Saved ${unified.sessionName} Pump-Out (${measured.toFixed(2)} L/lap) • ${fuelSnap.venue} Avg ${newAvg.toFixed(2)} L/lap`
+      );
+    } else {
+      showToast(
+        `Saved Fuel & Weight (${fuelSnap.litresToPourL.toFixed(1)} L Pour • ${fuelSnap.predictedPostRaceKg.toFixed(1)} kg Est) to ${unified.sessionName}`
+      );
     }
   }
 
@@ -2280,208 +2421,122 @@
     );
   }
 
-  function logTyreSessionToHistory() {
-    const fuelSnap = recalcFuelAndWeight();
+  function saveTyresToSession() {
     const tyreSnap = recalcTyres();
     const { iso: sessionDateIso, display: sessionDate } = getSelectedSessionDate();
     const sessionName = getSelectedSessionName();
-    const now = new Date();
-    const timeLabel = now.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false });
     const notes = (($('inputTyreRunNotes') && $('inputTyreRunNotes').value) || '').trim();
 
-    const newEntry = {
-      id: `tyre_${Date.now()}`,
+    const unified = upsertUnifiedSession({
       venue: tyreSnap.venue,
       sessionDateIso,
       sessionDate,
       sessionName,
-      timestamp: `Pit ${timeLabel}`,
-      burnLPerLap: Number(fuelSnap.burnLPerLap.toFixed(2)),
-      raceLaps: fuelSnap.raceLaps,
-      extraLaps: Number(fuelSnap.outCoolLaps.toFixed(1)),
-      fuelFloorL: Number(fuelSnap.safeFloorL.toFixed(1)),
-      expectedBurnL: Number(fuelSnap.expectedBurnL.toFixed(1)),
-      startFuelReqL: Number(fuelSnap.startingFuelReqL.toFixed(1)),
-      pourJugsL: Number(fuelSnap.litresToPourL.toFixed(1)),
-      endFuelL: Number(fuelSnap.endFuelL.toFixed(1)),
-      fuelSg: Number(fuelSnap.activeFuelSg.toFixed(3)),
-      dryCarDriverKg: Number(fuelSnap.dryCarDriverKg.toFixed(1)),
-      predPostRaceKg: Number(fuelSnap.predictedPostRaceKg.toFixed(1)),
-      minLegalKg: Number(fuelSnap.minLegalKg.toFixed(1)),
       tyreHotTarget: Number(tyreSnap.tyreHotTarget.toFixed(1)),
-      notes,
-      corners: {
+      tyres: {
         FL: { ...tyreSnap.corners.FL },
         FR: { ...tyreSnap.corners.FR },
         RL: { ...tyreSnap.corners.RL },
         RR: { ...tyreSnap.corners.RR }
-      }
-    };
+      },
+      appendNote: notes
+    });
 
-    state.chassis.historyRuns.push(newEntry);
     if ($('inputTyreRunNotes')) {
       $('inputTyreRunNotes').value = '';
     }
     saveState();
-    renderTyreHistoryList();
-    showToast(`Logged ${sessionName} (${tyreSnap.venue}) 4-Corner Tyre Session`);
-  }
-
-  function renderTyreHistoryList() {
-    const listEl = $('tyreHistoryList');
-    const badgeEl = $('tyreLogCountBadge');
-    const runs = (state.chassis && state.chassis.historyRuns) || [];
-    if (badgeEl) {
-      badgeEl.textContent = `${runs.length} ${runs.length === 1 ? 'Run' : 'Runs'}`;
-    }
-    if (!listEl) return;
-
-    if (runs.length === 0) {
-      listEl.innerHTML = `
-        <div class="card-elevated" style="text-align: center; color: var(--text-secondary);">
-          No tyre sessions logged yet. Tap <strong>Log Tyre Session</strong> above after setting cold or hot tyre pressures.
-        </div>
-      `;
-      return;
-    }
-
-    listEl.innerHTML = [...runs]
-      .reverse()
-      .map((r) => {
-        const isConfirming = ui.confirmDeleteTyreLogId === r.id;
-        return `
-          <div class="card-elevated">
-            <div class="session-head">
-              <div>
-                <div class="session-title-line">
-                  ${escapeHtml(r.sessionName)} &bull; <span style="color: var(--amber);">${escapeHtml(r.venue)}</span>
-                </div>
-                <div class="session-meta-line">
-                  ${escapeHtml(r.sessionDate || '')} &bull; ${escapeHtml(r.timestamp || '')} &bull;
-                  Hot Target: <strong>${Number(r.tyreHotTarget || 44.0).toFixed(1)} psi</strong>
-                </div>
-              </div>
-              <button
-                type="button"
-                class="btn btn-danger btn-xs"
-                data-delete-tyre-log="${escapeHtml(r.id)}"
-              >
-                ${isConfirming ? 'Tap Again' : 'Remove'}
-              </button>
-            </div>
-
-            <div class="chassis-tyre-pill-grid">
-              ${['FL', 'FR', 'RL', 'RR']
-                .map((c) => {
-                  const cr = (r.corners && r.corners[c]) || { cold: 30.0, hot: null, coldTemp: 22, hotTemp: null, nextCold: 30.0 };
-                  const hotStr = cr.hot !== null && Number.isFinite(Number(cr.hot)) ? `${Number(cr.hot).toFixed(1)}H` : '—H';
-                  const tempPart =
-                    cr.hotTemp !== null && Number.isFinite(Number(cr.hotTemp))
-                      ? ` • ${cr.coldTemp ?? 22}→${cr.hotTemp}°C`
-                      : cr.coldTemp !== null && Number.isFinite(Number(cr.coldTemp))
-                      ? ` • ${cr.coldTemp}°C`
-                      : '';
-                  return `
-                    <div class="afr-pill wot-pill">
-                      <span class="afr-pill-rpm">${c}: ${Number(cr.cold).toFixed(1)}C &rarr; ${hotStr}${tempPart}</span>
-                      <span class="afr-pill-val txt-emerald">Next: ${Number(cr.nextCold).toFixed(1)} psi</span>
-                    </div>
-                  `;
-                })
-                .join('')}
-            </div>
-
-            ${r.notes ? `<p style="margin: 6px 0 0; font-size: 13.5px; color: var(--text-secondary);">${escapeHtml(r.notes)}</p>` : ''}
-          </div>
-        `;
-      })
-      .join('');
+    renderSessionLog();
+    showToast(`Saved 4-Corner Tyres to ${unified.sessionName} (${unified.venue}) in Session Log`);
   }
 
   function exportTyresCsv() {
-    const runs = (state.chassis && state.chassis.historyRuns) || [];
-    const headers = [
-      'Session',
-      'Venue',
-      'Date',
-      'Timestamp',
-      'Tyre_Hot_Target_PSI',
-      'FL_Cold_PSI',
-      'FL_Hot_PSI',
-      'FL_Cold_Temp_C',
-      'FL_Hot_Temp_C',
-      'FL_NextCold_PSI',
-      'FR_Cold_PSI',
-      'FR_Hot_PSI',
-      'FR_Cold_Temp_C',
-      'FR_Hot_Temp_C',
-      'FR_NextCold_PSI',
-      'RL_Cold_PSI',
-      'RL_Hot_PSI',
-      'RL_Cold_Temp_C',
-      'RL_Hot_Temp_C',
-      'RL_NextCold_PSI',
-      'RR_Cold_PSI',
-      'RR_Hot_PSI',
-      'RR_Cold_Temp_C',
-      'RR_Hot_Temp_C',
-      'RR_NextCold_PSI',
-      'Notes'
-    ];
-    const rows = runs.map((r) => {
-      const c = r.corners || {};
-      const fmtPsi = (corner, key) =>
-        c[corner] && c[corner][key] !== null && Number.isFinite(Number(c[corner][key]))
-          ? Number(c[corner][key]).toFixed(1)
-          : '';
-      const fmtTemp = (corner, key) =>
-        c[corner] && c[corner][key] !== null && Number.isFinite(Number(c[corner][key]))
-          ? String(Math.round(Number(c[corner][key])))
-          : '';
-      return [
-        r.sessionName || '',
-        r.venue || '',
-        r.sessionDate || '',
-        r.timestamp || '',
-        Number(r.tyreHotTarget || 44.0).toFixed(1),
-        fmtPsi('FL', 'cold'),
-        fmtPsi('FL', 'hot'),
-        fmtTemp('FL', 'coldTemp'),
-        fmtTemp('FL', 'hotTemp'),
-        fmtPsi('FL', 'nextCold'),
-        fmtPsi('FR', 'cold'),
-        fmtPsi('FR', 'hot'),
-        fmtTemp('FR', 'coldTemp'),
-        fmtTemp('FR', 'hotTemp'),
-        fmtPsi('FR', 'nextCold'),
-        fmtPsi('RL', 'cold'),
-        fmtPsi('RL', 'hot'),
-        fmtTemp('RL', 'coldTemp'),
-        fmtTemp('RL', 'hotTemp'),
-        fmtPsi('RL', 'nextCold'),
-        fmtPsi('RR', 'cold'),
-        fmtPsi('RR', 'hot'),
-        fmtTemp('RR', 'coldTemp'),
-        fmtTemp('RR', 'hotTemp'),
-        fmtPsi('RR', 'nextCold'),
-        r.notes || ''
-      ];
-    });
-
-    const csvText = [headers, ...rows]
-      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
-      .join('\n');
-
-    triggerDownload(csvText, 'snb-hq202-tyres.csv', 'text/csv;charset=utf-8;');
-    showToast('Exported Tyre History CSV');
+    exportSessionsCsv();
   }
 
   /* ------------------------------------------------------------------------
-     6. RENDERING: TAB 3 (SESSION LOG, INLINE AFR EDIT, CSV & JSON)
+     6. RENDERING: TAB 4 (UNIFIED SESSION LOG, INLINE EDIT, CSV & JSON)
      ------------------------------------------------------------------------ */
   function formatOptionalPillAfr(val) {
     const norm = normalizeOptionalAfr(val);
     return norm !== null ? norm.toFixed(2) : '&mdash;';
+  }
+
+  function renderUnifiedFuelWeightBlock(s) {
+    const hasPour = s.litresToPourL !== null && s.litresToPourL !== undefined && Number.isFinite(Number(s.litresToPourL));
+    const hasPump =
+      s.fuelInL !== null &&
+      s.fuelInL !== undefined &&
+      Number.isFinite(Number(s.fuelInL)) &&
+      s.fuelOutL !== null &&
+      s.fuelOutL !== undefined &&
+      Number.isFinite(Number(s.fuelOutL));
+    const hasWeight =
+      (s.postRaceEstKg !== null && s.postRaceEstKg !== undefined && Number.isFinite(Number(s.postRaceEstKg))) ||
+      (s.scaleWeightKg !== null && s.scaleWeightKg !== undefined && Number.isFinite(Number(s.scaleWeightKg)));
+
+    if (!hasPour && !hasPump && !hasWeight) return '';
+
+    const parts = [];
+    if (hasPour) {
+      parts.push(`<span>Pour: <strong class="txt-emerald">${Number(s.litresToPourL).toFixed(1)} L</strong></span>`);
+    }
+    if (hasPump) {
+      const inL = Number(s.fuelInL);
+      const outL = Number(s.fuelOutL);
+      const usedL = Number.isFinite(Number(s.fuelUsedL)) ? Number(s.fuelUsedL) : Math.max(0, inL - outL);
+      const laps = Number.isFinite(Number(s.racedLaps)) && Number(s.racedLaps) > 0 ? Math.round(Number(s.racedLaps)) : null;
+      const burn =
+        Number.isFinite(Number(s.measuredBurnLPerLap)) && Number(s.measuredBurnLPerLap) > 0
+          ? Number(s.measuredBurnLPerLap)
+          : laps
+          ? usedL / laps
+          : null;
+      const lapBurnStr =
+        laps && burn !== null ? ` (${laps} laps = <strong class="txt-emerald">${burn.toFixed(2)} L/lap</strong>)` : '';
+      parts.push(
+        `<span>In: <strong>${inL.toFixed(1)}L</strong> &bull; Out: <strong>${outL.toFixed(1)}L</strong> &bull; Used: <strong>${usedL.toFixed(1)}L</strong>${lapBurnStr}</span>`
+      );
+    }
+    if (hasWeight) {
+      const wt = Number.isFinite(Number(s.postRaceEstKg)) ? Number(s.postRaceEstKg) : Number(s.scaleWeightKg);
+      const wtClass = wt < 1365.0 ? 'txt-danger' : wt < 1368.0 ? 'txt-amber' : 'txt-emerald';
+      parts.push(`<span>Scale/Est Wt: <strong class="${wtClass}">${wt.toFixed(1)} kg</strong></span>`);
+    }
+
+    return `
+      <div class="unified-session-subblock">
+        <div class="unified-subblock-title">Fuel &amp; Scrutineering Weight</div>
+        <div class="unified-fuel-line">${parts.join(' &bull; ')}</div>
+      </div>
+    `;
+  }
+
+  function renderUnifiedTyresBlock(s) {
+    if (!s.tyres || typeof s.tyres !== 'object') return '';
+    const targetStr = Number.isFinite(Number(s.tyreHotTarget)) ? ` (Hot Target ${Number(s.tyreHotTarget).toFixed(1)} PSI)` : '';
+    const pillsHtml = ['FL', 'FR', 'RL', 'RR']
+      .map((c) => {
+        const cr = s.tyres[c] || { cold: 30.0, hot: null, nextCold: 30.0 };
+        const coldStr = Number.isFinite(Number(cr.cold)) ? `${Number(cr.cold).toFixed(1)}C` : '—C';
+        const hotStr = cr.hot !== null && Number.isFinite(Number(cr.hot)) ? `${Number(cr.hot).toFixed(1)}H` : '—H';
+        const nextStr = Number.isFinite(Number(cr.nextCold)) ? `Next ${Number(cr.nextCold).toFixed(1)}` : '';
+        return `
+          <div class="unified-tyre-pill">
+            <span class="unified-tyre-corner">${c}</span>
+            <span class="unified-tyre-val">${coldStr} &rarr; ${hotStr}</span>
+            ${nextStr ? `<span class="unified-tyre-next">${nextStr}</span>` : ''}
+          </div>
+        `;
+      })
+      .join('');
+
+    return `
+      <div class="unified-session-subblock">
+        <div class="unified-subblock-title">4-Corner Tyres${escapeHtml(targetStr)}</div>
+        <div class="unified-tyre-grid">${pillsHtml}</div>
+      </div>
+    `;
   }
 
   function renderSessionLog() {
@@ -2523,6 +2578,7 @@
           waterTemp !== null
             ? `<span class="${waterTemp >= 98 ? 'txt-danger' : waterTemp >= 92 ? 'txt-amber' : ''}">${waterTemp}&deg;C H&#8322;O</span>`
             : `<span>&mdash;&deg;C H&#8322;O</span>`;
+        const fuelTempVal = Number.isFinite(Number(s.fuelTempC)) ? Number(s.fuelTempC) : 20.0;
 
         const stages = [
           { rpm: '3500', val: normalizeOptionalAfr(s.afr3500) },
@@ -2542,7 +2598,7 @@
                 <div class="session-meta-line">
                   <strong>${escapeHtml(venueLabel)}</strong> &bull; ${escapeHtml(dateLabel)}${escapeHtml(timePart)} &bull;
                   <strong>${escapeHtml(s.jetLabel)}</strong> (${s.jetMm.toFixed(3)}mm) &bull;
-                  ${s.rad.toFixed(1)}% RAD &bull; ${s.timing.toFixed(1)}&deg; &bull; ${s.fuelPsi.toFixed(1)} psi &bull; ${waterHtml}
+                  ${s.rad.toFixed(1)}% RAD &bull; SG ${s.fuelSg.toFixed(3)} (${fuelTempVal.toFixed(0)}&deg;C) &bull; ${s.timing.toFixed(1)}&deg; &bull; ${s.fuelPsi.toFixed(1)} psi &bull; ${waterHtml}
                 </div>
               </div>
               <div style="text-align: right; flex-shrink: 0;">
@@ -2576,11 +2632,14 @@
               </div>
             </div>
 
+            ${renderUnifiedFuelWeightBlock(s)}
+            ${renderUnifiedTyresBlock(s)}
+
             ${s.notes ? `<p style="margin: 6px 0 4px; font-size: 0.77rem; color: var(--text-secondary);">${escapeHtml(s.notes)}</p>` : ''}
 
             <div class="session-actions">
               <button type="button" class="btn ${isEditing ? 'btn-danger' : 'btn-secondary'}" data-edit-session-afr="${escapeHtml(s.id)}">
-                ${isEditing ? 'Cancel Edit' : 'Edit Post-Race'}
+                ${isEditing ? 'Cancel Edit' : 'Edit Session'}
               </button>
               <button type="button" class="btn ${isBaseline ? 'btn-emerald-outline' : 'btn-amber-outline'}" data-lock-session="${escapeHtml(s.id)}">
                 ${isBaseline ? 'Locked Baseline' : 'Lock as Baseline'}
@@ -2741,8 +2800,34 @@
       'Peak_WOT_RPM',
       'AFR_Status',
       'EndCyl_1_6_Est',
+      'Litres_To_Pour_L',
+      'Starting_Fuel_Req_L',
+      'Fuel_In_L',
+      'Fuel_Out_L',
+      'Fuel_Used_L',
+      'Raced_Laps',
+      'Measured_Burn_L_Lap',
+      'Scale_Weight_Kg',
+      'Post_Race_Est_Kg',
+      'Tyre_Hot_Target_PSI',
+      'FL_Cold_PSI',
+      'FL_Hot_PSI',
+      'FL_NextCold_PSI',
+      'FR_Cold_PSI',
+      'FR_Hot_PSI',
+      'FR_NextCold_PSI',
+      'RL_Cold_PSI',
+      'RL_Hot_PSI',
+      'RL_NextCold_PSI',
+      'RR_Cold_PSI',
+      'RR_Hot_PSI',
+      'RR_NextCold_PSI',
       'Notes'
     ];
+    const fmtOptDec = (val, dec = 1) =>
+      val !== null && val !== undefined && val !== '' && Number.isFinite(Number(val))
+        ? Number(val).toFixed(dec)
+        : '';
     const rows = state.sessions.map((s) => {
       const a35 = normalizeOptionalAfr(s.afr3500);
       const a40 = normalizeOptionalAfr(s.afr4000);
@@ -2753,6 +2838,8 @@
       const fuelTempVal = Number.isFinite(Number(s.fuelTempC)) ? Number(s.fuelTempC) : 20.0;
       const peakRpmVal = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
       const dateStr = s.sessionDate || formatIsoDateDisplay(s.sessionDateIso || getLocalTodayIso());
+      const t = s.tyres || {};
+      const fmtCorner = (c, k) => (t[c] ? fmtOptDec(t[c][k], 1) : '');
       return [
         s.sessionName,
         s.venue || 'Calder Park Raceway',
@@ -2776,6 +2863,28 @@
         String(peakRpmVal),
         s.afrStatus === 'estimated' ? 'ESTIMATED' : 'VERIFIED',
         (Number(s.afrWot) + END_CYL_LEAN_OFFSET).toFixed(2),
+        fmtOptDec(s.litresToPourL, 1),
+        fmtOptDec(s.startingFuelReqL, 1),
+        fmtOptDec(s.fuelInL, 1),
+        fmtOptDec(s.fuelOutL, 1),
+        fmtOptDec(s.fuelUsedL, 2),
+        s.racedLaps !== null && s.racedLaps !== undefined ? String(Math.round(Number(s.racedLaps))) : '',
+        fmtOptDec(s.measuredBurnLPerLap, 2),
+        fmtOptDec(s.scaleWeightKg, 1),
+        fmtOptDec(s.postRaceEstKg, 1),
+        fmtOptDec(s.tyreHotTarget, 1),
+        fmtCorner('FL', 'cold'),
+        fmtCorner('FL', 'hot'),
+        fmtCorner('FL', 'nextCold'),
+        fmtCorner('FR', 'cold'),
+        fmtCorner('FR', 'hot'),
+        fmtCorner('FR', 'nextCold'),
+        fmtCorner('RL', 'cold'),
+        fmtCorner('RL', 'hot'),
+        fmtCorner('RL', 'nextCold'),
+        fmtCorner('RR', 'cold'),
+        fmtCorner('RR', 'hot'),
+        fmtCorner('RR', 'nextCold'),
         s.notes || ''
       ];
     });
@@ -4027,63 +4136,6 @@
         return;
       }
 
-      const deletePumpBtn = e.target.closest('[data-delete-pump-run]');
-      if (deletePumpBtn) {
-        const pid = deletePumpBtn.getAttribute('data-delete-pump-run');
-        const run = (state.chassis && state.chassis.pumpRuns || []).find((r) => r.id === pid);
-        if (!run) return;
-
-        if (ui.confirmDeletePumpRunId !== pid) {
-          ui.confirmDeletePumpRunId = pid;
-          renderPumpOutHistoryList(getSelectedFuelTrackVenue());
-          showToast('Tap "Tap Again" to remove pump-out run');
-          setTimeout(() => {
-            if (ui.confirmDeletePumpRunId === pid) {
-              ui.confirmDeletePumpRunId = null;
-              renderPumpOutHistoryList(getSelectedFuelTrackVenue());
-            }
-          }, 4000);
-          return;
-        }
-
-        const runVenue = run.venue;
-        state.chassis.pumpRuns = state.chassis.pumpRuns.filter((r) => r.id !== pid);
-        ui.confirmDeletePumpRunId = null;
-        recalculateTrackAverageBurn(runVenue);
-        saveState();
-        recalcFuelAndWeight();
-        showToast(`Removed pump-out entry • ${runVenue} L/lap updated`);
-        return;
-      }
-
-      const deleteTyreLogBtn = e.target.closest('[data-delete-tyre-log]');
-      if (deleteTyreLogBtn) {
-        const tid = deleteTyreLogBtn.getAttribute('data-delete-tyre-log');
-        const entry = (state.chassis && state.chassis.historyRuns || []).find((r) => r.id === tid);
-        if (!entry) return;
-
-        if (ui.confirmDeleteTyreLogId !== tid) {
-          ui.confirmDeleteTyreLogId = tid;
-          renderTyreHistoryList();
-          showToast(`Tap "Tap Again to Delete" to remove ${entry.sessionName}`);
-          setTimeout(() => {
-            if (ui.confirmDeleteTyreLogId === tid) {
-              ui.confirmDeleteTyreLogId = null;
-              renderTyreHistoryList();
-            }
-          }, 4000);
-          return;
-        }
-
-        const removedLabel = entry.sessionName;
-        state.chassis.historyRuns = state.chassis.historyRuns.filter((r) => r.id !== tid);
-        ui.confirmDeleteTyreLogId = null;
-        saveState();
-        renderTyreHistoryList();
-        showToast(`Removed ${removedLabel} from Tyre Session History`);
-        return;
-      }
-
       const clearInlineSweepBtn = e.target.closest('[data-clear-inline-sweep]');
       if (clearInlineSweepBtn) {
         const sid = clearInlineSweepBtn.getAttribute('data-clear-inline-sweep');
@@ -4220,6 +4272,7 @@
         }
 
         const removedName = sess.sessionName;
+        const removedVenue = sess.venue || 'Calder Park Raceway';
         state.sessions = state.sessions.filter((s) => s.id !== sid);
         if (state.baseline.linkedSessionId === sid) {
           state.baseline.linkedSessionId = null;
@@ -4231,6 +4284,7 @@
           ui.editingSessionId = null;
         }
         ui.confirmDeleteSessionId = null;
+        recalculateTrackAverageBurn(removedVenue);
         saveState();
         renderAll();
         showToast(`Removed ${removedName}`);
@@ -4311,7 +4365,48 @@
     $('btnBackToStep1Bottom').addEventListener('click', returnToStep1);
     $('btnConfirmLockJet').addEventListener('click', confirmJetAndLockForNextRace);
 
-    $('selectSessionName').addEventListener('change', updateCustomSessionVisibility);
+    // Synchronized Session Name Selectors across Tab 1 (Calculator), Tab 2 (Fuel & Wt), and Tab 3 (Tyres)
+    [
+      ['selectSessionName', 'inputCustomSessionName'],
+      ['selectFuelSessionName', 'inputCustomFuelSessionName'],
+      ['selectTyreSessionName', 'inputCustomTyreSessionName']
+    ].forEach(([selId, customId]) => {
+      const sel = $(selId);
+      const customInp = $(customId);
+      if (sel) {
+        sel.addEventListener('change', () => {
+          updateCustomSessionVisibility();
+          if (sel.value !== '__CUSTOM__') {
+            setSessionNameOnAllTabs(sel.value);
+          } else {
+            ['selectSessionName', 'selectFuelSessionName', 'selectTyreSessionName'].forEach((otherId) => {
+              if ($(otherId)) $(otherId).value = '__CUSTOM__';
+            });
+            updateCustomSessionVisibility();
+          }
+        });
+      }
+      if (customInp) {
+        customInp.addEventListener('input', () => {
+          const val = customInp.value;
+          ['inputCustomSessionName', 'inputCustomFuelSessionName', 'inputCustomTyreSessionName'].forEach((otherId) => {
+            if (otherId !== customId && $(otherId)) $(otherId).value = val;
+          });
+        });
+      }
+    });
+
+    // Synchronized Session Date inputs across Tab 1 (Calculator), Tab 2 (Fuel & Wt), and Tab 3 (Tyres)
+    ['inputSessionDate', 'inputFuelSessionDate', 'inputTyreSessionDate'].forEach((dateId) => {
+      const el = $(dateId);
+      if (el) {
+        const syncDate = () => {
+          if (el.value) setSessionDateOnAllTabs(el.value);
+        };
+        el.addEventListener('change', syncDate);
+        el.addEventListener('input', syncDate);
+      }
+    });
 
     // Synchronized Track Selectors across Tab 1 (Calculator), Tab 2 (Fuel & Wt), and Tab 3 (Tyres)
     if ($('selectTrackVenue')) {
@@ -4377,24 +4472,20 @@
       });
     }
 
-    if ($('inputSessionDate')) {
-      $('inputSessionDate').addEventListener('change', updateSessionDateHint);
-      $('inputSessionDate').addEventListener('input', updateSessionDateHint);
-    }
     $('selectCalcCarby').addEventListener('change', updateCarbySwapHint);
 
-    // Tab 2 (Fuel & Wt) and Tab 3 (Tyres) action buttons
+    // Tab 2 (Fuel & Wt) and Tab 3 (Tyres) unified session save buttons
     if ($('btnLogPumpOut')) {
-      $('btnLogPumpOut').addEventListener('click', logPumpOutAndUpdateTrackAvg);
+      $('btnLogPumpOut').addEventListener('click', () => saveFuelAndWeightToSession(true));
+    }
+    if ($('btnSaveFuelWeightSession')) {
+      $('btnSaveFuelWeightSession').addEventListener('click', () => saveFuelAndWeightToSession(false));
     }
     if ($('btnSaveTrackColdTyres')) {
       $('btnSaveTrackColdTyres').addEventListener('click', saveColdStartsToTrackProfile);
     }
-    if ($('btnLogTyreSession')) {
-      $('btnLogTyreSession').addEventListener('click', logTyreSessionToHistory);
-    }
-    if ($('btnExportTyresCsv')) {
-      $('btnExportTyresCsv').addEventListener('click', exportTyresCsv);
+    if ($('btnSaveTyresSession')) {
+      $('btnSaveTyresSession').addEventListener('click', saveTyresToSession);
     }
 
     if ($('btnTogglePostMidSweep')) {
