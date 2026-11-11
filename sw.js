@@ -1,4 +1,4 @@
-const CACHE_NAME = 'snb-hq202-jetting-v0.4.3';
+const CACHE_NAME = 'snb-hq202-jetting-v0.4.5';
 const OFFLINE_ASSETS = [
   './',
   './index.html',
@@ -12,23 +12,32 @@ const OFFLINE_ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(OFFLINE_ASSETS))
-  );
   self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.all(
+        OFFLINE_ASSETS.map((url) =>
+          fetch(new Request(url, { cache: 'reload' }))
+            .then((res) => (res && res.ok ? cache.put(url, res) : null))
+            .catch(() => cache.add(url))
+        )
+      )
+    )
+  );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(
         keys
           .filter((key) => key !== CACHE_NAME)
           .map((key) => caches.delete(key))
-      )
-    )
+      );
+      await self.clients.claim();
+    })()
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
@@ -37,9 +46,18 @@ self.addEventListener('fetch', (event) => {
   const reqUrl = new URL(event.request.url);
   if (reqUrl.origin !== self.location.origin) return;
 
-  event.respondWith(
-    caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request)
+  const isCodeOrNav =
+    event.request.mode === 'navigate' ||
+    reqUrl.pathname.endsWith('/') ||
+    reqUrl.pathname.endsWith('/index.html') ||
+    reqUrl.pathname.endsWith('/styles.css') ||
+    reqUrl.pathname.endsWith('/app.js') ||
+    reqUrl.pathname.endsWith('/manifest.json');
+
+  if (isCodeOrNav) {
+    // Network-First for navigation, index.html, styles.css, and app.js (offline fallback only)
+    event.respondWith(
+      fetch(event.request, { cache: 'no-store' })
         .then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             const responseClone = networkResponse.clone();
@@ -49,19 +67,33 @@ self.addEventListener('fetch', (event) => {
           }
           return networkResponse;
         })
-        .catch(() => null);
+        .catch(async () => {
+          const cached = await caches.match(event.request, { ignoreSearch: true });
+          if (cached) return cached;
+          if (event.request.mode === 'navigate') {
+            return caches.match('./index.html', { ignoreSearch: true });
+          }
+          return new Response('Offline', { status: 503, statusText: 'Offline' });
+        })
+    );
+    return;
+  }
 
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetchPromise.then((res) => {
-        if (res) return res;
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
+  // Network-First with cache fallback for images/icons as well
+  event.respondWith(
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
         }
-        return new Response('Offline', { status: 503, statusText: 'Offline' });
-      });
-    })
+        return networkResponse;
+      })
+      .catch(async () => {
+        const cached = await caches.match(event.request, { ignoreSearch: true });
+        return cached || new Response('Offline', { status: 503, statusText: 'Offline' });
+      })
   );
 });
