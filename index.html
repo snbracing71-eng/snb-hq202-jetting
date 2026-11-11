@@ -589,7 +589,7 @@
       <div class="card">
         <div class="section-head">
           <div>
-            <div class="section-eyebrow">Card 1 &bull; Strictly Litres (74.0 L Tank / 19.0 L Pickup Floor)</div>
+            <div class="section-eyebrow">Card 1 &bull; Strictly Litres (74.0 L Tank / 12.0 L Pickup Floor)</div>
             <h2 class="section-title">Pre-Race Fuel Load &amp; L/Lap Calibrator</h2>
           </div>
           <span class="locked-badge" id="fuelActiveSgBadge">SG 0.740 kg/L</span>
@@ -705,12 +705,12 @@
           <input type="text" id="inputCustomFuelSessionName" class="text-input" placeholder="e.g. Trophy Race / Feature" autocomplete="off" />
         </div>
 
-        <!-- Sub-section A: Pre-Race Fuel Load Planner (No Out/Cool Laps — Included in Pump-Out L/Lap) -->
+        <!-- Sub-section A: Pre-Race Fuel Load Planner (Pumped Empty Tank • 12.0 L Surge Min + Auto 1370 kg Scale Buffer) -->
         <div class="card-elevated" style="margin-bottom: 14px;">
           <div class="section-eyebrow" style="margin-bottom: 10px;">Sub-Section A &bull; Pre-Race Fuel Load Planner (Litres)</div>
 
           <!-- Row 1: Raced Laps | Baseline Pickup Floor (L) -->
-          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 12px;">
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
                 <label class="field-label" for="inputRaceLaps">Raced Laps</label>
@@ -729,12 +729,12 @@
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
                 <label class="field-label" for="inputFuelFloorL">Baseline Pickup Floor (L)</label>
-                <span class="field-hint amber">19.0 L surge min</span>
+                <span class="field-hint amber">12.0 L surge min</span>
               </div>
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputFuelFloorL" data-step="-0.5" aria-label="Decrease Baseline Pickup Floor">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputFuelFloorL" class="num-input" value="19.0" min="5.0" max="45.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputFuelFloorL" class="num-input" value="12.0" min="5.0" max="45.0" step="0.5" inputmode="decimal" />
                   <span class="num-unit-badge">L</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputFuelFloorL" data-step="0.5" aria-label="Increase Baseline Pickup Floor">+</button>
@@ -742,38 +742,17 @@
             </div>
           </div>
 
-          <!-- Row 2: Tank Residual Before Pour (L) -->
-          <div class="field-group" style="margin-bottom: 12px;">
-            <div class="field-label-row">
-              <label class="field-label" for="inputCurrentTankL">Tank Residual Before Pour (L)</label>
-              <span class="field-hint">0.0 L when pumped empty (or fuel left in tank)</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="inputCurrentTankL" data-step="-0.5" aria-label="Decrease Tank Residual Before Pour">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="inputCurrentTankL" class="num-input" value="0.0" min="0.0" max="74.0" step="0.5" inputmode="decimal" />
-                <span class="num-unit-badge">L</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="inputCurrentTankL" data-step="0.5" aria-label="Increase Tank Residual Before Pour">+</button>
-            </div>
-          </div>
-
-          <!-- Compact 3-Column Live Fuel Planner Output Row (Green Highlight on LITRES TO POUR) -->
-          <div class="fuel-telem-3col">
+          <!-- Large 2-Column Side-by-Side Live Fuel Planner Output Row (Green Highlight on LITRES TO POUR) -->
+          <div class="fuel-telem-2col">
             <div class="telem-cell">
               <span class="telem-label">Expected Burn (L)</span>
               <span class="telem-val txt-amber" id="outFuelExpectedBurnL">15.6 L</span>
               <span class="telem-sub" id="outFuelExpectedBurnSub">12 laps &times; 1.30 L/lap</span>
             </div>
-            <div class="telem-cell" id="cellFuelStartReq">
-              <span class="telem-label">Starting Fuel Req (L)</span>
-              <span class="telem-val" id="outFuelStartReqL">34.6 L</span>
-              <span class="telem-sub" id="outFuelStartMassHint">25.6 kg @ 0.740 SG</span>
-            </div>
             <div class="telem-cell afr-verified-cell" id="cellFuelPourJugs">
               <span class="telem-label">Litres to Pour (L)</span>
-              <span class="telem-val txt-emerald" id="outFuelPourJugsL">34.6 L</span>
-              <span class="telem-sub" id="outFuelPourJugsSub">19.0L base + 15.6L burn</span>
+              <span class="telem-val txt-emerald" id="outFuelPourJugsL">33.2 L</span>
+              <span class="telem-sub txt-amber" id="outFuelPourJugsSub">12.0L + 15.6L burn + 5.6L for 1370kg!</span>
             </div>
           </div>
         </div>
@@ -849,10 +828,10 @@
       <div class="card">
         <div class="section-head">
           <div>
-            <div class="section-eyebrow">Card 2 &bull; Group 3H Scrutineering Compliance</div>
+            <div class="section-eyebrow">Card 2 &bull; Group 3H Scrutineering Compliance (+5.0 kg Target Buffer)</div>
             <h2 class="section-title">Weekend Track Scales &amp; 1365 kg Check</h2>
           </div>
-          <span class="locked-badge" id="minWeightBadge">Min 1365 kg</span>
+          <span class="locked-badge" id="minWeightBadge">Target 1370 kg</span>
         </div>
 
         <div class="card-elevated" style="margin-bottom: 14px;">
@@ -861,12 +840,12 @@
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
                 <label class="field-label" for="inputScaleCheckKg">Official Scale Wt (kg)</label>
-                <span class="field-hint">Car + Driver</span>
+                <span class="field-hint">Car + Driver (0 = unweighed)</span>
               </div>
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputScaleCheckKg" data-step="-0.5" aria-label="Decrease Track Scale Check Weight">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputScaleCheckKg" class="num-input" value="1377.0" min="1100.0" max="1650.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputScaleCheckKg" class="num-input" value="1377.0" min="0.0" max="1650.0" step="0.5" placeholder="0 = unweighed" inputmode="decimal" />
                   <span class="num-unit-badge">kg</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputScaleCheckKg" data-step="0.5" aria-label="Increase Track Scale Check Weight">+</button>
@@ -894,7 +873,7 @@
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
                 <label class="field-label" for="inputMinLegalKg">Min Legal Post-Race (kg)</label>
-                <span class="field-hint amber">HQRA Grp 3H</span>
+                <span class="field-hint emerald" id="targetPostRaceHint">Target: 1370.0 kg (+5 kg buffer)</span>
               </div>
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputMinLegalKg" data-step="-1.0" aria-label="Decrease Minimum Legal Weight">&minus;</button>
@@ -917,22 +896,22 @@
           <div class="form-grid-2" style="gap: 8px;">
             <div class="telem-cell">
               <span class="telem-label">End-of-Race Fuel</span>
-              <span class="telem-val txt-amber" id="outEndFuelRemL">19.0 L</span>
-              <span class="telem-sub" id="outEndFuelRemMassHint">14.1 kg @ 0.740 SG</span>
+              <span class="telem-val txt-amber" id="outEndFuelRemL">17.6 L</span>
+              <span class="telem-sub" id="outEndFuelRemMassHint">13.0 kg (12.0L surge + 5.6L wt)</span>
             </div>
             <div class="telem-cell afr-verified-cell" id="cellPredPostRaceWeight">
               <span class="telem-label">Predicted Post-Race Wt</span>
-              <span class="telem-val txt-emerald" id="outPredPostRaceKg">1371.1 kg</span>
-              <span class="telem-sub" id="outPredPostRaceMargin">+6.1 kg vs 1365.0 kg min</span>
+              <span class="telem-val txt-emerald" id="outPredPostRaceKg">1370.0 kg</span>
+              <span class="telem-sub txt-emerald" id="outPredPostRaceMargin">+5.0 kg vs 1365.0 kg min</span>
             </div>
           </div>
         </div>
 
         <!-- Live Post-Race Scrutineering Weight Status Banner -->
         <div id="scrutineerWeightAlert" class="manifold-alert safe" style="margin-bottom: 12px;" role="region" aria-live="polite">
-          <h4 class="alert-title" id="scrutineerAlertTitle">SCRUTINEERING WEIGHT SAFE (+6.1 KG BUFFER)</h4>
+          <h4 class="alert-title" id="scrutineerAlertTitle">SCRUTINEERING WEIGHT SAFE (+5.0 KG BUFFER @ 1370.0 KG)</h4>
           <p class="alert-body" id="scrutineerAlertBody">
-            Car + Driver dry baseline is 1357.0 kg. Finishing with 19.0 L (14.1 kg @ 0.740 SG) puts post-race weight at 1371.1 kg (+6.1 kg legal buffer).
+            Auto-added +5.6 L weight-buffer fuel to Litres to Pour (33.2 L total) so car crosses post-race scales at 1370.0 kg (+5.0 kg buffer over 1365.0 kg min).
           </p>
         </div>
 
