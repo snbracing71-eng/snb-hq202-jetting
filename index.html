@@ -133,9 +133,9 @@
             <span class="telem-sub">32&ndash;34&deg; Window</span>
           </div>
           <div class="telem-cell">
-            <span class="telem-label">Fuel PSI / Water &deg;C</span>
-            <span class="telem-val" id="baseFuelPsiLabel">5.0 psi &bull; 84&deg;C</span>
-            <span class="telem-sub" id="baseWaterSubLabel">Block boss &bull; Coolant</span>
+            <span class="telem-label">Fuel Pressure</span>
+            <span class="telem-val" id="baseFuelPsiLabel">5.0 psi</span>
+            <span class="telem-sub">Block pump boss</span>
           </div>
         </div>
 
@@ -149,12 +149,11 @@
       <!-- Standalone Full-Width 3D Anodized Emerald Post-Race Session Button (Visible on Both Step 1 & Step 2) -->
       <button
         type="button"
-        class="btn btn-confirm btn-full btn-post-race-hero"
+        class="btn btn-confirm btn-full"
         id="btnOpenPostRaceAfr"
         style="margin-bottom: 14px;"
       >
-        <span id="btnOpenPostRaceMainText">UPDATE POST RACE SESSION</span>
-        <span id="btnOpenPostRaceSubText" class="btn-post-race-sub">Log WOT RPM, AFR, Fuel PSI &amp; Water Temp</span>
+        Update Post Race Session
       </button>
 
       <!-- Step Progress Navigation -->
@@ -167,7 +166,7 @@
         </button>
       </div>
 
-      <!-- STEP 1: WEATHER & TARGET -->
+      <!-- STEP 1: WEATHER & TARGET (Single Merged Card) -->
       <div id="calcStep1View">
         <div class="card">
           <div class="section-head">
@@ -177,6 +176,7 @@
             </div>
           </div>
 
+          <!-- 1) Circuit / Track + Session Date row -->
           <div class="form-grid-2 stack-mobile" style="margin-bottom: 14px;">
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
@@ -253,6 +253,7 @@
             />
           </div>
 
+          <!-- 2) Session Name + Carby ID row -->
           <div class="form-grid-2 stack-mobile" style="margin-bottom: 16px;">
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
@@ -312,7 +313,7 @@
             />
           </div>
 
-          <!-- Weather Mode Toggle (No Double Counting) -->
+          <!-- 3) Air-Density Input Mode (Kestrel RAD % vs Raw Weather) + live weather inputs -->
           <div class="field-group">
             <div class="field-label-row">
               <span class="field-label">Air-Density Input Mode</span>
@@ -345,7 +346,7 @@
           </div>
 
           <!-- Mode B: Raw Weather (Buck's Equation) -->
-          <div id="weatherPanelRaw" style="display: none;">
+          <div id="weatherPanelRaw" class="field-group" style="display: none;">
             <div class="field-group">
               <div class="field-label-row">
                 <label class="field-label" for="inputTempC">Ambient Temp (&deg;C &rarr; Kelvin)</label>
@@ -406,16 +407,8 @@
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="card">
-          <div class="section-head">
-            <div>
-              <div class="section-eyebrow">Fuel &amp; Combustion Targets</div>
-              <h2 class="section-title">Hydrometer SG, Target AFR &amp; Timing</h2>
-            </div>
-          </div>
-
+          <!-- 4) Fuel Specific Gravity (Hydrometer) -->
           <div class="field-group">
             <div class="field-label-row">
               <label class="field-label" for="inputFuelSg">Fuel Specific Gravity (Hydrometer)</label>
@@ -431,9 +424,26 @@
             </div>
           </div>
 
+          <!-- 5) Fuel Temperature (°C) with live Std 15°C eq hint (no double counting in orifice equation) -->
           <div class="field-group">
             <div class="field-label-row">
-              <span class="field-label">Practice 1 / O&#8322; Mode</span>
+              <label class="field-label" for="inputFuelTempC">Fuel Temperature</label>
+              <span class="field-hint emerald" id="fuelTempSg15Hint">Std 15&deg;C eq: 0.744 kg/L</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="inputFuelTempC" data-step="-0.5" aria-label="Decrease Fuel Temperature">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="inputFuelTempC" class="num-input" value="20.0" min="0" max="60" step="0.5" inputmode="decimal" />
+                <span class="num-unit-badge">&deg;C</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="inputFuelTempC" data-step="0.5" aria-label="Increase Fuel Temperature">+</button>
+            </div>
+          </div>
+
+          <!-- 6) Practice 1 / Weather-Only Mode toggle -->
+          <div class="field-group">
+            <div class="field-label-row">
+              <span class="field-label">Practice 1 / Weather-Only Mode</span>
               <span class="field-hint emerald" id="step1AfrMultiplierHint">AFR mult: 0.986&times;</span>
             </div>
             <button
@@ -451,21 +461,7 @@
             </button>
           </div>
 
-          <div class="field-group">
-            <div class="field-label-row">
-              <label class="field-label" for="inputTargetAfr">Target WOT Collector AFR</label>
-              <span class="field-hint emerald" id="targetAfrHint">12.8&ndash;12.9 Power Window</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="inputTargetAfr" data-step="-0.05" aria-label="Decrease Target WOT AFR">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="inputTargetAfr" class="num-input" value="12.85" min="11.50" max="14.20" step="0.05" inputmode="decimal" />
-                <span class="num-unit-badge">AFR</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="inputTargetAfr" data-step="0.05" aria-label="Increase Target WOT AFR">+</button>
-            </div>
-          </div>
-
+          <!-- 7) Total Ignition Timing (WOT) -->
           <div class="field-group">
             <div class="field-label-row">
               <label class="field-label" for="inputTotalTiming">Total Ignition Timing (WOT)</label>
@@ -481,12 +477,27 @@
             </div>
           </div>
 
-          <div style="margin-top: 14px;">
-            <button type="button" id="btnNextCalculateJet" class="btn btn-primary btn-full btn-cta-lg">
-              NEXT &rarr; CALCULATE JET
-            </button>
+          <!-- 8) Target WOT Collector AFR -->
+          <div class="field-group">
+            <div class="field-label-row">
+              <label class="field-label" for="inputTargetAfr">Target WOT Collector AFR</label>
+              <span class="field-hint emerald" id="targetAfrHint">12.8&ndash;12.9 Power Window</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="inputTargetAfr" data-step="-0.05" aria-label="Decrease Target WOT AFR">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="inputTargetAfr" class="num-input" value="12.85" min="11.50" max="14.20" step="0.05" inputmode="decimal" />
+                <span class="num-unit-badge">AFR</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="inputTargetAfr" data-step="0.05" aria-label="Increase Target WOT AFR">+</button>
+            </div>
           </div>
         </div>
+
+        <!-- Primary Step 1 Action Button Directly Underneath Step 1 Card -->
+        <button type="button" id="btnNextCalculateJet" class="btn btn-confirm btn-full btn-cta-lg">
+          PICK JET &amp; CONFIRM &rarr;
+        </button>
       </div>
 
       <!-- STEP 2: PICK JET & CONFIRM -->

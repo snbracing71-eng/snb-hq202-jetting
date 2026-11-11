@@ -218,6 +218,7 @@
         jetMm: 1.9812,
         rad: 98.6,
         fuelSg: 0.740,
+        fuelTempC: 20.0,
         timing: 32.0,
         fuelPsi: 5.0,
         waterTempC: 82,
@@ -243,6 +244,7 @@
         jetMm: 1.9500,
         rad: 96.8,
         fuelSg: 0.740,
+        fuelTempC: 20.0,
         timing: 33.0,
         fuelPsi: 5.0,
         waterTempC: 85,
@@ -268,6 +270,7 @@
         jetMm: 1.9812,
         rad: 95.6,
         fuelSg: 0.740,
+        fuelTempC: 20.0,
         timing: 33.0,
         fuelPsi: 5.0,
         waterTempC: 84,
@@ -293,6 +296,7 @@
         jetMm: 1.9812,
         rad: 94.8,
         fuelSg: 0.740,
+        fuelTempC: 20.0,
         timing: 33.5,
         fuelPsi: 5.0,
         waterTempC: 86,
@@ -318,6 +322,7 @@
         jetMm: 2.0000,
         rad: 94.3,
         fuelSg: 0.740,
+        fuelTempC: 20.0,
         timing: 33.0,
         fuelPsi: 5.0,
         waterTempC: 84,
@@ -343,6 +348,7 @@
         jetMm: 1.9812,
         rad: 93.9,
         fuelSg: 0.740,
+        fuelTempC: 20.0,
         timing: 33.0,
         fuelPsi: 5.0,
         waterTempC: 87,
@@ -368,6 +374,7 @@
         jetMm: 1.9812,
         rad: 95.2,
         fuelSg: 0.740,
+        fuelTempC: 20.0,
         timing: 33.0,
         fuelPsi: 5.0,
         waterTempC: 83,
@@ -530,11 +537,13 @@
       }
       const peakRpm = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
       const waterTempC = normalizeOptionalWaterTemp(s.waterTempC);
+      const fuelTempC = Number.isFinite(Number(s.fuelTempC)) ? Number(Number(s.fuelTempC).toFixed(1)) : 20.0;
       return {
         ...s,
         venue,
         sessionDateIso,
         sessionDate,
+        fuelTempC,
         waterTempC,
         afr3500: a35,
         afr4000: a40,
@@ -602,6 +611,7 @@
     postRaceTargetSessionId: null,
     selectedJetId: null,   // selected jet in Step 2
     editingSessionId: null,
+    confirmDeleteSessionId: null,
     dynoScrubRpm: 5000
   };
 
@@ -792,6 +802,8 @@
     const base = state.baseline;
     const targetAfr = readNum('inputTargetAfr', 12.85);
     const sgNew = readNum('inputFuelSg', 0.740);
+    const fuelTempC = readNum('inputFuelTempC', 20.0);
+    const sg15Eq = sgNew + 0.0007 * (fuelTempC - 15);
     const totalTiming = readNum('inputTotalTiming', 33.0);
 
     const hasNumericBaseAfr =
@@ -848,6 +860,8 @@
       afrMultiplier,
       targetAfr,
       sgNew,
+      fuelTempC,
+      sg15Eq,
       totalTiming,
       rhoRatio,
       densityShiftPct: (rhoRatio - 1) * 100,
@@ -952,45 +966,7 @@
 
     $('baseCarbyOnly').textContent = b.carbyId;
     $('baseTimingLabel').textContent = `${b.timing.toFixed(1)}° BTDC`;
-
-    const waterTemp = normalizeOptionalWaterTemp(b.waterTempC);
-    const fuelPsiEl = $('baseFuelPsiLabel');
-    const waterSubEl = $('baseWaterSubLabel');
-    if (waterTemp !== null) {
-      fuelPsiEl.textContent = `${b.fuelPsi.toFixed(1)} psi • ${waterTemp}°C`;
-      fuelPsiEl.className =
-        waterTemp >= 98
-          ? 'telem-val txt-danger'
-          : waterTemp >= 92
-          ? 'telem-val txt-amber'
-          : 'telem-val';
-      if (waterSubEl) {
-        waterSubEl.textContent =
-          waterTemp >= 98 ? 'WARN: Coolant ≥ 98°C!' : 'Block boss • Coolant';
-        waterSubEl.className = waterTemp >= 98 ? 'telem-sub txt-danger' : 'telem-sub';
-      }
-    } else {
-      fuelPsiEl.textContent = `${b.fuelPsi.toFixed(1)} psi • —°C`;
-      fuelPsiEl.className = 'telem-val';
-      if (waterSubEl) {
-        waterSubEl.textContent = 'Block boss • Coolant';
-        waterSubEl.className = 'telem-sub';
-      }
-    }
-
-    // Update standalone "UPDATE POST RACE SESSION" button above Step 1 / Step 2
-    const mainBtnText = $('btnOpenPostRaceMainText');
-    const subBtnText = $('btnOpenPostRaceSubText');
-    const pendingSess = getPendingPostRaceSession();
-    if (mainBtnText && subBtnText) {
-      if (pendingSess) {
-        mainBtnText.textContent = `UPDATE POST RACE SESSION — ${pendingSess.sessionName.toUpperCase()}`;
-        subBtnText.textContent = `Awaiting Track Telemetry • ${pendingSess.carbyId} (${pendingSess.jetLabel} @ ${pendingSess.rad.toFixed(1)}% RAD)`;
-      } else {
-        mainBtnText.textContent = `UPDATE POST RACE SESSION — ${b.sessionName.toUpperCase()}`;
-        subBtnText.textContent = `${venueStr} • ${b.carbyId} (${b.jetLabel}) — Log RPM, AFR, Fuel PSI & Water °C`;
-      }
-    }
+    $('baseFuelPsiLabel').textContent = `${b.fuelPsi.toFixed(1)} psi`;
   }
 
   function populateCarbySelects() {
@@ -1272,6 +1248,11 @@
     const sign = phys.densityShiftPct >= 0 ? '+' : '';
     $('liveRadDeltaHint').textContent = `ρ ratio: ${phys.rhoRatio.toFixed(3)} (${sign}${phys.densityShiftPct.toFixed(1)}%)`;
 
+    const sg15Hint = $('fuelTempSg15Hint');
+    if (sg15Hint) {
+      sg15Hint.textContent = `Std 15°C eq: ${phys.sg15Eq.toFixed(3)} kg/L`;
+    }
+
     if (ui.weatherMode === 'raw' && phys.rawTelemetry) {
       const rt = phys.rawTelemetry;
       $('liveKelvinReadout').textContent = `${rt.tempK.toFixed(2)} K`;
@@ -1517,6 +1498,7 @@
       jetMm: chosenJet.mm,
       rad: Number(phys.effectiveNewRad.toFixed(1)),
       fuelSg: Number(phys.sgNew.toFixed(3)),
+      fuelTempC: Number(phys.fuelTempC.toFixed(1)),
       timing: Number(phys.totalTiming.toFixed(1)),
       fuelPsi: state.baseline.fuelPsi,
       waterTempC: null,
@@ -1617,6 +1599,7 @@
         const prot = evaluateManifoldProtection(s.afrWot, s.timing);
         const endCylClass = prot.level === 'danger' ? 'txt-danger' : 'txt-emerald';
         const isEditing = ui.editingSessionId === s.id;
+        const isConfirmingDelete = ui.confirmDeleteSessionId === s.id;
         const isEstimated = s.afrStatus === 'estimated';
         const wotValClass = isEstimated
           ? 'txt-amber'
@@ -1689,10 +1672,13 @@
 
             <div class="session-actions">
               <button type="button" class="btn ${isEditing ? 'btn-danger' : 'btn-secondary'}" data-edit-session-afr="${escapeHtml(s.id)}">
-                ${isEditing ? 'Cancel Edit' : 'Edit Session & AFR'}
+                ${isEditing ? 'Cancel Edit' : 'Edit Post-Race'}
               </button>
               <button type="button" class="btn ${isBaseline ? 'btn-emerald-outline' : 'btn-amber-outline'}" data-lock-session="${escapeHtml(s.id)}">
                 ${isBaseline ? 'Locked Baseline' : 'Lock as Baseline'}
+              </button>
+              <button type="button" class="btn btn-danger" data-delete-session="${escapeHtml(s.id)}">
+                ${isConfirmingDelete ? 'Tap Again to Delete' : 'Remove'}
               </button>
             </div>
 
@@ -1834,6 +1820,7 @@
       'Jet_mm',
       'RAD_Pct',
       'Fuel_SG',
+      'Fuel_Temp_C',
       'Timing_BTDC',
       'Fuel_PSI',
       'Water_Temp_C',
@@ -1855,6 +1842,7 @@
       const a50 = normalizeOptionalAfr(s.afr5000);
       const a55 = normalizeOptionalAfr(s.afr5500);
       const waterVal = normalizeOptionalWaterTemp(s.waterTempC);
+      const fuelTempVal = Number.isFinite(Number(s.fuelTempC)) ? Number(s.fuelTempC) : 20.0;
       const peakRpmVal = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
       const dateStr = s.sessionDate || formatIsoDateDisplay(s.sessionDateIso || getLocalTodayIso());
       return [
@@ -1867,6 +1855,7 @@
         s.jetMm.toFixed(4),
         s.rad.toFixed(1),
         s.fuelSg.toFixed(3),
+        fuelTempVal.toFixed(1),
         s.timing.toFixed(1),
         s.fuelPsi.toFixed(1),
         waterVal !== null ? String(waterVal) : '',
@@ -3229,6 +3218,43 @@
         return;
       }
 
+      const deleteSessionBtn = e.target.closest('[data-delete-session]');
+      if (deleteSessionBtn) {
+        const sid = deleteSessionBtn.getAttribute('data-delete-session');
+        const sess = state.sessions.find((s) => s.id === sid);
+        if (!sess) return;
+
+        if (ui.confirmDeleteSessionId !== sid) {
+          ui.confirmDeleteSessionId = sid;
+          renderSessionLog();
+          showToast(`Tap "Tap Again to Delete" to remove ${sess.sessionName}`);
+          setTimeout(() => {
+            if (ui.confirmDeleteSessionId === sid) {
+              ui.confirmDeleteSessionId = null;
+              renderSessionLog();
+            }
+          }, 4000);
+          return;
+        }
+
+        const removedName = sess.sessionName;
+        state.sessions = state.sessions.filter((s) => s.id !== sid);
+        if (state.baseline.linkedSessionId === sid) {
+          state.baseline.linkedSessionId = null;
+        }
+        if (state.awaitingPostRaceId === sid) {
+          state.awaitingPostRaceId = null;
+        }
+        if (ui.editingSessionId === sid) {
+          ui.editingSessionId = null;
+        }
+        ui.confirmDeleteSessionId = null;
+        saveState();
+        renderAll();
+        showToast(`Removed ${removedName}`);
+        return;
+      }
+
       const togglePullBtn = e.target.closest('[data-toggle-pull]');
       if (togglePullBtn) {
         const pid = togglePullBtn.getAttribute('data-toggle-pull');
@@ -3381,8 +3407,9 @@
     });
 
     // Live input listeners for Step 1 & Converter
-    ['inputRadPct', 'inputTempC', 'inputPressure', 'inputRhPct', 'inputFuelSg', 'inputTargetAfr', 'inputTotalTiming'].forEach((id) => {
-      $(id).addEventListener('input', renderStep1LiveHints);
+    ['inputRadPct', 'inputTempC', 'inputPressure', 'inputRhPct', 'inputFuelSg', 'inputFuelTempC', 'inputTargetAfr', 'inputTotalTiming'].forEach((id) => {
+      const el = $(id);
+      if (el) el.addEventListener('input', renderStep1LiveHints);
     });
 
     $('selectFullJetKit').addEventListener('change', (e) => {

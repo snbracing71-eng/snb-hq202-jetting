@@ -1636,6 +1636,20 @@ textarea:focus-visible {
   margin-top: 12px;
 }
 
+.session-actions > [data-delete-session] {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 600px) {
+  .session-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .session-actions > [data-delete-session] {
+    grid-column: auto;
+  }
+}
+
 @media (max-width: 400px) {
   .session-actions {
     grid-template-columns: 1fr;
