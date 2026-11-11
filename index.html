@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>SNB Racing — HQ 202 Jetting &amp; AFR (v0.3 Dark Edition)</title>
+  <meta name="description" content="Mobile-first offline pit-lane Stromberg BXUV-3 carburettor jetting calculator, wideband AFR session tracker, dyno lab, and M1 jet kit manager for Group 3H HQ Holden 202 race cars." />
+  <meta name="theme-color" content="#090B0E" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SNB HQ202" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <!-- Sticky Pit-Lane Header -->
+  <header class="pit-header" role="banner">
+    <div class="header-inner">
+      <div class="brand-lockup">
+        <div class="logo-frame" id="brandLogoFrame">
+          <img
+            id="brandLogoImg"
+            class="logo-img"
+            src="./snb-logo.jpg"
+            alt="SNB Racing horizontal-scanline logo"
+            width="138"
+            height="32"
+            onerror="this.parentElement.classList.add('use-svg')"
+          />
+          <!-- Inline SVG Fallback: SNB RACING Horizontal-Scanline Black-and-White Logo -->
+          <svg
+            id="brandLogoSvgFallback"
+            class="logo-svg-fallback"
+            viewBox="0 0 440 96"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-label="SNB RACING horizontal-scanline logo"
+          >
+            <defs>
+              <mask id="snbScanlineMask">
+                <rect x="0" y="0" width="440" height="96" fill="white" />
+                <rect x="0" y="40" width="440" height="2.4" fill="black" />
+                <rect x="0" y="47" width="440" height="3.0" fill="black" />
+                <rect x="0" y="54" width="440" height="3.6" fill="black" />
+                <rect x="0" y="61" width="440" height="4.2" fill="black" />
+                <rect x="0" y="69" width="440" height="4.8" fill="black" />
+              </mask>
+            </defs>
+            <rect width="440" height="96" fill="#090B0E" />
+            <g mask="url(#snbScanlineMask)" transform="skewX(-12)">
+              <text
+                x="34"
+                y="76"
+                fill="#F8FAFC"
+                font-family="Impact, 'Arial Black', system-ui, sans-serif"
+                font-size="68"
+                font-weight="900"
+                letter-spacing="2"
+              >SNB RACING</text>
+            </g>
+          </svg>
+        </div>
+        <div class="brand-titles">
+          <h1 class="app-main-title">HQ 202 Jetting &amp; AFR</h1>
+          <p class="app-sub-title">v0.3 Dark Edition &bull; Grp 3H BXUV-3</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button
+          type="button"
+          id="btnInstallPwa"
+          class="btn btn-amber-outline"
+          style="display: none; padding: 6px 10px; font-size: 0.72rem;"
+          aria-label="Install SNB HQ202 App"
+        >
+          Install
+        </button>
+        <div id="netStatusBadge" class="net-status" aria-live="polite">
+          <span class="net-dot"></span>
+          <span id="netStatusText">PWA Ready</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-shell" role="main">
+    <!-- =========================================================
+         TAB 1: PIT-LANE CALCULATOR (Step 1 -> Next -> Confirm)
+         ========================================================= -->
+    <section id="tab-calc" class="tab-panel active" aria-labelledby="navTabCalc">
+      <!-- Top Locked Baseline Bar -->
+      <div class="baseline-card" id="lockedBaselineBar">
+        <div class="baseline-top-row">
+          <span class="locked-badge">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            Locked Baseline
+          </span>
+          <span class="baseline-session-tag tabular" id="baseSessionCarbyLabel">Race 1 &bull; 1 DME</span>
+        </div>
+
+        <div class="baseline-grid">
+          <div class="telem-cell">
+            <span class="telem-label">Main Jet</span>
+            <span class="telem-val" id="baseJetLabel">Jet #77 / 2.000 mm</span>
+            <span class="telem-sub" id="baseJetSub">3.142 mm&sup2; (.0787&quot;)</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">Baseline RAD</span>
+            <span class="telem-val" id="baseRadLabel">94.3% RAD</span>
+            <span class="telem-sub" id="baseSgLabel">SG 0.740 kg/L</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">Logged WOT AFR</span>
+            <span class="telem-val" id="baseAfrLabel">12.50</span>
+            <span class="telem-sub" id="baseEndCylLabel">#1/#6: 12.77</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">Carby Body</span>
+            <span class="telem-val" id="baseCarbyOnly">1 DME</span>
+            <span class="telem-sub">40mm BXUV-3</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">Total Timing</span>
+            <span class="telem-val" id="baseTimingLabel">33.0&deg; BTDC</span>
+            <span class="telem-sub">32&ndash;34&deg; Window</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">Fuel Pressure</span>
+            <span class="telem-val" id="baseFuelPsiLabel">5.0 psi</span>
+            <span class="telem-sub">Block pump boss</span>
+          </div>
+        </div>
+
+        <div class="baseline-btn-row">
+          <button type="button" class="btn btn-emerald-outline" id="btnOpenPostRaceAfr">
+            Update Post-Race AFR
+          </button>
+          <button type="button" class="btn btn-secondary" id="btnOpenEditBaseline">
+            Edit Baseline
+          </button>
+        </div>
+      </div>
+
+      <!-- Step Progress Navigation -->
+      <div class="calc-step-nav" role="tablist" aria-label="Jetting Calculator Steps">
+        <button type="button" class="step-pill-btn active" id="btnStep1Nav" role="tab" aria-selected="true">
+          1. Weather &amp; Target
+        </button>
+        <button type="button" class="step-pill-btn" id="btnStep2Nav" role="tab" aria-selected="false">
+          2. Pick Jet &amp; Confirm
+        </button>
+      </div>
+
+      <!-- STEP 1: WEATHER & TARGET -->
+      <div id="calcStep1View">
+        <div class="card">
+          <div class="section-head">
+            <div>
+              <div class="section-eyebrow">Step 1 of 2</div>
+              <h2 class="section-title">Upcoming Session &amp; Pit Weather</h2>
+            </div>
+          </div>
+
+          <div class="form-grid-2 stack-mobile" style="margin-bottom: 12px;">
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="inputSessionName">Session Name</label>
+                <span class="field-hint">Calder / Track Run</span>
+              </div>
+              <input
+                type="text"
+                id="inputSessionName"
+                class="text-input"
+                value="Race 2"
+                autocomplete="off"
+              />
+            </div>
+
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="selectCalcCarby">Carby ID</label>
+                <span class="field-hint" id="carbySwapHint">Matches Baseline</span>
+              </div>
+              <select id="selectCalcCarby" class="select-input" aria-label="Select 40mm BXUV-3 Carby"></select>
+            </div>
+          </div>
+
+          <div class="chip-row" style="margin-bottom: 14px;" aria-label="Quick Session Presets">
+            <button type="button" class="chip-btn" data-session-preset="Practice">Practice</button>
+            <button type="button" class="chip-btn" data-session-preset="Qualifying">Qualifying</button>
+            <button type="button" class="chip-btn" data-session-preset="Race 2">Race 2</button>
+            <button type="button" class="chip-btn" data-session-preset="Race 3">Race 3</button>
+            <button type="button" class="chip-btn" data-session-preset="Final">Final</button>
+          </div>
+
+          <!-- Weather Mode Toggle (No Double Counting) -->
+          <div class="field-group">
+            <div class="field-label-row">
+              <span class="field-label">Air-Density Input Mode</span>
+              <span class="field-hint emerald">No Double Counting</span>
+            </div>
+            <div class="seg-toggle" role="group" aria-label="Weather Mode">
+              <button type="button" class="seg-btn active" id="btnModeRad" data-weather-mode="rad">
+                Kestrel RAD %
+              </button>
+              <button type="button" class="seg-btn" id="btnModeRaw" data-weather-mode="raw">
+                Raw Weather
+              </button>
+            </div>
+          </div>
+
+          <!-- Mode A: Kestrel RAD % -->
+          <div id="weatherPanelRad" class="field-group">
+            <div class="field-label-row">
+              <label class="field-label" for="inputRadPct">Live Kestrel RAD %</label>
+              <span class="field-hint" id="liveRadDeltaHint">&rho; ratio: 1.000 (&pm;0.0%)</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="inputRadPct" data-step="-0.1" aria-label="Decrease Live RAD %">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="inputRadPct" class="num-input" value="94.3" min="70.0" max="115.0" step="0.1" inputmode="decimal" />
+                <span class="num-unit-badge">% RAD</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="inputRadPct" data-step="0.1" aria-label="Increase Live RAD %">+</button>
+            </div>
+          </div>
+
+          <!-- Mode B: Raw Weather (Buck's Equation) -->
+          <div id="weatherPanelRaw" style="display: none;">
+            <div class="field-group">
+              <div class="field-label-row">
+                <label class="field-label" for="inputTempC">Ambient Temp (&deg;C &rarr; Kelvin)</label>
+                <span class="field-hint amber" id="liveKelvinReadout">297.15 K</span>
+              </div>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="inputTempC" data-step="-0.5" aria-label="Decrease Ambient Temp">&minus;</button>
+                <div class="num-input-wrap">
+                  <input type="number" id="inputTempC" class="num-input" value="24.0" min="-10.0" max="60.0" step="0.5" inputmode="decimal" />
+                  <span class="num-unit-badge">&deg;C</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="inputTempC" data-step="0.5" aria-label="Increase Ambient Temp">+</button>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <div class="field-label-row">
+                <label class="field-label" for="inputPressure">Station Pressure (Absolute)</label>
+                <div style="display: flex; gap: 4px;">
+                  <button type="button" id="btnTogglePressUnit" class="btn" style="min-height: 48px; padding: 4px 10px; font-size: 0.74rem;">
+                    Unit: <span id="pressUnitBtnLabel">hPa</span> &harr;
+                  </button>
+                </div>
+              </div>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" id="btnPressMinus" data-stepper-target="inputPressure" data-step="-1" aria-label="Decrease Station Pressure">&minus;</button>
+                <div class="num-input-wrap">
+                  <input type="number" id="inputPressure" class="num-input" value="997.0" min="10.0" max="1100.0" step="1" inputmode="decimal" />
+                  <span class="num-unit-badge" id="pressUnitBadge">hPa</span>
+                </div>
+                <button type="button" class="stepper-btn" id="btnPressPlus" data-stepper-target="inputPressure" data-step="1" aria-label="Increase Station Pressure">+</button>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <div class="field-label-row">
+                <label class="field-label" for="inputRhPct">Relative Humidity (Buck Vapor Press)</label>
+                <span class="field-hint">Higher RH leans required jet</span>
+              </div>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="inputRhPct" data-step="-1" aria-label="Decrease Relative Humidity">&minus;</button>
+                <div class="num-input-wrap">
+                  <input type="number" id="inputRhPct" class="num-input" value="41" min="0" max="100" step="1" inputmode="numeric" />
+                  <span class="num-unit-badge">% RH</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="inputRhPct" data-step="1" aria-label="Increase Relative Humidity">+</button>
+              </div>
+            </div>
+
+            <div class="weather-telem-strip">
+              <div>
+                <span class="telem-label">Moist Air / Equiv RAD</span>
+                <span class="telem-val" id="rawMoistRhoLabel">1.158 kg/m&sup3; (94.5%)</span>
+              </div>
+              <div>
+                <span class="telem-label">Buck Vapor / Dry O&#8322; &rho;</span>
+                <span class="telem-val" id="rawBuckPvLabel">12.2 hPa &bull; 1.149 kg/m&sup3;</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-head">
+            <div>
+              <div class="section-eyebrow">Fuel &amp; Combustion Targets</div>
+              <h2 class="section-title">Hydrometer SG, Target AFR &amp; Timing</h2>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label-row">
+              <label class="field-label" for="inputFuelSg">Fuel Specific Gravity (Hydrometer)</label>
+              <span class="field-hint">0.740 kg/L std baseline</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="inputFuelSg" data-step="-0.001" aria-label="Decrease Fuel SG">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="inputFuelSg" class="num-input" value="0.740" min="0.680" max="0.820" step="0.001" inputmode="decimal" />
+                <span class="num-unit-badge">kg/L</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="inputFuelSg" data-step="0.001" aria-label="Increase Fuel SG">+</button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label-row">
+              <label class="field-label" for="inputTargetAfr">Target WOT Collector AFR</label>
+              <span class="field-hint emerald">12.8&ndash;12.9 Power Window</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="inputTargetAfr" data-step="-0.05" aria-label="Decrease Target WOT AFR">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="inputTargetAfr" class="num-input" value="12.85" min="11.50" max="14.20" step="0.05" inputmode="decimal" />
+                <span class="num-unit-badge">AFR</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="inputTargetAfr" data-step="0.05" aria-label="Increase Target WOT AFR">+</button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label-row">
+              <label class="field-label" for="inputTotalTiming">Total Ignition Timing (WOT)</label>
+              <span class="field-hint amber">32.0&ndash;34.0&deg; Safe Window</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="inputTotalTiming" data-step="-0.5" aria-label="Decrease Total Timing">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="inputTotalTiming" class="num-input" value="33.0" min="24.0" max="40.0" step="0.5" inputmode="decimal" />
+                <span class="num-unit-badge">&deg;BTDC</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="inputTotalTiming" data-step="0.5" aria-label="Increase Total Timing">+</button>
+            </div>
+          </div>
+
+          <div style="margin-top: 14px;">
+            <button type="button" id="btnNextCalculateJet" class="btn btn-primary btn-full btn-cta-lg">
+              NEXT &rarr; CALCULATE JET
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: PICK JET & CONFIRM -->
+      <div id="calcStep2View" style="display: none;">
+        <div class="card">
+          <div class="section-head">
+            <div>
+              <div class="section-eyebrow">Step 2 of 2 &bull; Venturi 4th-Root Physics</div>
+              <h2 class="section-title">Orifice Demand &amp; Toolbox Selection</h2>
+            </div>
+            <button type="button" id="btnBackToStep1" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; white-space: nowrap; flex-shrink: 0;">
+              &larr; Step 1
+            </button>
+          </div>
+
+          <!-- Air-Density Shift & Ideal Orifice -->
+          <div class="physics-summary-grid">
+            <div class="telem-cell">
+              <span class="telem-label">Air-Density Shift</span>
+              <span class="telem-val" id="outDensityShift">+0.00%</span>
+              <span class="telem-sub" id="outDensitySub">94.3% &rarr; 94.3% RAD</span>
+            </div>
+            <div class="telem-cell">
+              <span class="telem-label">Exact Ideal Orifice</span>
+              <span class="telem-val txt-amber" id="outIdealOrifice">1.973 mm</span>
+              <span class="telem-sub" id="outIdealInchArea">0.0777&quot; &bull; 3.056 mm&sup2;</span>
+            </div>
+          </div>
+
+          <!-- If Current Jet Left in Car -->
+          <div class="unchanged-jet-banner" id="unchangedJetBanner">
+            <div>
+              <span class="telem-label">If Current Jet Left in Car (<span id="unchangedJetName">Jet #77 / 2.000 mm</span>)</span>
+              <span class="telem-sub" id="unchangedEndCylText">#1 &amp; #6 End-Cyl Est: 12.77 AFR</span>
+            </div>
+            <div style="text-align: right; flex-shrink: 0;">
+              <span class="jet-afr-big" id="unchangedPredAfr">12.50</span>
+              <span class="telem-sub">Pred. WOT AFR</span>
+            </div>
+          </div>
+
+          <!-- 3 Tappable Toolbox Jet Cards -->
+          <div class="field-label-row" style="margin-bottom: 8px;">
+            <span class="field-label">Active Toolbox Jet Options (Tap to Select)</span>
+            <span class="field-hint" id="activeToolboxCountHint">15 in toolbox</span>
+          </div>
+
+          <div class="jet-cards-stack" id="toolboxJetCardsContainer"></div>
+
+          <!-- Full-Kit Dropdown -->
+          <div class="field-group" style="margin-bottom: 12px;">
+            <div class="field-label-row">
+              <label class="field-label" for="selectFullJetKit">Full M1 Jet Kit &amp; Custom Drills</label>
+              <span class="field-hint" id="selectedJetQuickSummary">Selected: #78</span>
+            </div>
+            <select id="selectFullJetKit" class="select-input"></select>
+          </div>
+
+          <!-- Siamesed Cast Log Manifold Protection Banner -->
+          <div id="manifoldProtectionAlert" class="manifold-alert safe" role="status" aria-live="polite">
+            <h3 class="alert-title" id="manifoldAlertTitle">Log Manifold #1 &amp; #6 Safe</h3>
+            <p class="alert-body" id="manifoldAlertBody"></p>
+          </div>
+
+          <!-- Optional Pit Run Note -->
+          <div class="field-group" style="margin-bottom: 14px;">
+            <div class="field-label-row">
+              <label class="field-label" for="inputRunNotes">Session Setup Note (Optional)</label>
+              <span class="field-hint">Saved to Session Log</span>
+            </div>
+            <input
+              type="text"
+              id="inputRunNotes"
+              class="text-input"
+              placeholder="e.g. Stepped leaner for Race 2 track temp"
+              autocomplete="off"
+            />
+          </div>
+
+          <button type="button" id="btnConfirmLockJet" class="btn btn-confirm btn-full">
+            CONFIRM JET &amp; LOCK FOR NEXT RACE
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         TAB 2: SESSION LOG (7 Calder Park Sessions + Export/Backup)
+         ========================================================= -->
+    <section id="tab-log" class="tab-panel" aria-labelledby="navTabLog">
+      <div class="card">
+        <div class="section-head">
+          <div>
+            <div class="section-eyebrow">Persistent Pit Notebook</div>
+            <h2 class="section-title">Session Log &amp; Post-Race Wideband</h2>
+          </div>
+          <span class="locked-badge" id="sessionCountBadge">7 Runs</span>
+        </div>
+
+        <div class="toolbar-grid">
+          <button type="button" class="btn btn-secondary" id="btnExportSessionsCsv">
+            Export CSV
+          </button>
+          <button type="button" class="btn btn-secondary" id="btnBackupJson">
+            Backup JSON
+          </button>
+          <label for="inputRestoreJson" class="btn btn-amber-outline" style="cursor: pointer;">
+            Restore JSON
+          </label>
+          <input type="file" id="inputRestoreJson" accept=".json,application/json" class="sr-only" />
+        </div>
+
+        <div class="form-grid-2" style="margin-bottom: 4px;">
+          <div>
+            <label class="sr-only" for="filterLogCarby">Filter by Carby</label>
+            <select id="filterLogCarby" class="select-input">
+              <option value="ALL">All Carbies (Fleet)</option>
+              <option value="1 DME">1 DME Only</option>
+              <option value="SNB Carby">SNB Carby Only</option>
+              <option value="2 DME">2 DME Only</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn-secondary" id="btnResetDemoData">
+            Reset Calder Seed
+          </button>
+        </div>
+      </div>
+
+      <div id="sessionLogList"></div>
+    </section>
+
+    <!-- =========================================================
+         TAB 3: DYNO LAB (Dual HTML5 Canvas + Overlay + CSV Import)
+         ========================================================= -->
+    <section id="tab-dyno" class="tab-panel" aria-labelledby="navTabDyno">
+      <div class="card">
+        <div class="section-head">
+          <div>
+            <div class="section-eyebrow">3500&ndash;5500 RPM Telemetry</div>
+            <h2 class="section-title">HQ 202 Dyno Lab &amp; AFR Overlay</h2>
+          </div>
+        </div>
+
+        <div class="dyno-scrub-bar" id="dynoScrubReadout">
+          <span>Touch or drag chart to inspect RPM</span>
+          <span class="txt-emerald">12.75&ndash;12.95 Sweet-Spot Band</span>
+        </div>
+
+        <div class="dyno-canvas-wrap">
+          <canvas id="dynoCanvas" width="680" height="390" aria-label="Dual HP/Torque and Wideband AFR Dyno Chart"></canvas>
+        </div>
+
+        <div class="field-label-row" style="margin-bottom: 6px;">
+          <span class="field-label">Active Dyno Pull Overlays (Tap to Toggle)</span>
+          <span class="field-hint">Solid = HP &bull; Dashed = Torque</span>
+        </div>
+        <div class="pull-toggle-list" id="dynoPullToggleList"></div>
+
+        <div class="form-grid-2">
+          <button type="button" class="btn btn-amber-outline" id="btnToggleDynoForm">
+            + Manual Dyno Pull
+          </button>
+          <label for="inputImportDynoCsv" class="btn btn-emerald-outline" style="cursor: pointer;">
+            Import Dyno CSV
+          </label>
+          <input type="file" id="inputImportDynoCsv" accept=".csv,.txt,text/csv" class="sr-only" />
+        </div>
+        <div style="margin-top: 8px;">
+          <button type="button" class="btn btn-secondary btn-full" id="btnDownloadDynoTemplate">
+            Download Sample Dyno CSV Template (3500&ndash;5500 RPM)
+          </button>
+        </div>
+      </div>
+
+      <!-- Collapsible Manual Dyno Pull Entry Card -->
+      <div class="card" id="dynoManualFormCard" style="display: none;">
+        <div class="section-head">
+          <div>
+            <div class="section-eyebrow">Overlay Custom Run</div>
+            <h3 class="section-title">Add Manual Dyno Pull</h3>
+          </div>
+        </div>
+
+        <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="dynoPullName">Pull Label</label>
+            <input type="text" id="dynoPullName" class="text-input" value="Pull 4 — 2 DME #77 Test" />
+          </div>
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="dynoPullCarby">Carby ID</label>
+            <select id="dynoPullCarby" class="select-input"></select>
+          </div>
+        </div>
+
+        <div class="form-grid-2 stack-mobile" style="margin-bottom: 12px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="dynoRadInput">Cell RAD %</label>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="dynoRadInput" data-step="-0.1" aria-label="Decrease Dyno RAD">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="dynoRadInput" class="num-input" value="96.0" min="75" max="110" step="0.1" />
+                <span class="num-unit-badge">%</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="dynoRadInput" data-step="0.1" aria-label="Increase Dyno RAD">+</button>
+            </div>
+          </div>
+
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="dynoTimingInput">Total Timing</label>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="dynoTimingInput" data-step="-0.5" aria-label="Decrease Dyno Timing">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="dynoTimingInput" class="num-input" value="33.0" min="26" max="38" step="0.5" />
+                <span class="num-unit-badge">&deg;</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="dynoTimingInput" data-step="0.5" aria-label="Increase Dyno Timing">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="dynoRpmInputsContainer"></div>
+
+        <button type="button" class="btn btn-confirm btn-full" id="btnSaveManualDynoPull" style="margin-top: 10px;">
+          Overlay Pull on Dyno Chart
+        </button>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         TAB 4: 40MM CARBY FLEET & M1 JET KIT
+         ========================================================= -->
+    <section id="tab-fleet" class="tab-panel" aria-labelledby="navTabFleet">
+      <!-- Homologation Spec Lock Card -->
+      <div class="card">
+        <div class="section-head">
+          <div>
+            <div class="section-eyebrow">HQRA Group 3H Homologation Lock</div>
+            <h2 class="section-title">40.00 mm Late-Base Stromberg BXUV-3 Fleet</h2>
+          </div>
+        </div>
+
+        <div class="homologation-banner">
+          <div style="font-size: 0.76rem; font-weight: 800; color: var(--amber); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px;">
+            Locked Exclusively to Late-Base 40.00 mm Stromberg BXUV-3
+          </div>
+          <div style="font-size: 0.77rem; color: var(--text-secondary); line-height: 1.45;">
+            Studs: <strong>75.0 mm</strong> &bull; Main Venturi: <strong>&le; 30.94 mm</strong> &bull; Exit Port: <strong>&le; 40.00 mm</strong> &bull; Spill Height: <strong>15.0 mm</strong> &bull; Stack: <strong>HQRA heat shield between 2&times; std 40mm gaskets</strong>.
+          </div>
+        </div>
+
+        <div id="carbyFleetContainer"></div>
+      </div>
+
+      <!-- Live Inch <-> mm <-> Area (mm^2) Orifice Converter -->
+      <div class="card">
+        <div class="section-head">
+          <div>
+            <div class="section-eyebrow">Precision Drill &amp; Orifice Math</div>
+            <h2 class="section-title">Live Inch &harr; mm &amp; Area (mm&sup2;) Converter</h2>
+          </div>
+        </div>
+
+        <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="convInchInput">Imperial (.001&quot; M1)</label>
+              <span class="field-hint">e.g. .078 = #78</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="convInchInput" data-step="-0.001" aria-label="Decrease Orifice Inch">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="convInchInput" class="num-input" value="0.0780" min="0.050" max="0.100" step="0.0005" inputmode="decimal" />
+                <span class="num-unit-badge">in</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="convInchInput" data-step="0.001" aria-label="Increase Orifice Inch">+</button>
+            </div>
+          </div>
+
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="convMmInput">Metric Drill (mm)</label>
+              <span class="field-hint">1 in = 25.400 mm</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="convMmInput" data-step="-0.010" aria-label="Decrease Orifice mm">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="convMmInput" class="num-input" value="1.981" min="1.270" max="2.540" step="0.005" inputmode="decimal" />
+                <span class="num-unit-badge">mm</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="convMmInput" data-step="0.010" aria-label="Increase Orifice mm">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="physics-summary-grid" style="margin-bottom: 10px;">
+          <div class="telem-cell">
+            <span class="telem-label">Orifice Flow Area</span>
+            <span class="telem-val txt-emerald" id="convAreaOut">3.083 mm&sup2;</span>
+            <span class="telem-sub" id="convVsBaseOut">-1.87% area vs 2.000 mm</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">Nearest Kit Jet</span>
+            <span class="telem-val txt-amber" id="convNearestJetOut">#78 (1.981 mm)</span>
+            <span class="telem-sub" id="convStampHint">M1 .0780&quot;</span>
+          </div>
+        </div>
+
+        <div class="form-grid-2 stack-mobile">
+          <input
+            type="text"
+            id="customJetLabelInput"
+            class="text-input"
+            placeholder="Custom stamp (e.g. #77 / 1.97mm Drill)"
+          />
+          <button type="button" class="btn btn-amber-outline" id="btnAddCustomJet">
+            + Add Custom Drill to Kit
+          </button>
+        </div>
+      </div>
+
+      <!-- M1 (.001" Increment) Main Jet Inventory -->
+      <div class="card">
+        <div class="section-head">
+          <div>
+            <div class="section-eyebrow">M1 (.001&quot; Increment) + Metric Drills</div>
+            <h2 class="section-title">Main Jet Toolbox Inventory (#68&ndash;#80+)</h2>
+          </div>
+          <span class="locked-badge" id="toolboxSummaryBadge">15 / 15 In Box</span>
+        </div>
+
+        <div class="jet-inventory-list" id="jetInventoryList"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Sticky Bottom 4-Tab Navigation -->
+  <nav class="bottom-tab-bar" role="navigation" aria-label="Primary App Tabs">
+    <div class="bottom-tab-inner">
+      <button type="button" class="tab-btn active" id="navTabCalc" data-tab="tab-calc" aria-controls="tab-calc" aria-selected="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M12 7v5l3 3"></path>
+        </svg>
+        <span>Calculator</span>
+      </button>
+      <button type="button" class="tab-btn" id="navTabLog" data-tab="tab-log" aria-controls="tab-log" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"></path>
+          <rect x="9" y="3" width="6" height="4" rx="1"></rect>
+          <path d="M9 12h6M9 16h6"></path>
+        </svg>
+        <span>Session Log</span>
+      </button>
+      <button type="button" class="tab-btn" id="navTabDyno" data-tab="tab-dyno" aria-controls="tab-dyno" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        <span>Dyno Lab</span>
+      </button>
+      <button type="button" class="tab-btn" id="navTabFleet" data-tab="tab-fleet" aria-controls="tab-fleet" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+        </svg>
+        <span>Fleet &amp; Kit</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- =========================================================
+       MODAL 1: UPDATE POST-RACE AFR (Quick Wideband Sync)
+       ========================================================= -->
+  <div class="modal-backdrop" id="modalPostRaceAfr" role="dialog" aria-modal="true" aria-labelledby="modalPostRaceTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">Wideband O&#8322; Telemetry Sync</div>
+          <h2 class="section-title" id="modalPostRaceTitle">Update Post-Race AFR</h2>
+        </div>
+        <button type="button" class="btn btn-secondary" data-close-modal="modalPostRaceAfr" aria-label="Close Post-Race AFR Modal">
+          Close
+        </button>
+      </div>
+
+      <p style="margin: 0 0 12px; font-size: 0.8rem; color: var(--text-secondary);">
+        Enter the logged wideband AFR from <strong id="postRaceModalSessionLabel">Race 1 (1 DME)</strong>. Updates Locked Baseline and syncs matching Session Log run.
+      </p>
+
+      <div class="field-group">
+        <div class="field-label-row">
+          <label class="field-label" for="modalPostWotAfr">Logged WOT Collector AFR</label>
+          <span class="field-hint emerald" id="modalPostEndCylPreview">#1/#6 Est: 12.77</span>
+        </div>
+        <div class="num-stepper">
+          <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="-0.05" aria-label="Decrease Post-Race WOT AFR">&minus;</button>
+          <div class="num-input-wrap">
+            <input type="number" id="modalPostWotAfr" class="num-input" value="12.50" min="10.50" max="15.50" step="0.05" />
+            <span class="num-unit-badge">WOT</span>
+          </div>
+          <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="0.05" aria-label="Increase Post-Race WOT AFR">+</button>
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="field-group">
+          <label class="field-label" for="modalPost3500">3500 RPM AFR</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="modalPost3500" data-step="-0.05" aria-label="Decrease 3500 AFR">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="modalPost3500" class="num-input" value="12.68" min="10.50" max="15.50" step="0.05" />
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPost3500" data-step="0.05" aria-label="Increase 3500 AFR">+</button>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="modalPost4000">4000 RPM AFR</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="modalPost4000" data-step="-0.05" aria-label="Decrease 4000 AFR">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="modalPost4000" class="num-input" value="12.60" min="10.50" max="15.50" step="0.05" />
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPost4000" data-step="0.05" aria-label="Increase 4000 AFR">+</button>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="modalPost4500">4500 RPM AFR</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="modalPost4500" data-step="-0.05" aria-label="Decrease 4500 AFR">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="modalPost4500" class="num-input" value="12.55" min="10.50" max="15.50" step="0.05" />
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPost4500" data-step="0.05" aria-label="Increase 4500 AFR">+</button>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="modalPost5000">5000 RPM AFR</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="modalPost5000" data-step="-0.05" aria-label="Decrease 5000 AFR">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="modalPost5000" class="num-input" value="12.52" min="10.50" max="15.50" step="0.05" />
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPost5000" data-step="0.05" aria-label="Increase 5000 AFR">+</button>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-confirm btn-full" id="btnSavePostRaceAfr">
+        Save Post-Race Wideband AFR
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 2: EDIT LOCKED BASELINE
+       ========================================================= -->
+  <div class="modal-backdrop" id="modalEditBaseline" role="dialog" aria-modal="true" aria-labelledby="modalEditBaselineTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">Reference Calibration</div>
+          <h2 class="section-title" id="modalEditBaselineTitle">Edit Locked Baseline</h2>
+        </div>
+        <button type="button" class="btn btn-secondary" data-close-modal="modalEditBaseline" aria-label="Close Edit Baseline Modal">
+          Close
+        </button>
+      </div>
+
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editBaseSession">Baseline Session</label>
+          <input type="text" id="editBaseSession" class="text-input" value="Race 1" />
+        </div>
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editBaseCarby">Baseline Carby</label>
+          <select id="editBaseCarby" class="select-input"></select>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="editBaseJet">Fitted Main Jet</label>
+        <select id="editBaseJet" class="select-input"></select>
+      </div>
+
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editBaseRad">Baseline RAD %</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="editBaseRad" data-step="-0.1" aria-label="Decrease Baseline RAD">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="editBaseRad" class="num-input" value="94.3" min="70" max="115" step="0.1" />
+              <span class="num-unit-badge">%</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="editBaseRad" data-step="0.1" aria-label="Increase Baseline RAD">+</button>
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editBaseSg">Baseline Fuel SG</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="editBaseSg" data-step="-0.001" aria-label="Decrease Baseline SG">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="editBaseSg" class="num-input" value="0.740" min="0.680" max="0.820" step="0.001" />
+              <span class="num-unit-badge">kg/L</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="editBaseSg" data-step="0.001" aria-label="Increase Baseline SG">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editBaseWotAfr">Logged WOT AFR</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="editBaseWotAfr" data-step="-0.05" aria-label="Decrease Baseline WOT AFR">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="editBaseWotAfr" class="num-input" value="12.50" min="10.50" max="15.50" step="0.05" />
+              <span class="num-unit-badge">AFR</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="editBaseWotAfr" data-step="0.05" aria-label="Increase Baseline WOT AFR">+</button>
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editBaseTiming">Total Timing (&deg;BTDC)</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="editBaseTiming" data-step="-0.5" aria-label="Decrease Baseline Timing">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="editBaseTiming" class="num-input" value="33.0" min="24.0" max="40.0" step="0.5" />
+              <span class="num-unit-badge">&deg;</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="editBaseTiming" data-step="0.5" aria-label="Increase Baseline Timing">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom: 14px;">
+        <label class="field-label" for="editBaseFuelPsi">Fuel Pressure (at Block Pump Boss)</label>
+        <div class="num-stepper">
+          <button type="button" class="stepper-btn" data-stepper-target="editBaseFuelPsi" data-step="-0.1" aria-label="Decrease Fuel Pressure">&minus;</button>
+          <div class="num-input-wrap">
+            <input type="number" id="editBaseFuelPsi" class="num-input" value="5.0" min="2.5" max="8.5" step="0.1" />
+            <span class="num-unit-badge">psi</span>
+          </div>
+          <button type="button" class="stepper-btn" data-stepper-target="editBaseFuelPsi" data-step="0.1" aria-label="Increase Fuel Pressure">+</button>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-confirm btn-full" id="btnSaveEditBaseline">
+        Lock Updated Baseline
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 3: EDIT 40MM BXUV-3 CARBY SPECS
+       ========================================================= -->
+  <div class="modal-backdrop" id="modalEditCarby" role="dialog" aria-modal="true" aria-labelledby="modalEditCarbyTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">40.00 mm Late-Base BXUV-3</div>
+          <h2 class="section-title" id="modalEditCarbyTitle">Edit Carby Homologation Check</h2>
+        </div>
+        <button type="button" class="btn btn-secondary" data-close-modal="modalEditCarby" aria-label="Close Carby Spec Modal">
+          Close
+        </button>
+      </div>
+
+      <input type="hidden" id="editCarbyIdHidden" />
+
+      <div class="field-group">
+        <div class="field-label-row">
+          <label class="field-label" for="editCarbyVenturi">Main Venturi Bore (&le; 30.94 mm Legal)</label>
+          <span class="field-hint emerald">Group 3H Max 30.94</span>
+        </div>
+        <div class="num-stepper">
+          <button type="button" class="stepper-btn" data-stepper-target="editCarbyVenturi" data-step="-0.01" aria-label="Decrease Venturi Bore">&minus;</button>
+          <div class="num-input-wrap">
+            <input type="number" id="editCarbyVenturi" class="num-input" value="30.90" min="29.50" max="30.94" step="0.01" />
+            <span class="num-unit-badge">mm</span>
+          </div>
+          <button type="button" class="stepper-btn" data-stepper-target="editCarbyVenturi" data-step="0.01" aria-label="Increase Venturi Bore">+</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label-row">
+          <label class="field-label" for="editCarbyExit">Exit Port / Throttle Bore (&le; 40.00 mm Legal)</label>
+          <span class="field-hint emerald">Group 3H Max 40.00</span>
+        </div>
+        <div class="num-stepper">
+          <button type="button" class="stepper-btn" data-stepper-target="editCarbyExit" data-step="-0.01" aria-label="Decrease Exit Port">&minus;</button>
+          <div class="num-input-wrap">
+            <input type="number" id="editCarbyExit" class="num-input" value="39.98" min="38.50" max="40.00" step="0.01" />
+            <span class="num-unit-badge">mm</span>
+          </div>
+          <button type="button" class="stepper-btn" data-stepper-target="editCarbyExit" data-step="0.01" aria-label="Increase Exit Port">+</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label-row">
+          <label class="field-label" for="editCarbySpill">Fuel Spill / Float Level Height</label>
+          <span class="field-hint">15.0 mm SNB std</span>
+        </div>
+        <div class="num-stepper">
+          <button type="button" class="stepper-btn" data-stepper-target="editCarbySpill" data-step="-0.1" aria-label="Decrease Spill Height">&minus;</button>
+          <div class="num-input-wrap">
+            <input type="number" id="editCarbySpill" class="num-input" value="15.0" min="12.0" max="19.0" step="0.1" />
+            <span class="num-unit-badge">mm</span>
+          </div>
+          <button type="button" class="stepper-btn" data-stepper-target="editCarbySpill" data-step="0.1" aria-label="Increase Spill Height">+</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="editCarbyJet">Currently Fitted Bench Jet</label>
+        <select id="editCarbyJet" class="select-input"></select>
+      </div>
+
+      <div class="field-group" style="margin-bottom: 14px;">
+        <label class="field-label" for="editCarbyNotes">Bench &amp; Track Notes</label>
+        <input type="text" id="editCarbyNotes" class="text-input" />
+      </div>
+
+      <button type="button" class="btn btn-confirm btn-full" id="btnSaveCarbySpec">
+        Save 40mm BXUV-3 Carby Spec
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Banner -->
+  <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
