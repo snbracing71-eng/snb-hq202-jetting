@@ -345,11 +345,12 @@
         scaleWeightKg: 1377.0,
         postRaceEstKg: 1370.0,
         tyreHotTarget: 44.0,
+        tyreCondition: 'dry',
         tyres: {
-          FL: { tyreId: 'K1', cold: 30.0, hot: 43.8, build: 13.8, nextCold: 30.2 },
-          FR: { tyreId: 'K2', cold: 30.0, hot: 44.6, build: 14.6, nextCold: 29.5 },
-          RL: { tyreId: 'K3', cold: 30.0, hot: 43.4, build: 13.4, nextCold: 30.5 },
-          RR: { tyreId: 'K4', cold: 30.0, hot: 44.2, build: 14.2, nextCold: 29.8 }
+          FL: { tyreId: 'KB1', cold: 30.0, hot: 43.8, build: 13.8, nextCold: 30.2 },
+          FR: { tyreId: 'KB2', cold: 30.0, hot: 44.6, build: 14.6, nextCold: 29.5 },
+          RL: { tyreId: 'KB3', cold: 30.0, hot: 43.4, build: 13.4, nextCold: 30.5 },
+          RR: { tyreId: 'KB4', cold: 30.0, hot: 44.2, build: 14.2, nextCold: 29.8 }
         },
         notes: 'Safe rich slipstream setup (2.000mm drill in #77 body); 5.0 psi steady at block boss.'
       },
@@ -503,13 +504,71 @@
     'Hidden Valley Raceway': 1.60
   };
 
+  function createDefaultWetTyreSet(purchaseDate = '2026-01-01') {
+    return [
+      {
+        id: 'KW1',
+        code: 'KW1',
+        label: 'KW1',
+        spec: 'wet',
+        stamp: 'HQRA #201 (Kenda KR15 Full-Tread Wet)',
+        purchaseDate,
+        treadMm: 8.0,
+        durometer: 60,
+        baseLaps: 0,
+        totalLaps: 0,
+        retired: false
+      },
+      {
+        id: 'KW2',
+        code: 'KW2',
+        label: 'KW2',
+        spec: 'wet',
+        stamp: 'HQRA #202 (Kenda KR15 Full-Tread Wet)',
+        purchaseDate,
+        treadMm: 8.0,
+        durometer: 60,
+        baseLaps: 0,
+        totalLaps: 0,
+        retired: false
+      },
+      {
+        id: 'KW3',
+        code: 'KW3',
+        label: 'KW3',
+        spec: 'wet',
+        stamp: 'HQRA #203 (Kenda KR15 Full-Tread Wet)',
+        purchaseDate,
+        treadMm: 8.0,
+        durometer: 60,
+        baseLaps: 0,
+        totalLaps: 0,
+        retired: false
+      },
+      {
+        id: 'KW4',
+        code: 'KW4',
+        label: 'KW4',
+        spec: 'wet',
+        stamp: 'HQRA #204 (Kenda KR15 Full-Tread Wet)',
+        purchaseDate,
+        treadMm: 8.0,
+        durometer: 60,
+        baseLaps: 0,
+        totalLaps: 0,
+        retired: false
+      }
+    ];
+  }
+
   function createDefaultTyrePool() {
     return [
       {
-        id: 'K1',
-        code: 'K1',
-        label: 'K1',
-        stamp: 'HQRA #101 (Kenda KR15)',
+        id: 'KB1',
+        code: 'KB1',
+        label: 'KB1',
+        spec: 'buffed',
+        stamp: 'HQRA #101 (Kenda KR15 Buffed Dry)',
         purchaseDate: '2026-01-01',
         treadMm: 4.8,
         durometer: 62,
@@ -518,10 +577,11 @@
         retired: false
       },
       {
-        id: 'K2',
-        code: 'K2',
-        label: 'K2',
-        stamp: 'HQRA #102 (Kenda KR15)',
+        id: 'KB2',
+        code: 'KB2',
+        label: 'KB2',
+        spec: 'buffed',
+        stamp: 'HQRA #102 (Kenda KR15 Buffed Dry)',
         purchaseDate: '2026-01-01',
         treadMm: 4.6,
         durometer: 63,
@@ -530,10 +590,11 @@
         retired: false
       },
       {
-        id: 'K3',
-        code: 'K3',
-        label: 'K3',
-        stamp: 'HQRA #103 (Kenda KR15)',
+        id: 'KB3',
+        code: 'KB3',
+        label: 'KB3',
+        spec: 'buffed',
+        stamp: 'HQRA #103 (Kenda KR15 Buffed Dry)',
         purchaseDate: '2026-01-01',
         treadMm: 5.0,
         durometer: 62,
@@ -542,18 +603,29 @@
         retired: false
       },
       {
-        id: 'K4',
-        code: 'K4',
-        label: 'K4',
-        stamp: 'HQRA #104 (Kenda KR15)',
+        id: 'KB4',
+        code: 'KB4',
+        label: 'KB4',
+        spec: 'buffed',
+        stamp: 'HQRA #104 (Kenda KR15 Buffed Dry)',
         purchaseDate: '2026-01-01',
         treadMm: 4.9,
         durometer: 62,
         baseLaps: 14,
         totalLaps: 24,
         retired: false
-      }
+      },
+      ...createDefaultWetTyreSet('2026-01-01')
     ];
+  }
+
+  function migrateLegacyTyreId(rawId) {
+    if (!rawId || typeof rawId !== 'string') return rawId;
+    const trimmed = rawId.trim();
+    if (/^K([1-4])$/i.test(trimmed)) {
+      return `KB${trimmed.slice(1)}`;
+    }
+    return trimmed;
   }
 
   function createDefaultTrackProfiles() {
@@ -564,7 +636,8 @@
         coldTyres:
           track === 'Calder Park Raceway'
             ? { FL: 30.2, FR: 29.5, RL: 30.5, RR: 29.8 }
-            : { FL: 30.0, FR: 30.0, RL: 30.0, RR: 30.0 }
+            : { FL: 30.0, FR: 30.0, RL: 30.0, RR: 30.0 },
+        wetColdTyres: { FL: 28.0, FR: 28.0, RL: 28.0, RR: 28.0 }
       };
     });
     return profiles;
@@ -582,7 +655,8 @@
       scaleCheckKg: 1377.0,
       scaleCheckFuelL: 27.0,
       tyreHotTarget: 44.0,
-      mountedTyres: { FL: 'K1', FR: 'K2', RL: 'K3', RR: 'K4' },
+      tyreCondition: 'dry',
+      mountedTyres: { FL: 'KB1', FR: 'KB2', RL: 'KB3', RR: 'KB4' },
       hotTyres: { FL: null, FR: null, RL: null, RR: null },
       trackProfiles: createDefaultTrackProfiles(),
       pumpRuns: [],
@@ -590,7 +664,7 @@
     };
   }
 
-  const DEFAULT_CORNER_TYRE_IDS = { FL: 'K1', FR: 'K2', RL: 'K3', RR: 'K4' };
+  const DEFAULT_CORNER_TYRE_IDS = { FL: 'KB1', FR: 'KB2', RL: 'KB3', RR: 'KB4' };
 
   function normalizeTyreCornersObject(rawCorners) {
     if (!rawCorners || typeof rawCorners !== 'object') return null;
@@ -602,10 +676,11 @@
       const hot = pickOpt(src.hot);
       const build = hot !== null ? Number((hot - cold).toFixed(1)) : pickOpt(src.build);
       const nextCold = Number.isFinite(Number(src.nextCold)) ? Number(Number(src.nextCold).toFixed(1)) : cold;
-      const tyreId =
+      const rawTid =
         typeof src.tyreId === 'string' && src.tyreId.trim()
           ? src.tyreId.trim()
-          : DEFAULT_CORNER_TYRE_IDS[newKey] || 'K1';
+          : DEFAULT_CORNER_TYRE_IDS[newKey] || 'KB1';
+      const tyreId = migrateLegacyTyreId(rawTid);
       return {
         tyreId,
         cold,
@@ -620,10 +695,10 @@
     const rr = normCorner('RR', 'RR');
     if (!fl && !fr && !rl && !rr) return null;
     return {
-      FL: fl || { tyreId: 'K1', cold: 30.0, hot: null, build: null, nextCold: 30.0 },
-      FR: fr || { tyreId: 'K2', cold: 30.0, hot: null, build: null, nextCold: 30.0 },
-      RL: rl || { tyreId: 'K3', cold: 30.0, hot: null, build: null, nextCold: 30.0 },
-      RR: rr || { tyreId: 'K4', cold: 30.0, hot: null, build: null, nextCold: 30.0 }
+      FL: fl || { tyreId: 'KB1', cold: 30.0, hot: null, build: null, nextCold: 30.0 },
+      FR: fr || { tyreId: 'KB2', cold: 30.0, hot: null, build: null, nextCold: 30.0 },
+      RL: rl || { tyreId: 'KB3', cold: 30.0, hot: null, build: null, nextCold: 30.0 },
+      RR: rr || { tyreId: 'KB4', cold: 30.0, hot: null, build: null, nextCold: 30.0 }
     };
   }
 
@@ -656,42 +731,72 @@
     }
 
     const defTyrePool = createDefaultTyrePool();
-    if (!Array.isArray(candidate.tyrePool)) {
+    if (!Array.isArray(candidate.tyrePool) || candidate.tyrePool.length === 0) {
       candidate.tyrePool = defTyrePool;
     } else {
-      candidate.tyrePool = candidate.tyrePool.map((t, idx) => {
-        const id = String(t.id || t.label || t.code || `K${idx + 1}`).trim();
-        const label = String(t.label || t.code || id).trim();
-        const code = label;
-        const isSeed = ['K1', 'K2', 'K3', 'K4'].includes(id);
-        const purchaseDate =
-          typeof t.purchaseDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(t.purchaseDate.trim())
-            ? t.purchaseDate.trim()
-            : isSeed
-            ? '2026-01-01'
-            : todayIso;
-        const rawTread = Number(t.treadMm ?? t.treadDepthMm);
-        const treadMm = Number.isFinite(rawTread) ? Number(rawTread.toFixed(1)) : isSeed ? 4.8 : 7.5;
-        const rawDuro = Number(t.durometer ?? t.hardness);
-        const durometer = Number.isFinite(rawDuro) ? Math.max(40, Math.min(95, Math.round(rawDuro))) : 62;
-        const baseLaps = Number.isFinite(Number(t.baseLaps ?? t.initialLaps))
-          ? Math.max(0, Math.round(Number(t.baseLaps ?? t.initialLaps)))
-          : isSeed
-          ? 14
-          : 0;
-        return {
-          id,
-          code,
-          label,
-          stamp: typeof t.stamp === 'string' && t.stamp.trim() ? t.stamp.trim() : `Kenda KR15 (${label})`,
-          purchaseDate,
-          treadMm,
-          durometer,
-          baseLaps,
-          totalLaps: baseLaps,
-          retired: Boolean(t.retired)
-        };
-      });
+      const seenIds = new Set();
+      candidate.tyrePool = candidate.tyrePool
+        .map((t, idx) => {
+          const rawId = String(t.id || t.label || t.code || `KB${idx + 1}`).trim();
+          const id = migrateLegacyTyreId(rawId);
+          const rawLabel = String(t.label || t.code || id).trim();
+          const label = /^K[1-4]$/i.test(rawLabel) ? migrateLegacyTyreId(rawLabel) : rawLabel;
+          const code = label;
+          const isSeedDry = ['KB1', 'KB2', 'KB3', 'KB4'].includes(id);
+          const isWet = t.spec === 'wet' || /^KW/i.test(id) || /^KW/i.test(label);
+          const spec = isWet ? 'wet' : 'buffed';
+          const purchaseDate =
+            typeof t.purchaseDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(t.purchaseDate.trim())
+              ? t.purchaseDate.trim()
+              : isSeedDry || isWet
+              ? '2026-01-01'
+              : todayIso;
+          const rawTread = Number(t.treadMm ?? t.treadDepthMm);
+          const defaultTread = isWet ? 8.0 : isSeedDry ? 4.8 : 5.0;
+          const treadMm = Number.isFinite(rawTread) ? Number(rawTread.toFixed(1)) : defaultTread;
+          const rawDuro = Number(t.durometer ?? t.hardness);
+          const durometer = Number.isFinite(rawDuro)
+            ? Math.max(40, Math.min(95, Math.round(rawDuro)))
+            : isWet
+            ? 60
+            : 62;
+          const baseLaps = Number.isFinite(Number(t.baseLaps ?? t.initialLaps))
+            ? Math.max(0, Math.round(Number(t.baseLaps ?? t.initialLaps)))
+            : isSeedDry
+            ? 14
+            : 0;
+          return {
+            id,
+            code,
+            label,
+            spec,
+            stamp:
+              typeof t.stamp === 'string' && t.stamp.trim()
+                ? t.stamp.trim()
+                : `Kenda KR15 ${spec === 'wet' ? 'Wet' : 'Buffed'} (${label})`,
+            purchaseDate,
+            treadMm,
+            durometer,
+            baseLaps,
+            totalLaps: baseLaps,
+            retired: Boolean(t.retired)
+          };
+        })
+        .filter((t) => {
+          if (seenIds.has(t.id)) return false;
+          seenIds.add(t.id);
+          return true;
+        });
+
+      // Seed ready-to-go set of 4 Full-Tread Wet tyres KW1-KW4 if no KW tyres exist yet
+      const hasAnyWet = candidate.tyrePool.some((t) => t.spec === 'wet' || /^KW/i.test(t.id));
+      if (!hasAnyWet) {
+        createDefaultWetTyreSet('2026-01-01').forEach((wt) => {
+          if (!candidate.tyrePool.some((existing) => existing.id === wt.id)) {
+            candidate.tyrePool.push(wt);
+          }
+        });
+      }
     }
 
     const b = candidate.baseline || createDefaultBaseline();
@@ -780,6 +885,10 @@
         if (tyreHotTarget === null) tyreHotTarget = defCalderR1.tyreHotTarget;
       }
 
+      const inferredWet =
+        s.tyreCondition === 'wet' ||
+        (tyres && ['FL', 'FR', 'RL', 'RR'].some((c) => tyres[c] && /^KW/i.test(String(tyres[c].tyreId || ''))));
+
       return {
         ...s,
         venue,
@@ -807,6 +916,7 @@
         scaleWeightKg,
         postRaceEstKg,
         tyreHotTarget,
+        tyreCondition: inferredWet ? 'wet' : 'dry',
         tyres
       };
     });
@@ -839,6 +949,7 @@
           const p = ch.trackProfiles[k];
           if (p && typeof p === 'object') {
             const ct = p.coldTyres || {};
+            const wct = p.wetColdTyres || {};
             mergedProfiles[k] = {
               burnLPerLap: Number.isFinite(Number(p.burnLPerLap))
                 ? Number(Number(p.burnLPerLap).toFixed(2))
@@ -848,6 +959,12 @@
                 FR: Number.isFinite(Number(ct.FR ?? ct.RF)) ? Number(ct.FR ?? ct.RF) : 30.0,
                 RL: Number.isFinite(Number(ct.RL ?? ct.LR)) ? Number(ct.RL ?? ct.LR) : 30.0,
                 RR: Number.isFinite(Number(ct.RR)) ? Number(ct.RR) : 30.0
+              },
+              wetColdTyres: {
+                FL: Number.isFinite(Number(wct.FL)) ? Number(wct.FL) : 28.0,
+                FR: Number.isFinite(Number(wct.FR)) ? Number(wct.FR) : 28.0,
+                RL: Number.isFinite(Number(wct.RL)) ? Number(wct.RL) : 28.0,
+                RR: Number.isFinite(Number(wct.RR)) ? Number(wct.RR) : 28.0
               }
             };
           }
@@ -858,18 +975,21 @@
       const mt = (ch.mountedTyres && typeof ch.mountedTyres === 'object') ? ch.mountedTyres : {};
       const usedCornerTyres = new Set();
       const validTyreId = (val, fallback) => {
-        const str = typeof val === 'string' && val.trim() ? val.trim() : fallback;
+        const rawStr = typeof val === 'string' && val.trim() ? val.trim() : fallback;
+        const str = migrateLegacyTyreId(rawStr);
         if (str === 'UNASSIGNED') return 'UNASSIGNED';
         if (candidate.tyrePool.some((t) => t.id === str) && !usedCornerTyres.has(str)) {
           usedCornerTyres.add(str);
           return str;
         }
-        if (candidate.tyrePool.some((t) => t.id === fallback) && !usedCornerTyres.has(fallback)) {
-          usedCornerTyres.add(fallback);
-          return fallback;
+        const migFallback = migrateLegacyTyreId(fallback);
+        if (candidate.tyrePool.some((t) => t.id === migFallback) && !usedCornerTyres.has(migFallback)) {
+          usedCornerTyres.add(migFallback);
+          return migFallback;
         }
-        const spare = candidate.tyrePool.find((t) => !t.retired && !usedCornerTyres.has(t.id)) ||
-                      candidate.tyrePool.find((t) => !usedCornerTyres.has(t.id));
+        const spare =
+          candidate.tyrePool.find((t) => !t.retired && !usedCornerTyres.has(t.id)) ||
+          candidate.tyrePool.find((t) => !usedCornerTyres.has(t.id));
         if (spare) {
           usedCornerTyres.add(spare.id);
           return spare.id;
@@ -947,11 +1067,12 @@
           ? Number(ch.scaleCheckFuelL)
           : defChassis.scaleCheckFuelL,
         tyreHotTarget: Number.isFinite(Number(ch.tyreHotTarget)) ? Number(ch.tyreHotTarget) : defChassis.tyreHotTarget,
+        tyreCondition: ch.tyreCondition === 'wet' ? 'wet' : 'dry',
         mountedTyres: {
-          FL: validTyreId(mt.FL, 'K1'),
-          FR: validTyreId(mt.FR, 'K2'),
-          RL: validTyreId(mt.RL, 'K3'),
-          RR: validTyreId(mt.RR, 'K4')
+          FL: validTyreId(mt.FL, 'KB1'),
+          FR: validTyreId(mt.FR, 'KB2'),
+          RL: validTyreId(mt.RL, 'KB3'),
+          RR: validTyreId(mt.RR, 'KB4')
         },
         hotTyres: {
           FL: pickOptNum(ht.FL ?? ht.LF),
@@ -1024,6 +1145,9 @@
     confirmDeletePumpRunId: null,
     confirmDeleteTyreLogId: null,
     confirmDeleteTyreId: null,
+    expandedTyreId: null,
+    tyreStockFilter: 'all', // 'all' | 'buffed' | 'wet'
+    newTyreSpec: 'buffed',  // 'buffed' | 'wet'
     dynoScrubRpm: 5000
   };
 
@@ -1517,11 +1641,31 @@
     };
   }
 
-  function getTrackLearnedColdTyres(venueName, targetHotPsi = 44.0) {
+  function getSessionTyreCondition(sess) {
+    if (!sess) return 'dry';
+    if (sess.tyreCondition === 'wet') return 'wet';
+    if (sess.tyreCondition === 'dry') return 'dry';
+    if (sess.tyres && typeof sess.tyres === 'object') {
+      const hasWet = ['FL', 'FR', 'RL', 'RR'].some((c) => {
+        const tid = sess.tyres[c] && sess.tyres[c].tyreId;
+        if (!tid) return false;
+        const tObj = getTyreById(tid);
+        return (tObj && tObj.spec === 'wet') || /^KW/i.test(String(tid));
+      });
+      if (hasWet) return 'wet';
+    }
+    return 'dry';
+  }
+
+  function getTrackLearnedColdTyres(venueName, targetHotPsi = 44.0, conditionOpt) {
     const venue = venueName || 'Calder Park Raceway';
+    const condition = conditionOpt || (state.chassis && state.chassis.tyreCondition) || 'dry';
+    const seedCold = condition === 'wet' ? 28.0 : 30.0;
     const hotTarget = Number.isFinite(Number(targetHotPsi)) && Number(targetHotPsi) > 0 ? Number(targetHotPsi) : 44.0;
     const result = {
       venue,
+      condition,
+      seedCold,
       hotTarget,
       totalRuns: 0,
       corners: {}
@@ -1533,6 +1677,7 @@
       (state.sessions || []).forEach((s) => {
         if ((s.venue || 'Calder Park Raceway') !== venue) return;
         if (!s.tyres || !s.tyres[c]) return;
+        if (getSessionTyreCondition(s) !== condition) return;
         const cold = Number(s.tyres[c].cold);
         const hot = s.tyres[c].hot !== null && s.tyres[c].hot !== undefined ? Number(s.tyres[c].hot) : NaN;
         if (Number.isFinite(cold) && cold > 0 && Number.isFinite(hot) && hot > 0) {
@@ -1556,9 +1701,9 @@
       } else {
         result.corners[c] = {
           learned: false,
-          avg: 30.0,
-          min: 30.0,
-          max: 30.0,
+          avg: seedCold,
+          min: seedCold,
+          max: seedCold,
           count: 0
         };
       }
@@ -1578,13 +1723,21 @@
       $('inputTrackBurnLPerLap').value = Number(prof.burnLPerLap).toFixed(2);
     }
 
+    const condition = (state.chassis && state.chassis.tyreCondition) || 'dry';
     const hotTarget = readNum('inputTyreHotTarget', (state.chassis && state.chassis.tyreHotTarget) || 44.0);
-    const tyreStats = getTrackLearnedColdTyres(venue, hotTarget);
+    const tyreStats = getTrackLearnedColdTyres(venue, hotTarget, condition);
+    const targetColdMap = condition === 'wet' ? (prof.wetColdTyres || (prof.wetColdTyres = { FL: 28.0, FR: 28.0, RL: 28.0, RR: 28.0 })) : prof.coldTyres;
 
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const cStat = tyreStats.corners[c];
-      const coldVal = cStat && cStat.learned ? cStat.avg : (prof.coldTyres && Number.isFinite(Number(prof.coldTyres[c])) ? Number(prof.coldTyres[c]) : 30.0);
-      prof.coldTyres[c] = coldVal;
+      const fallbackCold = condition === 'wet' ? 28.0 : 30.0;
+      const coldVal =
+        cStat && cStat.learned
+          ? cStat.avg
+          : targetColdMap && Number.isFinite(Number(targetColdMap[c]))
+          ? Number(targetColdMap[c])
+          : fallbackCold;
+      if (targetColdMap) targetColdMap[c] = coldVal;
       const coldEl = $(`inputColdPsi_${c}`);
       if (coldEl) {
         coldEl.value = Number(coldVal).toFixed(1);
@@ -1813,6 +1966,7 @@
       scaleWeightKg: patch.scaleWeightKg !== undefined ? patch.scaleWeightKg : null,
       postRaceEstKg: patch.postRaceEstKg !== undefined ? patch.postRaceEstKg : null,
       tyreHotTarget: patch.tyreHotTarget !== undefined ? patch.tyreHotTarget : null,
+      tyreCondition: patch.tyreCondition || null,
       tyres: patch.tyres || null,
       notes: patch.notes || patch.appendNote || ''
     };
@@ -2281,13 +2435,14 @@
   }
 
   function getTreadStatusInfo(treadMmVal) {
-    const mm = Number.isFinite(Number(treadMmVal)) ? Number(treadMmVal) : 7.5;
+    const mm = Number.isFinite(Number(treadMmVal)) ? Number(treadMmVal) : 5.0;
     if (mm < 1.5) {
       return {
         text: 'ILLEGAL <1.5MM',
         hintClass: 'field-hint txt-danger',
         cardClass: 'tread-danger',
-        badgeClass: 'tyre-laps-badge danger'
+        badgeClass: 'tyre-laps-badge danger',
+        dotClass: 'danger'
       };
     }
     if (mm <= 2.0) {
@@ -2295,15 +2450,74 @@
         text: 'LOW TREAD',
         hintClass: 'field-hint amber',
         cardClass: 'tread-warn',
-        badgeClass: 'tyre-laps-badge warn'
+        badgeClass: 'tyre-laps-badge warn',
+        dotClass: 'warn'
       };
     }
     return {
       text: `${mm.toFixed(1)}mm OK`,
       hintClass: 'field-hint emerald',
       cardClass: '',
-      badgeClass: 'tyre-laps-badge'
+      badgeClass: 'tyre-laps-badge',
+      dotClass: 'ok'
     };
+  }
+
+  function getSuggestedNextTyreCode(specMode) {
+    const isWet = specMode === 'wet';
+    const prefix = isWet ? 'KW' : 'KB';
+    const pool = state.tyrePool || [];
+    let nextNum = 1;
+    while (
+      pool.some(
+        (t) =>
+          String(t.id || '').toUpperCase() === `${prefix}${nextNum}` ||
+          String(t.label || '').toUpperCase() === `${prefix}${nextNum}`
+      )
+    ) {
+      nextNum++;
+    }
+    return `${prefix}${nextNum}`;
+  }
+
+  function syncNewTyreSpecUi(specMode) {
+    const isWet = specMode === 'wet';
+    ui.newTyreSpec = isWet ? 'wet' : 'buffed';
+    const btnBuffed = $('btnNewTyreSpecBuffed');
+    const btnWet = $('btnNewTyreSpecWet');
+    if (btnBuffed) {
+      btnBuffed.classList.toggle('active', !isWet);
+      btnBuffed.setAttribute('aria-pressed', !isWet ? 'true' : 'false');
+    }
+    if (btnWet) {
+      btnWet.classList.toggle('active', isWet);
+      btnWet.setAttribute('aria-pressed', isWet ? 'true' : 'false');
+    }
+    const suggestedCode = getSuggestedNextTyreCode(ui.newTyreSpec);
+    const labelInp = $('newTyreLabel');
+    if (labelInp) {
+      const cur = labelInp.value.trim();
+      if (!cur || /^K[BW]?\d+$/i.test(cur)) {
+        labelInp.value = suggestedCode;
+      }
+      labelInp.placeholder = `e.g. ${suggestedCode}`;
+    }
+    const hintEl = $('newTyreCodeHint');
+    if (hintEl) {
+      hintEl.textContent = `Auto: ${suggestedCode}`;
+    }
+    const treadInp = $('newTyreTread');
+    if (treadInp) {
+      treadInp.value = isWet ? '8.0' : '5.0';
+    }
+    const treadHint = $('newTyreTreadHint');
+    if (treadHint) {
+      treadHint.textContent = isWet ? '8.0mm Wet' : '5.0mm Buffed';
+    }
+    const duroInp = $('newTyreHardness');
+    if (duroInp && (duroInp.value === '62' || duroInp.value === '60')) {
+      duroInp.value = isWet ? '60' : '62';
+    }
   }
 
   function ensureMountedTyresState() {
@@ -2314,22 +2528,27 @@
       state.tyrePool = createDefaultTyrePool();
     }
     if (!state.chassis.mountedTyres || typeof state.chassis.mountedTyres !== 'object') {
-      state.chassis.mountedTyres = { FL: 'K1', FR: 'K2', RL: 'K3', RR: 'K4' };
+      state.chassis.mountedTyres = { FL: 'KB1', FR: 'KB2', RL: 'KB3', RR: 'KB4' };
     }
 
     const usedIds = new Set();
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-      const curId = state.chassis.mountedTyres[c];
+      const curId = migrateLegacyTyreId(state.chassis.mountedTyres[c]);
+      state.chassis.mountedTyres[c] = curId;
       if (curId && curId !== 'UNASSIGNED' && state.tyrePool.some((t) => t.id === curId) && !usedIds.has(curId)) {
         usedIds.add(curId);
+      } else if (curId !== 'UNASSIGNED') {
+        state.chassis.mountedTyres[c] = null;
       }
     });
 
+    const preferredSpec = state.chassis.tyreCondition === 'wet' ? 'wet' : 'buffed';
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const curId = state.chassis.mountedTyres[c];
       if (curId === 'UNASSIGNED') return;
       if (!curId || !state.tyrePool.some((t) => t.id === curId)) {
         const spare =
+          state.tyrePool.find((t) => !t.retired && t.spec === preferredSpec && !usedIds.has(t.id)) ||
           state.tyrePool.find((t) => !t.retired && !usedIds.has(t.id)) ||
           state.tyrePool.find((t) => !usedIds.has(t.id));
         if (spare) {
@@ -2343,6 +2562,82 @@
     return state.chassis.mountedTyres;
   }
 
+  function syncTyreConditionUi() {
+    if (!state.chassis) state.chassis = createDefaultChassisState();
+    const isWet = state.chassis.tyreCondition === 'wet';
+    const btnDry = $('btnTyreCondDry');
+    const btnWet = $('btnTyreCondWet');
+    const btnQuick = $('btnQuickMountSet');
+    if (btnDry) {
+      btnDry.classList.toggle('active', !isWet);
+      btnDry.setAttribute('aria-pressed', !isWet ? 'true' : 'false');
+    }
+    if (btnWet) {
+      btnWet.classList.toggle('active', isWet);
+      btnWet.setAttribute('aria-pressed', isWet ? 'true' : 'false');
+    }
+    if (btnQuick) {
+      const mounted = ensureMountedTyresState();
+      const mountedSpecs = ['FL', 'FR', 'RL', 'RR']
+        .map((c) => getTyreById(mounted[c]))
+        .filter(Boolean)
+        .map((t) => t.spec);
+      const allWetMounted = mountedSpecs.length === 4 && mountedSpecs.every((s) => s === 'wet');
+      if (isWet || !allWetMounted) {
+        if (isWet && !allWetMounted) {
+          btnQuick.textContent = 'Mount Wet Set (KW1–KW4)';
+          btnQuick.classList.add('wet-mode');
+        } else if (!isWet && allWetMounted) {
+          btnQuick.textContent = 'Mount Dry Set (KB1–KB4)';
+          btnQuick.classList.remove('wet-mode');
+        } else if (isWet) {
+          btnQuick.textContent = 'Mount Dry Set (KB1–KB4)';
+          btnQuick.classList.remove('wet-mode');
+        } else {
+          btnQuick.textContent = 'Mount Wet Set (KW1–KW4)';
+          btnQuick.classList.add('wet-mode');
+        }
+      }
+    }
+  }
+
+  function mountTyreSetBySpec(targetSpec) {
+    if (!state.chassis) state.chassis = createDefaultChassisState();
+    const isWet = targetSpec === 'wet';
+    state.chassis.tyreCondition = isWet ? 'wet' : 'dry';
+
+    const pool = state.tyrePool || [];
+    const matching = pool.filter((t) => !t.retired && (isWet ? t.spec === 'wet' : t.spec !== 'wet'));
+    const fallbackCodes = isWet ? ['KW1', 'KW2', 'KW3', 'KW4'] : ['KB1', 'KB2', 'KB3', 'KB4'];
+    const corners = ['FL', 'FR', 'RL', 'RR'];
+
+    corners.forEach((c, idx) => {
+      const byDefaultCode = pool.find((t) => t.id === fallbackCodes[idx]);
+      const chosen = byDefaultCode || matching[idx];
+      if (chosen) {
+        state.chassis.mountedTyres[c] = chosen.id;
+      }
+    });
+
+    const venue = getSelectedTyreTrackVenue();
+    const learnedStats = getTrackLearnedColdTyres(venue, state.chassis.tyreHotTarget || 44.0, state.chassis.tyreCondition);
+    corners.forEach((c) => {
+      const coldEl = $(`inputColdPsi_${c}`);
+      if (coldEl && learnedStats.corners[c]) {
+        coldEl.value = learnedStats.corners[c].avg.toFixed(1);
+      }
+    });
+
+    saveState();
+    syncTyreConditionUi();
+    renderMountedTyreSelectors();
+    renderTyreStockList();
+    recalcTyres();
+
+    const mountedSummary = corners.map((c) => `${c}:${state.chassis.mountedTyres[c]}`).join(' • ');
+    showToast(`Switched to ${isWet ? 'DECLARED WET (KW)' : 'DRY — BUFFED (KB)'} (${mountedSummary})`);
+  }
+
   function renderMountedTyreSelectors() {
     const mounted = ensureMountedTyresState();
     const pool = state.tyrePool || [];
@@ -2353,25 +2648,21 @@
       const mountedId = mounted[c] || 'UNASSIGNED';
       const mountedTyre = mountedId !== 'UNASSIGNED' ? getTyreById(mountedId) : null;
       const totalLaps = mountedTyre ? getTyreCumulativeLaps(mountedTyre.id) : 0;
-      const treadMm = mountedTyre && Number.isFinite(Number(mountedTyre.treadMm)) ? Number(mountedTyre.treadMm) : 7.5;
+      const treadMm = mountedTyre && Number.isFinite(Number(mountedTyre.treadMm)) ? Number(mountedTyre.treadMm) : 5.0;
       const duro = mountedTyre && Number.isFinite(Number(mountedTyre.durometer)) ? Math.round(Number(mountedTyre.durometer)) : 62;
       const treadStatus = getTreadStatusInfo(treadMm);
 
       if (selEl) {
-        const options = pool
-          .filter((t) => !t.retired || t.id === mountedId)
-          .map((t) => {
-            const laps = getTyreCumulativeLaps(t.id);
-            const cornerEntry = Object.entries(mounted).find(([, tid]) => tid === t.id);
-            const locSuffix = cornerEntry && cornerEntry[0] !== c ? ` [on ${cornerEntry[0]}]` : '';
-            const tMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : 7.5;
-            const tDuro = Number.isFinite(Number(t.durometer)) ? Math.round(Number(t.durometer)) : 62;
-            const displayLabel = t.label || t.code || t.id;
-            return `<option value="${escapeHtml(t.id)}">${escapeHtml(displayLabel)} — ${laps} Laps • ${tMm.toFixed(1)}mm • ${tDuro}A${escapeHtml(locSuffix)}</option>`;
-          });
-        if (mountedId === 'UNASSIGNED' || pool.length < 4) {
-          options.push(`<option value="UNASSIGNED">UNASSIGNED — Spare Rack</option>`);
-        }
+        // List ALL tyres in state.tyrePool (never disable or hide tyres mounted on other corners) + -- Unassigned --
+        const options = pool.map((t) => {
+          const laps = getTyreCumulativeLaps(t.id);
+          const cornerEntry = Object.entries(mounted).find(([, tid]) => tid === t.id);
+          const locSuffix = cornerEntry ? ` (on ${cornerEntry[0]})` : '';
+          const tMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : 5.0;
+          const displayLabel = t.label || t.code || t.id;
+          return `<option value="${escapeHtml(t.id)}">${escapeHtml(displayLabel)} — ${laps} Laps • ${tMm.toFixed(1)}mm${escapeHtml(locSuffix)}</option>`;
+        });
+        options.push(`<option value="UNASSIGNED">-- Unassigned --</option>`);
         selEl.innerHTML = options.join('');
         selEl.value = mountedTyre ? mountedId : 'UNASSIGNED';
       }
@@ -2381,12 +2672,50 @@
           badgeEl.textContent = 'UNASSIGNED • Select Tyre';
           badgeEl.className = 'tyre-laps-badge warn';
         } else {
+          const specLabel = mountedTyre.spec === 'wet' ? 'WET' : 'BUFF';
           const warnSuffix = treadMm < 1.5 ? ' (ILLEGAL <1.5mm!)' : treadMm <= 2.0 ? ' (LOW TREAD)' : '';
-          badgeEl.textContent = `Total: ${totalLaps} laps • ${treadMm.toFixed(1)}mm • ${duro}A${warnSuffix}`;
+          badgeEl.textContent = `${specLabel} • ${totalLaps} laps • ${treadMm.toFixed(1)}mm • ${duro}A${warnSuffix}`;
           badgeEl.className = treadStatus.badgeClass;
         }
       }
     });
+
+    syncTyreConditionUi();
+  }
+
+  function updateAccordionRowSummaryInPlace(tyreId) {
+    const t = getTyreById(tyreId);
+    if (!t) return;
+    const totalLaps = getTyreCumulativeLaps(t.id);
+    const treadMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : 5.0;
+    const duro = Number.isFinite(Number(t.durometer)) ? Math.round(Number(t.durometer)) : 62;
+    const st = getTreadStatusInfo(treadMm);
+
+    const codeEl = $(`accCode_${tyreId}`);
+    if (codeEl) codeEl.textContent = t.label || t.code || t.id;
+
+    const dotEl = $(`accDot_${tyreId}`);
+    if (dotEl) dotEl.className = `tread-dot ${st.dotClass}`;
+
+    const metricsEl = $(`accMetrics_${tyreId}`);
+    if (metricsEl) {
+      const mmClass = treadMm < 1.5 ? 'txt-danger' : treadMm <= 2.0 ? 'txt-amber' : 'txt-emerald';
+      metricsEl.innerHTML = `<span class="${mmClass}">${treadMm.toFixed(1)}mm</span> &bull; ${duro}A &bull; ${totalLaps} Laps`;
+    }
+
+    const specTagEl = $(`accSpecTag_${tyreId}`);
+    if (specTagEl) {
+      const isWet = t.spec === 'wet';
+      specTagEl.textContent = isWet ? 'WET' : 'BUFFED';
+      specTagEl.className = `tyre-spec-tag ${isWet ? 'wet' : 'buffed'}`;
+    }
+
+    const totalLapsHintEl = $(`stockTotalLaps_${tyreId}`);
+    if (totalLapsHintEl) {
+      const baseLaps = Number(t.baseLaps) || 0;
+      const loggedLaps = Math.max(0, totalLaps - baseLaps);
+      totalLapsHintEl.textContent = `Total: ${totalLaps} (${loggedLaps} logged)`;
+    }
   }
 
   function renderTyreStockList() {
@@ -2395,144 +2724,245 @@
     const mounted = ensureMountedTyresState();
     const pool = state.tyrePool || [];
 
+    const buffedCount = pool.filter((t) => t.spec !== 'wet').length;
+    const wetCount = pool.filter((t) => t.spec === 'wet').length;
+
     if (countBadge) {
-      countBadge.textContent = `${pool.length} Tyre${pool.length === 1 ? '' : 's'} in Stock`;
+      countBadge.textContent = `${pool.length} Tyre${pool.length === 1 ? '' : 's'} (${buffedCount} KB • ${wetCount} KW)`;
     }
+    if ($('countFilterAll')) $('countFilterAll').textContent = String(pool.length);
+    if ($('countFilterBuffed')) $('countFilterBuffed').textContent = String(buffedCount);
+    if ($('countFilterWet')) $('countFilterWet').textContent = String(wetCount);
+
+    document.querySelectorAll('[data-tyre-stock-filter]').forEach((btn) => {
+      const f = btn.getAttribute('data-tyre-stock-filter');
+      btn.classList.toggle('active', f === (ui.tyreStockFilter || 'all'));
+    });
 
     const newDateInp = $('newTyreDate');
     if (newDateInp && !newDateInp.value) {
       newDateInp.value = getLocalTodayIso();
     }
-    const newLabelInp = $('newTyreLabel');
-    if (newLabelInp && !newLabelInp.value.trim()) {
-      newLabelInp.placeholder = `e.g. K${pool.length + 1} or HQRA-12`;
-    }
 
     if (!container) return;
 
-    if (pool.length === 0) {
+    const activeFilter = ui.tyreStockFilter || 'all';
+    const filteredPool = pool.filter((t) => {
+      if (activeFilter === 'buffed') return t.spec !== 'wet';
+      if (activeFilter === 'wet') return t.spec === 'wet';
+      return true;
+    });
+
+    if (filteredPool.length === 0) {
       container.innerHTML = `
-        <div class="card-elevated" style="text-align: center; padding: 16px;">
-          <div style="font-size: 15px; font-weight: 800; color: var(--text-secondary);">
-            No Kenda KR15 tyres in stock. Tap "+ Add New Tyre" above to add tyres to your inventory.
+        <div class="card-elevated" style="text-align: center; padding: 14px;">
+          <div style="font-size: 14px; font-weight: 800; color: var(--text-secondary);">
+            No tyres match this filter. Tap "+ Add New Tyre" above to add tyres to your stock.
           </div>
         </div>
       `;
       return;
     }
 
-    container.innerHTML = pool
+    const cornerOrder = { FL: 1, FR: 2, RL: 3, RR: 4 };
+    const sortedPool = [...filteredPool].sort((a, b) => {
+      const cornerA = Object.entries(mounted).find(([, tid]) => tid === a.id);
+      const cornerB = Object.entries(mounted).find(([, tid]) => tid === b.id);
+      const rankA = cornerA ? cornerOrder[cornerA[0]] || 5 : 99;
+      const rankB = cornerB ? cornerOrder[cornerB[0]] || 5 : 99;
+      if (rankA !== rankB) return rankA - rankB;
+      return String(a.id).localeCompare(String(b.id), undefined, { numeric: true });
+    });
+
+    container.innerHTML = sortedPool
       .map((t) => {
         const totalLaps = getTyreCumulativeLaps(t.id);
+        const baseLaps = Number.isFinite(Number(t.baseLaps)) ? Math.max(0, Math.round(Number(t.baseLaps))) : 0;
+        const loggedLaps = Math.max(0, totalLaps - baseLaps);
         const mountedCorner = Object.entries(mounted).find(([, tid]) => tid === t.id);
         const isMounted = Boolean(mountedCorner);
-        const posBadgeHtml = isMounted
-          ? `<span class="tyre-pos-badge mounted" id="stockPosBadge_${escapeHtml(t.id)}">MOUNTED: ${mountedCorner[0]}</span>`
-          : `<span class="tyre-pos-badge spare" id="stockPosBadge_${escapeHtml(t.id)}">SPARE RACK</span>`;
+        const isWet = t.spec === 'wet';
+        const isExpanded = ui.expandedTyreId === t.id;
 
-        const treadMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : 7.5;
-        const duro = Number.isFinite(Number(t.durometer)) ? Math.round(Number(t.durometer)) : 62;
+        const posBadgeHtml = isMounted
+          ? `<span class="tyre-pos-badge mounted" id="stockPosBadge_${escapeHtml(t.id)}">${mountedCorner[0]}</span>`
+          : `<span class="tyre-pos-badge spare" id="stockPosBadge_${escapeHtml(t.id)}">SPARE</span>`;
+
+        const specTagHtml = `<span class="tyre-spec-tag ${isWet ? 'wet' : 'buffed'}" id="accSpecTag_${escapeHtml(t.id)}">${isWet ? 'WET' : 'BUFFED'}</span>`;
+
+        const treadMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : isWet ? 8.0 : 5.0;
+        const duro = Number.isFinite(Number(t.durometer)) ? Math.round(Number(t.durometer)) : isWet ? 60 : 62;
         const purchaseDate = t.purchaseDate || getLocalTodayIso();
         const treadStatus = getTreadStatusInfo(treadMm);
         const isConfirmingDelete = ui.confirmDeleteTyreId === t.id;
-        const cardClasses = [
-          'tyre-stock-card',
+
+        const mmClass = treadMm < 1.5 ? 'txt-danger' : treadMm <= 2.0 ? 'txt-amber' : 'txt-emerald';
+        const itemClasses = [
+          'tyre-acc-item',
           isMounted ? 'is-mounted' : '',
+          isExpanded ? 'is-open' : '',
           treadStatus.cardClass
         ]
           .filter(Boolean)
           .join(' ');
 
         return `
-          <article class="${cardClasses}" id="tyreStockCard_${escapeHtml(t.id)}" data-tyre-stock-card="${escapeHtml(t.id)}">
-            <div class="tyre-stock-top">
-              <div class="tyre-stock-left">
-                <input
-                  type="text"
-                  class="tyre-stock-name-input"
-                  data-tyre-label="${escapeHtml(t.id)}"
-                  value="${escapeHtml(t.label || t.code || t.id)}"
-                  aria-label="Tyre Name or Stamp for ${escapeHtml(t.id)}"
-                  title="Edit Tyre Label / Stamp"
-                />
+          <article class="${itemClasses}" id="tyreStockCard_${escapeHtml(t.id)}" data-tyre-stock-card="${escapeHtml(t.id)}">
+            <button
+              type="button"
+              class="tyre-acc-summary"
+              data-toggle-tyre-acc="${escapeHtml(t.id)}"
+              aria-expanded="${isExpanded ? 'true' : 'false'}"
+            >
+              <div class="tyre-acc-left">
+                <span class="tyre-acc-chevron">▸</span>
+                <span class="tread-dot ${treadStatus.dotClass}" id="accDot_${escapeHtml(t.id)}"></span>
+                <span class="tyre-acc-code" id="accCode_${escapeHtml(t.id)}">${escapeHtml(t.label || t.code || t.id)}</span>
+                ${specTagHtml}
                 ${posBadgeHtml}
               </div>
-              <div class="tyre-stock-right">
-                <span class="tyre-total-laps-pill" id="stockTotalLaps_${escapeHtml(t.id)}">TOTAL: ${totalLaps} LAPS</span>
+              <div class="tyre-acc-metrics" id="accMetrics_${escapeHtml(t.id)}">
+                <span class="${mmClass}">${treadMm.toFixed(1)}mm</span> &bull; ${duro}A &bull; ${totalLaps} Laps
+              </div>
+            </button>
+
+            <div class="tyre-acc-drawer" style="display: ${isExpanded ? 'flex' : 'none'};">
+              <!-- Row 1 (2-col): Tyre Code + Type | Purchased Date -->
+              <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 0;">
+                <div class="field-group" style="margin-bottom: 0;">
+                  <div class="field-label-row">
+                    <label class="field-label" for="stockLabel_${escapeHtml(t.id)}">Tyre Code &amp; Spec</label>
+                    <span class="field-hint">${isWet ? 'Full-Tread Wet' : 'Buffed Dry'}</span>
+                  </div>
+                  <div class="tyre-drawer-code-row">
+                    <input
+                      type="text"
+                      id="stockLabel_${escapeHtml(t.id)}"
+                      class="tyre-stock-name-input"
+                      data-tyre-label="${escapeHtml(t.id)}"
+                      value="${escapeHtml(t.label || t.code || t.id)}"
+                      aria-label="Tyre Code for ${escapeHtml(t.id)}"
+                    />
+                    <div class="tyre-spec-mini-toggle" role="group" aria-label="Tyre Spec Type">
+                      <button
+                        type="button"
+                        class="tyre-spec-mini-btn ${!isWet ? 'active-buffed' : ''}"
+                        data-tyre-spec-id="${escapeHtml(t.id)}"
+                        data-tyre-spec-val="buffed"
+                      >Buffed</button>
+                      <button
+                        type="button"
+                        class="tyre-spec-mini-btn ${isWet ? 'active-wet' : ''}"
+                        data-tyre-spec-id="${escapeHtml(t.id)}"
+                        data-tyre-spec-val="wet"
+                      >Wet</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field-group" style="margin-bottom: 0;">
+                  <div class="field-label-row">
+                    <label class="field-label" for="stockDate_${escapeHtml(t.id)}">Purchased Date</label>
+                    <span class="field-hint">Batch</span>
+                  </div>
+                  <input
+                    type="date"
+                    id="stockDate_${escapeHtml(t.id)}"
+                    class="text-input"
+                    value="${escapeHtml(purchaseDate)}"
+                    data-tyre-date="${escapeHtml(t.id)}"
+                  />
+                </div>
+              </div>
+
+              <!-- Row 2 (2-col wide steppers so 4.8 and 62 NEVER clip): Tread Depth (mm) | Hardness (Shore A) -->
+              <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 0;">
+                <div class="field-group" style="margin-bottom: 0;">
+                  <div class="field-label-row">
+                    <label class="field-label" for="stockTread_${escapeHtml(t.id)}">Tread Depth (mm)</label>
+                    <span class="${treadStatus.hintClass}" id="stockTreadStatus_${escapeHtml(t.id)}">${escapeHtml(treadStatus.text)}</span>
+                  </div>
+                  <div class="num-stepper">
+                    <button type="button" class="stepper-btn" data-stepper-target="stockTread_${escapeHtml(t.id)}" data-step="-0.1" aria-label="Decrease ${escapeHtml(t.label || t.id)} Tread">&minus;</button>
+                    <div class="num-input-wrap">
+                      <input
+                        type="number"
+                        id="stockTread_${escapeHtml(t.id)}"
+                        class="num-input"
+                        value="${treadMm.toFixed(1)}"
+                        min="0.0"
+                        max="10.0"
+                        step="0.1"
+                        inputmode="decimal"
+                        data-tyre-tread="${escapeHtml(t.id)}"
+                      />
+                      <span class="num-unit-badge">mm</span>
+                    </div>
+                    <button type="button" class="stepper-btn" data-stepper-target="stockTread_${escapeHtml(t.id)}" data-step="0.1" aria-label="Increase ${escapeHtml(t.label || t.id)} Tread">+</button>
+                  </div>
+                </div>
+
+                <div class="field-group" style="margin-bottom: 0;">
+                  <div class="field-label-row">
+                    <label class="field-label" for="stockHardness_${escapeHtml(t.id)}">Hardness (Shore A)</label>
+                    <span class="field-hint amber" id="stockHardnessStatus_${escapeHtml(t.id)}">${duro} Shore A</span>
+                  </div>
+                  <div class="num-stepper">
+                    <button type="button" class="stepper-btn" data-stepper-target="stockHardness_${escapeHtml(t.id)}" data-step="-1" aria-label="Decrease ${escapeHtml(t.label || t.id)} Hardness">&minus;</button>
+                    <div class="num-input-wrap">
+                      <input
+                        type="number"
+                        id="stockHardness_${escapeHtml(t.id)}"
+                        class="num-input"
+                        value="${duro}"
+                        min="40"
+                        max="95"
+                        step="1"
+                        inputmode="numeric"
+                        data-tyre-hardness="${escapeHtml(t.id)}"
+                      />
+                      <span class="num-unit-badge">A</span>
+                    </div>
+                    <button type="button" class="stepper-btn" data-stepper-target="stockHardness_${escapeHtml(t.id)}" data-step="1" aria-label="Increase ${escapeHtml(t.label || t.id)} Hardness">+</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 3: Prior/Base Laps adjustment + 3D anodized RED Delete Tyre button (2-tap confirm) -->
+              <div class="tyre-drawer-bottom-row">
+                <div class="field-group" style="margin-bottom: 0;">
+                  <div class="field-label-row">
+                    <label class="field-label" for="stockBaseLaps_${escapeHtml(t.id)}">Prior / Base Laps</label>
+                    <span class="field-hint" id="stockTotalLaps_${escapeHtml(t.id)}">Total: ${totalLaps} (${loggedLaps} logged)</span>
+                  </div>
+                  <div class="num-stepper">
+                    <button type="button" class="stepper-btn" data-stepper-target="stockBaseLaps_${escapeHtml(t.id)}" data-step="-1" aria-label="Decrease ${escapeHtml(t.label || t.id)} Base Laps">&minus;</button>
+                    <div class="num-input-wrap">
+                      <input
+                        type="number"
+                        id="stockBaseLaps_${escapeHtml(t.id)}"
+                        class="num-input"
+                        value="${baseLaps}"
+                        min="0"
+                        max="500"
+                        step="1"
+                        inputmode="numeric"
+                        data-tyre-baselaps="${escapeHtml(t.id)}"
+                      />
+                      <span class="num-unit-badge">laps</span>
+                    </div>
+                    <button type="button" class="stepper-btn" data-stepper-target="stockBaseLaps_${escapeHtml(t.id)}" data-step="1" aria-label="Increase ${escapeHtml(t.label || t.id)} Base Laps">+</button>
+                  </div>
+                </div>
+
                 <button
                   type="button"
                   class="btn btn-danger tyre-delete-btn"
                   data-delete-tyre="${escapeHtml(t.id)}"
+                  style="min-height: 44px; padding: 0 14px;"
                 >
-                  ${isConfirmingDelete ? 'Tap Confirm Delete' : 'Delete'}
+                  ${isConfirmingDelete ? 'Tap Confirm Delete' : 'Delete Tyre'}
                 </button>
-              </div>
-            </div>
-
-            <div class="tyre-stock-controls-grid">
-              <div class="field-group tyre-date-col" style="margin-bottom: 0;">
-                <div class="field-label-row">
-                  <label class="field-label" for="stockDate_${escapeHtml(t.id)}">Purchased</label>
-                  <span class="field-hint">Batch Date</span>
-                </div>
-                <input
-                  type="date"
-                  id="stockDate_${escapeHtml(t.id)}"
-                  class="text-input"
-                  value="${escapeHtml(purchaseDate)}"
-                  data-tyre-date="${escapeHtml(t.id)}"
-                  aria-label="Purchase Date for ${escapeHtml(t.label || t.id)}"
-                />
-              </div>
-
-              <div class="field-group" style="margin-bottom: 0;">
-                <div class="field-label-row">
-                  <label class="field-label" for="stockTread_${escapeHtml(t.id)}">Tread Depth (mm)</label>
-                  <span class="${treadStatus.hintClass}" id="stockTreadStatus_${escapeHtml(t.id)}">${escapeHtml(treadStatus.text)}</span>
-                </div>
-                <div class="num-stepper">
-                  <button type="button" class="stepper-btn" data-stepper-target="stockTread_${escapeHtml(t.id)}" data-step="-0.1" aria-label="Decrease ${escapeHtml(t.label || t.id)} Tread">&minus;</button>
-                  <div class="num-input-wrap">
-                    <input
-                      type="number"
-                      id="stockTread_${escapeHtml(t.id)}"
-                      class="num-input"
-                      value="${treadMm.toFixed(1)}"
-                      min="0.0"
-                      max="10.0"
-                      step="0.1"
-                      inputmode="decimal"
-                      data-tyre-tread="${escapeHtml(t.id)}"
-                    />
-                    <span class="num-unit-badge">mm</span>
-                  </div>
-                  <button type="button" class="stepper-btn" data-stepper-target="stockTread_${escapeHtml(t.id)}" data-step="0.1" aria-label="Increase ${escapeHtml(t.label || t.id)} Tread">+</button>
-                </div>
-              </div>
-
-              <div class="field-group" style="margin-bottom: 0;">
-                <div class="field-label-row">
-                  <label class="field-label" for="stockHardness_${escapeHtml(t.id)}">Rubber Hardness (Shore A)</label>
-                  <span class="field-hint amber" id="stockHardnessStatus_${escapeHtml(t.id)}">${duro} Shore A</span>
-                </div>
-                <div class="num-stepper">
-                  <button type="button" class="stepper-btn" data-stepper-target="stockHardness_${escapeHtml(t.id)}" data-step="-1" aria-label="Decrease ${escapeHtml(t.label || t.id)} Hardness">&minus;</button>
-                  <div class="num-input-wrap">
-                    <input
-                      type="number"
-                      id="stockHardness_${escapeHtml(t.id)}"
-                      class="num-input"
-                      value="${duro}"
-                      min="40"
-                      max="95"
-                      step="1"
-                      inputmode="numeric"
-                      data-tyre-hardness="${escapeHtml(t.id)}"
-                    />
-                    <span class="num-unit-badge">A</span>
-                  </div>
-                  <button type="button" class="stepper-btn" data-stepper-target="stockHardness_${escapeHtml(t.id)}" data-step="1" aria-label="Increase ${escapeHtml(t.label || t.id)} Hardness">+</button>
-                </div>
               </div>
             </div>
           </article>
@@ -2545,13 +2975,11 @@
     if (!Array.isArray(state.tyrePool)) {
       state.tyrePool = createDefaultTyrePool();
     }
+    const spec = ui.newTyreSpec === 'wet' ? 'wet' : 'buffed';
     const rawLabel = (($('newTyreLabel') && $('newTyreLabel').value) || '').trim();
-    let nextNum = state.tyrePool.length + 1;
-    while (state.tyrePool.some((t) => t.id.toLowerCase() === `k${nextNum}`)) {
-      nextNum++;
-    }
-    const label = rawLabel || `K${nextNum}`;
-    const id = label.replace(/\s+/g, '_');
+    const suggested = getSuggestedNextTyreCode(spec);
+    const label = rawLabel || suggested;
+    const id = label.replace(/\s+/g, '_').toUpperCase();
 
     if (state.tyrePool.some((t) => t.id.toLowerCase() === id.toLowerCase())) {
       showToast(`Tyre "${label}" is already in stock`);
@@ -2560,15 +2988,17 @@
 
     const rawDate = (($('newTyreDate') && $('newTyreDate').value) || '').trim();
     const purchaseDate = /^\d{4}-\d{2}-\d{2}$/.test(rawDate) ? rawDate : getLocalTodayIso();
-    const treadMm = Number(Math.max(0.0, readNum('newTyreTread', 7.5)).toFixed(1));
-    const durometer = Math.max(40, Math.min(95, Math.round(readNum('newTyreHardness', 62))));
+    const defaultTread = spec === 'wet' ? 8.0 : 5.0;
+    const treadMm = Number(Math.max(0.0, readNum('newTyreTread', defaultTread)).toFixed(1));
+    const durometer = Math.max(40, Math.min(95, Math.round(readNum('newTyreHardness', spec === 'wet' ? 60 : 62))));
     const baseLaps = Math.max(0, Math.round(readNum('newTyreBaseLaps', 0)));
 
     const newTyre = {
       id,
       code: label,
       label,
-      stamp: `Kenda KR15 (${label})`,
+      spec,
+      stamp: `Kenda KR15 ${spec === 'wet' ? 'Wet' : 'Buffed'} (${label})`,
       purchaseDate,
       treadMm,
       durometer,
@@ -2578,7 +3008,6 @@
     };
     state.tyrePool.push(newTyre);
 
-    // If any corner is currently UNASSIGNED, automatically mount this new tyre there
     if (state.chassis && state.chassis.mountedTyres) {
       const unassignedCorner = ['FL', 'FR', 'RL', 'RR'].find((c) => state.chassis.mountedTyres[c] === 'UNASSIGNED');
       if (unassignedCorner) {
@@ -2588,9 +3017,8 @@
 
     if ($('newTyreLabel')) $('newTyreLabel').value = '';
     if ($('newTyreDate')) $('newTyreDate').value = getLocalTodayIso();
-    if ($('newTyreTread')) $('newTyreTread').value = '7.5';
-    if ($('newTyreHardness')) $('newTyreHardness').value = '62';
     if ($('newTyreBaseLaps')) $('newTyreBaseLaps').value = '0';
+    syncNewTyreSpecUi(spec);
 
     const panel = $('addTyreInlinePanel');
     const toggleBtn = $('btnToggleAddTyreForm');
@@ -2600,12 +3028,13 @@
       toggleBtn.textContent = '+ Add New Tyre';
     }
 
+    ui.expandedTyreId = newTyre.id;
     saveState();
     renderMountedTyreSelectors();
     renderTyreStockList();
     renderTyrePoolModal();
     recalcTyres();
-    showToast(`Added ${label} (${treadMm.toFixed(1)}mm • ${durometer}A) to Tyre Stock`);
+    showToast(`Added ${label} (${spec === 'wet' ? 'Full-Tread Wet' : 'Buffed Dry'} • ${treadMm.toFixed(1)}mm) to Tyre Stock`);
   }
 
   function deleteTyreFromStock(tyreId) {
@@ -2626,10 +3055,12 @@
     }
 
     ui.confirmDeleteTyreId = null;
+    if (ui.expandedTyreId === tyreId) {
+      ui.expandedTyreId = null;
+    }
     const removedLabel = tyre.label || tyre.code || tyre.id;
     state.tyrePool = (state.tyrePool || []).filter((t) => t.id !== tyreId);
 
-    // If that tyre was mounted on FL, FR, RL, or RR, automatically assign the first available spare (or UNASSIGNED)
     if (state.chassis && state.chassis.mountedTyres) {
       const mt = state.chassis.mountedTyres;
       ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
@@ -2662,6 +3093,7 @@
     const headers = [
       'tyre_id',
       'label',
+      'spec',
       'mounted_position',
       'purchase_date',
       'tread_mm',
@@ -2677,12 +3109,14 @@
       const sessLaps = Math.max(0, totalLaps - baseLaps);
       const mountedCorner = Object.entries(mounted).find(([, tid]) => tid === t.id);
       const pos = mountedCorner ? mountedCorner[0] : 'SPARE_RACK';
-      const treadMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : 7.5;
+      const treadMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : 5.0;
       const status = treadMm < 1.5 ? 'ILLEGAL_<1.5MM' : treadMm <= 2.0 ? 'LOW_TREAD' : 'LEGAL_OK';
       const duro = Number.isFinite(Number(t.durometer)) ? Math.round(Number(t.durometer)) : 62;
+      const spec = t.spec === 'wet' ? 'WET_KW' : 'BUFFED_KB';
       return [
         t.id,
         `"${String(t.label || t.code || t.id).replace(/"/g, '""')}"`,
+        spec,
         pos,
         t.purchaseDate || getLocalTodayIso(),
         treadMm.toFixed(1),
@@ -2700,7 +3134,7 @@
 
   function handleCornerTyreSelectChange(corner, newTyreId) {
     const mounted = ensureMountedTyresState();
-    const prevTyreOnCorner = mounted[corner];
+    const prevTyreOnCorner = mounted[corner] || 'UNASSIGNED';
     if (!newTyreId || newTyreId === prevTyreOnCorner) return;
 
     if (newTyreId === 'UNASSIGNED') {
@@ -2709,7 +3143,7 @@
       renderMountedTyreSelectors();
       renderTyreStockList();
       recalcTyres();
-      showToast(`Set ${corner} to UNASSIGNED`);
+      showToast(`Set ${corner} to Unassigned`);
       return;
     }
 
@@ -2949,7 +3383,8 @@
     if ($('inputScaleCheckFuelL')) $('inputScaleCheckFuelL').value = Number(ch.scaleCheckFuelL).toFixed(1);
     if ($('inputTyreHotTarget')) $('inputTyreHotTarget').value = Number(ch.tyreHotTarget).toFixed(1);
 
-    const tyreStats = getTrackLearnedColdTyres(venue, ch.tyreHotTarget || 44.0);
+    const activeCond = ch.tyreCondition === 'wet' ? 'wet' : 'dry';
+    const tyreStats = getTrackLearnedColdTyres(venue, ch.tyreHotTarget || 44.0, activeCond);
 
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const coldEl = $(`inputColdPsi_${c}`);
@@ -2974,6 +3409,8 @@
       }
     });
 
+    syncNewTyreSpecUi(ui.newTyreSpec || 'buffed');
+    syncTyreConditionUi();
     renderMountedTyreSelectors();
     renderTyreStockList();
   }
@@ -3250,6 +3687,7 @@
     const venue = getSelectedTyreTrackVenue();
     const prof = ensureTrackProfile(venue);
     const mounted = ensureMountedTyresState();
+    const activeCond = ch.tyreCondition === 'wet' ? 'wet' : 'dry';
 
     const tyreHotTarget = readNum('inputTyreHotTarget', ch.tyreHotTarget || 44.0);
     ch.tyreHotTarget = Number(tyreHotTarget.toFixed(1));
@@ -3264,12 +3702,13 @@
       $('tyreTargetBadge').textContent = `Target ${tyreHotTarget.toFixed(1)} PSI`;
     }
 
-    const learnedStats = getTrackLearnedColdTyres(venue, tyreHotTarget);
+    const learnedStats = getTrackLearnedColdTyres(venue, tyreHotTarget, activeCond);
+    const condLabel = activeCond === 'wet' ? 'Wet KW' : 'Dry KB';
     if ($('tyreTrackLearnedHint')) {
       $('tyreTrackLearnedHint').textContent =
         learnedStats.totalRuns > 0
-          ? `Learned (${learnedStats.totalRuns} run${learnedStats.totalRuns === 1 ? '' : 's'})`
-          : 'Seed 30.0 PSI';
+          ? `${condLabel} (${learnedStats.totalRuns} run${learnedStats.totalRuns === 1 ? '' : 's'})`
+          : `${condLabel} Seed 30.0 PSI`;
     }
     if ($('outTyreTrackLearnedSummary')) {
       const c = learnedStats.corners;
@@ -3278,8 +3717,8 @@
     if ($('outTyreTrackLearnedSub')) {
       $('outTyreTrackLearnedSub').textContent =
         learnedStats.totalRuns > 0
-          ? `Auto-learned from ${learnedStats.totalRuns} hot-logged run${learnedStats.totalRuns === 1 ? '' : 's'} at ${venue}`
-          : `Default 30.0 PSI cold start • Log Cold + Hot PSI to auto-learn ${venue}`;
+          ? `Auto-learned (${condLabel}) from ${learnedStats.totalRuns} hot-logged run${learnedStats.totalRuns === 1 ? '' : 's'} at ${venue}`
+          : `Default 30.0 PSI cold start (${condLabel}) • Log Cold + Hot PSI to auto-learn ${venue}`;
     }
 
     renderMountedTyreSelectors();
@@ -3287,7 +3726,7 @@
     const corners = {};
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const cLearned = learnedStats.corners[c];
-      if (cLearned && cLearned.learned) {
+      if (cLearned && cLearned.learned && activeCond === 'dry') {
         prof.coldTyres[c] = cLearned.avg;
       }
       const cold = readNum(`inputColdPsi_${c}`, (prof.coldTyres && prof.coldTyres[c]) || 30.0);
@@ -3303,7 +3742,7 @@
           ? Number((((tyreHotTarget + 14.7) * (cold + 14.7)) / (hot + 14.7) - 14.7).toFixed(1))
           : Number(cold.toFixed(1));
 
-      const tyreId = mounted[c] || DEFAULT_CORNER_TYRE_IDS[c] || 'K1';
+      const tyreId = mounted[c] || DEFAULT_CORNER_TYRE_IDS[c] || 'KB1';
       corners[c] = { tyreId, cold, hot, build, diff, nextCold };
 
       ch.hotTyres[c] = hot;
@@ -3369,6 +3808,7 @@
       venue,
       tyreHotTarget,
       tyreSessionLaps,
+      tyreCondition: activeCond,
       corners
     };
   }
@@ -3441,6 +3881,7 @@
       sessionName,
       racedLaps: racedLapsToSave,
       tyreHotTarget: Number(tyreSnap.tyreHotTarget.toFixed(1)),
+      tyreCondition: tyreSnap.tyreCondition || 'dry',
       tyres: {
         FL: { ...tyreSnap.corners.FL },
         FR: { ...tyreSnap.corners.FR },
@@ -3451,13 +3892,15 @@
     });
 
     // Auto-populate Cold PSIs with newly learned track cold targets if Hot PSI was logged
-    const learnedTyres = getTrackLearnedColdTyres(tyreSnap.venue, tyreSnap.tyreHotTarget);
+    const learnedTyres = getTrackLearnedColdTyres(tyreSnap.venue, tyreSnap.tyreHotTarget, tyreSnap.tyreCondition || 'dry');
     const prof = ensureTrackProfile(tyreSnap.venue);
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       if (learnedTyres.corners[c] && learnedTyres.corners[c].learned) {
-        prof.coldTyres[c] = learnedTyres.corners[c].avg;
+        if (tyreSnap.tyreCondition !== 'wet') {
+          prof.coldTyres[c] = learnedTyres.corners[c].avg;
+        }
         const coldEl = $(`inputColdPsi_${c}`);
-        if (coldEl) coldEl.value = prof.coldTyres[c].toFixed(1);
+        if (coldEl) coldEl.value = learnedTyres.corners[c].avg.toFixed(1);
       }
     });
 
@@ -3468,7 +3911,7 @@
     recalcTyres();
     renderTyreStockList();
     renderSessionLog();
-    showToast(`Saved Tyres & Laps (${racedLapsToSave} laps) to ${unified.sessionName} • Auto-Updated Learned Cold PSI`);
+    showToast(`Locked & Saved Tyres (${racedLapsToSave} laps) to ${unified.sessionName} • Auto-Updated Learned Cold PSI`);
   }
 
   function exportTyresCsv() {
@@ -5376,6 +5819,49 @@
         return;
       }
 
+      const toggleAccBtn = e.target.closest('[data-toggle-tyre-acc]');
+      if (toggleAccBtn) {
+        const tid = toggleAccBtn.getAttribute('data-toggle-tyre-acc');
+        ui.expandedTyreId = ui.expandedTyreId === tid ? null : tid;
+        renderTyreStockList();
+        return;
+      }
+
+      const stockFilterBtn = e.target.closest('[data-tyre-stock-filter]');
+      if (stockFilterBtn) {
+        ui.tyreStockFilter = stockFilterBtn.getAttribute('data-tyre-stock-filter') || 'all';
+        renderTyreStockList();
+        return;
+      }
+
+      const newSpecBtn = e.target.closest('[data-new-tyre-spec]');
+      if (newSpecBtn) {
+        syncNewTyreSpecUi(newSpecBtn.getAttribute('data-new-tyre-spec'));
+        return;
+      }
+
+      const drawerSpecBtn = e.target.closest('[data-tyre-spec-id]');
+      if (drawerSpecBtn) {
+        const tid = drawerSpecBtn.getAttribute('data-tyre-spec-id');
+        const nextSpec = drawerSpecBtn.getAttribute('data-tyre-spec-val') === 'wet' ? 'wet' : 'buffed';
+        const tyre = findTyreInPool(tid);
+        if (tyre) {
+          tyre.spec = nextSpec;
+          tyre.stamp = `Kenda KR15 ${nextSpec === 'wet' ? 'Wet' : 'Buffed'} (${tyre.label || tyre.id})`;
+          saveState();
+          renderMountedTyreSelectors();
+          renderTyreStockList();
+        }
+        return;
+      }
+
+      const condBtn = e.target.closest('[data-tyre-condition]');
+      if (condBtn) {
+        const cond = condBtn.getAttribute('data-tyre-condition') === 'wet' ? 'wet' : 'dry';
+        mountTyreSetBySpec(cond === 'wet' ? 'wet' : 'buffed');
+        return;
+      }
+
       const deleteTyreBtn = e.target.closest('[data-delete-tyre]');
       if (deleteTyreBtn) {
         const tid = deleteTyreBtn.getAttribute('data-delete-tyre');
@@ -5398,13 +5884,23 @@
       }
     });
 
+    // Direct change listeners on all 4 corner tyre dropdowns so switching tyres is always instant
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const selEl = $(`selectMountedTyre_${c}`);
+      if (selEl) {
+        selEl.addEventListener('change', () => {
+          handleCornerTyreSelectChange(c, selEl.value);
+        });
+      }
+    });
+
     // Delegated document-level input/change listener for guaranteed live reactivity on Tab 2 (Fuel & Wt), Tab 3 (Tyres), and Tyre Stock Manager
     const handleLiveFuelOrTyreInput = (e) => {
       const target = e.target;
       if (!target) return;
 
       const cornerSel = target.getAttribute && target.getAttribute('data-corner-tyre-select');
-      if (cornerSel && e.type === 'change') {
+      if (cornerSel) {
         handleCornerTyreSelectChange(cornerSel, target.value);
         return;
       }
@@ -5425,10 +5921,12 @@
           if (cardEl) {
             const mounted = ensureMountedTyresState();
             const isMounted = Object.values(mounted).includes(stockTreadId);
-            cardEl.className = ['tyre-stock-card', isMounted ? 'is-mounted' : '', st.cardClass]
+            const isExpanded = ui.expandedTyreId === stockTreadId;
+            cardEl.className = ['tyre-acc-item', isMounted ? 'is-mounted' : '', isExpanded ? 'is-open' : '', st.cardClass]
               .filter(Boolean)
               .join(' ');
           }
+          updateAccordionRowSummaryInPlace(stockTreadId);
           saveState();
           renderMountedTyreSelectors();
           renderTyrePoolModal();
@@ -5446,6 +5944,21 @@
           if (statusEl) {
             statusEl.textContent = `${tyre.durometer} Shore A`;
           }
+          updateAccordionRowSummaryInPlace(stockHardnessId);
+          saveState();
+          renderMountedTyreSelectors();
+          renderTyrePoolModal();
+        }
+        return;
+      }
+
+      const stockBaseLapsId = target.getAttribute && target.getAttribute('data-tyre-baselaps');
+      if (stockBaseLapsId) {
+        const tyre = findTyreInPool(stockBaseLapsId);
+        const val = parseFloat(target.value);
+        if (tyre && Number.isFinite(val)) {
+          tyre.baseLaps = Math.max(0, Math.round(val));
+          updateAccordionRowSummaryInPlace(stockBaseLapsId);
           saveState();
           renderMountedTyreSelectors();
           renderTyrePoolModal();
@@ -5471,7 +5984,8 @@
           const nextLabel = target.value.trim() || tyre.id;
           tyre.label = nextLabel;
           tyre.code = nextLabel;
-          tyre.stamp = `Kenda KR15 (${nextLabel})`;
+          tyre.stamp = `Kenda KR15 ${tyre.spec === 'wet' ? 'Wet' : 'Buffed'} (${nextLabel})`;
+          updateAccordionRowSummaryInPlace(stockLabelId);
           saveState();
           renderMountedTyreSelectors();
           renderTyrePoolModal();
@@ -5646,23 +6160,21 @@
 
     $('selectCalcCarby').addEventListener('change', updateCarbySwapHint);
 
-    // Tab 2 (Fuel & Wt) and Tab 3 (Tyres) unified session save, rotation, & Tyre Stock buttons
+    // Tab 2 (Fuel & Wt) and Tab 3 (Tyres) unified session save, quick wet/dry mount, & Tyre Stock buttons
     if ($('btnSaveFuelWeightSession')) {
       $('btnSaveFuelWeightSession').addEventListener('click', saveFuelAndWeightToSession);
     }
     if ($('btnSaveTyresSession')) {
       $('btnSaveTyresSession').addEventListener('click', saveTyresToSession);
     }
-    if ($('btnSwapTyresLR')) {
-      $('btnSwapTyresLR').addEventListener('click', swapMountedTyresLR);
-    }
-    if ($('btnSwapTyresFR')) {
-      $('btnSwapTyresFR').addEventListener('click', swapMountedTyresFR);
-    }
-    if ($('btnOpenTyrePool')) {
-      $('btnOpenTyrePool').addEventListener('click', () => {
-        renderTyrePoolModal();
-        openModal('modalTyrePool');
+    if ($('btnQuickMountSet')) {
+      $('btnQuickMountSet').addEventListener('click', () => {
+        const mounted = ensureMountedTyresState();
+        const allWetMounted = ['FL', 'FR', 'RL', 'RR']
+          .map((c) => getTyreById(mounted[c]))
+          .filter(Boolean)
+          .every((t) => t.spec === 'wet');
+        mountTyreSetBySpec(allWetMounted ? 'buffed' : 'wet');
       });
     }
     if ($('btnCrossSwapTyresX')) {
@@ -5689,8 +6201,11 @@
         panel.style.display = isHidden ? 'block' : 'none';
         btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
         btn.textContent = isHidden ? '− Hide Add Tyre' : '+ Add New Tyre';
-        if (isHidden && $('newTyreDate') && !$('newTyreDate').value) {
-          $('newTyreDate').value = getLocalTodayIso();
+        if (isHidden) {
+          if ($('newTyreDate') && !$('newTyreDate').value) {
+            $('newTyreDate').value = getLocalTodayIso();
+          }
+          syncNewTyreSpecUi(ui.newTyreSpec || 'buffed');
         }
       });
     }

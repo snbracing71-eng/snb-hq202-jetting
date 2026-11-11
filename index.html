@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.4.6" />
+  <link rel="stylesheet" href="./styles.css?v=0.4.8" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -910,6 +910,21 @@
           <span class="locked-badge" id="tyreTargetBadge">Target 44.0 PSI</span>
         </div>
 
+        <!-- Compact 2-Button Condition Selector (DRY — BUFFED KB vs DECLARED WET KW) + 1-Tap Quick Set Mount -->
+        <div class="tyre-condition-bar">
+          <div class="seg-toggle tyre-cond-seg" role="group" aria-label="Track Tyre Condition">
+            <button type="button" class="seg-btn active" id="btnTyreCondDry" data-tyre-condition="dry">
+              DRY &mdash; BUFFED (KB)
+            </button>
+            <button type="button" class="seg-btn" id="btnTyreCondWet" data-tyre-condition="wet">
+              DECLARED WET (KW)
+            </button>
+          </div>
+          <button type="button" class="btn btn-amber-outline tyre-quick-mount-btn" id="btnQuickMountSet">
+            Mount Wet Set (KW1&ndash;KW4)
+          </button>
+        </div>
+
         <!-- Shared Active Session Bar Row 1: Circuit / Track + Session Date -->
         <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
           <div class="field-group" style="margin-bottom: 0;">
@@ -1038,23 +1053,10 @@
           </div>
 
           <div class="telem-cell" style="justify-content: center;">
-            <span class="telem-label">Track Learned Cold Stagger</span>
+            <span class="telem-label" id="outTyreLearnedCardTitle">Track Learned Cold Stagger (Dry)</span>
             <span class="telem-val txt-emerald" id="outTyreTrackLearnedSummary" style="font-size: 16.5px;">FL 30.2 &bull; FR 29.5 &bull; RL 30.5 &bull; RR 29.8</span>
-            <span class="telem-sub" id="outTyreTrackLearnedSub">Auto-learned from 1 run at Calder Park Raceway</span>
+            <span class="telem-sub" id="outTyreTrackLearnedSub">Auto-learned from 1 dry run at Calder Park Raceway</span>
           </div>
-        </div>
-
-        <!-- 1-Tap Quick Tyre Rotation & Inventory Bar -->
-        <div class="tyre-rotation-bar">
-          <button type="button" class="btn btn-secondary tyre-rot-btn" id="btnSwapTyresLR">
-            Swap Left &harr; Right
-          </button>
-          <button type="button" class="btn btn-secondary tyre-rot-btn" id="btnSwapTyresFR">
-            Swap Front &varr; Rear
-          </button>
-          <button type="button" class="btn btn-amber-outline tyre-rot-btn" id="btnOpenTyrePool">
-            Cross / Manage Tyre Pool
-          </button>
         </div>
 
         <div class="car-orientation-banner">
@@ -1073,7 +1075,7 @@
             <div class="tyre-mount-box">
               <div class="tyre-mount-top">
                 <label class="tyre-mount-label" for="selectMountedTyre_FL">Mounted Tyre</label>
-                <span class="tyre-laps-badge" id="outTyreTotalLaps_FL">Total: 24 laps from new</span>
+                <span class="tyre-laps-badge" id="outTyreTotalLaps_FL">Total: 24 laps &bull; 4.8mm &bull; 62A</span>
               </div>
               <select id="selectMountedTyre_FL" class="select-input tyre-mount-select" data-corner-tyre-select="FL" aria-label="Select Mounted Tyre for Front Left"></select>
             </div>
@@ -1128,7 +1130,7 @@
             <div class="tyre-mount-box">
               <div class="tyre-mount-top">
                 <label class="tyre-mount-label" for="selectMountedTyre_FR">Mounted Tyre</label>
-                <span class="tyre-laps-badge" id="outTyreTotalLaps_FR">Total: 24 laps from new</span>
+                <span class="tyre-laps-badge" id="outTyreTotalLaps_FR">Total: 24 laps &bull; 4.6mm &bull; 63A</span>
               </div>
               <select id="selectMountedTyre_FR" class="select-input tyre-mount-select" data-corner-tyre-select="FR" aria-label="Select Mounted Tyre for Front Right"></select>
             </div>
@@ -1183,7 +1185,7 @@
             <div class="tyre-mount-box">
               <div class="tyre-mount-top">
                 <label class="tyre-mount-label" for="selectMountedTyre_RL">Mounted Tyre</label>
-                <span class="tyre-laps-badge" id="outTyreTotalLaps_RL">Total: 24 laps from new</span>
+                <span class="tyre-laps-badge" id="outTyreTotalLaps_RL">Total: 24 laps &bull; 5.0mm &bull; 62A</span>
               </div>
               <select id="selectMountedTyre_RL" class="select-input tyre-mount-select" data-corner-tyre-select="RL" aria-label="Select Mounted Tyre for Rear Left"></select>
             </div>
@@ -1238,7 +1240,7 @@
             <div class="tyre-mount-box">
               <div class="tyre-mount-top">
                 <label class="tyre-mount-label" for="selectMountedTyre_RR">Mounted Tyre</label>
-                <span class="tyre-laps-badge" id="outTyreTotalLaps_RR">Total: 24 laps from new</span>
+                <span class="tyre-laps-badge" id="outTyreTotalLaps_RR">Total: 24 laps &bull; 4.9mm &bull; 62A</span>
               </div>
               <select id="selectMountedTyre_RR" class="select-input tyre-mount-select" data-corner-tyre-select="RR" aria-label="Select Mounted Tyre for Rear Right"></select>
             </div>
@@ -1300,11 +1302,11 @@
 
         <!-- Standalone Full-Width 3D Emerald Action Button -->
         <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveTyresSession" style="margin-top: 12px;">
-          SAVE TYRES TO SESSION
+          LOCK &amp; SAVE TYRES TO SESSION
         </button>
       </div>
 
-      <!-- Card 2: Inline Tyre Stock & Wear Manager -->
+      <!-- Card 2: Inline Tyre Stock & Wear Manager (Compact Collapsible Accordion) -->
       <div class="card" id="tyreStockManagerCard">
         <div class="section-head tyre-stock-section-head">
           <div>
@@ -1312,7 +1314,7 @@
             <h2 class="section-title">Tyre Stock &amp; Wear List</h2>
           </div>
           <div class="tyre-stock-head-actions">
-            <span class="locked-badge" id="tyreStockCountBadge">4 Tyres in Stock</span>
+            <span class="locked-badge" id="tyreStockCountBadge">8 Tyres in Stock</span>
             <button type="button" class="btn btn-confirm btn-xs" id="btnToggleAddTyreForm" aria-expanded="false">
               + Add New Tyre
             </button>
@@ -1321,16 +1323,32 @@
 
         <!-- Collapsible + Add New Tyre Inline Panel -->
         <div id="addTyreInlinePanel" class="card-elevated tyre-add-inline-panel" style="display: none; margin-bottom: 14px;">
-          <div class="section-eyebrow" style="margin-bottom: 10px;">Add New Kenda KR15 to Stock</div>
+          <div class="section-eyebrow" style="margin-bottom: 8px;">Add New Kenda KR15 to Stock</div>
+
+          <!-- 2-Way Spec Toggle: Buffed Dry (KB) | Full-Tread Wet (KW) -->
+          <div class="field-group" style="margin-bottom: 10px;">
+            <div class="field-label-row">
+              <span class="field-label">Tyre Prep Spec</span>
+              <span class="field-hint emerald" id="newTyreSpecHint">Buffed Dry (KB) &bull; 5.0 mm</span>
+            </div>
+            <div class="seg-toggle" role="group" aria-label="New Tyre Spec">
+              <button type="button" class="seg-btn active" id="btnNewTyreSpecBuffed" data-new-tyre-spec="buffed">
+                Buffed Dry (KB)
+              </button>
+              <button type="button" class="seg-btn" id="btnNewTyreSpecWet" data-new-tyre-spec="wet">
+                Full-Tread Wet (KW)
+              </button>
+            </div>
+          </div>
 
           <!-- Row 1 (2-col): Tyre ID / Stamp | Purchase Date -->
           <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
-                <label class="field-label" for="newTyreLabel">Tyre ID / Stamp</label>
-                <span class="field-hint">Code or Stamp</span>
+                <label class="field-label" for="newTyreLabel">Tyre Code / Stamp</label>
+                <span class="field-hint">Auto-Suggested</span>
               </div>
-              <input type="text" id="newTyreLabel" class="text-input" placeholder="e.g. K5 or HQRA-12" autocomplete="off" />
+              <input type="text" id="newTyreLabel" class="text-input" placeholder="e.g. KB5" autocomplete="off" />
             </div>
 
             <div class="field-group" style="margin-bottom: 0;">
@@ -1347,12 +1365,12 @@
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
                 <label class="field-label" for="newTyreTread">Starting Tread (mm)</label>
-                <span class="field-hint emerald">New = 7.5 mm</span>
+                <span class="field-hint emerald" id="newTyreTreadHint">Buffed = 5.0 mm</span>
               </div>
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="newTyreTread" data-step="-0.1" aria-label="Decrease Starting Tread">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="newTyreTread" class="num-input" value="7.5" min="0.5" max="10.0" step="0.1" inputmode="decimal" />
+                  <input type="number" id="newTyreTread" class="num-input" value="5.0" min="0.5" max="10.0" step="0.1" inputmode="decimal" />
                   <span class="num-unit-badge">mm</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="newTyreTread" data-step="0.1" aria-label="Increase Starting Tread">+</button>
@@ -1361,14 +1379,14 @@
 
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
-                <label class="field-label" for="newTyreHardness">Rubber Hardness (Shore A)</label>
+                <label class="field-label" for="newTyreHardness">Hardness (Shore A)</label>
                 <span class="field-hint amber">Durometer</span>
               </div>
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="newTyreHardness" data-step="-1" aria-label="Decrease Starting Hardness">&minus;</button>
                 <div class="num-input-wrap">
                   <input type="number" id="newTyreHardness" class="num-input" value="62" min="40" max="95" step="1" inputmode="numeric" />
-                  <span class="num-unit-badge">Shore</span>
+                  <span class="num-unit-badge">A</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="newTyreHardness" data-step="1" aria-label="Increase Starting Hardness">+</button>
               </div>
@@ -1396,11 +1414,24 @@
           </button>
         </div>
 
-        <!-- Dynamic 3D Tyre Stock & Wear List -->
+        <!-- Compact Filter Pills: All | Buffed (KB) | Wet (KW) -->
+        <div class="tyre-stock-filter-bar" role="group" aria-label="Filter Tyre Stock">
+          <button type="button" class="tyre-filter-pill active" data-tyre-stock-filter="all" id="btnFilterTyresAll">
+            All (<span id="countFilterAll">8</span>)
+          </button>
+          <button type="button" class="tyre-filter-pill" data-tyre-stock-filter="buffed" id="btnFilterTyresBuffed">
+            Buffed KB (<span id="countFilterBuffed">4</span>)
+          </button>
+          <button type="button" class="tyre-filter-pill" data-tyre-stock-filter="wet" id="btnFilterTyresWet">
+            Wet KW (<span id="countFilterWet">4</span>)
+          </button>
+        </div>
+
+        <!-- Dynamic 3D Compact Collapsible Tyre Stock Accordion List -->
         <div id="tyreStockListContainer" class="tyre-stock-list"></div>
 
         <!-- Export Tyre Stock CSV Footer Button -->
-        <div style="margin-top: 14px;">
+        <div style="margin-top: 12px;">
           <button type="button" class="btn btn-secondary btn-full" id="btnExportTyreStockCsv">
             Export Tyre Stock CSV
           </button>
@@ -2209,6 +2240,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.4.7"></script>
+  <script src="./app.js?v=0.4.8"></script>
 </body>
 </html>

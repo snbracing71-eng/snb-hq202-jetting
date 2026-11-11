@@ -2482,26 +2482,55 @@ textarea:focus-visible {
   font-family: var(--font-mono);
 }
 
-.tyre-rotation-bar {
+.tyre-condition-bar {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 7px;
-  margin-bottom: 10px;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: stretch;
+  margin-bottom: 12px;
 }
 
-.tyre-rot-btn {
-  min-height: 46px;
-  padding: 8px 8px;
+.tyre-cond-seg {
+  padding: 4px;
+  gap: 6px;
+}
+
+.tyre-cond-seg .seg-btn {
+  min-height: 44px;
+  padding: 6px 8px;
   font-size: 13.5px;
   font-weight: 900;
-  letter-spacing: 0.01em;
-  line-height: 1.18;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
-@media (max-width: 440px) {
-  .tyre-rot-btn {
-    font-size: 12px;
-    padding: 7px 5px;
+.tyre-cond-seg .seg-btn[data-tyre-condition="wet"].active {
+  background:
+    radial-gradient(ellipse 75% 45% at 50% 8%, rgba(186, 230, 253, 0.35) 0%, transparent 70%),
+    linear-gradient(180deg, #0284C7 0%, #0369A1 55%, #0C4A6E 100%);
+  border-color: #38BDF8;
+  border-top-color: #BAE6FD;
+  border-bottom-color: #075985;
+  color: #F0F9FF;
+  box-shadow:
+    0 0 0 1px #050608,
+    0 3px 0 #040507,
+    0 0 14px rgba(56, 189, 248, 0.42),
+    inset 0 2px 1px rgba(255, 255, 255, 0.45);
+}
+
+.tyre-quick-mount-btn {
+  min-height: 48px;
+  padding: 6px 10px;
+  font-size: 13.5px;
+  font-weight: 900;
+  line-height: 1.18;
+  white-space: nowrap;
+}
+
+@media (max-width: 540px) {
+  .tyre-condition-bar {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -2558,7 +2587,7 @@ textarea:focus-visible {
 .tyre-mount-select {
   min-height: 40px;
   padding: 6px 34px 6px 10px;
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 900;
   border-radius: 8px;
   background-position: right 8px center, 0 0;
@@ -2612,7 +2641,7 @@ textarea:focus-visible {
 }
 
 /* ============================================================================
-   INLINE TYRE STOCK & WEAR MANAGER (#tab-tyres Card 2)
+   INLINE TYRE STOCK & WEAR MANAGER — COMPACT COLLAPSIBLE ACCORDION (#tab-tyres)
    ============================================================================ */
 .tyre-stock-section-head {
   flex-wrap: wrap;
@@ -2626,39 +2655,73 @@ textarea:focus-visible {
   flex-wrap: wrap;
 }
 
+.tyre-stock-filter-bar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 4px;
+  border-radius: 11px;
+  background: linear-gradient(180deg, #070A0F 0%, #101620 100%);
+  border: 1.5px solid #2A3749;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.9);
+}
+
+.tyre-filter-pill {
+  min-height: 36px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #252C38 0%, #141921 100%);
+  border: 1px solid #3E4A5E;
+  color: #CBD5E1;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 0.08s ease;
+}
+
+.tyre-filter-pill.active {
+  background:
+    radial-gradient(ellipse 75% 45% at 50% 8%, rgba(255, 255, 255, 0.25) 0%, transparent 70%),
+    linear-gradient(180deg, #465061 0%, #242A35 60%, #141820 100%);
+  border: 1.5px solid #D4AF37;
+  border-top-color: #FEF08A;
+  color: #FEF08A;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.75);
+}
+
 .tyre-stock-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 7px;
 }
 
-.tyre-stock-card {
-  padding: 12px;
-  border-radius: 12px;
+.tyre-acc-item {
+  border-radius: 11px;
   background:
-    radial-gradient(ellipse 80% 45% at 50% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 45% at 50% 0%, rgba(255, 255, 255, 0.07) 0%, transparent 70%),
     linear-gradient(180deg, #161E2B 0%, #0C1119 100%);
-  border: 1.5px solid #35455B;
-  border-top-color: #4D6280;
+  border: 1.5px solid #334358;
+  border-top-color: #4A607D;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    0 5px 14px rgba(0, 0, 0, 0.82);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 4px 10px rgba(0, 0, 0, 0.78);
+  overflow: hidden;
 }
 
-.tyre-stock-card.is-mounted {
+.tyre-acc-item.is-mounted {
   border-color: rgba(16, 185, 129, 0.65);
   border-top-color: #6EE7B7;
 }
 
-.tyre-stock-card.tread-warn {
+.tyre-acc-item.tread-warn {
   border-color: rgba(245, 158, 11, 0.72);
   border-top-color: #FDE047;
 }
 
-.tyre-stock-card.tread-danger {
+.tyre-acc-item.tread-danger {
   border-color: rgba(239, 68, 68, 0.85);
   border-top-color: #FCA5A5;
   background:
@@ -2666,128 +2729,251 @@ textarea:focus-visible {
     linear-gradient(180deg, #271217 0%, #11090C 100%);
 }
 
-.tyre-stock-top {
+/* Slim 48px Clickable Accordion Summary Row */
+.tyre-acc-summary {
+  width: 100%;
+  min-height: 48px;
+  padding: 7px 11px;
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  font-family: inherit;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  flex-wrap: wrap;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  cursor: pointer;
+  text-align: left;
+  user-select: none;
 }
 
-.tyre-stock-left {
+.tyre-acc-summary:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.tyre-acc-left {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 7px;
   min-width: 0;
-  flex: 1 1 auto;
+  flex-wrap: nowrap;
 }
 
-.tyre-stock-name-input {
-  width: 128px;
-  min-height: 36px;
-  padding: 4px 9px;
-  border-radius: 8px;
-  background: #080B10;
-  border: 1.5px solid #334358;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.9);
-  color: #FFFFFF;
-  font-family: var(--font-mono);
-  font-size: 16px;
+.tyre-acc-chevron {
+  font-size: 13px;
   font-weight: 900;
-  letter-spacing: 0.02em;
+  color: #94A3B8;
+  width: 14px;
+  text-align: center;
+  flex-shrink: 0;
+  transition: transform 0.14s ease, color 0.14s ease;
 }
 
-.tyre-stock-name-input:focus {
-  outline: none;
-  border-color: var(--amber);
+.tyre-acc-item.expanded .tyre-acc-chevron {
+  transform: rotate(90deg);
+  color: #FDE047;
+}
+
+.tread-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #10B981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.75);
+}
+
+.tread-dot.warn {
+  background: #F59E0B;
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.85);
+}
+
+.tread-dot.danger {
+  background: #EF4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.95);
+}
+
+.tyre-acc-code {
+  font-family: var(--font-mono);
+  font-size: 16.5px;
+  font-weight: 900;
+  color: #FFFFFF;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.tyre-spec-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tyre-spec-tag.buffed {
+  background: rgba(245, 158, 11, 0.16);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  color: #FDE047;
+}
+
+.tyre-spec-tag.wet {
+  background: rgba(14, 165, 233, 0.2);
+  border: 1px solid rgba(56, 189, 248, 0.6);
+  color: #7DD3FC;
 }
 
 .tyre-pos-badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 9px;
+  padding: 2px 7px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .tyre-pos-badge.mounted {
   background: linear-gradient(180deg, #0D593E 0%, #063323 100%);
-  border: 1.5px solid #10B981;
-  border-top-color: #6EE7B7;
+  border: 1px solid #10B981;
   color: #ECFDF5;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.65);
 }
 
 .tyre-pos-badge.spare {
   background: linear-gradient(180deg, #273244 0%, #151C27 100%);
-  border: 1.5px solid #475569;
-  border-top-color: #64748B;
-  color: #E2E8F0;
+  border: 1px solid #475569;
+  color: #CBD5E1;
 }
 
-.tyre-stock-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.tyre-total-laps-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 5px 10px;
-  border-radius: 8px;
-  background: #070A0F;
-  border: 1.5px solid rgba(52, 211, 153, 0.5);
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.85);
+.tyre-acc-metrics {
   font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 900;
-  color: #6EE7B7;
-  letter-spacing: 0.03em;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #E2E8F0;
   white-space: nowrap;
+  flex-shrink: 0;
+  text-align: right;
 }
 
-.tyre-delete-btn {
-  min-height: 36px;
-  padding: 6px 12px;
-  font-size: 13px;
-  font-weight: 900;
-  border-radius: 8px;
+@media (max-width: 420px) {
+  .tyre-acc-summary {
+    padding: 7px 8px;
+    gap: 5px;
+  }
+  .tyre-acc-code {
+    font-size: 15px;
+  }
+  .tyre-acc-metrics {
+    font-size: 12px;
+  }
 }
 
-.tyre-stock-controls-grid {
+/* Expanded Detail Drawer inside Accordion Item */
+.tyre-acc-drawer {
+  padding: 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(7, 10, 15, 0.65);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tyre-drawer-code-row {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.tyre-spec-mini-toggle {
+  display: inline-flex;
+  gap: 4px;
+  background: #070A0F;
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+}
+
+.tyre-spec-mini-btn {
+  min-height: 36px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94A3B8;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.tyre-spec-mini-btn.active.buffed {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: #FBBF24;
+  color: #FEF08A;
+}
+
+.tyre-spec-mini-btn.active.wet {
+  background: rgba(14, 165, 233, 0.25);
+  border-color: #38BDF8;
+  color: #BAE6FD;
+}
+
+/* Guarantee Tread Depth (4.8 mm) and Hardness (62 A) NEVER clip on any screen */
+.tyre-acc-drawer .compact-pair-grid .num-stepper,
+.tyre-add-inline-panel .compact-pair-grid .num-stepper {
+  grid-template-columns: 42px minmax(64px, 1fr) 42px;
+  gap: 4px;
+  padding: 4px;
+  min-height: 54px;
+}
+
+.tyre-acc-drawer .compact-pair-grid .stepper-btn,
+.tyre-add-inline-panel .compact-pair-grid .stepper-btn {
+  width: 42px;
+  min-width: 42px;
+  height: 44px;
+  min-height: 44px;
+  font-size: 22px;
+}
+
+.tyre-acc-drawer .compact-pair-grid .num-input-wrap,
+.tyre-add-inline-panel .compact-pair-grid .num-input-wrap {
+  padding: 0 4px;
+  gap: 3px;
+  min-height: 44px;
+}
+
+.tyre-acc-drawer .compact-pair-grid .num-input,
+.tyre-add-inline-panel .compact-pair-grid .num-input {
+  font-size: 21px;
+  min-width: 48px;
+  padding: 2px 0;
+  text-align: center;
+}
+
+.tyre-acc-drawer .compact-pair-grid .num-unit-badge,
+.tyre-add-inline-panel .compact-pair-grid .num-unit-badge {
+  font-size: 12px;
+  display: inline-block;
+}
+
+.tyre-drawer-bottom-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   gap: 10px;
   align-items: end;
 }
 
-.tyre-stock-controls-grid > .tyre-date-col {
-  grid-column: 1 / -1;
-}
-
-@media (min-width: 640px) {
-  .tyre-stock-controls-grid {
-    grid-template-columns: 1.05fr 1.2fr 1.2fr;
-  }
-
-  .tyre-stock-controls-grid > .tyre-date-col {
-    grid-column: auto;
-  }
-}
-
-@media (max-width: 390px) {
-  .tyre-stock-controls-grid {
+@media (max-width: 420px) {
+  .tyre-drawer-bottom-row {
     grid-template-columns: 1fr;
   }
 }
-
-
