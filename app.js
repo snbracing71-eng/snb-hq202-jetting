@@ -130,8 +130,53 @@
     ];
   }
 
+  const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  function getLocalTodayIso() {
+    try {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Australia/Melbourne',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).formatToParts(new Date());
+      const y = parts.find((p) => p.type === 'year')?.value;
+      const m = parts.find((p) => p.type === 'month')?.value;
+      const d = parts.find((p) => p.type === 'day')?.value;
+      if (y && m && d) return `${y}-${m}-${d}`;
+    } catch (_) {
+      // Fallback to local system date
+    }
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  function formatIsoDateDisplay(isoStr) {
+    if (!isoStr || typeof isoStr !== 'string') return '';
+    const match = isoStr.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match) return isoStr;
+    const year = Number(match[1]);
+    const monthIdx = Number(match[2]) - 1;
+    const day = Number(match[3]);
+    const monthName = MONTHS_SHORT[monthIdx] || match[2];
+    return `${day} ${monthName} ${year}`;
+  }
+
+  function normalizeOptionalAfr(val) {
+    if (val === null || val === undefined || val === '') return null;
+    const num = Number(val);
+    return Number.isFinite(num) && num > 0 ? Number(num.toFixed(2)) : null;
+  }
+
   function createDefaultBaseline() {
+    const todayIso = getLocalTodayIso();
     return {
+      venue: 'Calder Park Raceway',
+      sessionDateIso: todayIso,
+      sessionDate: formatIsoDateDisplay(todayIso),
       sessionName: 'Race 1',
       carbyId: '1 DME',
       jetId: 'drill_2000',
@@ -140,6 +185,7 @@
       rad: 94.3,
       fuelSg: 0.740,
       wotAfr: 12.50,
+      peakRpm: 5900,
       afrStatus: 'verified', // 'verified' | 'estimated' | 'untested'
       weatherOnly: false,
       timing: 33.0,
@@ -149,10 +195,14 @@
   }
 
   function createDefaultSessions() {
+    const todayIso = getLocalTodayIso();
+    const todayDisp = formatIsoDateDisplay(todayIso);
     return [
       {
         id: 'calder_p1',
-        venue: 'Calder Park',
+        venue: 'Calder Park Raceway',
+        sessionDateIso: todayIso,
+        sessionDate: todayDisp,
         sessionName: 'Practice 1',
         timestamp: 'Sat 08:45',
         carbyId: 'SNB Carby',
@@ -174,7 +224,9 @@
       },
       {
         id: 'calder_p2',
-        venue: 'Calder Park',
+        venue: 'Calder Park Raceway',
+        sessionDateIso: todayIso,
+        sessionDate: todayDisp,
         sessionName: 'Practice 2',
         timestamp: 'Sat 10:15',
         carbyId: 'SNB Carby',
@@ -196,7 +248,9 @@
       },
       {
         id: 'calder_p3',
-        venue: 'Calder Park',
+        venue: 'Calder Park Raceway',
+        sessionDateIso: todayIso,
+        sessionDate: todayDisp,
         sessionName: 'Practice 3',
         timestamp: 'Sat 11:40',
         carbyId: '1 DME',
@@ -218,7 +272,9 @@
       },
       {
         id: 'calder_q1',
-        venue: 'Calder Park',
+        venue: 'Calder Park Raceway',
+        sessionDateIso: todayIso,
+        sessionDate: todayDisp,
         sessionName: 'Qualifying',
         timestamp: 'Sat 13:10',
         carbyId: '1 DME',
@@ -240,7 +296,9 @@
       },
       {
         id: 'calder_r1',
-        venue: 'Calder Park',
+        venue: 'Calder Park Raceway',
+        sessionDateIso: todayIso,
+        sessionDate: todayDisp,
         sessionName: 'Race 1',
         timestamp: 'Sun 10:35',
         carbyId: '1 DME',
@@ -262,7 +320,9 @@
       },
       {
         id: 'calder_r2',
-        venue: 'Calder Park',
+        venue: 'Calder Park Raceway',
+        sessionDateIso: todayIso,
+        sessionDate: todayDisp,
         sessionName: 'Race 2',
         timestamp: 'Sun 13:50',
         carbyId: '1 DME',
@@ -284,7 +344,9 @@
       },
       {
         id: 'calder_r3',
-        venue: 'Calder Park',
+        venue: 'Calder Park Raceway',
+        sessionDateIso: todayIso,
+        sessionDate: todayDisp,
         sessionName: 'Race 3',
         timestamp: 'Sun 16:20',
         carbyId: 'SNB Carby',
@@ -383,6 +445,8 @@
      ------------------------------------------------------------------------ */
   function hydrateState(candidate) {
     const defaultCarbies = createDefaultCarbies();
+    const todayIso = getLocalTodayIso();
+    const todayDisp = formatIsoDateDisplay(todayIso);
     candidate.jets = sortJetsByDiameter(candidate.jets || createDefaultJets());
 
     if (!Array.isArray(candidate.carbies) || candidate.carbies.length === 0) {
@@ -403,6 +467,15 @@
     }
 
     const b = candidate.baseline || createDefaultBaseline();
+    if (!b.venue || b.venue === 'Calder Park' || b.venue === 'Calder Park / Track') {
+      b.venue = 'Calder Park Raceway';
+    }
+    if (!b.sessionDateIso) {
+      b.sessionDateIso = todayIso;
+    }
+    if (!b.sessionDate) {
+      b.sessionDate = formatIsoDateDisplay(b.sessionDateIso) || todayDisp;
+    }
     const hasNumericAfr = b.wotAfr !== null && b.wotAfr !== undefined && Number.isFinite(Number(b.wotAfr));
     if (!b.afrStatus) {
       b.afrStatus = hasNumericAfr ? 'verified' : 'untested';
@@ -420,15 +493,33 @@
     candidate.baseline = b;
 
     candidate.sessions = (candidate.sessions || []).map((s) => {
-      const a50 = Number.isFinite(Number(s.afr5000)) ? Number(s.afr5000) : 12.80;
-      const aWot = Number.isFinite(Number(s.afrWot)) ? Number(s.afrWot) : a50;
-      const a55 = Number.isFinite(Number(s.afr5500))
-        ? Number(s.afr5500)
-        : Number(((a50 + aWot) / 2).toFixed(2));
+      const venue =
+        !s.venue || s.venue === 'Calder Park' || s.venue === 'Calder Park / Track'
+          ? 'Calder Park Raceway'
+          : s.venue;
+      const sessionDateIso = s.sessionDateIso || todayIso;
+      const sessionDate = s.sessionDate || formatIsoDateDisplay(sessionDateIso) || todayDisp;
+      const a35 = normalizeOptionalAfr(s.afr3500);
+      const a40 = normalizeOptionalAfr(s.afr4000);
+      const a45 = normalizeOptionalAfr(s.afr4500);
+      const a50 = normalizeOptionalAfr(s.afr5000);
+      const aWot = Number.isFinite(Number(s.afrWot)) ? Number(Number(s.afrWot).toFixed(2)) : 12.80;
+      let a55 = normalizeOptionalAfr(s.afr5500);
+      if (a55 === null && s.afr5500 === undefined && a50 !== null && String(s.id || '').startsWith('calder_')) {
+        a55 = Number(((a50 + aWot) / 2).toFixed(2));
+      }
       const peakRpm = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
       return {
         ...s,
+        venue,
+        sessionDateIso,
+        sessionDate,
+        afr3500: a35,
+        afr4000: a40,
+        afr4500: a45,
+        afr5000: a50,
         afr5500: a55,
+        afrWot: aWot,
         peakRpm,
         afrStatus: s.afrStatus || 'verified'
       };
@@ -773,7 +864,9 @@
      ------------------------------------------------------------------------ */
   function renderLockedBaselineBar() {
     const b = state.baseline;
-    $('baseSessionCarbyLabel').textContent = `${b.sessionName} • ${b.carbyId}`;
+    const venueStr = b.venue || 'Calder Park Raceway';
+    const dateStr = b.sessionDate || formatIsoDateDisplay(b.sessionDateIso || getLocalTodayIso());
+    $('baseSessionCarbyLabel').textContent = `${venueStr} • ${dateStr} • ${b.sessionName} • ${b.carbyId}`;
     $('baseJetLabel').textContent = b.jetLabel;
     $('baseJetSub').textContent = `${b.jetMm.toFixed(3)} mm • ${orificeAreaMm2(b.jetMm).toFixed(3)} mm² (${mmToInch(b.jetMm).toFixed(4)}")`;
     $('baseRadLabel').textContent = `${b.rad.toFixed(1)}% RAD`;
@@ -860,6 +953,64 @@
     'Final'
   ];
 
+  function updateCustomTrackVisibility() {
+    const sel = $('selectTrackVenue');
+    const wrap = $('customTrackWrap');
+    if (!sel || !wrap) return;
+    wrap.style.display = sel.value === '__CUSTOM_TRACK__' ? 'block' : 'none';
+  }
+
+  function updateSessionDateHint() {
+    const dateEl = $('inputSessionDate');
+    const hintEl = $('sessionDateFormattedHint');
+    if (!dateEl || !hintEl) return;
+    const iso = dateEl.value || getLocalTodayIso();
+    hintEl.textContent = formatIsoDateDisplay(iso) || 'Auto-Today';
+  }
+
+  function syncTrackAndDateFromBaseline() {
+    const trackSel = $('selectTrackVenue');
+    const customTrackInput = $('inputCustomTrack');
+    const dateInput = $('inputSessionDate');
+    const baseVenue = (state.baseline && state.baseline.venue) || 'Calder Park Raceway';
+    const baseIso = (state.baseline && state.baseline.sessionDateIso) || getLocalTodayIso();
+
+    if (trackSel) {
+      const hasOption = Array.from(trackSel.options).some((opt) => opt.value === baseVenue);
+      if (hasOption) {
+        trackSel.value = baseVenue;
+      } else {
+        trackSel.value = '__CUSTOM_TRACK__';
+        if (customTrackInput) customTrackInput.value = baseVenue;
+      }
+      updateCustomTrackVisibility();
+    }
+
+    if (dateInput) {
+      dateInput.value = baseIso;
+      updateSessionDateHint();
+    }
+  }
+
+  function getSelectedTrackVenue() {
+    const sel = $('selectTrackVenue');
+    if (!sel) return (state.baseline && state.baseline.venue) || 'Calder Park Raceway';
+    if (sel.value === '__CUSTOM_TRACK__') {
+      const customVal = (($('inputCustomTrack') && $('inputCustomTrack').value) || '').trim();
+      return customVal || 'Custom Circuit';
+    }
+    return sel.value || 'Calder Park Raceway';
+  }
+
+  function getSelectedSessionDate() {
+    const dateInput = $('inputSessionDate');
+    const iso = (dateInput && dateInput.value) ? dateInput.value : getLocalTodayIso();
+    return {
+      iso,
+      display: formatIsoDateDisplay(iso) || iso
+    };
+  }
+
   function updateCustomSessionVisibility() {
     const sel = $('selectSessionName');
     const wrap = $('customSessionWrap');
@@ -878,6 +1029,7 @@
       sel.value = 'Race 1';
     }
     updateCustomSessionVisibility();
+    syncTrackAndDateFromBaseline();
   }
 
   function getSelectedSessionName() {
@@ -895,11 +1047,16 @@
     if (!carby || !carby.baselineAnchor) return;
 
     const prevBaseName = state.baseline.sessionName;
+    const venue = getSelectedTrackVenue();
+    const { iso: sessionDateIso, display: sessionDate } = getSelectedSessionDate();
     const a = carby.baselineAnchor;
     const hasVerified =
       a.verifiedAfr !== null && a.verifiedAfr !== undefined && Number.isFinite(Number(a.verifiedAfr));
 
     state.baseline = {
+      venue,
+      sessionDateIso,
+      sessionDate,
       sessionName: a.sourceLabel || `${carby.name} Anchor`,
       carbyId: carby.id,
       jetId: a.jetId || carby.fittedJetId,
@@ -908,6 +1065,7 @@
       rad: Number(a.rad),
       fuelSg: Number(a.fuelSg),
       wotAfr: hasVerified ? Number(a.verifiedAfr) : null,
+      peakRpm: 5900,
       afrStatus: hasVerified ? 'verified' : 'untested',
       weatherOnly: !hasVerified,
       timing: Number(a.timing || 33.0),
@@ -1044,6 +1202,7 @@
 
     renderStep1WeatherOnlySwitch(phys);
     updateCarbySwapHint();
+    updateSessionDateHint();
   }
 
   function renderStep2Calculator(autoPickRecommended = false) {
@@ -1239,12 +1398,14 @@
     const chosenJet = findJetById(ui.selectedJetId);
     if (!chosenJet) return;
 
+    const venue = getSelectedTrackVenue();
+    const { iso: sessionDateIso, display: sessionDate } = getSelectedSessionDate();
     const sessionName = getSelectedSessionName();
     const carbyId = $('selectCalcCarby').value || state.baseline.carbyId;
     const modeNote = phys.isWeatherOnly ? 'Weather-Only 1.000× AFR' : `${ui.weatherMode.toUpperCase()} mode`;
     const notes =
       ($('inputRunNotes').value || '').trim() ||
-      `Locked pre-run from ${phys.base.sessionName} (${modeNote}) — awaiting track wideband read.`;
+      `Locked pre-run at ${venue} (${sessionDate}) from ${phys.base.sessionName} (${modeNote}) — awaiting track wideband read.`;
 
     const predWot = Number(
       calculatePredictedAfr(
@@ -1263,7 +1424,9 @@
 
     const newSession = {
       id: newSessionId,
-      venue: 'Calder Park / Track',
+      venue,
+      sessionDateIso,
+      sessionDate,
       sessionName,
       timestamp: `Pit ${timeLabel}`,
       carbyId,
@@ -1274,11 +1437,11 @@
       fuelSg: Number(phys.sgNew.toFixed(3)),
       timing: Number(phys.totalTiming.toFixed(1)),
       fuelPsi: state.baseline.fuelPsi,
-      afr3500: Number((predWot + 0.14).toFixed(2)),
-      afr4000: Number((predWot + 0.08).toFixed(2)),
-      afr4500: Number((predWot + 0.04).toFixed(2)),
-      afr5000: Number((predWot + 0.02).toFixed(2)),
-      afr5500: Number((predWot + 0.01).toFixed(2)),
+      afr3500: null,
+      afr4000: null,
+      afr4500: null,
+      afr5000: null,
+      afr5500: null,
       afrWot: predWot,
       peakRpm: 5900,
       afrStatus: 'estimated',
@@ -1296,6 +1459,9 @@
     // Lock as new Baseline with Predicted_AFR stored as ESTIMATED (Awaiting Track Read)
     // so chained weather calculations into Practice 2 still work mathematically!
     state.baseline = {
+      venue,
+      sessionDateIso,
+      sessionDate,
       sessionName,
       carbyId,
       jetId: chosenJet.id,
@@ -1326,12 +1492,17 @@
     renderAll();
     setCalculatorStep(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    showToast(`Locked ${sessionName} (${chosenJet.label}) — Estimated AFR ${predWot.toFixed(2)} awaiting track read`);
+    showToast(`Locked ${sessionName} @ ${venue} (${chosenJet.label}) — Est AFR ${predWot.toFixed(2)}`);
   }
 
   /* ------------------------------------------------------------------------
      6. RENDERING: TAB 2 (SESSION LOG, INLINE AFR EDIT, CSV & JSON)
      ------------------------------------------------------------------------ */
+  function formatOptionalPillAfr(val) {
+    const norm = normalizeOptionalAfr(val);
+    return norm !== null ? norm.toFixed(2) : '&mdash;';
+  }
+
   function renderSessionLog() {
     const filterVal = $('filterLogCarby') ? $('filterLogCarby').value : 'ALL';
     const filtered = state.sessions.filter((s) => filterVal === 'ALL' || s.carbyId === filterVal);
@@ -1361,10 +1532,18 @@
           : prot.level === 'danger'
           ? 'txt-danger'
           : 'txt-emerald';
-        const a55Val = Number.isFinite(Number(s.afr5500))
-          ? Number(s.afr5500)
-          : (Number(s.afr5000) + Number(s.afrWot)) / 2;
         const peakRpmVal = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
+        const venueLabel = s.venue || 'Calder Park Raceway';
+        const dateLabel = s.sessionDate || formatIsoDateDisplay(s.sessionDateIso || getLocalTodayIso());
+        const timePart = s.timestamp ? ` (${s.timestamp})` : '';
+
+        const stages = [
+          { rpm: '3500', val: normalizeOptionalAfr(s.afr3500) },
+          { rpm: '4000', val: normalizeOptionalAfr(s.afr4000) },
+          { rpm: '4500', val: normalizeOptionalAfr(s.afr4500) },
+          { rpm: '5000', val: normalizeOptionalAfr(s.afr5000) },
+          { rpm: '5500', val: normalizeOptionalAfr(s.afr5500) }
+        ];
 
         return `
           <article class="session-card ${isBaseline ? 'is-baseline' : ''}" data-session-id="${escapeHtml(s.id)}">
@@ -1374,7 +1553,7 @@
                   ${escapeHtml(s.sessionName)} &bull; <span class="txt-amber">${escapeHtml(s.carbyId)}</span>
                 </div>
                 <div class="session-meta-line">
-                  ${escapeHtml(s.venue || 'Calder Park')} (${escapeHtml(s.timestamp || '')}) &bull;
+                  <strong>${escapeHtml(venueLabel)}</strong> &bull; ${escapeHtml(dateLabel)}${escapeHtml(timePart)} &bull;
                   <strong>${escapeHtml(s.jetLabel)}</strong> (${s.jetMm.toFixed(3)}mm) &bull;
                   ${s.rad.toFixed(1)}% RAD &bull; ${s.timing.toFixed(1)}&deg; &bull; ${s.fuelPsi.toFixed(1)} psi
                 </div>
@@ -1394,26 +1573,16 @@
             </div>
 
             <div class="afr-rpm-strip">
-              <div class="afr-pill">
-                <span class="afr-pill-rpm">3500</span>
-                <span class="afr-pill-val">${Number(s.afr3500).toFixed(2)}</span>
-              </div>
-              <div class="afr-pill">
-                <span class="afr-pill-rpm">4000</span>
-                <span class="afr-pill-val">${Number(s.afr4000).toFixed(2)}</span>
-              </div>
-              <div class="afr-pill">
-                <span class="afr-pill-rpm">4500</span>
-                <span class="afr-pill-val">${Number(s.afr4500).toFixed(2)}</span>
-              </div>
-              <div class="afr-pill">
-                <span class="afr-pill-rpm">5000</span>
-                <span class="afr-pill-val">${Number(s.afr5000).toFixed(2)}</span>
-              </div>
-              <div class="afr-pill">
-                <span class="afr-pill-rpm">5500</span>
-                <span class="afr-pill-val">${a55Val.toFixed(2)}</span>
-              </div>
+              ${stages
+                .map(
+                  (st) => `
+                  <div class="afr-pill">
+                    <span class="afr-pill-rpm">${st.rpm}</span>
+                    <span class="afr-pill-val ${st.val === null ? 'is-blank' : ''}">${st.val !== null ? st.val.toFixed(2) : '&mdash;'}</span>
+                  </div>
+                `
+                )
+                .join('')}
               <div class="afr-pill wot-pill">
                 <span class="afr-pill-rpm">WOT @ ${peakRpmVal}</span>
                 <span class="afr-pill-val ${wotValClass}">${Number(s.afrWot).toFixed(2)}</span>
@@ -1423,8 +1592,8 @@
             ${s.notes ? `<p style="margin: 6px 0 4px; font-size: 0.77rem; color: var(--text-secondary);">${escapeHtml(s.notes)}</p>` : ''}
 
             <div class="session-actions">
-              <button type="button" class="btn btn-secondary" data-edit-session-afr="${escapeHtml(s.id)}">
-                ${isEditing ? 'Cancel Edit' : 'Edit Post-Race AFR'}
+              <button type="button" class="btn ${isEditing ? 'btn-danger' : 'btn-secondary'}" data-edit-session-afr="${escapeHtml(s.id)}">
+                ${isEditing ? 'Cancel Edit' : 'Edit Session & AFR'}
               </button>
               <button type="button" class="btn ${isBaseline ? 'btn-emerald-outline' : 'btn-amber-outline'}" data-lock-session="${escapeHtml(s.id)}">
                 ${isBaseline ? 'Locked Baseline' : 'Lock as Baseline'}
@@ -1443,30 +1612,75 @@
   }
 
   function renderInlineSessionAfrEditor(s) {
-    const a55Val = Number.isFinite(Number(s.afr5500))
-      ? Number(s.afr5500)
-      : (Number(s.afr5000) + Number(s.afrWot)) / 2;
     const peakRpmVal = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
-    const fields = [
-      { key: '3500', label: '3500 RPM', val: s.afr3500 },
-      { key: '4000', label: '4000 RPM', val: s.afr4000 },
-      { key: '4500', label: '4500 RPM', val: s.afr4500 },
-      { key: '5000', label: '5000 RPM', val: s.afr5000 },
-      { key: '5500', label: '5500 RPM AFR', val: a55Val },
-      { key: 'Wot', label: 'WOT Collector AFR', val: s.afrWot }
+    const dateIsoVal = s.sessionDateIso || getLocalTodayIso();
+    const venueVal = s.venue || 'Calder Park Raceway';
+    const optStages = [
+      { key: '3500', label: '3500 RPM AFR (Optional)', val: normalizeOptionalAfr(s.afr3500) },
+      { key: '4000', label: '4000 RPM AFR (Optional)', val: normalizeOptionalAfr(s.afr4000) },
+      { key: '4500', label: '4500 RPM AFR (Optional)', val: normalizeOptionalAfr(s.afr4500) },
+      { key: '5000', label: '5000 RPM AFR (Optional)', val: normalizeOptionalAfr(s.afr5000) },
+      { key: '5500', label: '5500 RPM AFR (Optional)', val: normalizeOptionalAfr(s.afr5500) }
     ];
     return `
       <div class="inline-afr-editor">
         <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
-          ${fields
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="inlineSessionName_${escapeHtml(s.id)}">Session Name</label>
+            <input type="text" id="inlineSessionName_${escapeHtml(s.id)}" class="text-input" value="${escapeHtml(s.sessionName)}" />
+          </div>
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="inlineVenue_${escapeHtml(s.id)}">Circuit / Track</label>
+            <input type="text" id="inlineVenue_${escapeHtml(s.id)}" class="text-input" value="${escapeHtml(venueVal)}" />
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 12px;">
+          <label class="field-label" for="inlineSessionDate_${escapeHtml(s.id)}">Session Date</label>
+          <input type="date" id="inlineSessionDate_${escapeHtml(s.id)}" class="text-input" value="${escapeHtml(dateIsoVal)}" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 10px;">
+          <label class="field-label" for="inlinePeakRpm_${escapeHtml(s.id)}">Top / Peak WOT RPM</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="inlinePeakRpm_${escapeHtml(s.id)}" data-step="-50" aria-label="Decrease Top WOT RPM">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="inlinePeakRpm_${escapeHtml(s.id)}" class="num-input" value="${peakRpmVal}" min="5000" max="6600" step="50" />
+              <span class="num-unit-badge">RPM</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="inlinePeakRpm_${escapeHtml(s.id)}" data-step="50" aria-label="Increase Top WOT RPM">+</button>
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 12px;">
+          <label class="field-label" for="inlineAfr_${escapeHtml(s.id)}_Wot">Logged Peak WOT AFR</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="inlineAfr_${escapeHtml(s.id)}_Wot" data-step="-0.05" aria-label="Decrease WOT Collector AFR">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="inlineAfr_${escapeHtml(s.id)}_Wot" class="num-input" value="${Number(s.afrWot).toFixed(2)}" min="10.00" max="16.00" step="0.05" />
+              <span class="num-unit-badge">WOT</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="inlineAfr_${escapeHtml(s.id)}_Wot" data-step="0.05" aria-label="Increase WOT Collector AFR">+</button>
+          </div>
+        </div>
+
+        <div class="mid-sweep-panel" style="margin-bottom: 12px;">
+          <div class="mid-sweep-head">
+            <span class="field-hint">Optional 3500&ndash;5500 RPM Sweep (leave blank for &mdash;)</span>
+            <button type="button" class="btn btn-danger btn-xs" data-clear-inline-sweep="${escapeHtml(s.id)}">
+              Clear Sweep (Leave Blank)
+            </button>
+          </div>
+          ${optStages
             .map(
               (f) => `
-              <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-group" style="margin-bottom: 10px;">
                 <label class="field-label" for="inlineAfr_${escapeHtml(s.id)}_${f.key}">${f.label}</label>
                 <div class="num-stepper">
                   <button type="button" class="stepper-btn" data-stepper-target="inlineAfr_${escapeHtml(s.id)}_${f.key}" data-step="-0.05" aria-label="Decrease ${f.label}">&minus;</button>
                   <div class="num-input-wrap">
-                    <input type="number" id="inlineAfr_${escapeHtml(s.id)}_${f.key}" class="num-input" value="${Number(f.val).toFixed(2)}" min="10.00" max="16.00" step="0.05" />
+                    <input type="number" id="inlineAfr_${escapeHtml(s.id)}_${f.key}" class="num-input" value="${f.val !== null ? f.val.toFixed(2) : ''}" placeholder="&mdash;" min="10.00" max="16.00" step="0.05" />
+                    <span class="num-unit-badge">AFR</span>
                   </div>
                   <button type="button" class="stepper-btn" data-stepper-target="inlineAfr_${escapeHtml(s.id)}_${f.key}" data-step="0.05" aria-label="Increase ${f.label}">+</button>
                 </div>
@@ -1474,20 +1688,10 @@
             `
             )
             .join('')}
-          <div class="field-group" style="margin-bottom: 0;">
-            <label class="field-label" for="inlinePeakRpm_${escapeHtml(s.id)}">Top WOT RPM</label>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="inlinePeakRpm_${escapeHtml(s.id)}" data-step="-50" aria-label="Decrease Top WOT RPM">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="inlinePeakRpm_${escapeHtml(s.id)}" class="num-input" value="${peakRpmVal}" min="5000" max="6600" step="50" />
-                <span class="num-unit-badge">RPM</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="inlinePeakRpm_${escapeHtml(s.id)}" data-step="50" aria-label="Increase Top WOT RPM">+</button>
-            </div>
-          </div>
         </div>
+
         <button type="button" class="btn btn-confirm btn-full" data-save-session-afr="${escapeHtml(s.id)}">
-          Save Post-Race AFRs
+          Save Session &amp; Post-Race AFRs
         </button>
       </div>
     `;
@@ -1497,6 +1701,7 @@
     const headers = [
       'Session',
       'Venue',
+      'Date',
       'Timestamp',
       'Carby_ID',
       'Jet_Label',
@@ -1517,13 +1722,17 @@
       'Notes'
     ];
     const rows = state.sessions.map((s) => {
-      const a55Val = Number.isFinite(Number(s.afr5500))
-        ? Number(s.afr5500)
-        : (Number(s.afr5000) + Number(s.afrWot)) / 2;
+      const a35 = normalizeOptionalAfr(s.afr3500);
+      const a40 = normalizeOptionalAfr(s.afr4000);
+      const a45 = normalizeOptionalAfr(s.afr4500);
+      const a50 = normalizeOptionalAfr(s.afr5000);
+      const a55 = normalizeOptionalAfr(s.afr5500);
       const peakRpmVal = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
+      const dateStr = s.sessionDate || formatIsoDateDisplay(s.sessionDateIso || getLocalTodayIso());
       return [
         s.sessionName,
-        s.venue || 'Calder Park',
+        s.venue || 'Calder Park Raceway',
+        dateStr,
         s.timestamp || '',
         s.carbyId,
         s.jetLabel,
@@ -1532,11 +1741,11 @@
         s.fuelSg.toFixed(3),
         s.timing.toFixed(1),
         s.fuelPsi.toFixed(1),
-        Number(s.afr3500).toFixed(2),
-        Number(s.afr4000).toFixed(2),
-        Number(s.afr4500).toFixed(2),
-        Number(s.afr5000).toFixed(2),
-        a55Val.toFixed(2),
+        a35 !== null ? a35.toFixed(2) : '',
+        a40 !== null ? a40.toFixed(2) : '',
+        a45 !== null ? a45.toFixed(2) : '',
+        a50 !== null ? a50.toFixed(2) : '',
+        a55 !== null ? a55.toFixed(2) : '',
         Number(s.afrWot).toFixed(2),
         String(peakRpmVal),
         s.afrStatus === 'estimated' ? 'ESTIMATED' : 'VERIFIED',
@@ -2181,6 +2390,15 @@
     if (m) m.classList.remove('open');
   }
 
+  function readOptionalAfr(id) {
+    const el = $(id);
+    if (!el) return null;
+    const raw = String(el.value || '').trim();
+    if (raw === '') return null;
+    const n = parseFloat(raw);
+    return Number.isFinite(n) && n > 0 ? Number(n.toFixed(2)) : null;
+  }
+
   function openPostRaceAfrModal() {
     const b = state.baseline;
     const refAfr =
@@ -2195,25 +2413,38 @@
         ? Math.round(Number(b.peakRpm))
         : 5900;
 
-    $('postRaceModalSessionLabel').textContent = `${b.sessionName} (${b.carbyId} • ${b.jetLabel})`;
+    $('postRaceModalSessionLabel').textContent = `${b.sessionName} • ${b.venue || 'Calder Park Raceway'} (${b.carbyId} • ${b.jetLabel})`;
     if ($('modalPostPeakRpm')) {
       $('modalPostPeakRpm').value = String(peakRpm);
     }
     $('modalPostWotAfr').value = refAfr.toFixed(2);
     $('modalPostEndCylPreview').textContent = `#1/#6 Est: ${(refAfr + END_CYL_LEAN_OFFSET).toFixed(2)}`;
 
-    $('modalPost3500').value = linked ? Number(linked.afr3500).toFixed(2) : (refAfr + 0.16).toFixed(2);
-    $('modalPost4000').value = linked ? Number(linked.afr4000).toFixed(2) : (refAfr + 0.10).toFixed(2);
-    $('modalPost4500').value = linked ? Number(linked.afr4500).toFixed(2) : (refAfr + 0.05).toFixed(2);
-    $('modalPost5000').value = linked ? Number(linked.afr5000).toFixed(2) : (refAfr + 0.02).toFixed(2);
+    const fmtOpt = (val) => {
+      const norm = normalizeOptionalAfr(val);
+      return norm !== null ? norm.toFixed(2) : '';
+    };
+    $('modalPost3500').value = linked ? fmtOpt(linked.afr3500) : '';
+    $('modalPost4000').value = linked ? fmtOpt(linked.afr4000) : '';
+    $('modalPost4500').value = linked ? fmtOpt(linked.afr4500) : '';
+    $('modalPost5000').value = linked ? fmtOpt(linked.afr5000) : '';
     if ($('modalPost5500')) {
-      const a55 =
-        linked && Number.isFinite(Number(linked.afr5500))
-          ? Number(linked.afr5500)
-          : linked
-          ? (Number(linked.afr5000) + Number(linked.afrWot)) / 2
-          : refAfr + 0.01;
-      $('modalPost5500').value = a55.toFixed(2);
+      $('modalPost5500').value = linked ? fmtOpt(linked.afr5500) : '';
+    }
+
+    const hasAnyMidStage =
+      linked &&
+      [linked.afr3500, linked.afr4000, linked.afr4500, linked.afr5000, linked.afr5500].some(
+        (v) => normalizeOptionalAfr(v) !== null
+      );
+    const wrap = $('postMidSweepWrap');
+    const toggleBtn = $('btnTogglePostMidSweep');
+    if (wrap && toggleBtn) {
+      wrap.style.display = hasAnyMidStage ? 'block' : 'none';
+      toggleBtn.setAttribute('aria-expanded', hasAnyMidStage ? 'true' : 'false');
+      toggleBtn.textContent = hasAnyMidStage
+        ? '− Hide Optional Mid-Range RPM Sweep (3500–5500 RPM)'
+        : '+ Optional Mid-Range RPM Sweep (3500–5500 RPM)';
     }
 
     openModal('modalPostRaceAfr');
@@ -2226,11 +2457,11 @@
         : 12.80;
     const peakRpm = Math.round(readNum('modalPostPeakRpm', 5900));
     const wot = readNum('modalPostWotAfr', fallbackAfr);
-    const a35 = readNum('modalPost3500', wot + 0.15);
-    const a40 = readNum('modalPost4000', wot + 0.10);
-    const a45 = readNum('modalPost4500', wot + 0.05);
-    const a50 = readNum('modalPost5000', wot + 0.02);
-    const a55 = readNum('modalPost5500', wot + 0.01);
+    const a35 = readOptionalAfr('modalPost3500');
+    const a40 = readOptionalAfr('modalPost4000');
+    const a45 = readOptionalAfr('modalPost4500');
+    const a50 = readOptionalAfr('modalPost5000');
+    const a55 = readOptionalAfr('modalPost5500');
 
     state.baseline.wotAfr = Number(wot.toFixed(2));
     state.baseline.peakRpm = peakRpm;
@@ -2240,11 +2471,11 @@
 
     const linked = state.sessions.find((s) => s.id === state.baseline.linkedSessionId);
     if (linked) {
-      linked.afr3500 = Number(a35.toFixed(2));
-      linked.afr4000 = Number(a40.toFixed(2));
-      linked.afr4500 = Number(a45.toFixed(2));
-      linked.afr5000 = Number(a50.toFixed(2));
-      linked.afr5500 = Number(a55.toFixed(2));
+      linked.afr3500 = a35;
+      linked.afr4000 = a40;
+      linked.afr4500 = a45;
+      linked.afr5000 = a50;
+      linked.afr5500 = a55;
       linked.afrWot = Number(wot.toFixed(2));
       linked.peakRpm = peakRpm;
       linked.afrStatus = 'verified';
@@ -2299,6 +2530,12 @@
       .join('');
 
     $('editBaseSession').value = b.sessionName;
+    if ($('editBaseVenue')) {
+      $('editBaseVenue').value = b.venue || 'Calder Park Raceway';
+    }
+    if ($('editBaseDate')) {
+      $('editBaseDate').value = b.sessionDateIso || getLocalTodayIso();
+    }
     $('editBaseCarby').value = b.carbyId;
     if (state.jets.some((j) => j.id === b.jetId)) {
       jetSel.value = b.jetId;
@@ -2334,9 +2571,20 @@
 
     const isWo = Boolean(ui.editBaseWeatherOnly);
     const wotAfrVal = isWo ? null : Number(readNum('editBaseWotAfr', 12.50).toFixed(2));
+    const venueVal =
+      ($('editBaseVenue') && $('editBaseVenue').value.trim()) ||
+      state.baseline.venue ||
+      'Calder Park Raceway';
+    const dateIsoVal =
+      ($('editBaseDate') && $('editBaseDate').value.trim()) ||
+      state.baseline.sessionDateIso ||
+      getLocalTodayIso();
 
     state.baseline = {
       sessionName: ($('editBaseSession').value || '').trim() || 'Baseline',
+      venue: venueVal,
+      sessionDateIso: dateIsoVal,
+      sessionDate: formatIsoDateDisplay(dateIsoVal),
       carbyId: $('editBaseCarby').value || '1 DME',
       jetId: jet.id,
       jetLabel,
@@ -2344,6 +2592,7 @@
       rad: Number(readNum('editBaseRad', 94.3).toFixed(1)),
       fuelSg: Number(readNum('editBaseSg', 0.740).toFixed(3)),
       wotAfr: wotAfrVal,
+      peakRpm: state.baseline.peakRpm || 5900,
       afrStatus: isWo ? 'untested' : 'verified',
       weatherOnly: isWo,
       timing: Number(readNum('editBaseTiming', 33.0).toFixed(1)),
@@ -2360,7 +2609,7 @@
     syncSessionSelectFromBaseline();
     renderAll();
     showToast(
-      `Locked ${state.baseline.sessionName} (${state.baseline.jetMm.toFixed(3)} mm${isWo ? ' • Weather-Only' : ''})`
+      `Locked ${state.baseline.sessionName} • ${state.baseline.venue} (${state.baseline.jetMm.toFixed(3)} mm${isWo ? ' • Weather-Only' : ''})`
     );
   }
 
@@ -2463,14 +2712,17 @@
      ------------------------------------------------------------------------ */
   function stepNumericInput(inputEl, delta) {
     if (!inputEl) return;
-    const current = parseFloat(inputEl.value);
+    const rawStr = String(inputEl.value || '').trim();
+    const current = rawStr === '' ? NaN : parseFloat(rawStr);
     const min = inputEl.min !== '' ? parseFloat(inputEl.min) : -Infinity;
     const max = inputEl.max !== '' ? parseFloat(inputEl.max) : Infinity;
     const stepStr = String(Math.abs(delta));
     const decimals = stepStr.includes('.') ? stepStr.split('.')[1].length : 0;
 
-    const baseVal = Number.isFinite(current) ? current : 0;
-    let next = baseVal + delta;
+    // If an optional AFR field is blank, start at 12.80 when stepping
+    const fallbackBase = min >= 10 && max <= 16.5 ? 12.80 : Number.isFinite(min) ? min : 0;
+    const baseVal = Number.isFinite(current) ? current : fallbackBase;
+    let next = baseVal + (Number.isFinite(current) ? delta : 0);
     if (Number.isFinite(min)) next = Math.max(min, next);
     if (Number.isFinite(max)) next = Math.min(max, next);
 
@@ -2564,6 +2816,17 @@
         return;
       }
 
+      const clearInlineSweepBtn = e.target.closest('[data-clear-inline-sweep]');
+      if (clearInlineSweepBtn) {
+        const sid = clearInlineSweepBtn.getAttribute('data-clear-inline-sweep');
+        [3500, 4000, 4500, 5000, 5500].forEach((rpm) => {
+          const inp = $(`inlineAfr_${sid}_${rpm}`);
+          if (inp) inp.value = '';
+        });
+        showToast('Cleared 3500–5500 RPM fields (will save as blank)');
+        return;
+      }
+
       const editSessionBtn = e.target.closest('[data-edit-session-afr]');
       if (editSessionBtn) {
         const sid = editSessionBtn.getAttribute('data-edit-session-afr');
@@ -2577,15 +2840,33 @@
         const sid = saveSessionBtn.getAttribute('data-save-session-afr');
         const sess = state.sessions.find((s) => s.id === sid);
         if (sess) {
-          sess.afr3500 = Number(readNum(`inlineAfr_${sid}_3500`, sess.afr3500).toFixed(2));
-          sess.afr4000 = Number(readNum(`inlineAfr_${sid}_4000`, sess.afr4000).toFixed(2));
-          sess.afr4500 = Number(readNum(`inlineAfr_${sid}_4500`, sess.afr4500).toFixed(2));
-          sess.afr5000 = Number(readNum(`inlineAfr_${sid}_5000`, sess.afr5000).toFixed(2));
-          sess.afr5500 = Number(readNum(`inlineAfr_${sid}_5500`, sess.afr5500 ?? sess.afr5000).toFixed(2));
-          sess.afrWot = Number(readNum(`inlineAfr_${sid}_Wot`, sess.afrWot).toFixed(2));
+          const nameInput = $(`inlineName_${sid}`);
+          const venueInput = $(`inlineVenue_${sid}`);
+          const dateInput = $(`inlineDate_${sid}`);
+          if (nameInput && nameInput.value.trim()) {
+            sess.sessionName = nameInput.value.trim();
+          }
+          if (venueInput && venueInput.value.trim()) {
+            sess.venue = venueInput.value.trim();
+          }
+          if (dateInput && dateInput.value.trim()) {
+            sess.sessionDateIso = dateInput.value.trim();
+            sess.sessionDate = formatIsoDateDisplay(sess.sessionDateIso);
+          }
+
+          sess.afr3500 = readOptionalAfr(`inlineAfr_${sid}_3500`);
+          sess.afr4000 = readOptionalAfr(`inlineAfr_${sid}_4000`);
+          sess.afr4500 = readOptionalAfr(`inlineAfr_${sid}_4500`);
+          sess.afr5000 = readOptionalAfr(`inlineAfr_${sid}_5000`);
+          sess.afr5500 = readOptionalAfr(`inlineAfr_${sid}_5500`);
+          sess.afrWot = Number(readNum(`inlineAfr_${sid}_Wot`, sess.afrWot ?? 12.80).toFixed(2));
           sess.peakRpm = Math.round(readNum(`inlinePeakRpm_${sid}`, sess.peakRpm || 5900));
           sess.afrStatus = 'verified';
           if (state.baseline.linkedSessionId === sid) {
+            state.baseline.sessionName = sess.sessionName;
+            state.baseline.venue = sess.venue;
+            state.baseline.sessionDateIso = sess.sessionDateIso;
+            state.baseline.sessionDate = sess.sessionDate;
             state.baseline.wotAfr = sess.afrWot;
             state.baseline.peakRpm = sess.peakRpm;
             state.baseline.afrStatus = 'verified';
@@ -2595,7 +2876,7 @@
           ui.editingSessionId = null;
           saveState();
           renderAll();
-          showToast(`Verified Post-Race AFR for ${sess.sessionName}`);
+          showToast(`Saved ${sess.sessionName} (${sess.venue})`);
         }
         return;
       }
@@ -2605,8 +2886,12 @@
         const sid = lockSessionBtn.getAttribute('data-lock-session');
         const sess = state.sessions.find((s) => s.id === sid);
         if (sess) {
+          const iso = sess.sessionDateIso || getLocalTodayIso();
           state.baseline = {
             sessionName: sess.sessionName,
+            venue: sess.venue || 'Calder Park Raceway',
+            sessionDateIso: iso,
+            sessionDate: sess.sessionDate || formatIsoDateDisplay(iso),
             carbyId: sess.carbyId,
             jetId: sess.jetId,
             jetLabel: sess.jetLabel,
@@ -2628,7 +2913,7 @@
           saveState();
           syncSessionSelectFromBaseline();
           renderAll();
-          showToast(`Locked ${sess.sessionName} (${sess.jetLabel}) as Baseline`);
+          showToast(`Locked ${sess.sessionName} • ${state.baseline.venue} (${sess.jetLabel}) as Baseline`);
         }
         return;
       }
@@ -2695,7 +2980,38 @@
     $('btnConfirmLockJet').addEventListener('click', confirmJetAndLockForNextRace);
 
     $('selectSessionName').addEventListener('change', updateCustomSessionVisibility);
+    if ($('selectTrackVenue')) {
+      $('selectTrackVenue').addEventListener('change', updateCustomTrackVisibility);
+    }
+    if ($('inputSessionDate')) {
+      $('inputSessionDate').addEventListener('change', updateSessionDateHint);
+      $('inputSessionDate').addEventListener('input', updateSessionDateHint);
+    }
     $('selectCalcCarby').addEventListener('change', updateCarbySwapHint);
+
+    if ($('btnTogglePostMidSweep')) {
+      $('btnTogglePostMidSweep').addEventListener('click', () => {
+        const wrap = $('postMidSweepWrap');
+        const btn = $('btnTogglePostMidSweep');
+        if (!wrap || !btn) return;
+        const isHidden = wrap.style.display === 'none';
+        wrap.style.display = isHidden ? 'block' : 'none';
+        btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+        btn.textContent = isHidden
+          ? '− Hide Optional Mid-Range RPM Sweep (3500–5500 RPM)'
+          : '+ Optional Mid-Range RPM Sweep (3500–5500 RPM)';
+      });
+    }
+
+    if ($('btnClearPostMidSweep')) {
+      $('btnClearPostMidSweep').addEventListener('click', () => {
+        ['modalPost3500', 'modalPost4000', 'modalPost4500', 'modalPost5000', 'modalPost5500'].forEach((id) => {
+          const el = $(id);
+          if (el) el.value = '';
+        });
+        showToast('Cleared 3500–5500 RPM sweep (will save as blank)');
+      });
+    }
 
     if ($('btnLoadSwitchedCarbyAnchor')) {
       $('btnLoadSwitchedCarbyAnchor').addEventListener('click', () => {

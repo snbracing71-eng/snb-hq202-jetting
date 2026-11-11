@@ -169,11 +169,87 @@
             </div>
           </div>
 
+          <div class="form-grid-2 stack-mobile" style="margin-bottom: 14px;">
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="selectTrackVenue">Circuit / Track</label>
+                <span class="field-hint">AUS Venue</span>
+              </div>
+              <select id="selectTrackVenue" class="select-input" aria-label="Select Australian Circuit or Track">
+                <optgroup label="VIC">
+                  <option value="Calder Park Raceway" selected>Calder Park Raceway</option>
+                  <option value="Sandown Raceway">Sandown Raceway</option>
+                  <option value="Winton Motor Raceway">Winton Motor Raceway</option>
+                  <option value="Phillip Island Grand Prix Circuit">Phillip Island Grand Prix Circuit</option>
+                  <option value="Haunted Hills / Bryant Park">Haunted Hills / Bryant Park</option>
+                  <option value="Broadford State Motorcycle Complex">Broadford State Motorcycle Complex</option>
+                </optgroup>
+                <optgroup label="NSW">
+                  <option value="Sydney Motorsport Park (SMSP)">Sydney Motorsport Park (SMSP)</option>
+                  <option value="Mount Panorama (Bathurst)">Mount Panorama (Bathurst)</option>
+                  <option value="Wakefield Park / One Raceway">Wakefield Park / One Raceway</option>
+                  <option value="Pheasant Wood Circuit">Pheasant Wood Circuit</option>
+                </optgroup>
+                <optgroup label="QLD">
+                  <option value="Queensland Raceway (Willowbank)">Queensland Raceway (Willowbank)</option>
+                  <option value="Morgan Park Raceway">Morgan Park Raceway</option>
+                  <option value="Lakeside Park">Lakeside Park</option>
+                  <option value="Townsville Reid Park">Townsville Reid Park</option>
+                </optgroup>
+                <optgroup label="SA">
+                  <option value="The Bend Motorsport Park">The Bend Motorsport Park</option>
+                  <option value="Mallala Motorsport Park">Mallala Motorsport Park</option>
+                </optgroup>
+                <optgroup label="WA">
+                  <option value="CARCO.com.au Raceway (Wanneroo)">CARCO.com.au Raceway (Wanneroo)</option>
+                  <option value="Collie Motorplex">Collie Motorplex</option>
+                </optgroup>
+                <optgroup label="TAS">
+                  <option value="Symmons Plains Raceway">Symmons Plains Raceway</option>
+                  <option value="Baskerville Raceway">Baskerville Raceway</option>
+                </optgroup>
+                <optgroup label="NT">
+                  <option value="Hidden Valley Raceway">Hidden Valley Raceway</option>
+                </optgroup>
+                <optgroup label="Custom">
+                  <option value="__CUSTOM_TRACK__">Custom Track...</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="inputSessionDate">Session Date</label>
+                <span class="field-hint" id="sessionDateFormattedHint">Auto-Today</span>
+              </div>
+              <input
+                type="date"
+                id="inputSessionDate"
+                class="text-input"
+                aria-label="Session Date"
+              />
+            </div>
+          </div>
+
+          <div id="customTrackWrap" class="field-group" style="display: none;">
+            <div class="field-label-row">
+              <label class="field-label" for="inputCustomTrack">Custom Track / Venue Name</label>
+              <span class="field-hint amber">Enter Track Name</span>
+            </div>
+            <input
+              type="text"
+              id="inputCustomTrack"
+              class="text-input"
+              placeholder="e.g. Rob Roy Hillclimb / Test Track"
+              autocomplete="off"
+            />
+          </div>
+
           <div class="form-grid-2 stack-mobile" style="margin-bottom: 16px;">
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
                 <label class="field-label" for="selectSessionName">Session Name</label>
-                <span class="field-hint">Calder / Track Run</span>
+                <span class="field-hint">Change Anytime</span>
               </div>
               <select id="selectSessionName" class="select-input" aria-label="Select Session Name">
                 <option value="Practice 1">Practice 1</option>
@@ -797,96 +873,124 @@
           <div class="section-eyebrow">Wideband O&#8322; Telemetry Sync</div>
           <h2 class="section-title" id="modalPostRaceTitle">Update Post-Race AFR</h2>
         </div>
-        <button type="button" class="btn btn-secondary" data-close-modal="modalPostRaceAfr" aria-label="Close Post-Race AFR Modal">
+        <button type="button" class="btn btn-danger" data-close-modal="modalPostRaceAfr" aria-label="Close Post-Race AFR Modal">
           Close
         </button>
       </div>
 
-      <p style="margin: 0 0 12px; font-size: 0.8rem; color: var(--text-secondary);">
+      <p style="margin: 0 0 12px; font-size: 0.85rem; color: var(--text-secondary);">
         Enter the logged wideband AFR from <strong id="postRaceModalSessionLabel">Race 1 (1 DME)</strong>. Updates Locked Baseline and syncs matching Session Log run.
       </p>
 
-      <div class="form-grid-2 stack-mobile" style="margin-bottom: 12px;">
-        <div class="field-group" style="margin-bottom: 0;">
-          <div class="field-label-row">
-            <label class="field-label" for="modalPostPeakRpm">Top / Peak WOT RPM</label>
-            <span class="field-hint">Tach Recall</span>
-          </div>
-          <div class="num-stepper">
-            <button type="button" class="stepper-btn" data-stepper-target="modalPostPeakRpm" data-step="-50" aria-label="Decrease Peak WOT RPM">&minus;</button>
-            <div class="num-input-wrap">
-              <input type="number" id="modalPostPeakRpm" class="num-input" value="5900" min="5000" max="6600" step="50" />
-              <span class="num-unit-badge">RPM</span>
-            </div>
-            <button type="button" class="stepper-btn" data-stepper-target="modalPostPeakRpm" data-step="50" aria-label="Increase Peak WOT RPM">+</button>
-          </div>
+      <!-- Full-Width Stacked Hero Rows so 5900 RPM and 12.50 WOT never squish or clip -->
+      <div class="field-group" style="margin-bottom: 12px;">
+        <div class="field-label-row">
+          <label class="field-label" for="modalPostPeakRpm">Top / Peak WOT RPM</label>
+          <span class="field-hint">Tach Recall</span>
         </div>
-
-        <div class="field-group" style="margin-bottom: 0;">
-          <div class="field-label-row">
-            <label class="field-label" for="modalPostWotAfr">Logged Peak WOT AFR</label>
-            <span class="field-hint emerald" id="modalPostEndCylPreview">#1/#6 Est: 12.77</span>
+        <div class="num-stepper">
+          <button type="button" class="stepper-btn" data-stepper-target="modalPostPeakRpm" data-step="-50" aria-label="Decrease Peak WOT RPM">&minus;</button>
+          <div class="num-input-wrap">
+            <input type="number" id="modalPostPeakRpm" class="num-input" value="5900" min="5000" max="6600" step="50" />
+            <span class="num-unit-badge">RPM</span>
           </div>
-          <div class="num-stepper">
-            <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="-0.05" aria-label="Decrease Post-Race WOT AFR">&minus;</button>
-            <div class="num-input-wrap">
-              <input type="number" id="modalPostWotAfr" class="num-input" value="12.50" min="10.50" max="15.50" step="0.05" />
-              <span class="num-unit-badge">WOT</span>
-            </div>
-            <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="0.05" aria-label="Increase Post-Race WOT AFR">+</button>
-          </div>
+          <button type="button" class="stepper-btn" data-stepper-target="modalPostPeakRpm" data-step="50" aria-label="Increase Peak WOT RPM">+</button>
         </div>
       </div>
 
-      <div class="form-grid-2 stack-mobile" style="margin-bottom: 14px;">
-        <div class="field-group" style="margin-bottom: 0;">
-          <label class="field-label" for="modalPost3500">3500 RPM AFR</label>
-          <div class="num-stepper">
-            <button type="button" class="stepper-btn" data-stepper-target="modalPost3500" data-step="-0.05" aria-label="Decrease 3500 AFR">&minus;</button>
-            <div class="num-input-wrap">
-              <input type="number" id="modalPost3500" class="num-input" value="12.68" min="10.50" max="15.50" step="0.05" />
-            </div>
-            <button type="button" class="stepper-btn" data-stepper-target="modalPost3500" data-step="0.05" aria-label="Increase 3500 AFR">+</button>
-          </div>
+      <div class="field-group" style="margin-bottom: 14px;">
+        <div class="field-label-row">
+          <label class="field-label" for="modalPostWotAfr">Logged Peak WOT AFR</label>
+          <span class="field-hint emerald" id="modalPostEndCylPreview">#1/#6 Est: 12.77</span>
         </div>
-        <div class="field-group" style="margin-bottom: 0;">
-          <label class="field-label" for="modalPost4000">4000 RPM AFR</label>
-          <div class="num-stepper">
-            <button type="button" class="stepper-btn" data-stepper-target="modalPost4000" data-step="-0.05" aria-label="Decrease 4000 AFR">&minus;</button>
-            <div class="num-input-wrap">
-              <input type="number" id="modalPost4000" class="num-input" value="12.60" min="10.50" max="15.50" step="0.05" />
-            </div>
-            <button type="button" class="stepper-btn" data-stepper-target="modalPost4000" data-step="0.05" aria-label="Increase 4000 AFR">+</button>
+        <div class="num-stepper">
+          <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="-0.05" aria-label="Decrease Post-Race WOT AFR">&minus;</button>
+          <div class="num-input-wrap">
+            <input type="number" id="modalPostWotAfr" class="num-input" value="12.50" min="10.50" max="15.50" step="0.05" />
+            <span class="num-unit-badge">WOT</span>
           </div>
+          <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="0.05" aria-label="Increase Post-Race WOT AFR">+</button>
         </div>
-        <div class="field-group" style="margin-bottom: 0;">
-          <label class="field-label" for="modalPost4500">4500 RPM AFR</label>
-          <div class="num-stepper">
-            <button type="button" class="stepper-btn" data-stepper-target="modalPost4500" data-step="-0.05" aria-label="Decrease 4500 AFR">&minus;</button>
-            <div class="num-input-wrap">
-              <input type="number" id="modalPost4500" class="num-input" value="12.55" min="10.50" max="15.50" step="0.05" />
-            </div>
-            <button type="button" class="stepper-btn" data-stepper-target="modalPost4500" data-step="0.05" aria-label="Increase 4500 AFR">+</button>
+      </div>
+
+      <!-- Collapsible 3D Metal Toggle Bar for Optional Mid-Range RPM Sweep (3500-5500 RPM) -->
+      <div style="margin-bottom: 14px;">
+        <button
+          type="button"
+          class="btn btn-secondary btn-full"
+          id="btnTogglePostMidSweep"
+          aria-expanded="false"
+          aria-controls="postMidSweepWrap"
+        >
+          + Optional Mid-Range RPM Sweep (3500&ndash;5500 RPM)
+        </button>
+
+        <div id="postMidSweepWrap" class="mid-sweep-panel" style="display: none;">
+          <div class="mid-sweep-head">
+            <span class="field-hint">Leave any unlogged RPM stage blank (&mdash;)</span>
+            <button type="button" class="btn btn-danger btn-xs" id="btnClearPostMidSweep">
+              Clear Sweep (Leave Blank)
+            </button>
           </div>
-        </div>
-        <div class="field-group" style="margin-bottom: 0;">
-          <label class="field-label" for="modalPost5000">5000 RPM AFR</label>
-          <div class="num-stepper">
-            <button type="button" class="stepper-btn" data-stepper-target="modalPost5000" data-step="-0.05" aria-label="Decrease 5000 AFR">&minus;</button>
-            <div class="num-input-wrap">
-              <input type="number" id="modalPost5000" class="num-input" value="12.52" min="10.50" max="15.50" step="0.05" />
+
+          <div class="field-group" style="margin-bottom: 10px;">
+            <label class="field-label" for="modalPost3500">3500 RPM AFR (Optional)</label>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="modalPost3500" data-step="-0.05" aria-label="Decrease 3500 AFR">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="modalPost3500" class="num-input" value="" placeholder="&mdash;" min="10.50" max="15.50" step="0.05" />
+                <span class="num-unit-badge">AFR</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="modalPost3500" data-step="0.05" aria-label="Increase 3500 AFR">+</button>
             </div>
-            <button type="button" class="stepper-btn" data-stepper-target="modalPost5000" data-step="0.05" aria-label="Increase 5000 AFR">+</button>
           </div>
-        </div>
-        <div class="field-group" style="margin-bottom: 0;">
-          <label class="field-label" for="modalPost5500">5500 RPM AFR</label>
-          <div class="num-stepper">
-            <button type="button" class="stepper-btn" data-stepper-target="modalPost5500" data-step="-0.05" aria-label="Decrease 5500 AFR">&minus;</button>
-            <div class="num-input-wrap">
-              <input type="number" id="modalPost5500" class="num-input" value="12.51" min="10.50" max="15.50" step="0.05" />
+
+          <div class="field-group" style="margin-bottom: 10px;">
+            <label class="field-label" for="modalPost4000">4000 RPM AFR (Optional)</label>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="modalPost4000" data-step="-0.05" aria-label="Decrease 4000 AFR">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="modalPost4000" class="num-input" value="" placeholder="&mdash;" min="10.50" max="15.50" step="0.05" />
+                <span class="num-unit-badge">AFR</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="modalPost4000" data-step="0.05" aria-label="Increase 4000 AFR">+</button>
             </div>
-            <button type="button" class="stepper-btn" data-stepper-target="modalPost5500" data-step="0.05" aria-label="Increase 5500 AFR">+</button>
+          </div>
+
+          <div class="field-group" style="margin-bottom: 10px;">
+            <label class="field-label" for="modalPost4500">4500 RPM AFR (Optional)</label>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="modalPost4500" data-step="-0.05" aria-label="Decrease 4500 AFR">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="modalPost4500" class="num-input" value="" placeholder="&mdash;" min="10.50" max="15.50" step="0.05" />
+                <span class="num-unit-badge">AFR</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="modalPost4500" data-step="0.05" aria-label="Increase 4500 AFR">+</button>
+            </div>
+          </div>
+
+          <div class="field-group" style="margin-bottom: 10px;">
+            <label class="field-label" for="modalPost5000">5000 RPM AFR (Optional)</label>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="modalPost5000" data-step="-0.05" aria-label="Decrease 5000 AFR">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="modalPost5000" class="num-input" value="" placeholder="&mdash;" min="10.50" max="15.50" step="0.05" />
+                <span class="num-unit-badge">AFR</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="modalPost5000" data-step="0.05" aria-label="Increase 5000 AFR">+</button>
+            </div>
+          </div>
+
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="modalPost5500">5500 RPM AFR (Optional)</label>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="modalPost5500" data-step="-0.05" aria-label="Decrease 5500 AFR">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="modalPost5500" class="num-input" value="" placeholder="&mdash;" min="10.50" max="15.50" step="0.05" />
+                <span class="num-unit-badge">AFR</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="modalPost5500" data-step="0.05" aria-label="Increase 5500 AFR">+</button>
+            </div>
           </div>
         </div>
       </div>
@@ -907,9 +1011,20 @@
           <div class="section-eyebrow">Reference Calibration</div>
           <h2 class="section-title" id="modalEditBaselineTitle">Edit Locked Baseline</h2>
         </div>
-        <button type="button" class="btn btn-secondary" data-close-modal="modalEditBaseline" aria-label="Close Edit Baseline Modal">
+        <button type="button" class="btn btn-danger" data-close-modal="modalEditBaseline" aria-label="Close Edit Baseline Modal">
           Close
         </button>
+      </div>
+
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editBaseVenue">Baseline Circuit / Track</label>
+          <input type="text" id="editBaseVenue" class="text-input" value="Calder Park Raceway" />
+        </div>
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editBaseDate">Baseline Date</label>
+          <input type="date" id="editBaseDate" class="text-input" />
+        </div>
       </div>
 
       <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
@@ -1047,7 +1162,7 @@
           <div class="section-eyebrow">40.00 mm Late-Base BXUV-3</div>
           <h2 class="section-title" id="modalEditCarbyTitle">Edit Carby Homologation Check</h2>
         </div>
-        <button type="button" class="btn btn-secondary" data-close-modal="modalEditCarby" aria-label="Close Carby Spec Modal">
+        <button type="button" class="btn btn-danger" data-close-modal="modalEditCarby" aria-label="Close Carby Spec Modal">
           Close
         </button>
       </div>
