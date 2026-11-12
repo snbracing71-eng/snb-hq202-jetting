@@ -3736,4 +3736,193 @@ textarea:focus-visible {
   white-space: nowrap;
 }
 
+/* ============================================================================
+   SEQUENTIAL EVENT & SINGLE-LOCKED-SESSION GATEKEEPER (v0.5.8)
+   ============================================================================ */
+.event-gate-card {
+  padding: 20px 16px;
+  border-radius: var(--radius-lg);
+  text-align: center;
+  background:
+    radial-gradient(ellipse 85% 55% at 50% 0%, rgba(255, 255, 255, 0.12) 0%, transparent 72%),
+    linear-gradient(180deg, #2B3648 0%, #171E2B 65%, #0D1119 100%);
+  border: 2px solid #526685;
+  border-top-color: #8BA0BF;
+  border-bottom-color: #1F2837;
+  box-shadow:
+    0 0 0 1px #05070A,
+    0 10px 26px rgba(0, 0, 0, 0.88),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25);
+}
 
+.event-gate-card.between-sessions {
+  border-color: #10B981;
+  border-top-color: #6EE7B7;
+}
+
+.event-gate-icon-wrap {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 10px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FDE047;
+  background: linear-gradient(180deg, #334155 0%, #1E293B 100%);
+  border: 1.5px solid #64748B;
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.event-gate-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #FDE047;
+  margin-bottom: 4px;
+}
+
+.event-gate-title {
+  margin: 0 0 6px;
+  font-size: 1.22rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  color: #F8FAFC;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+.event-gate-subtitle {
+  margin: 0 0 16px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #CBD5E1;
+}
+
+.gate-baseline-summary-box {
+  text-align: left;
+  padding: 10px 11px;
+  border-radius: 11px;
+  margin-bottom: 12px;
+  background: rgba(9, 11, 14, 0.65);
+  border: 1.5px solid #3E4E68;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.75);
+}
+
+.gate-baseline-head {
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6EE7B7;
+  margin-bottom: 8px;
+}
+
+.gate-baseline-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.gate-tyre-span {
+  grid-column: 1 / -1;
+}
+
+.gate-b-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(112px, 0.9fr);
+  gap: 8px;
+  align-items: stretch;
+}
+
+@media (max-width: 420px) {
+  .gate-b-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+.in-session-locked-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.in-session-locked-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #FEF08A;
+  background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+  border: 1.5px solid #FACC15;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.75),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+/* Pre-Race & Post-Race Notes Stack on Session Log Cards */
+.session-notes-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.session-note-line {
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: rgba(9, 11, 14, 0.62);
+  border: 1px solid #3B4961;
+  font-size: 0.77rem;
+  line-height: 1.38;
+  color: #E2E8F0;
+}
+
+.session-note-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 5px;
+}
+
+.session-note-tag.pre {
+  color: #FDE047;
+}
+
+.session-note-tag.post {
+  color: #6EE7B7;
+}
+
+/* 2-Step Session Delete Confirmation Banners */
+.delete-confirm-step-banner {
+  padding: 12px 13px;
+  border-radius: 10px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.delete-confirm-step-banner.step1 {
+  background: linear-gradient(180deg, rgba(180, 83, 9, 0.32) 0%, rgba(69, 26, 3, 0.55) 100%);
+  border: 1.5px solid #FBBF24;
+  color: #FEF3C7;
+}
+
+.delete-confirm-step-banner.step2 {
+  background: linear-gradient(180deg, rgba(185, 28, 28, 0.42) 0%, rgba(69, 10, 10, 0.68) 100%);
+  border: 2px solid #F87171;
+  color: #FECACA;
+}

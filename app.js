@@ -271,6 +271,7 @@
           {
             id: 'calder_p1',
             eventId: 'evt_calder_nov26',
+            status: 'completed',
             venue: 'Calder Park Raceway',
             sessionDateIso: calderIso,
             sessionIsoDate: calderIso,
@@ -316,11 +317,14 @@
               RL: { tyreId: 'KB3', cold: 30.0, hot: 43.6, build: 13.6, nextCold: 30.3 },
               RR: { tyreId: 'KB4', cold: 30.0, hot: 44.0, build: 14.0, nextCold: 30.0 }
             },
+            preRaceNotes: 'Mounted KB1-KB4 @ 30.0 psi cold square, #78 jet in 1 DME for morning shakedown.',
+            postRaceNotes: 'Crisp morning air at Calder; 1 DME + Macca manifold/exhaust baseline shakedown.',
             notes: 'Crisp morning air at Calder; 1 DME + Macca manifold/exhaust baseline shakedown.'
           },
           {
             id: 'calder_q1',
             eventId: 'evt_calder_nov26',
+            status: 'completed',
             venue: 'Calder Park Raceway',
             sessionDateIso: calderIso,
             sessionIsoDate: calderIso,
@@ -366,11 +370,14 @@
               RL: { tyreId: 'KB3', cold: 30.3, hot: 43.9, build: 13.6, nextCold: 30.4 },
               RR: { tyreId: 'KB4', cold: 30.0, hot: 44.0, build: 14.0, nextCold: 30.0 }
             },
+            preRaceNotes: 'Applied Practice 1 Next Cold PSIs (FL 29.8, FR 29.4, RL 30.3, RR 30.0), +0.5° timing.',
+            postRaceNotes: 'Qualified P2; stagger dialed to 44.0 psi hot across all 4 corners.',
             notes: 'Qualified P2; stagger dialed to 44.0 psi hot across all 4 corners.'
           },
           {
             id: 'calder_r1',
             eventId: 'evt_calder_nov26',
+            status: 'completed',
             venue: 'Calder Park Raceway',
             sessionDateIso: calderIso,
             sessionIsoDate: calderIso,
@@ -416,11 +423,14 @@
               RL: { tyreId: 'KB3', cold: 30.0, hot: 43.4, build: 13.4, nextCold: 30.5 },
               RR: { tyreId: 'KB4', cold: 30.0, hot: 44.2, build: 14.2, nextCold: 29.8 }
             },
+            preRaceNotes: 'Stepped richer to #77 / 2.000 mm for pack slipstream protection; 36.0 L fuel in.',
+            postRaceNotes: 'Safe rich slipstream setup (2.000mm drill in #77 body); 5.0 psi steady at block boss.',
             notes: 'Safe rich slipstream setup (2.000mm drill in #77 body); 5.0 psi steady at block boss.'
           },
           {
             id: 'calder_r2',
             eventId: 'evt_calder_nov26',
+            status: 'completed',
             venue: 'Calder Park Raceway',
             sessionDateIso: calderIso,
             sessionIsoDate: calderIso,
@@ -466,6 +476,8 @@
               RL: { tyreId: 'KB3', cold: 30.5, hot: 43.9, build: 13.4, nextCold: 30.6 },
               RR: { tyreId: 'KB4', cold: 29.8, hot: 44.0, build: 14.2, nextCold: 29.8 }
             },
+            preRaceNotes: 'Dropped to #78 jet for 93.9% RAD; loaded Race 1 Next Cold PSIs across all 4 corners.',
+            postRaceNotes: 'Stepped leaner to #78 — dead in 12.8-12.9 HQ 202 sweet spot, P1 finish.',
             notes: 'Stepped leaner to #78 — dead in 12.8-12.9 HQ 202 sweet spot, P1 finish.'
           }
         ]
@@ -481,6 +493,7 @@
           {
             id: 'winton_p1',
             eventId: 'evt_winton_sep26',
+            status: 'completed',
             venue: 'Winton Motor Raceway',
             sessionDateIso: wintonIso,
             sessionIsoDate: wintonIso,
@@ -526,11 +539,14 @@
               RL: { tyreId: 'KB3', cold: 29.8, hot: 44.0, build: 14.2, nextCold: 29.8 },
               RR: { tyreId: 'KB4', cold: 30.2, hot: 43.8, build: 13.6, nextCold: 30.4 }
             },
+            preRaceNotes: 'Bolted on SNB Carby (#78 jet) + Winton CW cold stagger (FL 29.6, RL 29.8).',
+            postRaceNotes: 'Cold Winton morning; SNB Carby crisp off the sweeper.',
             notes: 'Cold Winton morning; SNB Carby crisp off the sweeper.'
           },
           {
             id: 'winton_q1',
             eventId: 'evt_winton_sep26',
+            status: 'completed',
             venue: 'Winton Motor Raceway',
             sessionDateIso: wintonIso,
             sessionIsoDate: wintonIso,
@@ -576,11 +592,14 @@
               RL: { tyreId: 'KB3', cold: 29.8, hot: 44.0, build: 14.2, nextCold: 29.8 },
               RR: { tyreId: 'KB4', cold: 30.4, hot: 44.0, build: 13.6, nextCold: 30.4 }
             },
+            preRaceNotes: 'Set Next Cold PSIs from Practice 1; kept #78 jet & bumped timing to 33.5°.',
+            postRaceNotes: 'Front-row qualifying lap; 1.44 L/lap verified on pump-out.',
             notes: 'Front-row qualifying lap; 1.44 L/lap verified on pump-out.'
           },
           {
             id: 'winton_r1',
             eventId: 'evt_winton_sep26',
+            status: 'completed',
             venue: 'Winton Motor Raceway',
             sessionDateIso: wintonIso,
             sessionIsoDate: wintonIso,
@@ -626,6 +645,8 @@
               RL: { tyreId: 'KB3', cold: null, hot: 43.9, build: null, nextCold: null },
               RR: { tyreId: 'KB4', cold: null, hot: 44.0, build: null, nextCold: null }
             },
+            preRaceNotes: 'Cleared Cold PSI (already bled hot in Qualifying); poured 35.0 L for 12 laps.',
+            postRaceNotes: 'Left tyres at hot-set from Qualifying; 12-lap race win with +5.1 kg scale margin.',
             notes: 'Left tyres at hot-set from Qualifying; 12-lap race win with +5.1 kg scale margin.'
           }
         ]
@@ -1337,12 +1358,14 @@
     }
     candidate.baseline = b;
     candidate.awaitingPostRaceId = candidate.awaitingPostRaceId || null;
+    candidate.activeSessionId = candidate.activeSessionId || null;
 
     const defaultEvents = createDefaultEvents();
     const defaultSessions = flattenEventsToSessions(defaultEvents);
     const defCalderR1 = defaultSessions.find((ds) => ds.id === 'calder_r1');
 
     const hydrateSingleSession = (s, fallbackVenue, fallbackIso) => {
+      const defMatch = defaultSessions.find((ds) => ds.id === s.id);
       const venue = normalizeVenueName(s.venue || fallbackVenue || 'Calder Park Raceway');
       const sessionDateIso = resolveSessionIsoDate(s, fallbackIso || todayIso);
       const sessionIsoDate = sessionDateIso;
@@ -1394,8 +1417,25 @@
         s.tyreCondition === 'wet' ||
         (tyres && ['FL', 'FR', 'RL', 'RR'].some((c) => tyres[c] && /^KW/i.test(String(tyres[c].tyreId || ''))));
 
+      const preRaceNotes =
+        typeof s.preRaceNotes === 'string'
+          ? s.preRaceNotes.trim()
+          : defMatch && typeof defMatch.preRaceNotes === 'string'
+          ? defMatch.preRaceNotes
+          : '';
+      const postRaceNotes =
+        typeof s.postRaceNotes === 'string'
+          ? s.postRaceNotes.trim()
+          : defMatch && typeof defMatch.postRaceNotes === 'string'
+          ? defMatch.postRaceNotes
+          : typeof s.notes === 'string'
+          ? s.notes.trim()
+          : '';
+      const combinedNotes = postRaceNotes || (typeof s.notes === 'string' ? s.notes.trim() : '') || preRaceNotes || '';
+
       return {
         ...s,
+        status: s.status === 'active' ? 'active' : 'completed',
         venue,
         sessionDateIso,
         sessionIsoDate,
@@ -1425,7 +1465,10 @@
         postRaceEstKg,
         tyreHotTarget,
         tyreCondition: inferredWet ? 'wet' : 'dry',
-        tyres
+        tyres,
+        preRaceNotes,
+        postRaceNotes,
+        notes: combinedNotes
       };
     };
 
@@ -1439,6 +1482,7 @@
         sessions: (evt.sessions || []).map((s) => hydrateSingleSession(s, evt.venue, evt.eventDate))
       }));
       candidate.activeEventId = null;
+      candidate.activeSessionId = null;
       candidate.eventArchitectureV1 = true;
       candidate.awaitingPostRaceId = null;
     } else if (Array.isArray(candidate.events) && candidate.events.length > 0) {
@@ -1456,6 +1500,9 @@
               hydrated.eventId = evtId;
               hydrated.eventTitle = evt.eventTitle || '';
               hydrated.eventLocked = locked;
+              if (locked) {
+                hydrated.status = 'completed';
+              }
               return hydrated;
             })
           : [];
@@ -1469,17 +1516,31 @@
           sessions
         };
       });
-      if (
-        candidate.activeEventId &&
-        !candidate.events.some((e) => e.id === candidate.activeEventId && !e.locked)
-      ) {
+      const activeEvt = candidate.activeEventId
+        ? candidate.events.find((e) => e.id === candidate.activeEventId && !e.locked)
+        : null;
+      if (!activeEvt) {
         candidate.activeEventId = null;
+        candidate.activeSessionId = null;
+      } else {
+        if (
+          candidate.activeSessionId &&
+          !activeEvt.sessions.some((s) => s && s.id === candidate.activeSessionId)
+        ) {
+          candidate.activeSessionId = null;
+        }
+        activeEvt.sessions.forEach((s) => {
+          if (s) {
+            s.status = s.id === candidate.activeSessionId ? 'active' : 'completed';
+          }
+        });
       }
     } else if (Array.isArray(candidate.sessions) && candidate.sessions.length > 0) {
       // Group legacy flat sessions by (venue + sessionDateIso) into locked events
       const groupedMap = new Map();
       candidate.sessions.forEach((rawS) => {
         const s = hydrateSingleSession(rawS, rawS.venue, todayIso);
+        s.status = 'completed';
         const key = `${s.venue}__${s.sessionDateIso}`;
         if (!groupedMap.has(key)) {
           groupedMap.set(key, {
@@ -1496,10 +1557,12 @@
       });
       candidate.events = Array.from(groupedMap.values());
       candidate.activeEventId = null;
+      candidate.activeSessionId = null;
       candidate.eventArchitectureV1 = true;
     } else {
       candidate.events = defaultEvents;
       candidate.activeEventId = null;
+      candidate.activeSessionId = null;
       candidate.eventArchitectureV1 = true;
     }
 
@@ -1673,11 +1736,11 @@
       }
     }
 
-    // Compute live totalLaps = baseLaps + sum(session.racedLaps) for every tyre in candidate.tyrePool
+    // Compute live totalLaps = baseLaps + sum(session.racedLaps) for completed sessions in candidate.tyrePool
     candidate.tyrePool.forEach((t) => {
       let sessLaps = 0;
       (candidate.sessions || []).forEach((s) => {
-        if (!s || !s.tyres || typeof s.tyres !== 'object') return;
+        if (!s || s.status === 'active' || !s.tyres || typeof s.tyres !== 'object') return;
         const laps = Number(s.racedLaps);
         if (!Number.isFinite(laps) || laps <= 0) return;
         if (['FL', 'FR', 'RL', 'RR'].some((c) => s.tyres[c] && s.tyres[c].tyreId === t.id)) {
@@ -1715,6 +1778,7 @@
     return hydrateState({
       eventArchitectureV1: true,
       activeEventId: null,
+      activeSessionId: null,
       events: createDefaultEvents(),
       baseline: createDefaultBaseline(),
       awaitingPostRaceId: null,
@@ -1747,6 +1811,7 @@
     editBaseWeatherOnly: false,
     editCarbyAnchorUntested: false,
     postRaceTargetSessionId: null,
+    deleteSessionTargetId: null,
     selectedJetId: null,   // selected jet in Step 2
     editingSessionId: null,
     confirmDeleteSessionId: null,
@@ -2469,6 +2534,12 @@
     return evt || null;
   }
 
+  function getActiveSession() {
+    const evt = getActiveEvent();
+    if (!evt || !state.activeSessionId || !Array.isArray(evt.sessions)) return null;
+    return evt.sessions.find((s) => s && s.id === state.activeSessionId) || null;
+  }
+
   function findEventForSession(sessionId) {
     if (!sessionId || !Array.isArray(state.events)) return null;
     for (let i = 0; i < state.events.length; i++) {
@@ -2494,11 +2565,8 @@
 
   function updateCustomSessionVisibility() {
     [
-      ['selectSessionName', 'customSessionWrap'],
-      ['selectFuelSessionName', 'customFuelSessionWrap'],
-      ['selectTyreSessionName', 'customTyreSessionWrap'],
-      ['selectLiveEventSession', 'liveEventCustomSessionWrap'],
-      ['newEventFirstSession', 'newEventCustomSessionWrap']
+      ['newEventFirstSession', 'newEventCustomSessionWrap'],
+      ['nextSessionSelect', 'nextSessionCustomWrap']
     ].forEach(([selId, wrapId]) => {
       const sel = $(selId);
       const wrap = $(wrapId);
@@ -2509,24 +2577,10 @@
   }
 
   function setSessionNameOnAllTabs(sessionName) {
-    const targetName = (sessionName || '').trim() || 'Practice 1';
-    [
-      ['selectSessionName', 'inputCustomSessionName'],
-      ['selectFuelSessionName', 'inputCustomFuelSessionName'],
-      ['selectTyreSessionName', 'inputCustomTyreSessionName'],
-      ['selectLiveEventSession', 'inputLiveEventCustomSession']
-    ].forEach(([selId, customId]) => {
-      const sel = $(selId);
-      const customInp = $(customId);
-      if (!sel) return;
-      const hasOption = Array.from(sel.options).some((opt) => opt.value === targetName && opt.value !== '__CUSTOM__');
-      if (hasOption) {
-        sel.value = targetName;
-      } else {
-        sel.value = '__CUSTOM__';
-        if (customInp) customInp.value = targetName;
-      }
-    });
+    const activeSess = getActiveSession();
+    if (activeSess && sessionName) {
+      activeSess.sessionName = String(sessionName).trim() || activeSess.sessionName;
+    }
     updateCustomSessionVisibility();
   }
 
@@ -2542,7 +2596,7 @@
   function readVenueFromSelectorPair(selId, customId) {
     const sel = $(selId);
     if (!sel) return (state.baseline && state.baseline.venue) || 'Calder Park Raceway';
-    if (sel.value === '__CUSTOM_TRACK__') {
+    if (sel.value === '__CUSTOM_TRACK__' || sel.value === '__CUSTOM__') {
       const customVal = (($(customId) && $(customId).value) || '').trim();
       return customVal || 'Custom Circuit';
     }
@@ -2552,23 +2606,15 @@
   function getSelectedTrackVenue() {
     const liveEvt = getActiveEvent();
     if (liveEvt && liveEvt.venue) return normalizeVenueName(liveEvt.venue);
-    return readVenueFromSelectorPair('selectTrackVenue', 'inputCustomTrack');
+    return normalizeVenueName((state.baseline && state.baseline.venue) || 'Calder Park Raceway');
   }
 
   function getSelectedFuelTrackVenue() {
-    const liveEvt = getActiveEvent();
-    if (liveEvt && liveEvt.venue) return normalizeVenueName(liveEvt.venue);
-    return $('selectFuelTrack')
-      ? readVenueFromSelectorPair('selectFuelTrack', 'inputCustomFuelTrack')
-      : getSelectedTrackVenue();
+    return getSelectedTrackVenue();
   }
 
   function getSelectedTyreTrackVenue() {
-    const liveEvt = getActiveEvent();
-    if (liveEvt && liveEvt.venue) return normalizeVenueName(liveEvt.venue);
-    return $('selectTyreTrack')
-      ? readVenueFromSelectorPair('selectTyreTrack', 'inputCustomTyreTrack')
-      : getSelectedFuelTrackVenue();
+    return getSelectedTrackVenue();
   }
 
   function getSelectedSessionDate() {
@@ -2579,8 +2625,7 @@
         display: formatIsoDateDisplay(liveEvt.eventDate) || liveEvt.eventDate
       };
     }
-    const dateInput = $('inputSessionDate') || $('inputFuelSessionDate') || $('inputTyreSessionDate');
-    const iso = (dateInput && dateInput.value) ? dateInput.value : getLocalTodayIso();
+    const iso = (state.baseline && state.baseline.sessionDateIso) || getLocalTodayIso();
     return {
       iso,
       display: formatIsoDateDisplay(iso) || iso
@@ -2598,100 +2643,356 @@
   }
 
   function getSelectedSessionName() {
-    if (getActiveEvent() && $('selectLiveEventSession')) {
-      return readSessionNameFromSelectorPair('selectLiveEventSession', 'inputLiveEventCustomSession');
+    const activeSess = getActiveSession();
+    if (activeSess && activeSess.sessionName) {
+      return activeSess.sessionName;
     }
-    return readSessionNameFromSelectorPair('selectSessionName', 'inputCustomSessionName');
+    return (state.baseline && state.baseline.sessionName) || 'Practice 1';
   }
 
-  function syncSessionSelectFromBaseline(refSessionName) {
-    const liveEvt = getActiveEvent();
-    if (liveEvt && Array.isArray(liveEvt.sessions) && liveEvt.sessions.length > 0 && !refSessionName) {
-      const latestInEvent = liveEvt.sessions[liveEvt.sessions.length - 1];
-      if (latestInEvent && latestInEvent.sessionName) {
-        setSessionNameOnAllTabs(latestInEvent.sessionName);
-        syncTrackAndDateFromBaseline();
-        return;
+  function getNextLogicalSessionName(liveEvt, refNameOpt) {
+    const sessions = (liveEvt && Array.isArray(liveEvt.sessions)) ? liveEvt.sessions : [];
+    const existingNames = new Set(sessions.map((s) => s && s.sessionName).filter(Boolean));
+    const lastSess = sessions.length > 0 ? sessions[sessions.length - 1] : null;
+    const refName = refNameOpt || (lastSess && lastSess.sessionName) || '';
+    const idx = SESSION_PROGRESSION.indexOf(refName);
+    if (idx !== -1) {
+      for (let i = idx + 1; i < SESSION_PROGRESSION.length; i++) {
+        if (!existingNames.has(SESSION_PROGRESSION[i])) {
+          return SESSION_PROGRESSION[i];
+        }
       }
     }
-    const pendingSess = getPendingPostRaceSession();
-    const baseName =
-      refSessionName ||
-      (pendingSess && pendingSess.sessionName) ||
-      (state.baseline && state.baseline.sessionName) ||
-      '';
-    const idx = SESSION_PROGRESSION.indexOf(baseName);
-    const nextSessionName =
-      idx !== -1 && idx + 1 < SESSION_PROGRESSION.length ? SESSION_PROGRESSION[idx + 1] : 'Practice 1';
+    for (let i = 0; i < SESSION_PROGRESSION.length; i++) {
+      if (!existingNames.has(SESSION_PROGRESSION[i])) {
+        return SESSION_PROGRESSION[i];
+      }
+    }
+    return `Session ${sessions.length + 1}`;
+  }
 
-    setSessionNameOnAllTabs(nextSessionName);
+  function syncPreRaceNotesInputs(notesStr) {
+    const val = typeof notesStr === 'string' ? notesStr : '';
+    ['inputPreRaceNotes', 'inputRunNotes'].forEach((id) => {
+      const el = $(id);
+      if (el && document.activeElement !== el) {
+        el.value = val;
+      }
+    });
+  }
+
+  function syncSessionSelectFromBaseline() {
     syncTrackAndDateFromBaseline();
+  }
+
+  function buildCarriedForwardBaselineSummaryParts(venueName) {
+    const venue = normalizeVenueName(venueName || getSelectedTrackVenue());
+    const b = state.baseline || createDefaultBaseline();
+    const afrTxt =
+      b.wotAfr !== null && b.wotAfr !== undefined && Number.isFinite(Number(b.wotAfr))
+        ? `${Number(b.wotAfr).toFixed(2)} WOT AFR`
+        : 'Weather-Only';
+    const tuneStr = `${b.carbyId} • ${b.jetLabel} (${Number(b.jetMm).toFixed(3)}mm) @ ${Number(b.rad).toFixed(1)}% RAD • ${afrTxt}`;
+
+    const fuelStats = getTrackLearnedFuelStats(venue);
+    const ch = state.chassis || createDefaultChassisState();
+    const scaleWt = Number(ch.scaleCheckKg);
+    const scaleStr = Number.isFinite(scaleWt) && scaleWt > 500 ? `${scaleWt.toFixed(1)} kg Scale Wt` : 'Surge+Burn Mode';
+    const fuelStr = `${fuelStats.avg.toFixed(2)} L/lap (${venue}) • ${ch.raceLaps || 12} Laps • ${scaleStr}`;
+
+    const ct = (ch && ch.coldTyres) || { FL: 30.0, FR: 30.0, RL: 30.0, RR: 30.0 };
+    const mt = ensureMountedTyresState();
+    const fmtC = (c) => {
+      const v = ct[c];
+      const psi = v !== null && v !== undefined && Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v).toFixed(1) : '30.0';
+      const tid = mt[c] ? `[${mt[c]}] ` : '';
+      return `${c} ${tid}${psi}`;
+    };
+    const tyreStr = `Next Cold Set: ${fmtC('FL')} • ${fmtC('FR')} • ${fmtC('RL')} • ${fmtC('RR')} PSI`;
+
+    return { tuneStr, fuelStr, tyreStr };
   }
 
   function renderWeekendEventBanner() {
     const banner = $('weekendEventBanner');
-    const inactiveView = $('eventBarInactiveView');
+    const gateNoEvent = $('eventGateNoEventView');
+    const gateBetween = $('eventGateBetweenSessionsView');
     const liveView = $('eventBarLiveView');
     const liveEvt = getActiveEvent();
+    const activeSess = getActiveSession();
 
-    // Hide redundant per-tab Track + Date rows while a Live Event governs Track & Date
-    ['calcTrackDateRow', 'fuelTrackDateRow', 'tyreTrackDateRow'].forEach((rowId) => {
-      const rowEl = $(rowId);
-      if (rowEl) {
-        rowEl.style.display = liveEvt ? 'none' : '';
-      }
-    });
-    if (liveEvt) {
-      ['customTrackWrap', 'customFuelTrackWrap', 'customTyreTrackWrap'].forEach((wId) => {
-        if ($(wId)) $(wId).style.display = 'none';
-      });
-    } else {
-      updateCustomTrackVisibility();
+    const isSetupTab =
+      ui.activeTab === 'tab-calc' || ui.activeTab === 'tab-fuel' || ui.activeTab === 'tab-tyres';
+
+    if (banner) {
+      banner.style.display = isSetupTab ? 'block' : 'none';
     }
 
-    if (!banner || !inactiveView || !liveView) return;
+    const hasLockedActiveSession = Boolean(liveEvt && activeSess);
+    ['calcActiveSessionContent', 'fuelActiveSessionContent', 'tyresActiveSessionContent'].forEach((wrapId) => {
+      const wrapEl = $(wrapId);
+      if (wrapEl) {
+        wrapEl.style.display = hasLockedActiveSession ? 'block' : 'none';
+      }
+    });
 
+    if (!banner || !gateNoEvent || !gateBetween || !liveView) return;
+
+    // GATE A — No Active Event (!state.activeEventId)
     if (!liveEvt) {
       banner.classList.remove('live-active');
-      inactiveView.style.display = 'block';
+      gateNoEvent.style.display = 'block';
+      gateBetween.style.display = 'none';
       liveView.style.display = 'none';
       return;
     }
 
+    const dispDate = formatIsoDateDisplay(liveEvt.eventDate) || liveEvt.eventDate;
+    const sessions = Array.isArray(liveEvt.sessions) ? liveEvt.sessions : [];
+
+    // GATE B — Event Live, Between Sessions (state.activeEventId && !state.activeSessionId)
+    if (!activeSess) {
+      banner.classList.remove('live-active');
+      gateNoEvent.style.display = 'none';
+      gateBetween.style.display = 'block';
+      liveView.style.display = 'none';
+
+      const lastCompleted = sessions.length > 0 ? sessions[sessions.length - 1] : null;
+      const titleSuffix = liveEvt.eventTitle ? ` • ${liveEvt.eventTitle}` : '';
+      if ($('gateBetweenVenueDateLabel')) {
+        $('gateBetweenVenueDateLabel').textContent = `\uD83D\uDFE2 ${liveEvt.venue} • ${dispDate}${titleSuffix}`;
+      }
+      if ($('gateBetweenCompletedTitle')) {
+        $('gateBetweenCompletedTitle').textContent = lastCompleted
+          ? `${lastCompleted.sessionName} Completed — Ready for Next Session`
+          : `Event Active — Ready for Next Session`;
+      }
+      if ($('gateBetweenBaselineSummary')) {
+        const summary = buildCarriedForwardBaselineSummaryParts(liveEvt.venue);
+        $('gateBetweenBaselineSummary').innerHTML = `
+          <div><strong>Tune Baseline:</strong> ${escapeHtml(summary.tuneStr)}</div>
+          <div><strong>Fuel &amp; Wt:</strong> ${escapeHtml(summary.fuelStr)}</div>
+          <div><strong>4-Corner Tyres:</strong> ${escapeHtml(summary.tyreStr)}</div>
+        `;
+      }
+      return;
+    }
+
+    // LOCKED SINGLE-SESSION ACTIVE (state.activeEventId && state.activeSessionId)
     banner.classList.add('live-active');
-    inactiveView.style.display = 'none';
+    gateNoEvent.style.display = 'none';
+    gateBetween.style.display = 'none';
     liveView.style.display = 'block';
 
-    const dispDate = formatIsoDateDisplay(liveEvt.eventDate) || liveEvt.eventDate;
-    const sessCount = Array.isArray(liveEvt.sessions) ? liveEvt.sessions.length : 0;
-    const titlePart = liveEvt.eventTitle ? `${liveEvt.eventTitle} • ` : '';
+    if ($('liveEventTrackDateCompact')) {
+      $('liveEventTrackDateCompact').textContent = `\uD83D\uDFE2 ${liveEvt.venue} • ${dispDate}`;
+    }
+    if ($('liveLockedSessionPill')) {
+      $('liveLockedSessionPill').textContent = `IN SESSION: ${activeSess.sessionName}`;
+    }
 
-    if ($('liveEventDateLabel')) {
-      $('liveEventDateLabel').textContent = dispDate;
+    syncPreRaceNotesInputs(activeSess.preRaceNotes || '');
+  }
+
+  function createAndActivateSessionInEvent(targetEvt, sessionName, initialPreNotes) {
+    if (!targetEvt) return null;
+    if (!Array.isArray(targetEvt.sessions)) {
+      targetEvt.sessions = [];
     }
-    if ($('liveEventVenueLabel')) {
-      $('liveEventVenueLabel').textContent = liveEvt.venue;
+
+    // Mark any prior sessions in this event as completed
+    targetEvt.sessions.forEach((s) => {
+      if (s) s.status = 'completed';
+    });
+
+    const venue = normalizeVenueName(targetEvt.venue || 'Calder Park Raceway');
+    const evtIso = targetEvt.eventDate || getLocalTodayIso();
+    const evtDisp = formatIsoDateDisplay(evtIso) || evtIso;
+    const cleanName = (sessionName || 'Practice 1').trim() || 'Practice 1';
+    const preNotes = typeof initialPreNotes === 'string' ? initialPreNotes.trim() : '';
+
+    // Carry forward from previous completed session in event (if any) or Locked Baseline + Track Profile
+    const prevSess = targetEvt.sessions.length > 0 ? targetEvt.sessions[targetEvt.sessions.length - 1] : null;
+    const base = state.baseline || createDefaultBaseline();
+    const ch = state.chassis || createDefaultChassisState();
+    const prof = ensureTrackProfile(venue);
+    const fuelStats = getTrackLearnedFuelStats(venue);
+    prof.burnLPerLap = fuelStats.avg;
+
+    if ($('inputTrackBurnLPerLap')) {
+      $('inputTrackBurnLPerLap').value = Number(prof.burnLPerLap).toFixed(2);
     }
-    if ($('liveEventTitleLabel')) {
-      $('liveEventTitleLabel').textContent = `${titlePart}${sessCount} ${sessCount === 1 ? 'Session' : 'Sessions'} Logged`;
+
+    // Carry forward 4-corner Next Cold Set PSIs into Cold PSI and clear Hot PSI for the upcoming session
+    const mounted = ensureMountedTyresState();
+    const activeCond = ch.tyreCondition === 'wet' ? 'wet' : 'dry';
+    const hotTarget = Number.isFinite(Number(ch.tyreHotTarget)) ? Number(ch.tyreHotTarget) : 44.0;
+    const learnedTyres = getTrackLearnedColdTyres(venue, hotTarget, activeCond);
+
+    if (!ch.coldTyres || typeof ch.coldTyres !== 'object') {
+      ch.coldTyres = { FL: 30.0, FR: 30.0, RL: 30.0, RR: 30.0 };
     }
+    if (!ch.hotTyres || typeof ch.hotTyres !== 'object') {
+      ch.hotTyres = { FL: null, FR: null, RL: null, RR: null };
+    }
+
+    const initialCorners = {};
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      let nextColdVal = null;
+      if (prevSess && prevSess.tyres && prevSess.tyres[c]) {
+        const prevCorner = prevSess.tyres[c];
+        if (
+          prevCorner.nextCold !== null &&
+          prevCorner.nextCold !== undefined &&
+          Number.isFinite(Number(prevCorner.nextCold)) &&
+          Number(prevCorner.nextCold) > 0
+        ) {
+          nextColdVal = Number(Number(prevCorner.nextCold).toFixed(1));
+        } else if (
+          prevCorner.cold !== null &&
+          prevCorner.cold !== undefined &&
+          Number.isFinite(Number(prevCorner.cold)) &&
+          Number(prevCorner.cold) > 0
+        ) {
+          nextColdVal = Number(Number(prevCorner.cold).toFixed(1));
+        }
+      }
+      if (nextColdVal === null) {
+        if (
+          ch.coldTyres[c] !== null &&
+          ch.coldTyres[c] !== undefined &&
+          Number.isFinite(Number(ch.coldTyres[c])) &&
+          Number(ch.coldTyres[c]) > 0
+        ) {
+          nextColdVal = Number(Number(ch.coldTyres[c]).toFixed(1));
+        } else if (learnedTyres.corners[c] && Number.isFinite(Number(learnedTyres.corners[c].avg))) {
+          nextColdVal = Number(Number(learnedTyres.corners[c].avg).toFixed(1));
+        } else {
+          nextColdVal = 30.0;
+        }
+      }
+
+      ch.coldTyres[c] = nextColdVal;
+      ch.hotTyres[c] = null;
+      const coldEl = $(`inputColdPsi_${c}`);
+      if (coldEl) coldEl.value = nextColdVal.toFixed(1);
+      const hotEl = $(`inputHotPsi_${c}`);
+      if (hotEl) hotEl.value = '';
+
+      initialCorners[c] = {
+        tyreId: mounted[c] || '',
+        cold: nextColdVal,
+        hot: null,
+        build: null,
+        diff: null,
+        nextCold: nextColdVal
+      };
+    });
+
+    const activeCarbyId = (prevSess && prevSess.carbyId) || base.carbyId || '1 DME';
+    const activeManifoldId = (prevSess && prevSess.manifoldId) || state.activeManifoldId || 'Macca';
+    const activeExhaustId = (prevSess && prevSess.exhaustId) || state.activeExhaustId || 'Macca';
+    const carbyObj = state.carbies.find((c) => c.id === activeCarbyId);
+    const fallbackJet =
+      (prevSess && findJetById(prevSess.jetId)) ||
+      (carbyObj && findJetById(carbyObj.fittedJetId)) ||
+      findJetById(base.jetId) ||
+      state.jets[0];
+
+    if ($('selectCalcCarby')) $('selectCalcCarby').value = activeCarbyId;
+    if ($('selectCalcManifold')) $('selectCalcManifold').value = activeManifoldId;
+    if ($('selectCalcExhaust')) $('selectCalcExhaust').value = activeExhaustId;
+
+    const radVal = prevSess ? Number(prevSess.rad) : Number(readNum('inputRadPct', base.rad).toFixed(1));
+    const sgVal = prevSess ? Number(prevSess.fuelSg) : Number(readNum('inputFuelSg', base.fuelSg).toFixed(3));
+    const timingVal = prevSess ? Number(prevSess.timing) : Number(readNum('inputTotalTiming', base.timing).toFixed(1));
+    const fuelPsiVal = prevSess && Number.isFinite(Number(prevSess.fuelPsi)) ? Number(prevSess.fuelPsi) : Number(base.fuelPsi || 5.0);
+
+    if ($('inputRadPct')) $('inputRadPct').value = radVal.toFixed(1);
+    if ($('inputFuelSg')) $('inputFuelSg').value = sgVal.toFixed(3);
+    if ($('inputTotalTiming')) $('inputTotalTiming').value = timingVal.toFixed(1);
+
+    const fuelSnap = recalcFuelAndWeight();
+
+    const created = {
+      id: `run_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      status: 'active',
+      eventId: targetEvt.id,
+      eventTitle: targetEvt.eventTitle || '',
+      eventLocked: false,
+      venue,
+      sessionDateIso: evtIso,
+      sessionIsoDate: evtIso,
+      sessionDate: evtDisp,
+      sessionName: cleanName,
+      timestamp: formatPitDayTimeLabel(new Date()),
+      carbyId: activeCarbyId,
+      manifoldId: activeManifoldId,
+      exhaustId: activeExhaustId,
+      jetId: fallbackJet ? fallbackJet.id : base.jetId,
+      jetLabel: fallbackJet ? fallbackJet.label : base.jetLabel,
+      jetMm: fallbackJet ? fallbackJet.mm : base.jetMm,
+      rad: radVal,
+      fuelSg: sgVal,
+      fuelTempC: Number(readNum('inputFuelTempC', 20.0).toFixed(1)),
+      timing: timingVal,
+      fuelPsi: fuelPsiVal,
+      waterTempC: null,
+      afr3500: null,
+      afr4000: null,
+      afr4500: null,
+      afr5000: null,
+      afr5500: null,
+      afrWot:
+        base.wotAfr !== null && Number.isFinite(Number(base.wotAfr))
+          ? Number(base.wotAfr)
+          : prevSess && Number.isFinite(Number(prevSess.afrWot))
+          ? Number(prevSess.afrWot)
+          : 12.80,
+      peakRpm: (prevSess && prevSess.peakRpm) || base.peakRpm || 5900,
+      afrStatus: 'estimated',
+      litresToPourL: Number(fuelSnap.litresToPourL.toFixed(1)),
+      startingFuelReqL: Number(fuelSnap.startingFuelReqL.toFixed(1)),
+      expectedBurnL: Number(fuelSnap.expectedBurnL.toFixed(1)),
+      fuelFloorL: Number(fuelSnap.safeFloorL.toFixed(1)),
+      fuelInL: null,
+      fuelOutL: null,
+      fuelUsedL: null,
+      racedLaps: fuelSnap.raceLaps,
+      measuredBurnLPerLap: Number(fuelSnap.burnLPerLap.toFixed(2)),
+      scaleWeightKg: fuelSnap.scaleCheckKg > 500 ? Number(fuelSnap.scaleCheckKg.toFixed(1)) : null,
+      postRaceEstKg: fuelSnap.predictedPostRaceKg > 500 ? Number(fuelSnap.predictedPostRaceKg.toFixed(1)) : null,
+      tyreHotTarget: hotTarget,
+      tyreCondition: activeCond,
+      tyres: initialCorners,
+      preRaceNotes: preNotes,
+      postRaceNotes: '',
+      notes: preNotes
+    };
+
+    targetEvt.sessions.push(created);
+    state.activeSessionId = created.id;
+    state.awaitingPostRaceId = created.id;
+    syncFlatSessionsFromEvents(state);
+    syncPreRaceNotesInputs(preNotes);
+    return created;
   }
 
   function openNewEventModal(pendingActionCallback) {
     ui.pendingActionAfterNewEvent = typeof pendingActionCallback === 'function' ? pendingActionCallback : null;
-    const curVenue = readVenueFromSelectorPair('selectTrackVenue', 'inputCustomTrack') || 'Calder Park Raceway';
+    const curVenue = (state.baseline && state.baseline.venue) || 'Calder Park Raceway';
     const sel = $('newEventTrack');
     const customWrap = $('newEventCustomTrackWrap');
     const customInp = $('newEventCustomTrack');
     if (sel) {
       const hasPreset = Array.from(sel.options).some(
-        (opt) => opt.value === curVenue && opt.value !== '__CUSTOM_TRACK__'
+        (opt) => opt.value === curVenue && opt.value !== '__CUSTOM_TRACK__' && opt.value !== '__CUSTOM__'
       );
       if (hasPreset) {
         sel.value = curVenue;
         if (customWrap) customWrap.style.display = 'none';
       } else {
-        sel.value = '__CUSTOM_TRACK__';
+        sel.value = '__CUSTOM__';
         if (customWrap) customWrap.style.display = 'block';
         if (customInp) customInp.value = curVenue;
       }
@@ -2717,6 +3018,22 @@
     const eventTitle = (($('newEventTitle') && $('newEventTitle').value) || '').trim();
     const firstSessionName = readSessionNameFromSelectorPair('newEventFirstSession', 'newEventCustomSession');
 
+    // Lock any previously open event before starting the new one
+    if (Array.isArray(state.events)) {
+      state.events.forEach((evt) => {
+        if (evt && !evt.locked) {
+          evt.locked = true;
+          evt.endedAt = new Date().toISOString();
+          (evt.sessions || []).forEach((s) => {
+            s.eventLocked = true;
+            s.status = 'completed';
+          });
+        }
+      });
+    } else {
+      state.events = [];
+    }
+
     const newEvt = {
       id: `evt_${eventDate.replace(/-/g, '')}_${Date.now().toString(36)}`,
       venue,
@@ -2727,80 +3044,113 @@
       sessions: []
     };
 
-    if (!Array.isArray(state.events)) {
-      state.events = [];
-    }
     state.events.unshift(newEvt);
     state.activeEventId = newEvt.id;
     ui.expandedEventIds.add(newEvt.id);
 
-    // Sync circuit & date across Calculator, Fuel & Wt, and Tyres and load track memory
-    setVenueOnAllTrackSelectors(venue, true);
-    setSessionDateOnAllTabs(eventDate);
-    setSessionNameOnAllTabs(firstSessionName);
+    // Load circuit profile for Fuel & Tyres
+    loadTrackProfileToFuelAndTyreInputs(venue);
+
+    // Create and lock into the initial active session immediately
+    createAndActivateSessionInEvent(newEvt, firstSessionName, '');
 
     const pendingFn = ui.pendingActionAfterNewEvent;
     ui.pendingActionAfterNewEvent = null;
     closeModal('modalNewEvent');
+
+    saveState();
+    setCalculatorStep(1);
+    renderAll();
 
     if (typeof pendingFn === 'function') {
       pendingFn();
       return;
     }
 
-    // Create initial live session stub straight in the Event so it is immediately logged & visible
-    upsertUnifiedSession({
-      venue,
-      sessionDateIso: eventDate,
-      sessionDate: formatIsoDateDisplay(eventDate),
-      sessionName: firstSessionName,
-      timestamp: formatPitDayTimeLabel(new Date()),
-      afrStatus: 'estimated',
-      notes: `Started ${newEvt.eventTitle} at ${venue} (${firstSessionName}).`
-    });
-
-    saveState();
-    renderAll();
-    showToast(`LIVE EVENT STARTED: ${venue} • ${firstSessionName}`);
+    showToast(`LIVE EVENT STARTED: ${venue} • IN SESSION: ${firstSessionName}`);
   }
 
-  function startNextLiveSession() {
+  function openPromptNextSessionModal(completedSess) {
     const liveEvt = getActiveEvent();
     if (!liveEvt) {
       openNewEventModal();
       return;
     }
 
-    const currentName = getSelectedSessionName();
-    const existingNames = new Set((liveEvt.sessions || []).map((s) => s.sessionName));
-    let targetName = currentName;
+    const lastSess =
+      completedSess ||
+      (Array.isArray(liveEvt.sessions) && liveEvt.sessions.length > 0
+        ? liveEvt.sessions[liveEvt.sessions.length - 1]
+        : null);
 
-    if (existingNames.has(currentName)) {
-      const idx = SESSION_PROGRESSION.indexOf(currentName);
-      if (idx !== -1) {
-        for (let i = idx + 1; i < SESSION_PROGRESSION.length; i++) {
-          if (!existingNames.has(SESSION_PROGRESSION[i])) {
-            targetName = SESSION_PROGRESSION[i];
-            break;
-          }
-        }
-      }
+    const completedName = lastSess ? lastSess.sessionName : 'Previous Session';
+    if ($('promptNextSessionTitle')) {
+      $('promptNextSessionTitle').textContent = `${completedName} Saved & Locked as New Baseline`;
     }
 
-    setSessionNameOnAllTabs(targetName);
-    const created = upsertUnifiedSession({
-      venue: liveEvt.venue,
-      sessionDateIso: liveEvt.eventDate,
-      sessionDate: formatIsoDateDisplay(liveEvt.eventDate),
-      sessionName: targetName,
-      timestamp: formatPitDayTimeLabel(new Date()),
-      afrStatus: 'estimated'
-    });
+    const summary = buildCarriedForwardBaselineSummaryParts(liveEvt.venue);
+    if ($('promptBaseTuneSummary')) $('promptBaseTuneSummary').textContent = summary.tuneStr;
+    if ($('promptBaseFuelSummary')) $('promptBaseFuelSummary').textContent = summary.fuelStr;
+    if ($('promptBaseTyreSummary')) $('promptBaseTyreSummary').textContent = summary.tyreStr;
 
+    const suggestedNext = getNextLogicalSessionName(liveEvt, lastSess ? lastSess.sessionName : '');
+    const sel = $('nextSessionSelect');
+    const customWrap = $('nextSessionCustomWrap');
+    const customInp = $('nextSessionCustomInput');
+    if (sel) {
+      const hasOpt = Array.from(sel.options).some(
+        (opt) => opt.value === suggestedNext && opt.value !== '__CUSTOM__'
+      );
+      if (hasOpt) {
+        sel.value = suggestedNext;
+        if (customWrap) customWrap.style.display = 'none';
+      } else {
+        sel.value = '__CUSTOM__';
+        if (customWrap) customWrap.style.display = 'block';
+        if (customInp) customInp.value = suggestedNext;
+      }
+    }
+    if ($('nextSessionPreNotes')) {
+      $('nextSessionPreNotes').value = '';
+    }
+
+    openModal('modalPromptNextSession');
+  }
+
+  function confirmStartNextSessionFromPrompt() {
+    const liveEvt = getActiveEvent();
+    if (!liveEvt) {
+      closeModal('modalPromptNextSession');
+      openNewEventModal();
+      return;
+    }
+
+    const nextName = readSessionNameFromSelectorPair('nextSessionSelect', 'nextSessionCustomInput');
+    const preNotes = (($('nextSessionPreNotes') && $('nextSessionPreNotes').value) || '').trim();
+
+    const created = createAndActivateSessionInEvent(liveEvt, nextName, preNotes);
     ui.expandedEventIds.add(liveEvt.id);
+
+    closeModal('modalPromptNextSession');
+    saveState();
+    setCalculatorStep(1);
+    renderAll();
+    if (ui.activeTab === 'tab-log' || ui.activeTab === 'tab-fleet') {
+      switchTab('tab-calc');
+    }
+    showToast(`IN SESSION: ${created.sessionName} (${liveEvt.venue})`);
+  }
+
+  function deferNextSessionToGateB() {
+    state.activeSessionId = null;
+    closeModal('modalPromptNextSession');
     saveState();
     renderAll();
-    showToast(`Active Session: ${created.sessionName} (${liveEvt.venue})`);
+    showToast('Between Sessions — Tap "+ CREATE NEXT SESSION" when ready for pre-race setup');
+  }
+
+  function startNextLiveSession() {
+    openPromptNextSessionModal();
   }
 
   function openEndEventModal() {
@@ -2830,16 +3180,19 @@
     liveEvt.endedAt = new Date().toISOString();
     (liveEvt.sessions || []).forEach((s) => {
       s.eventLocked = true;
+      s.status = 'completed';
     });
     const endedId = liveEvt.id;
     const endedVenue = liveEvt.venue;
     state.activeEventId = null;
+    state.activeSessionId = null;
     state.awaitingPostRaceId = null;
     ui.editingSessionId = null;
     ui.expandedEventIds.add(endedId);
 
     saveState();
     closeModal('modalEndEvent');
+    closeModal('modalPromptNextSession');
     renderAll();
     switchTab('tab-log');
     showToast(`Event Locked & Saved — Read Only (${endedVenue})`);
@@ -2847,28 +3200,15 @@
 
   /**
    * Upserts a unified session record inside the active Event (state.events) and syncs state.sessions,
-   * merging Tune, Fuel/Weight, and 4-Corner Tyre telemetry into ONE unified session card.
-   * Strictly blocks any modification to a locked Event.
+   * writing strictly to the single locked activeSession (state.activeSessionId).
+   * Strictly blocks any modification when no Event or Session is active or when an Event is locked.
    */
   function upsertUnifiedSession(patch) {
     let targetEvt = getActiveEvent();
-    const venue = normalizeVenueName(
-      patch.venue || (targetEvt && targetEvt.venue) || getSelectedTrackVenue() || 'Calder Park Raceway'
-    );
-    const { iso: activeIso, display: activeDisp } = getSelectedSessionDate();
-    const sessionDateIso =
-      patch.sessionDateIso || patch.sessionIsoDate || (targetEvt && targetEvt.eventDate) || activeIso;
-    const sessionDate = patch.sessionDate || formatIsoDateDisplay(sessionDateIso) || activeDisp;
-    const sessionName = (patch.sessionName || getSelectedSessionName() || 'Practice 1').trim();
-    const timeLabel = formatPitDayTimeLabel(new Date());
+    let existing = getActiveSession();
 
-    if (!Array.isArray(state.events)) {
-      state.events = createDefaultEvents();
-    }
-
-    // If patch specifies a session ID, check if it exists in any event
-    let existing = null;
-    if (patch.id) {
+    // If patch specifies a session ID (e.g. inline edit in Session Log), check if it exists in an unlocked event
+    if (patch && patch.id) {
       const ownerEvt = findEventForSession(patch.id);
       if (ownerEvt) {
         if (ownerEvt.locked) {
@@ -2880,146 +3220,59 @@
       }
     }
 
-    // If no active event exists yet, create a live Event automatically so orphan sessions never happen
     if (!targetEvt) {
-      targetEvt = {
-        id: `evt_${sessionDateIso.replace(/-/g, '')}_${Date.now().toString(36)}`,
-        venue,
-        eventDate: sessionDateIso,
-        eventTitle: 'Race Weekend',
-        locked: false,
-        endedAt: null,
-        sessions: []
-      };
-      state.events.unshift(targetEvt);
-      state.activeEventId = targetEvt.id;
-      ui.expandedEventIds.add(targetEvt.id);
+      openNewEventModal();
+      return null;
     }
-
     if (targetEvt.locked) {
       showToast('Event is Locked & Read-Only — start a New Event to log sessions.');
       return null;
     }
-
-    if (!existing && Array.isArray(targetEvt.sessions)) {
-      for (let i = targetEvt.sessions.length - 1; i >= 0; i--) {
-        const s = targetEvt.sessions[i];
-        if (s && (s.sessionName || '') === sessionName) {
-          existing = s;
-          break;
-        }
-      }
+    if (!existing) {
+      openPromptNextSessionModal();
+      return null;
     }
 
-    if (existing) {
-      Object.keys(patch).forEach((k) => {
-        if (k === 'id' || k === 'appendNote') return;
-        if (patch[k] !== undefined) {
-          existing[k] = patch[k];
-        }
-      });
-      existing.eventId = targetEvt.id;
-      existing.eventTitle = targetEvt.eventTitle || '';
-      existing.eventLocked = Boolean(targetEvt.locked);
-      existing.venue = normalizeVenueName(targetEvt.venue || existing.venue || venue);
-      existing.sessionDateIso = targetEvt.eventDate || existing.sessionDateIso || sessionDateIso;
-      existing.sessionIsoDate = existing.sessionDateIso;
-      existing.sessionDate = formatIsoDateDisplay(existing.sessionDateIso) || sessionDate;
-      if (!existing.manifoldId) {
-        existing.manifoldId = ($('selectCalcManifold') && $('selectCalcManifold').value) || state.activeManifoldId || 'Macca';
+    const timeLabel = formatPitDayTimeLabel(new Date());
+
+    Object.keys(patch).forEach((k) => {
+      if (k === 'id' || k === 'appendNote') return;
+      if (patch[k] !== undefined) {
+        existing[k] = patch[k];
       }
-      if (!existing.exhaustId) {
-        existing.exhaustId = ($('selectCalcExhaust') && $('selectCalcExhaust').value) || state.activeExhaustId || 'Macca';
-      }
-      if (patch.appendNote) {
-        const cleanNote = String(patch.appendNote).trim();
-        if (cleanNote && (!existing.notes || !existing.notes.includes(cleanNote))) {
-          existing.notes = existing.notes ? `${existing.notes} • ${cleanNote}` : cleanNote;
-        }
-      }
-      existing.timestamp = patch.timestamp || existing.timestamp || timeLabel;
-      syncFlatSessionsFromEvents(state);
-      return existing;
+    });
+
+    existing.eventId = targetEvt.id;
+    existing.eventTitle = targetEvt.eventTitle || '';
+    existing.eventLocked = Boolean(targetEvt.locked);
+    existing.venue = normalizeVenueName(targetEvt.venue || existing.venue || 'Calder Park Raceway');
+    existing.sessionDateIso = targetEvt.eventDate || existing.sessionDateIso || getLocalTodayIso();
+    existing.sessionIsoDate = existing.sessionDateIso;
+    existing.sessionDate = formatIsoDateDisplay(existing.sessionDateIso) || existing.sessionDateIso;
+
+    if (!existing.manifoldId) {
+      existing.manifoldId = ($('selectCalcManifold') && $('selectCalcManifold').value) || state.activeManifoldId || 'Macca';
     }
+    if (!existing.exhaustId) {
+      existing.exhaustId = ($('selectCalcExhaust') && $('selectCalcExhaust').value) || state.activeExhaustId || 'Macca';
+    }
+    if (patch.appendNote) {
+      const cleanNote = String(patch.appendNote).trim();
+      if (cleanNote) {
+        existing.preRaceNotes = cleanNote;
+      }
+    }
+    existing.notes = existing.postRaceNotes || existing.preRaceNotes || existing.notes || '';
+    existing.timestamp = patch.timestamp || existing.timestamp || timeLabel;
 
-    const base = state.baseline || createDefaultBaseline();
-    const activeCarbyId = patch.carbyId || ($('selectCalcCarby') && $('selectCalcCarby').value) || base.carbyId || '1 DME';
-    const activeManifoldId =
-      patch.manifoldId || ($('selectCalcManifold') && $('selectCalcManifold').value) || state.activeManifoldId || 'Macca';
-    const activeExhaustId =
-      patch.exhaustId || ($('selectCalcExhaust') && $('selectCalcExhaust').value) || state.activeExhaustId || 'Macca';
-    const carbyObj = state.carbies.find((c) => c.id === activeCarbyId);
-    const fallbackJet =
-      (carbyObj && findJetById(carbyObj.fittedJetId)) ||
-      findJetById(base.jetId) ||
-      state.jets[0];
-
-    const evtIso = targetEvt.eventDate || sessionDateIso;
-    const evtDisp = formatIsoDateDisplay(evtIso) || sessionDate;
-
-    const created = {
-      id: patch.id || `run_${Date.now()}`,
-      eventId: targetEvt.id,
-      eventTitle: targetEvt.eventTitle || '',
-      eventLocked: false,
-      venue: normalizeVenueName(targetEvt.venue || venue),
-      sessionDateIso: evtIso,
-      sessionIsoDate: evtIso,
-      sessionDate: evtDisp,
-      sessionName,
-      timestamp: patch.timestamp || timeLabel,
-      carbyId: activeCarbyId,
-      manifoldId: activeManifoldId,
-      exhaustId: activeExhaustId,
-      jetId: patch.jetId || (fallbackJet ? fallbackJet.id : base.jetId),
-      jetLabel: patch.jetLabel || (fallbackJet ? fallbackJet.label : base.jetLabel),
-      jetMm: patch.jetMm !== undefined ? patch.jetMm : fallbackJet ? fallbackJet.mm : base.jetMm,
-      rad: patch.rad !== undefined ? patch.rad : Number(readNum('inputRadPct', base.rad).toFixed(1)),
-      fuelSg: patch.fuelSg !== undefined ? patch.fuelSg : Number(readNum('inputFuelSg', base.fuelSg).toFixed(3)),
-      fuelTempC: patch.fuelTempC !== undefined ? patch.fuelTempC : Number(readNum('inputFuelTempC', 20.0).toFixed(1)),
-      timing: patch.timing !== undefined ? patch.timing : Number(readNum('inputTotalTiming', base.timing).toFixed(1)),
-      fuelPsi: patch.fuelPsi !== undefined ? patch.fuelPsi : base.fuelPsi || 5.0,
-      waterTempC: patch.waterTempC !== undefined ? patch.waterTempC : null,
-      afr3500: patch.afr3500 !== undefined ? patch.afr3500 : null,
-      afr4000: patch.afr4000 !== undefined ? patch.afr4000 : null,
-      afr4500: patch.afr4500 !== undefined ? patch.afr4500 : null,
-      afr5000: patch.afr5000 !== undefined ? patch.afr5000 : null,
-      afr5500: patch.afr5500 !== undefined ? patch.afr5500 : null,
-      afrWot:
-        patch.afrWot !== undefined
-          ? patch.afrWot
-          : base.wotAfr !== null && Number.isFinite(Number(base.wotAfr))
-          ? Number(base.wotAfr)
-          : 12.80,
-      peakRpm: patch.peakRpm || base.peakRpm || 5900,
-      afrStatus: patch.afrStatus || 'estimated',
-      litresToPourL: patch.litresToPourL !== undefined ? patch.litresToPourL : null,
-      startingFuelReqL: patch.startingFuelReqL !== undefined ? patch.startingFuelReqL : null,
-      expectedBurnL: patch.expectedBurnL !== undefined ? patch.expectedBurnL : null,
-      fuelFloorL: patch.fuelFloorL !== undefined ? patch.fuelFloorL : null,
-      fuelInL: patch.fuelInL !== undefined ? patch.fuelInL : null,
-      fuelOutL: patch.fuelOutL !== undefined ? patch.fuelOutL : null,
-      fuelUsedL: patch.fuelUsedL !== undefined ? patch.fuelUsedL : null,
-      racedLaps: patch.racedLaps !== undefined ? patch.racedLaps : null,
-      measuredBurnLPerLap: patch.measuredBurnLPerLap !== undefined ? patch.measuredBurnLPerLap : null,
-      scaleWeightKg: patch.scaleWeightKg !== undefined ? patch.scaleWeightKg : null,
-      postRaceEstKg: patch.postRaceEstKg !== undefined ? patch.postRaceEstKg : null,
-      tyreHotTarget: patch.tyreHotTarget !== undefined ? patch.tyreHotTarget : null,
-      tyreCondition: patch.tyreCondition || null,
-      tyres: patch.tyres || null,
-      notes: patch.notes || patch.appendNote || ''
-    };
-
-    targetEvt.sessions.push(created);
     syncFlatSessionsFromEvents(state);
-    return created;
+    return existing;
   }
 
   function applyCarbyBaselineAnchor(carbyId) {
     const carby = state.carbies.find((c) => c.id === carbyId);
     if (!carby || !carby.baselineAnchor) return;
 
-    const prevBaseName = state.baseline.sessionName;
     const venue = getSelectedTrackVenue();
     const { iso: sessionDateIso, display: sessionDate } = getSelectedSessionDate();
     const a = carby.baselineAnchor;
@@ -3061,12 +3314,6 @@
     }
     if ($('inputTotalTiming')) {
       $('inputTotalTiming').value = state.baseline.timing.toFixed(1);
-    }
-
-    // If session dropdown was still sitting on default Race 2 from Race 1 seed when bolting on a spare/P1 carby, default to Practice 1
-    const sessSel = $('selectSessionName');
-    if (sessSel && sessSel.value === 'Race 2' && prevBaseName === 'Race 1' && carby.id !== '1 DME') {
-      setSessionNameOnAllTabs('Practice 1');
     }
 
     saveState();
@@ -3155,7 +3402,6 @@
 
     renderStep1WeatherOnlySwitch(phys);
     updateCarbySwapHint();
-    updateSessionDateHint();
   }
 
   function renderStep2Calculator(autoPickRecommended = false) {
@@ -3347,23 +3593,31 @@
   }
 
   function confirmJetAndLockForNextRace() {
-    if (!getActiveEvent()) {
+    const liveEvt = getActiveEvent();
+    if (!liveEvt) {
       openNewEventModal(() => confirmJetAndLockForNextRace());
       return;
     }
+    const activeSess = getActiveSession();
+    if (!activeSess) {
+      openPromptNextSessionModal();
+      return;
+    }
+
     const phys = getActiveCalcPhysics();
     const chosenJet = findJetById(ui.selectedJetId);
     if (!chosenJet) return;
 
-    const venue = getSelectedTrackVenue();
-    const { iso: sessionDateIso, display: sessionDate } = getSelectedSessionDate();
-    const sessionName = getSelectedSessionName();
+    const venue = normalizeVenueName(liveEvt.venue);
+    const sessionDateIso = liveEvt.eventDate;
+    const sessionDate = formatIsoDateDisplay(sessionDateIso) || sessionDateIso;
+    const sessionName = activeSess.sessionName;
     const carbyId = $('selectCalcCarby').value || state.baseline.carbyId;
     const manifoldId = ($('selectCalcManifold') && $('selectCalcManifold').value) || state.activeManifoldId || 'Macca';
     const exhaustId = ($('selectCalcExhaust') && $('selectCalcExhaust').value) || state.activeExhaustId || 'Macca';
-    const modeNote = phys.isWeatherOnly ? 'Weather-Only 1.000× AFR' : `${ui.weatherMode.toUpperCase()} mode`;
-    const userNotes = ($('inputRunNotes').value || '').trim();
-    const defaultNote = `Locked pre-run at ${venue} (${sessionDate}) from ${phys.base.sessionName} (${modeNote}).`;
+    const preNotesFromStep2 = ($('inputRunNotes') && $('inputRunNotes').value.trim()) || '';
+    const preNotesFromStep1 = ($('inputPreRaceNotes') && $('inputPreRaceNotes').value.trim()) || '';
+    const userPreNotes = preNotesFromStep2 || preNotesFromStep1 || activeSess.preRaceNotes || '';
 
     const predWot = Number(
       calculatePredictedAfr(
@@ -3377,6 +3631,7 @@
     );
 
     const unifiedSession = upsertUnifiedSession({
+      id: activeSess.id,
       venue,
       sessionDateIso,
       sessionDate,
@@ -3393,10 +3648,11 @@
       timing: Number(phys.totalTiming.toFixed(1)),
       fuelPsi: state.baseline.fuelPsi,
       afrWot: predWot,
-      peakRpm: 5900,
+      peakRpm: activeSess.peakRpm || 5900,
       afrStatus: 'estimated',
-      appendNote: userNotes || defaultNote
+      preRaceNotes: userPreNotes
     });
+    if (!unifiedSession) return;
 
     state.awaitingPostRaceId = unifiedSession.id;
 
@@ -3406,8 +3662,8 @@
       carbyObj.fittedJetId = chosenJet.id;
     }
 
-    // If Baseline was untested/Practice 1, update Baseline to this pre-race setup;
-    // otherwise keep Locked Baseline on the last verified post-race setup until Save Post Race Session promotes it!
+    // If Baseline was untested, update Baseline to this pre-race setup;
+    // otherwise keep Locked Baseline on the last verified post-race setup until Save Post-Race & Complete Session promotes it!
     const wasUntested =
       state.baseline.afrStatus === 'untested' ||
       state.baseline.wotAfr === null ||
@@ -3440,15 +3696,13 @@
 
     saveState();
 
-    // Sync Step 1 live RAD to the newly locked RAD & keep active session synced across Tabs 1-3
     $('inputRadPct').value = unifiedSession.rad.toFixed(1);
-    $('inputRunNotes').value = '';
-    setSessionNameOnAllTabs(sessionName);
+    syncPreRaceNotesInputs(unifiedSession.preRaceNotes || '');
 
     renderAll();
     setCalculatorStep(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    showToast(`Locked ${sessionName} (${chosenJet.label}) to Unified Session Log`);
+    showToast(`Locked ${chosenJet.label} to ${sessionName} (${venue})`);
   }
 
   /* ------------------------------------------------------------------------
@@ -3469,7 +3723,7 @@
     let sessionLaps = 0;
 
     (state.sessions || []).forEach((s) => {
-      if (!s || !s.tyres || typeof s.tyres !== 'object') return;
+      if (!s || s.status === 'active' || !s.tyres || typeof s.tyres !== 'object') return;
       const laps = Number(s.racedLaps);
       if (!Number.isFinite(laps) || laps <= 0) return;
       const mountedOnAnyCorner = ['FL', 'FR', 'RL', 'RR'].some(
@@ -5126,28 +5380,34 @@
   }
 
   function saveFuelAndWeightToSession() {
-    if (!getActiveEvent()) {
-      openNewEventModal(() => saveFuelAndWeightToSession());
+    const activeEvt = getActiveEvent();
+    if (!activeEvt) {
+      openNewEventModal();
       return;
     }
+    const activeSess = getActiveSession();
+    if (!activeSess) {
+      openPromptNextSessionModal();
+      return;
+    }
+
     const fuelSnap = recalcFuelAndWeight();
-    const { iso: sessionDateIso, display: sessionDate } = getSelectedSessionDate();
-    const sessionName = getSelectedSessionName();
     const hasValidPump = fuelSnap.pumpUsedL > 0 && fuelSnap.pumpLaps > 0;
     const measured = hasValidPump ? Number(fuelSnap.pumpMeasuredBurn.toFixed(2)) : null;
 
     const unified = upsertUnifiedSession({
-      venue: fuelSnap.venue,
-      sessionDateIso,
-      sessionDate,
-      sessionName,
+      sessionId: activeSess.id,
+      venue: activeEvt.venue,
+      sessionDateIso: activeEvt.eventDate,
+      sessionDate: formatIsoDateDisplay(activeEvt.eventDate),
+      sessionName: activeSess.sessionName,
       litresToPourL: Number(fuelSnap.litresToPourL.toFixed(1)),
       startingFuelReqL: Number(fuelSnap.startingFuelReqL.toFixed(1)),
       expectedBurnL: Number(fuelSnap.expectedBurnL.toFixed(1)),
       fuelFloorL: Number(fuelSnap.safeFloorL.toFixed(1)),
-      fuelInL: hasValidPump ? Number(fuelSnap.pumpBeforeL.toFixed(1)) : null,
-      fuelOutL: hasValidPump ? Number(fuelSnap.pumpAfterL.toFixed(1)) : null,
-      fuelUsedL: hasValidPump ? Number(fuelSnap.pumpUsedL.toFixed(2)) : null,
+      fuelInL: hasValidPump ? Number(fuelSnap.pumpBeforeL.toFixed(1)) : activeSess.fuelInL,
+      fuelOutL: hasValidPump ? Number(fuelSnap.pumpAfterL.toFixed(1)) : activeSess.fuelOutL,
+      fuelUsedL: hasValidPump ? Number(fuelSnap.pumpUsedL.toFixed(2)) : activeSess.fuelUsedL,
       racedLaps: hasValidPump ? fuelSnap.pumpLaps : fuelSnap.raceLaps,
       measuredBurnLPerLap: measured !== null ? measured : Number(fuelSnap.burnLPerLap.toFixed(2)),
       scaleWeightKg: Number(fuelSnap.scaleCheckKg.toFixed(1)),
@@ -5155,8 +5415,9 @@
     });
     if (!unified) return;
 
-    // Auto-learn updated track L/lap from all logged pump-outs at this circuit
-    recalculateTrackAverageBurn(fuelSnap.venue);
+    if (hasValidPump) {
+      recalculateTrackAverageBurn(activeEvt.venue);
+    }
 
     saveState();
     renderWeekendEventBanner();
@@ -5165,15 +5426,18 @@
     renderTyreStockList();
     renderSessionLog();
 
-    const learnedFuel = getTrackLearnedFuelStats(fuelSnap.venue);
-    showToast(
-      `Saved ${unified.sessionName} Fuel & Wt • ${fuelSnap.venue} Learned Avg: ${learnedFuel.avg.toFixed(2)} L/lap`
-    );
+    showToast(`Saved Pre-Race Fuel & Scale Wt to ${unified.sessionName}`);
   }
 
   function saveTyresToSession() {
-    if (!getActiveEvent()) {
-      openNewEventModal(() => saveTyresToSession());
+    const activeEvt = getActiveEvent();
+    if (!activeEvt) {
+      openNewEventModal();
+      return;
+    }
+    const activeSess = getActiveSession();
+    if (!activeSess) {
+      openPromptNextSessionModal();
       return;
     }
     const tyreSnap = recalcTyres();
@@ -5193,21 +5457,18 @@
       return;
     }
 
-    const { iso: sessionDateIso, display: sessionDate } = getSelectedSessionDate();
-    const sessionName = getSelectedSessionName();
     const notes = (($('inputTyreRunNotes') && $('inputTyreRunNotes').value) || '').trim();
-
-    const existing = findMatchingUnifiedSession(tyreSnap.venue, sessionDateIso, sessionName, sessionDate);
     const racedLapsToSave =
-      existing && Number.isFinite(Number(existing.racedLaps)) && Number(existing.racedLaps) > 0
-        ? Math.round(Number(existing.racedLaps))
+      Number.isFinite(Number(activeSess.racedLaps)) && Number(activeSess.racedLaps) > 0
+        ? Math.round(Number(activeSess.racedLaps))
         : tyreSnap.tyreSessionLaps;
 
     const unified = upsertUnifiedSession({
-      venue: tyreSnap.venue,
-      sessionDateIso,
-      sessionDate,
-      sessionName,
+      sessionId: activeSess.id,
+      venue: activeEvt.venue,
+      sessionDateIso: activeEvt.eventDate,
+      sessionDate: formatIsoDateDisplay(activeEvt.eventDate),
+      sessionName: activeSess.sessionName,
       racedLaps: racedLapsToSave,
       tyreHotTarget: Number(tyreSnap.tyreHotTarget.toFixed(1)),
       tyreCondition: tyreSnap.tyreCondition || 'dry',
@@ -5217,37 +5478,26 @@
         RL: { ...tyreSnap.corners.RL },
         RR: { ...tyreSnap.corners.RR }
       },
-      appendNote: notes
+      appendPreRaceNote: notes
     });
     if (!unified) return;
-
-    // Auto-populate Cold PSIs with newly learned track cold targets ONLY on corners where Cold + Hot were both logged
-    const learnedTyres = getTrackLearnedColdTyres(tyreSnap.venue, tyreSnap.tyreHotTarget, tyreSnap.tyreCondition || 'dry');
-    const prof = ensureTrackProfile(tyreSnap.venue);
-    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-      if (learnedTyres.corners[c] && learnedTyres.corners[c].learned) {
-        if (tyreSnap.tyreCondition !== 'wet') {
-          prof.coldTyres[c] = learnedTyres.corners[c].avg;
-        }
-        if (tyreSnap.corners[c].cold !== null && tyreSnap.corners[c].hot !== null) {
-          const coldEl = $(`inputColdPsi_${c}`);
-          if (coldEl) coldEl.value = learnedTyres.corners[c].avg.toFixed(1);
-          if (state.chassis && state.chassis.coldTyres) {
-            state.chassis.coldTyres[c] = learnedTyres.corners[c].avg;
-          }
-        }
-      }
-    });
 
     if ($('inputTyreRunNotes')) {
       $('inputTyreRunNotes').value = '';
     }
+    if ($('inputPreRaceNotes')) {
+      $('inputPreRaceNotes').value = unified.preRaceNotes || '';
+    }
+    if ($('inputRunNotes')) {
+      $('inputRunNotes').value = unified.preRaceNotes || '';
+    }
+
     saveState();
     renderWeekendEventBanner();
     recalcTyres();
     renderTyreStockList();
     renderSessionLog();
-    showToast(`Locked & Saved Tyres (${racedLapsToSave} laps) to ${unified.sessionName}`);
+    showToast(`Locked & Saved Pre-Race Cold Tyres to ${unified.sessionName}`);
   }
 
   function exportTyresCsv() {
@@ -5420,6 +5670,8 @@
       waterStr,
       s.afrStatus || '',
       tyreParts.join(' '),
+      s.preRaceNotes || '',
+      s.postRaceNotes || '',
       s.notes || ''
     ]
       .join(' ')
@@ -5438,6 +5690,7 @@
     const endCylClass = prot.level === 'danger' ? 'txt-danger' : 'txt-emerald';
     const isEditing = !isEventLocked && ui.editingSessionId === s.id;
     const isEstimated = s.afrStatus === 'estimated';
+    const isActiveRun = !isEventLocked && s.id === state.activeSessionId;
     const wotValClass = isEstimated
       ? 'txt-amber'
       : prot.level === 'danger'
@@ -5461,6 +5714,26 @@
       { rpm: '5000', val: normalizeOptionalAfr(s.afr5000) },
       { rpm: '5500', val: normalizeOptionalAfr(s.afr5500) }
     ];
+
+    const preNoteStr = String(s.preRaceNotes || '').trim();
+    const postNoteStr = String(s.postRaceNotes !== undefined ? s.postRaceNotes : s.notes || '').trim();
+    const notesBlockHtml =
+      preNoteStr || postNoteStr
+        ? `
+          <div class="session-notes-stack">
+            ${
+              preNoteStr
+                ? `<div class="session-note-line"><span class="session-note-tag pre">PRE-RACE:</span> <span>${escapeHtml(preNoteStr)}</span></div>`
+                : ''
+            }
+            ${
+              postNoteStr
+                ? `<div class="session-note-line"><span class="session-note-tag post">POST-RACE:</span> <span>${escapeHtml(postNoteStr)}</span></div>`
+                : ''
+            }
+          </div>
+        `
+        : '';
 
     const actionsHtml = isEventLocked
       ? `
@@ -5498,7 +5771,9 @@
           </div>
           <div style="text-align: right; flex-shrink: 0;">
             ${
-              isBaseline
+              isActiveRun
+                ? '<span class="in-session-locked-pill" style="padding: 2px 7px; font-size: 0.65rem;">ACTIVE SESSION</span>'
+                : isBaseline
                 ? '<span class="locked-badge">Baseline</span>'
                 : `<span class="mono ${endCylClass}" style="font-size: 0.75rem; font-weight: 800;">#1/#6: ${prot.endCylAfr.toFixed(2)}</span>`
             }
@@ -5530,7 +5805,7 @@
         ${renderUnifiedFuelWeightBlock(s)}
         ${renderUnifiedTyresBlock(s)}
 
-        ${s.notes ? `<p style="margin: 6px 0 4px; font-size: 0.77rem; color: var(--text-secondary);">${escapeHtml(s.notes)}</p>` : ''}
+        ${notesBlockHtml}
 
         ${actionsHtml}
 
@@ -5764,13 +6039,13 @@
           </div>
           <div class="field-group" style="margin-bottom: 0;">
             <label class="field-label" for="inlineVenue_${escapeHtml(s.id)}">Circuit / Track</label>
-            <input type="text" id="inlineVenue_${escapeHtml(s.id)}" class="text-input" value="${escapeHtml(venueVal)}" />
+            <input type="text" id="inlineVenue_${escapeHtml(s.id)}" class="text-input" value="${escapeHtml(venueVal)}" disabled />
           </div>
         </div>
 
         <div class="field-group" style="margin-bottom: 10px;">
           <label class="field-label" for="inlineDate_${escapeHtml(s.id)}">Session Date</label>
-          <input type="date" id="inlineDate_${escapeHtml(s.id)}" class="text-input" value="${escapeHtml(dateIsoVal)}" />
+          <input type="date" id="inlineDate_${escapeHtml(s.id)}" class="text-input" value="${escapeHtml(dateIsoVal)}" disabled />
         </div>
 
         <div class="field-group" style="margin-bottom: 10px;">
@@ -5821,9 +6096,14 @@
           </div>
         </div>
 
+        <div class="field-group" style="margin-bottom: 10px;">
+          <label class="field-label" for="inlinePreNotes_${escapeHtml(s.id)}">Pre-Race Notes</label>
+          <input type="text" id="inlinePreNotes_${escapeHtml(s.id)}" class="text-input" value="${escapeHtml(s.preRaceNotes || '')}" />
+        </div>
+
         <div class="field-group" style="margin-bottom: 12px;">
-          <label class="field-label" for="inlineNotes_${escapeHtml(s.id)}">Session Notes</label>
-          <input type="text" id="inlineNotes_${escapeHtml(s.id)}" class="text-input" value="${escapeHtml(s.notes || '')}" />
+          <label class="field-label" for="inlineNotes_${escapeHtml(s.id)}">Post-Race Notes</label>
+          <input type="text" id="inlineNotes_${escapeHtml(s.id)}" class="text-input" value="${escapeHtml(s.postRaceNotes !== undefined ? s.postRaceNotes : s.notes || '')}" />
         </div>
 
         <div class="mid-sweep-panel" style="margin-bottom: 12px;">
@@ -5868,6 +6148,7 @@
       'Event_Locked',
       'Track',
       'Session',
+      'Session_Status',
       'Venue',
       'Date',
       'Timestamp',
@@ -5917,7 +6198,8 @@
       'RR_Cold_PSI',
       'RR_Hot_PSI',
       'RR_NextCold_PSI',
-      'Notes'
+      'Pre_Race_Notes',
+      'Post_Race_Notes'
     ];
     const fmtOptDec = (val, dec = 1) =>
       val !== null && val !== undefined && val !== '' && Number.isFinite(Number(val))
@@ -5951,6 +6233,7 @@
         ownerEvt ? (ownerEvt.locked ? 'LOCKED' : 'LIVE') : 'LOCKED',
         trackName,
         s.sessionName,
+        s.status === 'active' ? 'ACTIVE' : 'COMPLETED',
         trackName,
         dateStr,
         s.timestamp || '',
@@ -6000,7 +6283,8 @@
         fmtCorner('RR', 'cold'),
         fmtCorner('RR', 'hot'),
         fmtCorner('RR', 'nextCold'),
-        s.notes || ''
+        s.preRaceNotes || '',
+        s.postRaceNotes !== undefined ? s.postRaceNotes : s.notes || ''
       ];
     });
 
@@ -6021,7 +6305,7 @@
     }
     const payload = JSON.stringify(
       {
-        app: 'SNB Racing — HQ 202 Jetting & AFR (v0.5.7 Event Edition)',
+        app: 'SNB Racing — HQ 202 Jetting & AFR (v0.5.8 Event Edition)',
         exportedAt: new Date().toISOString(),
         state
       },
@@ -7023,30 +7307,80 @@
     }
   }
 
+  function syncModalPostFuelAndTyresPreview() {
+    const inL = readNum('modalPostFuelInL', 0);
+    const outL = readNum('modalPostFuelOutL', 0);
+    const laps = Math.max(1, Math.round(readNum('modalPostRacedLaps', 10)));
+    const usedL = Math.max(0, inL - outL);
+    const burnEl = $('modalPostMeasuredBurnOut');
+    if (burnEl) {
+      if (inL > 0 && outL >= 0 && inL >= outL && laps > 0) {
+        const burn = usedL / laps;
+        burnEl.textContent = `${usedL.toFixed(1)} L used ÷ ${laps} laps = ${burn.toFixed(2)} L/lap`;
+        burnEl.className = 'mono txt-emerald';
+      } else {
+        burnEl.textContent = '— L/lap';
+        burnEl.className = 'mono txt-amber';
+      }
+    }
+
+    const activeSess = getActiveSession() || (ui.postRaceTargetSessionId && state.sessions.find((s) => s.id === ui.postRaceTargetSessionId)) || null;
+    const hotTarget =
+      activeSess && Number.isFinite(Number(activeSess.tyreHotTarget))
+        ? Number(activeSess.tyreHotTarget)
+        : readNum('inputTyreHotTarget', 44.0);
+
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const nextOutEl = $(`modalPostNextCold_${c}`);
+      if (!nextOutEl) return;
+      const hotRaw = $(`modalPostHotPsi_${c}`) ? String($(`modalPostHotPsi_${c}`).value || '').trim() : '';
+      const hotVal = hotRaw !== '' ? parseFloat(hotRaw) : NaN;
+      const coldFromSess =
+        activeSess && activeSess.tyres && activeSess.tyres[c] && Number.isFinite(Number(activeSess.tyres[c].cold))
+          ? Number(activeSess.tyres[c].cold)
+          : readOptionalPsi(`inputColdPsi_${c}`);
+
+      if (Number.isFinite(hotVal) && hotVal > 0 && coldFromSess !== null && Number.isFinite(coldFromSess) && coldFromSess > 0) {
+        const nextCold = coldFromSess + (hotTarget - hotVal);
+        nextOutEl.textContent = `Next Cold: ${nextCold.toFixed(1)} PSI (from ${coldFromSess.toFixed(1)} → ${hotVal.toFixed(1)})`;
+        nextOutEl.className = 'field-hint emerald';
+      } else if (coldFromSess !== null && Number.isFinite(coldFromSess) && coldFromSess > 0) {
+        nextOutEl.textContent = `Cold Set: ${coldFromSess.toFixed(1)} PSI (Enter Hot PSI)`;
+        nextOutEl.className = 'field-hint';
+      } else {
+        nextOutEl.textContent = 'Next Cold: —';
+        nextOutEl.className = 'field-hint';
+      }
+    });
+  }
+
   function openPostRaceAfrModal() {
     const liveEvt = getActiveEvent();
     if (!liveEvt) {
-      openNewEventModal(() => openPostRaceAfrModal());
+      openNewEventModal();
       return;
     }
 
-    const b = state.baseline;
-    const activeSessName = getSelectedSessionName();
+    const activeSess = getActiveSession();
     const liveSessions = Array.isArray(liveEvt.sessions) ? liveEvt.sessions : [];
-    const pendingSess =
-      (state.awaitingPostRaceId && liveSessions.find((s) => s.id === state.awaitingPostRaceId)) || null;
     const linked =
-      pendingSess ||
-      liveSessions.find((s) => s.sessionName === activeSessName) ||
+      activeSess ||
+      (state.awaitingPostRaceId && liveSessions.find((s) => s.id === state.awaitingPostRaceId)) ||
       liveSessions[liveSessions.length - 1] ||
       null;
 
-    ui.postRaceTargetSessionId = linked ? linked.id : null;
+    if (!linked) {
+      openPromptNextSessionModal();
+      return;
+    }
 
-    const sessionLabelName = linked ? linked.sessionName : activeSessName || b.sessionName;
-    const sessionVenue = liveEvt.venue || (linked && linked.venue) || b.venue || 'Calder Park Raceway';
-    const sessionCarby = (linked && linked.carbyId) || b.carbyId;
-    const sessionJet = (linked && linked.jetLabel) || b.jetLabel;
+    ui.postRaceTargetSessionId = linked.id;
+
+    const b = state.baseline;
+    const sessionLabelName = linked.sessionName || b.sessionName;
+    const sessionVenue = liveEvt.venue || linked.venue || b.venue || 'Calder Park Raceway';
+    const sessionCarby = linked.carbyId || b.carbyId;
+    const sessionJet = linked.jetLabel || b.jetLabel;
 
     const refAfr =
       linked && Number.isFinite(Number(linked.afrWot))
@@ -7094,8 +7428,43 @@
     }
     syncPostRaceWaterHintUi();
 
+    // Section 2: Pre-populate Post-Race Fuel Pump-Out from session or Tab 2 inputs
+    const defaultFuelIn =
+      linked.fuelInL !== null && linked.fuelInL !== undefined && Number.isFinite(Number(linked.fuelInL))
+        ? Number(linked.fuelInL)
+        : linked.startingFuelReqL !== null && linked.startingFuelReqL !== undefined && Number.isFinite(Number(linked.startingFuelReqL))
+        ? Number(linked.startingFuelReqL)
+        : readNum('inputPumpBeforeL', 29.0);
+    const defaultFuelOut =
+      linked.fuelOutL !== null && linked.fuelOutL !== undefined && Number.isFinite(Number(linked.fuelOutL))
+        ? Number(linked.fuelOutL)
+        : readNum('inputPumpAfterL', 12.0);
+    const defaultRacedLaps =
+      linked.racedLaps !== null && linked.racedLaps !== undefined && Number.isFinite(Number(linked.racedLaps)) && Number(linked.racedLaps) > 0
+        ? Math.round(Number(linked.racedLaps))
+        : Math.max(1, Math.round(readNum('inputRaceLaps', 10)));
+
+    if ($('modalPostFuelInL')) $('modalPostFuelInL').value = defaultFuelIn.toFixed(1);
+    if ($('modalPostFuelOutL')) $('modalPostFuelOutL').value = defaultFuelOut.toFixed(1);
+    if ($('modalPostRacedLaps')) $('modalPostRacedLaps').value = String(defaultRacedLaps);
+
+    // Section 3: Pre-populate Post-Race 4-Corner Hot PSIs from Tab 3 inputs or session
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const hotModalEl = $(`modalPostHotPsi_${c}`);
+      if (!hotModalEl) return;
+      const tabHot = readOptionalPsi(`inputHotPsi_${c}`);
+      const sessHot =
+        linked.tyres && linked.tyres[c] && linked.tyres[c].hot !== null && linked.tyres[c].hot !== undefined && Number.isFinite(Number(linked.tyres[c].hot))
+          ? Number(linked.tyres[c].hot)
+          : null;
+      const val = tabHot !== null ? tabHot : sessHot;
+      hotModalEl.value = val !== null ? val.toFixed(1) : '';
+    });
+
+    syncModalPostFuelAndTyresPreview();
+
     if ($('modalPostNotes')) {
-      $('modalPostNotes').value = linked && linked.notes ? linked.notes : '';
+      $('modalPostNotes').value = linked.postRaceNotes || '';
     }
 
     const fmtOpt = (val) => {
@@ -7132,9 +7501,9 @@
     const liveEvt = getActiveEvent();
     const liveSessions = liveEvt && Array.isArray(liveEvt.sessions) ? liveEvt.sessions : [];
     let linked =
+      getActiveSession() ||
       (ui.postRaceTargetSessionId && liveSessions.find((s) => s.id === ui.postRaceTargetSessionId)) ||
       (state.awaitingPostRaceId && liveSessions.find((s) => s.id === state.awaitingPostRaceId)) ||
-      liveSessions.find((s) => s.sessionName === getSelectedSessionName()) ||
       liveSessions[liveSessions.length - 1] ||
       null;
 
@@ -7159,7 +7528,7 @@
     const wot = skipAfr ? fallbackAfr : Number(readNum('modalPostWotAfr', fallbackAfr).toFixed(2));
     const fuelPsi = Number(readNum('modalPostFuelPsi', state.baseline.fuelPsi || 5.0).toFixed(1));
     const waterTempC = readOptionalWaterTemp('modalPostWaterTemp');
-    const notesVal = ($('modalPostNotes') && $('modalPostNotes').value.trim()) || '';
+    const postNotesVal = ($('modalPostNotes') && $('modalPostNotes').value.trim()) || '';
 
     const a35 = readOptionalAfr('modalPost3500');
     const a40 = readOptionalAfr('modalPost4000');
@@ -7167,7 +7536,67 @@
     const a50 = readOptionalAfr('modalPost5000');
     const a55 = readOptionalAfr('modalPost5500');
 
+    // Read Post-Race Fuel Pump-Out
+    const modalFuelInL = readNum('modalPostFuelInL', 0);
+    const modalFuelOutL = readNum('modalPostFuelOutL', 0);
+    const modalRacedLaps = Math.max(1, Math.round(readNum('modalPostRacedLaps', 10)));
+    const hasValidPump = modalFuelInL > 0 && modalFuelOutL >= 0 && modalFuelInL > modalFuelOutL && modalRacedLaps > 0;
+    const modalFuelUsedL = hasValidPump ? Number((modalFuelInL - modalFuelOutL).toFixed(2)) : null;
+    const modalMeasuredBurn = hasValidPump ? Number((modalFuelUsedL / modalRacedLaps).toFixed(2)) : null;
+
+    if (hasValidPump) {
+      if ($('inputPumpBeforeL')) $('inputPumpBeforeL').value = modalFuelInL.toFixed(1);
+      if ($('inputPumpAfterL')) $('inputPumpAfterL').value = modalFuelOutL.toFixed(1);
+      if ($('inputPumpLaps')) $('inputPumpLaps').value = String(modalRacedLaps);
+      if ($('inputRaceLaps')) $('inputRaceLaps').value = String(modalRacedLaps);
+      if ($('inputTyreSessionLaps')) $('inputTyreSessionLaps').value = String(modalRacedLaps);
+    }
+
+    // Read Post-Race Hot Tyre PSIs & compute Next Cold Set for roll-forward
+    const hotTarget =
+      linked && Number.isFinite(Number(linked.tyreHotTarget))
+        ? Number(linked.tyreHotTarget)
+        : readNum('inputTyreHotTarget', 44.0);
+    const mounted = ensureMountedTyresState();
+    const nextColdRollForward = {};
+
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const hotRaw = $(`modalPostHotPsi_${c}`) ? String($(`modalPostHotPsi_${c}`).value || '').trim() : '';
+      const parsedHot = hotRaw !== '' ? parseFloat(hotRaw) : NaN;
+      const hotPsi = Number.isFinite(parsedHot) && parsedHot > 0 ? Number(parsedHot.toFixed(1)) : null;
+
+      const coldPsi =
+        linked && linked.tyres && linked.tyres[c] && Number.isFinite(Number(linked.tyres[c].cold)) && Number(linked.tyres[c].cold) > 0
+          ? Number(linked.tyres[c].cold)
+          : readOptionalPsi(`inputColdPsi_${c}`);
+
+      let nextColdPsi = null;
+      if (coldPsi !== null && hotPsi !== null) {
+        nextColdPsi = Number((coldPsi + (hotTarget - hotPsi)).toFixed(1));
+      } else if (coldPsi !== null) {
+        nextColdPsi = Number(coldPsi.toFixed(1));
+      }
+
+      if (linked) {
+        if (!linked.tyres || typeof linked.tyres !== 'object') linked.tyres = {};
+        const prevCorner = linked.tyres[c] || {};
+        linked.tyres[c] = {
+          ...prevCorner,
+          tyreId: prevCorner.tyreId || mounted[c] || DEFAULT_CORNER_TYRE_IDS[c],
+          cold: coldPsi,
+          hot: hotPsi,
+          nextCold: nextColdPsi
+        };
+      }
+      if (nextColdPsi !== null) {
+        nextColdRollForward[c] = nextColdPsi;
+      }
+    });
+
+    const completedSessionName = linked ? linked.sessionName : state.baseline.sessionName;
+
     if (linked && !isSessionLocked(linked.id)) {
+      linked.status = 'completed';
       linked.afr3500 = a35;
       linked.afr4000 = a40;
       linked.afr4500 = a45;
@@ -7182,11 +7611,19 @@
       linked.peakRpm = peakRpm;
       linked.fuelPsi = fuelPsi;
       linked.waterTempC = waterTempC;
-      if (notesVal) {
-        linked.notes = notesVal;
+      linked.racedLaps = modalRacedLaps;
+      if (hasValidPump) {
+        linked.fuelInL = Number(modalFuelInL.toFixed(1));
+        linked.fuelOutL = Number(modalFuelOutL.toFixed(1));
+        linked.fuelUsedL = modalFuelUsedL;
+        linked.measuredBurnLPerLap = modalMeasuredBurn;
+      }
+      if (postNotesVal) {
+        linked.postRaceNotes = postNotesVal;
+        linked.notes = postNotesVal;
       }
 
-      // Promote this verified post-race session into Locked Baseline
+      // Promote this completed session into Locked Baseline for the next session
       const iso = linked.sessionDateIso || state.baseline.sessionDateIso || getLocalTodayIso();
       state.baseline = {
         venue: linked.venue || state.baseline.venue || 'Calder Park Raceway',
@@ -7211,18 +7648,51 @@
         linkedSessionId: linked.id
       };
       ui.weatherOnly = state.baseline.weatherOnly;
-    } else {
-      if (!skipAfr) {
-        state.baseline.wotAfr = wot;
-        state.baseline.afrStatus = 'verified';
-        state.baseline.weatherOnly = false;
-        ui.weatherOnly = false;
-      }
-      state.baseline.peakRpm = peakRpm;
-      state.baseline.fuelPsi = fuelPsi;
-      state.baseline.waterTempC = waterTempC;
     }
 
+    // Roll-forward Fuel L/lap and Tyre Next Cold Set PSIs into live chassis baseline & clear Hot PSIs
+    const venueForLearn = (liveEvt && liveEvt.venue) || (linked && linked.venue) || state.baseline.venue || 'Calder Park Raceway';
+    syncFlatSessionsFromEvents(state);
+    if (hasValidPump) {
+      recalculateTrackAverageBurn(venueForLearn);
+      const learnedFuel = getTrackLearnedFuelStats(venueForLearn);
+      if ($('inputBurnLPerLap')) {
+        $('inputBurnLPerLap').value = learnedFuel.avg.toFixed(2);
+      }
+      if (state.chassis) {
+        state.chassis.burnLPerLap = learnedFuel.avg;
+      }
+    }
+
+    const prof = ensureTrackProfile(venueForLearn);
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      if (Number.isFinite(nextColdRollForward[c])) {
+        const nextColdVal = nextColdRollForward[c];
+        if (state.chassis && state.chassis.coldTyres) {
+          state.chassis.coldTyres[c] = nextColdVal;
+        }
+        if (state.chassis && state.chassis.tyreCondition !== 'wet' && prof && prof.coldTyres) {
+          prof.coldTyres[c] = nextColdVal;
+        }
+        const coldInput = $(`inputColdPsi_${c}`);
+        if (coldInput) coldInput.value = nextColdVal.toFixed(1);
+      }
+      if (state.chassis && state.chassis.hotTyres) {
+        state.chassis.hotTyres[c] = null;
+      }
+      const hotInput = $(`inputHotPsi_${c}`);
+      if (hotInput) hotInput.value = '';
+    });
+
+    // Update cumulative tyre laps across pool now that session is marked completed
+    if (Array.isArray(state.tyrePool)) {
+      state.tyrePool.forEach((t) => {
+        t.totalLaps = getTyreCumulativeLaps(t.id);
+      });
+    }
+
+    // Transition out of the completed session into Gate B / Prompt for Next Session
+    state.activeSessionId = null;
     state.awaitingPostRaceId = null;
     ui.postRaceTargetSessionId = null;
 
@@ -7251,12 +7721,80 @@
 
     saveState();
     closeModal('modalPostRaceAfr');
-    syncSessionSelectFromBaseline(state.baseline.sessionName);
     renderAll();
+
+    // Immediately prompt for the next session in sequence
+    openPromptNextSessionModal(completedSessionName);
+
     const waterMsg = waterTempC !== null ? ` • ${waterTempC}°C` : '';
     showToast(
-      `Saved ${state.baseline.sessionName}: ${wot.toFixed(2)} AFR @ ${peakRpm} RPM • ${fuelPsi.toFixed(1)} psi${waterMsg}`
+      `Completed ${completedSessionName}: ${wot.toFixed(2)} AFR @ ${peakRpm} RPM${waterMsg} • Baseline Rolled Forward`
     );
+  }
+
+  function openDeleteSessionModal(sid) {
+    if (isSessionLocked(sid)) {
+      showToast('Event is Completed & Locked (Read-Only)');
+      return;
+    }
+    const sess = state.sessions.find((s) => s.id === sid);
+    if (!sess) return;
+
+    ui.confirmDeleteSessionId = sid;
+    const venueLabel = normalizeVenueName(sess.venue || 'Calder Park Raceway');
+    if ($('deleteSessionTargetLabel')) {
+      $('deleteSessionTargetLabel').textContent = `${sess.sessionName} • ${venueLabel} (${sess.carbyId} • ${sess.jetLabel})`;
+    }
+    if ($('deleteSessionStep1')) $('deleteSessionStep1').style.display = 'block';
+    if ($('deleteSessionStep2')) $('deleteSessionStep2').style.display = 'none';
+    openModal('modalDeleteSessionConfirm');
+  }
+
+  function advanceDeleteSessionStep2() {
+    if (!ui.confirmDeleteSessionId) return;
+    if ($('deleteSessionStep1')) $('deleteSessionStep1').style.display = 'none';
+    if ($('deleteSessionStep2')) $('deleteSessionStep2').style.display = 'block';
+  }
+
+  function confirmPermanentDeleteSession() {
+    const sid = ui.confirmDeleteSessionId;
+    if (!sid) return;
+    const sess = state.sessions.find((s) => s.id === sid);
+    if (!sess) {
+      closeModal('modalDeleteSessionConfirm');
+      return;
+    }
+
+    const removedName = sess.sessionName;
+    const removedVenue = sess.venue || 'Calder Park Raceway';
+    const ownerEvt = findEventForSession(sid);
+    if (ownerEvt && Array.isArray(ownerEvt.sessions)) {
+      ownerEvt.sessions = ownerEvt.sessions.filter((s) => s.id !== sid);
+    }
+    if (state.activeSessionId === sid) {
+      state.activeSessionId = null;
+    }
+    syncFlatSessionsFromEvents(state);
+    if (state.baseline.linkedSessionId === sid) {
+      state.baseline.linkedSessionId = null;
+    }
+    if (state.awaitingPostRaceId === sid) {
+      state.awaitingPostRaceId = null;
+    }
+    if (ui.editingSessionId === sid) {
+      ui.editingSessionId = null;
+    }
+    ui.confirmDeleteSessionId = null;
+    recalculateTrackAverageBurn(removedVenue);
+    if (Array.isArray(state.tyrePool)) {
+      state.tyrePool.forEach((t) => {
+        t.totalLaps = getTyreCumulativeLaps(t.id);
+      });
+    }
+    closeModal('modalDeleteSessionConfirm');
+    saveState();
+    renderAll();
+    showToast(`Permanently deleted ${removedName}`);
   }
 
   function syncEditBaselineModalWeatherOnlyUi() {
@@ -7700,7 +8238,9 @@
     'inputFuelFloorL',
     'inputPumpBeforeL',
     'inputPumpAfterL',
-    'inputScaleCheckFuelL'
+    'inputScaleCheckFuelL',
+    'modalPostFuelInL',
+    'modalPostFuelOutL'
   ]);
 
   function stepNumericInput(inputEl, delta) {
@@ -7778,6 +8318,7 @@
       btn.classList.toggle('active', active);
       btn.setAttribute('aria-selected', active ? 'true' : 'false');
     });
+    renderWeekendEventBanner();
     if (tabId === 'tab-fuel') {
       recalcFuelAndWeight();
     }
@@ -7926,22 +8467,17 @@
         const sess = state.sessions.find((s) => s.id === sid);
         if (sess) {
           const nameInput = $(`inlineName_${sid}`);
-          const venueInput = $(`inlineVenue_${sid}`);
-          const dateInput = $(`inlineDate_${sid}`);
+          const preNotesInput = $(`inlinePreNotes_${sid}`);
           const notesInput = $(`inlineNotes_${sid}`);
           if (nameInput && nameInput.value.trim()) {
             sess.sessionName = nameInput.value.trim();
           }
-          if (venueInput && venueInput.value.trim()) {
-            sess.venue = normalizeVenueName(venueInput.value.trim());
-          }
-          if (dateInput && dateInput.value.trim()) {
-            sess.sessionDateIso = dateInput.value.trim();
-            sess.sessionIsoDate = sess.sessionDateIso;
-            sess.sessionDate = formatIsoDateDisplay(sess.sessionDateIso);
+          if (preNotesInput) {
+            sess.preRaceNotes = preNotesInput.value.trim();
           }
           if (notesInput) {
-            sess.notes = notesInput.value.trim();
+            sess.postRaceNotes = notesInput.value.trim();
+            sess.notes = sess.postRaceNotes;
           }
 
           sess.afr3500 = readOptionalAfr(`inlineAfr_${sid}_3500`);
@@ -8027,41 +8563,7 @@
       const deleteSessionBtn = e.target.closest('[data-delete-session]');
       if (deleteSessionBtn) {
         const sid = deleteSessionBtn.getAttribute('data-delete-session');
-        if (isSessionLocked(sid)) {
-          showToast('Event is Completed & Locked (Read-Only)');
-          return;
-        }
-        const sess = state.sessions.find((s) => s.id === sid);
-        if (!sess) return;
-
-        if (
-          typeof window.confirm === 'function' &&
-          !window.confirm(`Remove session "${sess.sessionName}" (${sess.venue || 'Calder Park Raceway'})?`)
-        ) {
-          return;
-        }
-
-        const removedName = sess.sessionName;
-        const removedVenue = sess.venue || 'Calder Park Raceway';
-        const ownerEvt = findEventForSession(sid);
-        if (ownerEvt && Array.isArray(ownerEvt.sessions)) {
-          ownerEvt.sessions = ownerEvt.sessions.filter((s) => s.id !== sid);
-        }
-        syncFlatSessionsFromEvents(state);
-        if (state.baseline.linkedSessionId === sid) {
-          state.baseline.linkedSessionId = null;
-        }
-        if (state.awaitingPostRaceId === sid) {
-          state.awaitingPostRaceId = null;
-        }
-        if (ui.editingSessionId === sid) {
-          ui.editingSessionId = null;
-        }
-        ui.confirmDeleteSessionId = null;
-        recalculateTrackAverageBurn(removedVenue);
-        saveState();
-        renderAll();
-        showToast(`Removed ${removedName}`);
+        openDeleteSessionModal(sid);
         return;
       }
 
@@ -8365,9 +8867,9 @@
     document.addEventListener('input', handleLiveFuelOrTyreInput);
     document.addEventListener('change', handleLiveFuelOrTyreInput);
 
-    // Weekend Event Banner & Modals (Start New Event / Next Session / End & Lock Event)
+    // Weekend Event Banner, Gatekeeper & Sequential Session Modals
     if ($('btnOpenNewEventModal')) {
-      $('btnOpenNewEventModal').addEventListener('click', openNewEventModal);
+      $('btnOpenNewEventModal').addEventListener('click', () => openNewEventModal());
     }
     if ($('btnCloseNewEventModal')) {
       $('btnCloseNewEventModal').addEventListener('click', () => closeModal('modalNewEvent'));
@@ -8391,11 +8893,34 @@
     if ($('btnStartLiveEvent')) {
       $('btnStartLiveEvent').addEventListener('click', startLiveEventFromModal);
     }
-    if ($('btnStartNextSession')) {
-      $('btnStartNextSession').addEventListener('click', startNextLiveSession);
+    if ($('btnOpenCreateNextSession')) {
+      $('btnOpenCreateNextSession').addEventListener('click', () => openPromptNextSessionModal());
+    }
+    if ($('nextSessionSelect')) {
+      $('nextSessionSelect').addEventListener('change', () => {
+        if ($('nextSessionCustomWrap')) {
+          $('nextSessionCustomWrap').style.display =
+            $('nextSessionSelect').value === '__CUSTOM__' ? 'block' : 'none';
+        }
+      });
+    }
+    if ($('btnConfirmStartNextSession')) {
+      $('btnConfirmStartNextSession').addEventListener('click', confirmStartNextSessionFromPrompt);
+    }
+    if ($('btnDeferNextSession')) {
+      $('btnDeferNextSession').addEventListener('click', deferNextSessionToGateB);
     }
     if ($('btnOpenEndEventModal')) {
       $('btnOpenEndEventModal').addEventListener('click', openEndEventModal);
+    }
+    if ($('btnOpenEndEventFromGateB')) {
+      $('btnOpenEndEventFromGateB').addEventListener('click', openEndEventModal);
+    }
+    if ($('btnEndEventFromPrompt')) {
+      $('btnEndEventFromPrompt').addEventListener('click', () => {
+        closeModal('modalPromptNextSession');
+        openEndEventModal();
+      });
     }
     if ($('btnCloseEndEventModal')) {
       $('btnCloseEndEventModal').addEventListener('click', () => closeModal('modalEndEvent'));
@@ -8405,6 +8930,47 @@
     }
     if ($('btnConfirmEndEvent')) {
       $('btnConfirmEndEvent').addEventListener('click', confirmEndActiveEvent);
+    }
+
+    // Two-step Delete Session Confirmation Modal
+    if ($('btnCancelDeleteSessionStep1')) {
+      $('btnCancelDeleteSessionStep1').addEventListener('click', () => {
+        ui.confirmDeleteSessionId = null;
+        closeModal('modalDeleteSessionConfirm');
+      });
+    }
+    if ($('btnAdvanceDeleteSessionStep2')) {
+      $('btnAdvanceDeleteSessionStep2').addEventListener('click', advanceDeleteSessionStep2);
+    }
+    if ($('btnCancelDeleteSessionStep2')) {
+      $('btnCancelDeleteSessionStep2').addEventListener('click', () => {
+        ui.confirmDeleteSessionId = null;
+        closeModal('modalDeleteSessionConfirm');
+      });
+    }
+    if ($('btnConfirmPermanentDeleteSession')) {
+      $('btnConfirmPermanentDeleteSession').addEventListener('click', confirmPermanentDeleteSession);
+    }
+
+    // Live Pre-Race Notes sync between Step 1 (#inputPreRaceNotes), Step 2 (#inputRunNotes), and active session
+    const syncPreRaceNotesLive = (val) => {
+      if ($('inputPreRaceNotes') && $('inputPreRaceNotes').value !== val) {
+        $('inputPreRaceNotes').value = val;
+      }
+      if ($('inputRunNotes') && $('inputRunNotes').value !== val) {
+        $('inputRunNotes').value = val;
+      }
+      const activeSess = getActiveSession();
+      if (activeSess) {
+        activeSess.preRaceNotes = String(val || '').trim();
+        saveState();
+      }
+    };
+    if ($('inputPreRaceNotes')) {
+      $('inputPreRaceNotes').addEventListener('input', (e) => syncPreRaceNotesLive(e.target.value));
+    }
+    if ($('inputRunNotes')) {
+      $('inputRunNotes').addEventListener('input', (e) => syncPreRaceNotesLive(e.target.value));
     }
 
     // Calculator buttons & Back navigation (preserving all Step 1 inputs)
@@ -8427,114 +8993,6 @@
     $('btnBackToStep1Top').addEventListener('click', returnToStep1);
     $('btnBackToStep1Bottom').addEventListener('click', returnToStep1);
     $('btnConfirmLockJet').addEventListener('click', confirmJetAndLockForNextRace);
-
-    // Synchronized Session Name Selectors across Live Event Bar, Tab 1 (Calculator), Tab 2 (Fuel & Wt), and Tab 3 (Tyres)
-    [
-      ['selectLiveEventSession', 'inputLiveEventCustomSession'],
-      ['selectSessionName', 'inputCustomSessionName'],
-      ['selectFuelSessionName', 'inputCustomFuelSessionName'],
-      ['selectTyreSessionName', 'inputCustomTyreSessionName']
-    ].forEach(([selId, customId]) => {
-      const sel = $(selId);
-      const customInp = $(customId);
-      if (sel) {
-        sel.addEventListener('change', () => {
-          updateCustomSessionVisibility();
-          if (sel.value !== '__CUSTOM__') {
-            setSessionNameOnAllTabs(sel.value);
-          } else {
-            ['selectLiveEventSession', 'selectSessionName', 'selectFuelSessionName', 'selectTyreSessionName'].forEach((otherId) => {
-              if ($(otherId)) $(otherId).value = '__CUSTOM__';
-            });
-            updateCustomSessionVisibility();
-          }
-        });
-      }
-      if (customInp) {
-        customInp.addEventListener('input', () => {
-          const val = customInp.value;
-          ['inputLiveEventCustomSession', 'inputCustomSessionName', 'inputCustomFuelSessionName', 'inputCustomTyreSessionName'].forEach((otherId) => {
-            if (otherId !== customId && $(otherId)) $(otherId).value = val;
-          });
-        });
-      }
-    });
-
-    // Synchronized Session Date inputs across Tab 1 (Calculator), Tab 2 (Fuel & Wt), and Tab 3 (Tyres)
-    ['inputSessionDate', 'inputFuelSessionDate', 'inputTyreSessionDate'].forEach((dateId) => {
-      const el = $(dateId);
-      if (el) {
-        const syncDate = () => {
-          if (el.value) setSessionDateOnAllTabs(el.value);
-        };
-        el.addEventListener('change', syncDate);
-        el.addEventListener('input', syncDate);
-      }
-    });
-
-    // Synchronized Track Selectors across Tab 1 (Calculator), Tab 2 (Fuel & Wt), and Tab 3 (Tyres)
-    if ($('selectTrackVenue')) {
-      $('selectTrackVenue').addEventListener('change', () => {
-        updateCustomTrackVisibility();
-        const venue = getSelectedTrackVenue();
-        setVenueOnAllTrackSelectors(venue, true);
-        recalcFuelAndWeight();
-        recalcTyres();
-      });
-    }
-    if ($('inputCustomTrack')) {
-      $('inputCustomTrack').addEventListener('input', () => {
-        const val = $('inputCustomTrack').value;
-        if ($('inputCustomFuelTrack')) $('inputCustomFuelTrack').value = val;
-        if ($('inputCustomTyreTrack')) $('inputCustomTyreTrack').value = val;
-        const venue = getSelectedTrackVenue();
-        loadTrackProfileToFuelAndTyreInputs(venue);
-        recalcFuelAndWeight();
-        recalcTyres();
-      });
-    }
-    if ($('selectFuelTrack')) {
-      $('selectFuelTrack').addEventListener('change', () => {
-        updateCustomTrackVisibility();
-        const venue = getSelectedFuelTrackVenue();
-        setVenueOnAllTrackSelectors(venue, true);
-        recalcFuelAndWeight();
-        recalcTyres();
-        showToast(`Loaded ${venue} L/lap & Cold Tyre profile`);
-      });
-    }
-    if ($('inputCustomFuelTrack')) {
-      $('inputCustomFuelTrack').addEventListener('input', () => {
-        const val = $('inputCustomFuelTrack').value;
-        if ($('inputCustomTrack')) $('inputCustomTrack').value = val;
-        if ($('inputCustomTyreTrack')) $('inputCustomTyreTrack').value = val;
-        const venue = getSelectedFuelTrackVenue();
-        loadTrackProfileToFuelAndTyreInputs(venue);
-        recalcFuelAndWeight();
-        recalcTyres();
-      });
-    }
-    if ($('selectTyreTrack')) {
-      $('selectTyreTrack').addEventListener('change', () => {
-        updateCustomTrackVisibility();
-        const venue = getSelectedTyreTrackVenue();
-        setVenueOnAllTrackSelectors(venue, true);
-        recalcFuelAndWeight();
-        recalcTyres();
-        showToast(`Loaded ${venue} Cold Tyre & L/lap profile`);
-      });
-    }
-    if ($('inputCustomTyreTrack')) {
-      $('inputCustomTyreTrack').addEventListener('input', () => {
-        const val = $('inputCustomTyreTrack').value;
-        if ($('inputCustomTrack')) $('inputCustomTrack').value = val;
-        if ($('inputCustomFuelTrack')) $('inputCustomFuelTrack').value = val;
-        const venue = getSelectedTyreTrackVenue();
-        loadTrackProfileToFuelAndTyreInputs(venue);
-        recalcFuelAndWeight();
-        recalcTyres();
-      });
-    }
 
     $('selectCalcCarby').addEventListener('change', updateCarbySwapHint);
 
@@ -8604,12 +9062,18 @@
       });
     }
 
-    // Tab 2 (Fuel & Wt) and Tab 3 (Tyres) unified session save & Tyre Stock buttons
+    // Tab 2 (Fuel & Wt) and Tab 3 (Tyres) unified session save, Complete Session & Tyre Stock buttons
     if ($('btnSaveFuelWeightSession')) {
       $('btnSaveFuelWeightSession').addEventListener('click', saveFuelAndWeightToSession);
     }
+    if ($('btnCompleteSessionFromFuel')) {
+      $('btnCompleteSessionFromFuel').addEventListener('click', openPostRaceAfrModal);
+    }
     if ($('btnSaveTyresSession')) {
       $('btnSaveTyresSession').addEventListener('click', saveTyresToSession);
+    }
+    if ($('btnCompleteSessionFromTyres')) {
+      $('btnCompleteSessionFromTyres').addEventListener('click', openPostRaceAfrModal);
     }
     if ($('btnClearAllColdPsi')) {
       $('btnClearAllColdPsi').addEventListener('click', toggleClearOrRestoreColdPsi);
@@ -8730,7 +9194,7 @@
       renderStep2Calculator(false);
     });
 
-    // Baseline & Fleet modals
+    // Baseline, Post-Race Completion & Fleet modals
     $('btnOpenPostRaceAfr').addEventListener('click', openPostRaceAfrModal);
     $('btnSavePostRaceAfr').addEventListener('click', savePostRaceAfrModal);
     $('modalPostWotAfr').addEventListener('input', () => {
@@ -8742,6 +9206,21 @@
     if ($('modalPostWaterTemp')) {
       $('modalPostWaterTemp').addEventListener('input', syncPostRaceWaterHintUi);
     }
+    [
+      'modalPostFuelInL',
+      'modalPostFuelOutL',
+      'modalPostRacedLaps',
+      'modalPostHotPsi_FL',
+      'modalPostHotPsi_FR',
+      'modalPostHotPsi_RL',
+      'modalPostHotPsi_RR'
+    ].forEach((id) => {
+      const el = $(id);
+      if (el) {
+        el.addEventListener('input', syncModalPostFuelAndTyresPreview);
+        el.addEventListener('change', syncModalPostFuelAndTyresPreview);
+      }
+    });
 
     $('btnOpenEditBaseline').addEventListener('click', openEditBaselineModal);
     $('btnSaveEditBaseline').addEventListener('click', saveEditBaselineModal);
@@ -8848,6 +9327,7 @@
       state = {
         eventArchitectureV1: true,
         activeEventId: null,
+        activeSessionId: null,
         events: defaultEvents,
         baseline: createDefaultBaseline(),
         awaitingPostRaceId: null,

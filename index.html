@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.5.7" />
+  <link rel="stylesheet" href="./styles.css?v=0.5.8" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -89,74 +89,93 @@
 
   <main class="app-shell" role="main">
     <!-- =========================================================
-         PERSISTENT WEEKEND EVENT BAR (+ NEW EVENT / LIVE EVENT + END EVENT)
+         SEQUENTIAL EVENT & SINGLE-LOCKED-SESSION GATEKEEPER BANNER
+         (Shown ONLY on Tune, Fuel & Wt, and Tyres; hidden on Log & Fleet)
          ========================================================= -->
-    <div id="weekendEventBanner" class="weekend-event-banner" role="region" aria-label="Race Weekend Event Control">
-      <!-- State 1: No Active Event -->
-      <div id="eventBarInactiveView" class="event-bar-inactive">
-        <div class="event-bar-inactive-top">
-          <span class="event-bar-eyebrow">No Active Race Weekend</span>
-          <span class="event-bar-hint">All sessions log inside an Event</span>
+    <div id="weekendEventBanner" class="weekend-event-banner" role="region" aria-label="Race Weekend Event & Session Control">
+      <!-- GATE A: No Active Event (!state.activeEventId) -->
+      <div id="eventGateNoEventView" class="event-gate-card">
+        <div class="event-gate-icon-wrap" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
         </div>
+        <div class="event-gate-eyebrow">Sequential Event Gatekeeper</div>
+        <h2 class="event-gate-title">NO ACTIVE RACE EVENT</h2>
+        <p class="event-gate-subtitle">
+          Start a weekend event to lock in your Track &amp; Date across Tune, Fuel &amp; Weight, and Tyres.
+        </p>
         <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnOpenNewEventModal">
-          + NEW EVENT (START RACE WEEKEND)
+          + START NEW EVENT
         </button>
       </div>
 
-      <!-- State 2: Live Event Active -->
+      <!-- GATE B: Event Live, Between Sessions (state.activeEventId && !state.activeSessionId) -->
+      <div id="eventGateBetweenSessionsView" class="event-gate-card between-sessions" style="display: none;">
+        <div class="live-event-top-row" style="margin-bottom: 10px; text-align: left;">
+          <div class="live-event-title-wrap">
+            <div class="live-event-badge-row">
+              <span class="live-event-pill">
+                <span class="live-event-dot"></span>
+                EVENT LIVE &bull; BETWEEN SESSIONS
+              </span>
+              <span class="live-event-date-tag tabular" id="gateBEventDateLabel">13 Nov 2026</span>
+            </div>
+            <div class="live-event-venue-name" id="gateBEventVenueLabel">Calder Park Raceway</div>
+            <div class="live-event-sub-title" id="gateBEventTitleLabel">Previous session completed &amp; locked as new baseline</div>
+          </div>
+        </div>
+
+        <div class="gate-baseline-summary-box">
+          <div class="gate-baseline-head">CARRIED-FORWARD BASELINE FOR NEXT RUN</div>
+          <div class="gate-baseline-summary-grid">
+            <div class="telem-cell">
+              <span class="telem-label">Locked Tune &amp; AFR</span>
+              <span class="telem-val txt-emerald" id="gateBaseTuneVal">Jet #78 &bull; 12.82 AFR</span>
+              <span class="telem-sub" id="gateBaseTuneSub">1 DME &bull; 94.3% RAD</span>
+            </div>
+            <div class="telem-cell">
+              <span class="telem-label">Circuit Fuel Burn</span>
+              <span class="telem-val txt-amber" id="gateBaseFuelVal">1.30 L/lap</span>
+              <span class="telem-sub" id="gateBaseFuelSub">1377.0 kg Scale Wt</span>
+            </div>
+            <div class="telem-cell gate-tyre-span">
+              <span class="telem-label">4-Corner Next Cold Set PSIs</span>
+              <span class="telem-val txt-emerald" id="gateBaseTyreVal">FL 30.2 &bull; FR 29.5 &bull; RL 30.5 &bull; RR 29.8 psi</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="gate-b-actions">
+          <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnOpenCreateNextSession">
+            + CREATE NEXT SESSION
+          </button>
+          <button type="button" class="btn btn-danger btn-full" id="btnOpenEndEventFromGateB">
+            END EVENT
+          </button>
+        </div>
+      </div>
+
+      <!-- STATE C: Locked Single-Session Active Context Header (state.activeEventId && state.activeSessionId) -->
       <div id="eventBarLiveView" class="event-bar-live" style="display: none;">
         <div class="live-event-top-row">
           <div class="live-event-title-wrap">
             <div class="live-event-badge-row">
               <span class="live-event-pill">
                 <span class="live-event-dot"></span>
-                LIVE EVENT
+                <span id="liveEventTrackDateCompact">CALDER PARK RACEWAY &bull; 13 NOV 2026</span>
               </span>
-              <span class="live-event-date-tag tabular" id="liveEventDateLabel">13 Nov 2026</span>
             </div>
-            <div class="live-event-venue-name" id="liveEventVenueLabel">Calder Park Raceway</div>
-            <div class="live-event-sub-title" id="liveEventTitleLabel">Club Championship Rd 4 &bull; 1 Session Logged</div>
+            <div class="in-session-locked-row">
+              <span class="in-session-locked-pill" id="liveLockedSessionPill">IN SESSION: PRACTICE 1</span>
+              <span class="live-event-sub-title" id="liveEventTitleLabel">Club Championship Rd 4</span>
+            </div>
           </div>
 
           <button type="button" class="btn btn-danger live-end-event-btn" id="btnOpenEndEventModal" aria-label="End and Lock Event">
             END EVENT
           </button>
-        </div>
-
-        <div class="live-event-session-row">
-          <div class="live-event-session-select-wrap">
-            <label class="field-label" for="selectLiveEventSession" style="margin-bottom: 3px; display: block;">Active Session in Event</label>
-            <select id="selectLiveEventSession" class="select-input" aria-label="Active Session in Live Event">
-              <option value="Practice 1">Practice 1</option>
-              <option value="Practice 2">Practice 2</option>
-              <option value="Practice 3">Practice 3</option>
-              <option value="Practice 4">Practice 4</option>
-              <option value="Practice 5">Practice 5</option>
-              <option value="Practice 6">Practice 6</option>
-              <option value="Practice 7">Practice 7</option>
-              <option value="Qualifying">Qualifying</option>
-              <option value="Warm Up">Warm Up</option>
-              <option value="Race 1">Race 1</option>
-              <option value="Race 2">Race 2</option>
-              <option value="Race 3">Race 3</option>
-              <option value="Race 4">Race 4</option>
-              <option value="Final">Final</option>
-              <option value="__CUSTOM__">Custom Session...</option>
-            </select>
-          </div>
-          <button type="button" class="btn btn-secondary live-next-session-btn" id="btnStartNextSession">
-            + Start New Session
-          </button>
-        </div>
-
-        <div id="liveEventCustomSessionWrap" class="field-group" style="display: none; margin-top: 8px; margin-bottom: 0;">
-          <input
-            type="text"
-            id="inputLiveEventCustomSession"
-            class="text-input"
-            placeholder="Enter custom session name (e.g. Trophy Race)"
-            autocomplete="off"
-          />
         </div>
       </div>
     </div>
@@ -165,6 +184,7 @@
          TAB 1: PIT-LANE CALCULATOR (Step 1 -> Next -> Confirm)
          ========================================================= -->
     <section id="tab-calc" class="tab-panel active" aria-labelledby="navTabCalc">
+      <div id="calcActiveSessionContent">
       <!-- Top Locked Baseline Bar -->
       <div class="baseline-card" id="lockedBaselineBar">
         <div class="baseline-top-row">
@@ -219,14 +239,14 @@
         </div>
       </div>
 
-      <!-- Standalone Full-Width 3D Anodized Emerald Post-Race Session Button (Visible on Both Step 1 & Step 2) -->
+      <!-- Standalone Full-Width 3D Anodized Emerald Post-Race Session Completion Button -->
       <button
         type="button"
-        class="btn btn-confirm btn-full"
+        class="btn btn-confirm btn-full btn-cta-lg"
         id="btnOpenPostRaceAfr"
         style="margin-bottom: 14px;"
       >
-        Update Post Race Session
+        ENTER POST-RACE DATA &amp; COMPLETE SESSION
       </button>
 
       <!-- Step Progress Navigation -->
@@ -244,125 +264,22 @@
         <div class="card">
           <div class="section-head">
             <div>
-              <div class="section-eyebrow">Step 1 of 2</div>
-              <h2 class="section-title">Upcoming Session &amp; Pit Weather</h2>
+              <div class="section-eyebrow">Step 1 of 2 &bull; Pre-Race Setup</div>
+              <h2 class="section-title">Active Hardware &amp; Pit Weather</h2>
             </div>
           </div>
 
-          <!-- 1) Circuit / Track + Session Date row -->
-          <div id="calcTrackDateRow" class="form-grid-2 stack-mobile" style="margin-bottom: 14px;">
-            <div class="field-group" style="margin-bottom: 0;">
-              <div class="field-label-row">
-                <label class="field-label" for="selectTrackVenue">Circuit / Track</label>
-                <span class="field-hint">AUS Venue</span>
-              </div>
-              <select id="selectTrackVenue" class="select-input" aria-label="Select Australian Circuit or Track">
-                <optgroup label="VIC">
-                  <option value="Calder Park Raceway" selected>Calder Park Raceway</option>
-                  <option value="Sandown Raceway">Sandown Raceway</option>
-                  <option value="Winton Motor Raceway">Winton Motor Raceway</option>
-                  <option value="Phillip Island Grand Prix Circuit">Phillip Island Grand Prix Circuit</option>
-                  <option value="Haunted Hills / Bryant Park">Haunted Hills / Bryant Park</option>
-                  <option value="Broadford State Motorcycle Complex">Broadford State Motorcycle Complex</option>
-                </optgroup>
-                <optgroup label="NSW">
-                  <option value="Sydney Motorsport Park (SMSP)">Sydney Motorsport Park (SMSP)</option>
-                  <option value="Mount Panorama (Bathurst)">Mount Panorama (Bathurst)</option>
-                  <option value="Wakefield Park / One Raceway">Wakefield Park / One Raceway</option>
-                  <option value="Pheasant Wood Circuit">Pheasant Wood Circuit</option>
-                </optgroup>
-                <optgroup label="QLD">
-                  <option value="Queensland Raceway (Willowbank)">Queensland Raceway (Willowbank)</option>
-                  <option value="Morgan Park Raceway">Morgan Park Raceway</option>
-                  <option value="Lakeside Park">Lakeside Park</option>
-                  <option value="Townsville Reid Park">Townsville Reid Park</option>
-                </optgroup>
-                <optgroup label="SA">
-                  <option value="The Bend Motorsport Park">The Bend Motorsport Park</option>
-                  <option value="Mallala Motorsport Park">Mallala Motorsport Park</option>
-                </optgroup>
-                <optgroup label="WA">
-                  <option value="CARCO.com.au Raceway (Wanneroo)">CARCO.com.au Raceway (Wanneroo)</option>
-                  <option value="Collie Motorplex">Collie Motorplex</option>
-                </optgroup>
-                <optgroup label="TAS">
-                  <option value="Symmons Plains Raceway">Symmons Plains Raceway</option>
-                  <option value="Baskerville Raceway">Baskerville Raceway</option>
-                </optgroup>
-                <optgroup label="NT">
-                  <option value="Hidden Valley Raceway">Hidden Valley Raceway</option>
-                </optgroup>
-                <optgroup label="Custom">
-                  <option value="__CUSTOM_TRACK__">Custom Track...</option>
-                </optgroup>
-              </select>
-            </div>
-
-            <div class="field-group" style="margin-bottom: 0;">
-              <div class="field-label-row">
-                <label class="field-label" for="inputSessionDate">Session Date</label>
-                <span class="field-hint" id="sessionDateFormattedHint">Auto-Today</span>
-              </div>
-              <input
-                type="date"
-                id="inputSessionDate"
-                class="text-input"
-                aria-label="Session Date"
-              />
-            </div>
-          </div>
-
-          <div id="customTrackWrap" class="field-group" style="display: none;">
+          <!-- 1) Active Carby ID (Full-Width, Track/Date/Session Locked in Event Header) -->
+          <div class="field-group" style="margin-bottom: 12px;">
             <div class="field-label-row">
-              <label class="field-label" for="inputCustomTrack">Custom Track / Venue Name</label>
-              <span class="field-hint amber">Enter Track Name</span>
+              <label class="field-label" for="selectCalcCarby">Carby ID (40mm BXUV-3)</label>
+              <span class="field-hint emerald" id="carbySwapHint">Matches Baseline</span>
             </div>
-            <input
-              type="text"
-              id="inputCustomTrack"
-              class="text-input"
-              placeholder="e.g. Rob Roy Hillclimb / Test Track"
-              autocomplete="off"
-            />
+            <select id="selectCalcCarby" class="select-input" aria-label="Select 40mm BXUV-3 Carby"></select>
           </div>
 
-          <!-- 2) Session Name + Carby ID row -->
-          <div class="form-grid-2 stack-mobile" style="margin-bottom: 12px;">
-            <div class="field-group" style="margin-bottom: 0;">
-              <div class="field-label-row">
-                <label class="field-label" for="selectSessionName">Session Name</label>
-                <span class="field-hint">Change Anytime</span>
-              </div>
-              <select id="selectSessionName" class="select-input" aria-label="Select Session Name">
-                <option value="Practice 1">Practice 1</option>
-                <option value="Practice 2">Practice 2</option>
-                <option value="Practice 3">Practice 3</option>
-                <option value="Practice 4">Practice 4</option>
-                <option value="Practice 5">Practice 5</option>
-                <option value="Practice 6">Practice 6</option>
-                <option value="Practice 7">Practice 7</option>
-                <option value="Qualifying">Qualifying</option>
-                <option value="Warm Up">Warm Up</option>
-                <option value="Race 1">Race 1</option>
-                <option value="Race 2" selected>Race 2</option>
-                <option value="Race 3">Race 3</option>
-                <option value="Race 4">Race 4</option>
-                <option value="Final">Final</option>
-                <option value="__CUSTOM__">Custom Session...</option>
-              </select>
-            </div>
-
-            <div class="field-group" style="margin-bottom: 0;">
-              <div class="field-label-row">
-                <label class="field-label" for="selectCalcCarby">Carby ID</label>
-                <span class="field-hint emerald" id="carbySwapHint">Matches Baseline</span>
-              </div>
-              <select id="selectCalcCarby" class="select-input" aria-label="Select 40mm BXUV-3 Carby"></select>
-            </div>
-          </div>
-
-          <!-- 2B) Active Hardware Pair: Inlet Manifold + Exhaust / Headers -->
-          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 16px;">
+          <!-- 2) Active Hardware Pair: Inlet Manifold + Exhaust / Headers -->
+          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 14px;">
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
                 <label class="field-label" for="selectCalcManifold">Inlet Manifold</label>
@@ -391,16 +308,17 @@
             </button>
           </div>
 
-          <div id="customSessionWrap" class="field-group" style="display: none;">
+          <!-- Dedicated Pre-Race Setup & Change Notes (Synced live to activeSession.preRaceNotes) -->
+          <div class="field-group" style="margin-bottom: 14px;">
             <div class="field-label-row">
-              <label class="field-label" for="inputCustomSessionName">Custom Session Name</label>
-              <span class="field-hint amber">Type Custom Run Label</span>
+              <label class="field-label" for="inputPreRaceNotes">Pre-Race Setup &amp; Change Notes</label>
+              <span class="field-hint amber">Saved Live to Session</span>
             </div>
             <input
               type="text"
-              id="inputCustomSessionName"
+              id="inputPreRaceNotes"
               class="text-input"
-              placeholder="e.g. Trophy Dash / Feature"
+              placeholder="e.g. Dropped to #78 jet, +0.5 psi cold FR"
               autocomplete="off"
             />
           </div>
@@ -646,17 +564,17 @@
             <p class="alert-body" id="manifoldAlertBody"></p>
           </div>
 
-          <!-- Optional Pit Run Note -->
+          <!-- Optional Pit Run Note (Synced with Step 1 Pre-Race Setup & Change Notes) -->
           <div class="field-group" style="margin-bottom: 16px;">
             <div class="field-label-row">
-              <label class="field-label" for="inputRunNotes">Session Setup Note (Optional)</label>
-              <span class="field-hint">Saved to Session Log</span>
+              <label class="field-label" for="inputRunNotes">Pre-Race Setup &amp; Change Notes</label>
+              <span class="field-hint">Saved Live to Session</span>
             </div>
             <input
               type="text"
               id="inputRunNotes"
               class="text-input"
-              placeholder="e.g. Stepped leaner for Race 2 track temp"
+              placeholder="e.g. Dropped to #78 jet, +0.5 psi cold FR"
               autocomplete="off"
             />
           </div>
@@ -666,10 +584,11 @@
               &larr; BACK / EDIT INPUTS
             </button>
             <button type="button" id="btnConfirmLockJet" class="btn btn-confirm btn-full">
-              CONFIRM JET &amp; LOCK FOR NEXT RACE
+              CONFIRM JET &amp; LOCK TO SESSION
             </button>
           </div>
         </div>
+      </div>
       </div>
     </section>
 
@@ -677,6 +596,7 @@
          TAB 2: FUEL & WT (Condensed Litres Planner, Pump-Out & 1365kg Scales)
          ========================================================= -->
     <section id="tab-fuel" class="tab-panel" aria-labelledby="navTabFuel">
+      <div id="fuelActiveSessionContent">
       <!-- CARD 1: PRE-RACE FUEL LOAD & L/LAP CALIBRATOR -->
       <div class="card">
         <div class="section-head">
@@ -687,118 +607,24 @@
           <span class="locked-badge" id="fuelActiveSgBadge">SG 0.740 kg/L</span>
         </div>
 
-        <!-- Shared Active Session Bar: Circuit / Track + Session Date -->
-        <div id="fuelTrackDateRow" class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="selectFuelTrack">Circuit / Track</label>
-              <span class="field-hint emerald" id="fuelTrackSyncHint">Synced</span>
-            </div>
-            <select id="selectFuelTrack" class="select-input" aria-label="Select Circuit for Fuel Burn Profile">
-              <optgroup label="VIC">
-                <option value="Calder Park Raceway" selected>Calder Park Raceway</option>
-                <option value="Sandown Raceway">Sandown Raceway</option>
-                <option value="Winton Motor Raceway">Winton Motor Raceway</option>
-                <option value="Phillip Island Grand Prix Circuit">Phillip Island Grand Prix Circuit</option>
-                <option value="Haunted Hills / Bryant Park">Haunted Hills / Bryant Park</option>
-                <option value="Broadford State Motorcycle Complex">Broadford State Motorcycle Complex</option>
-              </optgroup>
-              <optgroup label="NSW">
-                <option value="Sydney Motorsport Park (SMSP)">Sydney Motorsport Park (SMSP)</option>
-                <option value="Mount Panorama (Bathurst)">Mount Panorama (Bathurst)</option>
-                <option value="Wakefield Park / One Raceway">Wakefield Park / One Raceway</option>
-                <option value="Pheasant Wood Circuit">Pheasant Wood Circuit</option>
-              </optgroup>
-              <optgroup label="QLD">
-                <option value="Queensland Raceway (Willowbank)">Queensland Raceway (Willowbank)</option>
-                <option value="Morgan Park Raceway">Morgan Park Raceway</option>
-                <option value="Lakeside Park">Lakeside Park</option>
-                <option value="Townsville Reid Park">Townsville Reid Park</option>
-              </optgroup>
-              <optgroup label="SA">
-                <option value="The Bend Motorsport Park">The Bend Motorsport Park</option>
-                <option value="Mallala Motorsport Park">Mallala Motorsport Park</option>
-              </optgroup>
-              <optgroup label="WA">
-                <option value="CARCO.com.au Raceway (Wanneroo)">CARCO.com.au Raceway (Wanneroo)</option>
-                <option value="Collie Motorplex">Collie Motorplex</option>
-              </optgroup>
-              <optgroup label="TAS">
-                <option value="Symmons Plains Raceway">Symmons Plains Raceway</option>
-                <option value="Baskerville Raceway">Baskerville Raceway</option>
-              </optgroup>
-              <optgroup label="NT">
-                <option value="Hidden Valley Raceway">Hidden Valley Raceway</option>
-              </optgroup>
-              <optgroup label="Custom">
-                <option value="__CUSTOM_TRACK__">Custom Track...</option>
-              </optgroup>
-            </select>
+        <!-- Track Burn (L/lap) Full-Width (Track, Date & Session Locked in Event Header) -->
+        <div class="field-group" style="margin-bottom: 10px;">
+          <div class="field-label-row">
+            <label class="field-label" for="inputTrackBurnLPerLap">Track Burn Rate (L/lap)</label>
+            <span class="field-hint emerald" id="trackBurnSourceHint">Auto-Learned</span>
           </div>
-
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="inputFuelSessionDate">Session Date</label>
-              <span class="field-hint" id="fuelSessionDateHint">Synced</span>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="inputTrackBurnLPerLap" data-step="-0.02" aria-label="Decrease Track L per Lap">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="inputTrackBurnLPerLap" class="num-input" value="1.30" min="0.40" max="4.50" step="0.02" inputmode="decimal" />
+              <span class="num-unit-badge">L/lap</span>
             </div>
-            <input type="date" id="inputFuelSessionDate" class="text-input" aria-label="Fuel Session Date" />
-          </div>
-        </div>
-
-        <div id="customFuelTrackWrap" class="field-group" style="display: none; margin-bottom: 10px;">
-          <label class="field-label" for="inputCustomFuelTrack">Custom Circuit Name</label>
-          <input type="text" id="inputCustomFuelTrack" class="text-input" placeholder="e.g. Wakefield / Test Track" autocomplete="off" />
-        </div>
-
-        <!-- Shared Active Session Bar Row 2: Session Name + Track Burn (L/lap) -->
-        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 12px;">
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="selectFuelSessionName">Session Name</label>
-              <span class="field-hint emerald">Unified Log</span>
-            </div>
-            <select id="selectFuelSessionName" class="select-input" aria-label="Select Fuel Session Name">
-              <option value="Practice 1">Practice 1</option>
-              <option value="Practice 2">Practice 2</option>
-              <option value="Practice 3">Practice 3</option>
-              <option value="Practice 4">Practice 4</option>
-              <option value="Practice 5">Practice 5</option>
-              <option value="Practice 6">Practice 6</option>
-              <option value="Practice 7">Practice 7</option>
-              <option value="Qualifying">Qualifying</option>
-              <option value="Warm Up">Warm Up</option>
-              <option value="Race 1">Race 1</option>
-              <option value="Race 2" selected>Race 2</option>
-              <option value="Race 3">Race 3</option>
-              <option value="Race 4">Race 4</option>
-              <option value="Final">Final</option>
-              <option value="__CUSTOM__">Custom Session...</option>
-            </select>
-          </div>
-
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="inputTrackBurnLPerLap">Track Burn (L/lap)</label>
-              <span class="field-hint emerald" id="trackBurnSourceHint">Auto-Learned</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="inputTrackBurnLPerLap" data-step="-0.02" aria-label="Decrease Track L per Lap">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="inputTrackBurnLPerLap" class="num-input" value="1.30" min="0.40" max="4.50" step="0.02" inputmode="decimal" />
-                <span class="num-unit-badge">L/lap</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="inputTrackBurnLPerLap" data-step="0.02" aria-label="Increase Track L per Lap">+</button>
-            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="inputTrackBurnLPerLap" data-step="0.02" aria-label="Increase Track L per Lap">+</button>
           </div>
         </div>
 
         <div id="trackBurnLearnedBanner" class="auto-learned-strip">
           Auto-learned: <strong>1.30 L/lap</strong> (1.30&ndash;1.30 range, 1 run) &bull; Live from Session Log
-        </div>
-
-        <div id="customFuelSessionWrap" class="field-group" style="display: none; margin-bottom: 12px;">
-          <label class="field-label" for="inputCustomFuelSessionName">Custom Session Name</label>
-          <input type="text" id="inputCustomFuelSessionName" class="text-input" placeholder="e.g. Trophy Race / Feature" autocomplete="off" />
         </div>
 
         <!-- Sub-section A: Pre-Race Fuel Load Planner (Pumped Empty Tank • 12.0 L Surge Min + Auto 1370 kg Scale Buffer) -->
@@ -984,8 +810,12 @@
         </div>
 
         <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveFuelWeightSession">
-          SAVE FUEL &amp; WEIGHT TO SESSION
+          SAVE PRE-RACE FUEL &amp; WEIGHT TO SESSION
         </button>
+        <button type="button" class="btn btn-secondary btn-full" id="btnCompleteSessionFromFuel" style="margin-top: 8px;">
+          ENTER POST-RACE DATA &amp; COMPLETE SESSION
+        </button>
+      </div>
       </div>
     </section>
 
@@ -993,6 +823,7 @@
          TAB 3: TYRES (Visual Car Chassis 2x2 Matrix: FL | FR over RL | RR)
          ========================================================= -->
     <section id="tab-tyres" class="tab-panel" aria-labelledby="navTabTyres">
+      <div id="tyresActiveSessionContent">
       <div class="card">
         <div class="section-head">
           <div>
@@ -1036,95 +867,8 @@
           </div>
         </div>
 
-        <!-- Shared Active Session Bar Row 1: Circuit / Track + Session Date -->
-        <div id="tyreTrackDateRow" class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="selectTyreTrack">Circuit / Track</label>
-              <span class="field-hint emerald" id="tyreTrackLearnedHint">Auto-Learned</span>
-            </div>
-            <select id="selectTyreTrack" class="select-input" aria-label="Select Circuit for Tyre Profile">
-              <optgroup label="VIC">
-                <option value="Calder Park Raceway" selected>Calder Park Raceway</option>
-                <option value="Sandown Raceway">Sandown Raceway</option>
-                <option value="Winton Motor Raceway">Winton Motor Raceway</option>
-                <option value="Phillip Island Grand Prix Circuit">Phillip Island Grand Prix Circuit</option>
-                <option value="Haunted Hills / Bryant Park">Haunted Hills / Bryant Park</option>
-                <option value="Broadford State Motorcycle Complex">Broadford State Motorcycle Complex</option>
-              </optgroup>
-              <optgroup label="NSW">
-                <option value="Sydney Motorsport Park (SMSP)">Sydney Motorsport Park (SMSP)</option>
-                <option value="Mount Panorama (Bathurst)">Mount Panorama (Bathurst)</option>
-                <option value="Wakefield Park / One Raceway">Wakefield Park / One Raceway</option>
-                <option value="Pheasant Wood Circuit">Pheasant Wood Circuit</option>
-              </optgroup>
-              <optgroup label="QLD">
-                <option value="Queensland Raceway (Willowbank)">Queensland Raceway (Willowbank)</option>
-                <option value="Morgan Park Raceway">Morgan Park Raceway</option>
-                <option value="Lakeside Park">Lakeside Park</option>
-                <option value="Townsville Reid Park">Townsville Reid Park</option>
-              </optgroup>
-              <optgroup label="SA">
-                <option value="The Bend Motorsport Park">The Bend Motorsport Park</option>
-                <option value="Mallala Motorsport Park">Mallala Motorsport Park</option>
-              </optgroup>
-              <optgroup label="WA">
-                <option value="CARCO.com.au Raceway (Wanneroo)">CARCO.com.au Raceway (Wanneroo)</option>
-                <option value="Collie Motorplex">Collie Motorplex</option>
-              </optgroup>
-              <optgroup label="TAS">
-                <option value="Symmons Plains Raceway">Symmons Plains Raceway</option>
-                <option value="Baskerville Raceway">Baskerville Raceway</option>
-              </optgroup>
-              <optgroup label="NT">
-                <option value="Hidden Valley Raceway">Hidden Valley Raceway</option>
-              </optgroup>
-              <optgroup label="Custom">
-                <option value="__CUSTOM_TRACK__">Custom Track...</option>
-              </optgroup>
-            </select>
-          </div>
-
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="inputTyreSessionDate">Session Date</label>
-              <span class="field-hint" id="tyreSessionDateHint">Synced</span>
-            </div>
-            <input type="date" id="inputTyreSessionDate" class="text-input" aria-label="Tyre Session Date" />
-          </div>
-        </div>
-
-        <div id="customTyreTrackWrap" class="field-group" style="display: none; margin-bottom: 10px;">
-          <label class="field-label" for="inputCustomTyreTrack">Custom Circuit Name</label>
-          <input type="text" id="inputCustomTyreTrack" class="text-input" placeholder="e.g. Wakefield / Test Track" autocomplete="off" />
-        </div>
-
-        <!-- Shared Active Session Bar Row 2: Session Name + Hot Target PSI -->
+        <!-- Row 1: Hot Target PSI + Session Laps (Track, Date & Session Locked in Event Header) -->
         <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="selectTyreSessionName">Session Name</label>
-              <span class="field-hint emerald">Unified Log</span>
-            </div>
-            <select id="selectTyreSessionName" class="select-input" aria-label="Select Tyre Session Name">
-              <option value="Practice 1">Practice 1</option>
-              <option value="Practice 2">Practice 2</option>
-              <option value="Practice 3">Practice 3</option>
-              <option value="Practice 4">Practice 4</option>
-              <option value="Practice 5">Practice 5</option>
-              <option value="Practice 6">Practice 6</option>
-              <option value="Practice 7">Practice 7</option>
-              <option value="Qualifying">Qualifying</option>
-              <option value="Warm Up">Warm Up</option>
-              <option value="Race 1">Race 1</option>
-              <option value="Race 2" selected>Race 2</option>
-              <option value="Race 3">Race 3</option>
-              <option value="Race 4">Race 4</option>
-              <option value="Final">Final</option>
-              <option value="__CUSTOM__">Custom Session...</option>
-            </select>
-          </div>
-
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
               <label class="field-label" for="inputTyreHotTarget">Hot Target PSI</label>
@@ -1139,15 +883,7 @@
               <button type="button" class="stepper-btn" data-stepper-target="inputTyreHotTarget" data-step="0.5" aria-label="Increase Hot Target Tyre Pressure">+</button>
             </div>
           </div>
-        </div>
 
-        <div id="customTyreSessionWrap" class="field-group" style="display: none; margin-bottom: 10px;">
-          <label class="field-label" for="inputCustomTyreSessionName">Custom Session Name</label>
-          <input type="text" id="inputCustomTyreSessionName" class="text-input" placeholder="e.g. Trophy Race / Feature" autocomplete="off" />
-        </div>
-
-        <!-- Row 3: Session Laps (for Tyre Life Tracking) + Live Auto-Learned Cold Stagger Summary -->
-        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px; align-items: stretch;">
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
               <label class="field-label" for="inputTyreSessionLaps">Session Laps</label>
@@ -1162,12 +898,13 @@
               <button type="button" class="stepper-btn" data-stepper-target="inputTyreSessionLaps" data-step="1" aria-label="Increase Tyre Session Laps">+</button>
             </div>
           </div>
+        </div>
 
-          <div class="telem-cell" style="justify-content: center;">
-            <span class="telem-label" id="outTyreLearnedCardTitle">Track Learned Cold Stagger (Dry)</span>
-            <span class="telem-val txt-emerald" id="outTyreTrackLearnedSummary" style="font-size: 16.5px;">FL 30.2 &bull; FR 29.5 &bull; RL 30.5 &bull; RR 29.8</span>
-            <span class="telem-sub" id="outTyreTrackLearnedSub">Auto-learned from 1 dry run at Calder Park Raceway</span>
-          </div>
+        <!-- Row 2: Live Auto-Learned Cold Stagger Summary -->
+        <div class="telem-cell" style="justify-content: center; margin-bottom: 10px;">
+          <span class="telem-label" id="outTyreLearnedCardTitle">Track Learned Cold Stagger (Dry)</span>
+          <span class="telem-val txt-emerald" id="outTyreTrackLearnedSummary" style="font-size: 16.5px;">FL 30.2 &bull; FR 29.5 &bull; RL 30.5 &bull; RR 29.8</span>
+          <span class="telem-sub" id="outTyreTrackLearnedSub">Auto-learned from 1 dry run at Calder Park Raceway</span>
         </div>
 
         <div class="car-orientation-bar">
@@ -1423,7 +1160,10 @@
 
         <!-- Standalone Full-Width 3D Emerald Action Button -->
         <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveTyresSession" style="margin-top: 12px;">
-          LOCK &amp; SAVE TYRES TO SESSION
+          SAVE COLD TYRES TO SESSION
+        </button>
+        <button type="button" class="btn btn-secondary btn-full" id="btnCompleteSessionFromTyres" style="margin-top: 8px;">
+          ENTER POST-RACE DATA &amp; COMPLETE SESSION
         </button>
       </div>
 
@@ -1557,6 +1297,7 @@
             Export Tyre Stock CSV
           </button>
         </div>
+      </div>
       </div>
     </section>
 
@@ -1853,191 +1594,333 @@
   </nav>
 
   <!-- =========================================================
-       MODAL 1: UPDATE POST RACE SESSION (Post-Session Gauge Telemetry)
+       MODAL 1: COMPLETE & CLOSE SESSION (POST-RACE TUNE, FUEL & TYRES)
        ========================================================= -->
   <div class="modal-backdrop" id="modalPostRaceAfr" role="dialog" aria-modal="true" aria-labelledby="modalPostRaceTitle">
     <div class="modal-sheet">
       <div class="modal-head">
         <div>
-          <div class="section-eyebrow">Post-Session Gauge Telemetry</div>
-          <h2 class="section-title" id="modalPostRaceTitle">Update Post Race Session</h2>
+          <div class="section-eyebrow">Post-Race Telemetry &amp; Baseline Roll-Forward</div>
+          <h2 class="section-title" id="modalPostRaceTitle">Complete &amp; Close Session</h2>
         </div>
-        <button type="button" class="btn btn-danger" data-close-modal="modalPostRaceAfr" aria-label="Close Update Post Race Session Modal">
+        <button type="button" class="btn btn-danger" data-close-modal="modalPostRaceAfr" aria-label="Close Post-Race Modal">
           Close
         </button>
       </div>
 
-      <p style="margin: 0 0 12px; font-size: 0.85rem; color: var(--text-secondary);">
-        Log post-session gauge readings from <strong id="postRaceModalSessionLabel">Race 1 (1 DME)</strong>. Promotes verified setup to Locked Baseline &amp; updates Session Log.
+      <p style="margin: 0 0 12px; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45;">
+        Enter post-race data for <strong id="postRaceModalSessionLabel" class="txt-emerald">Practice 1 (1 DME)</strong>. Completing this session locks the run and rolls its Tune, Fuel L/lap, and Next Cold Tyre PSIs into your Baseline for the next session.
       </p>
 
-      <!-- 1. Top / Peak WOT RPM (Full-Width) -->
-      <div class="field-group" style="margin-bottom: 12px;">
-        <div class="field-label-row">
-          <label class="field-label" for="modalPostPeakRpm">Top / Peak WOT RPM</label>
-          <span class="field-hint">Tach Recall</span>
-        </div>
-        <div class="num-stepper">
-          <button type="button" class="stepper-btn" data-stepper-target="modalPostPeakRpm" data-step="-50" aria-label="Decrease Peak WOT RPM">&minus;</button>
-          <div class="num-input-wrap">
-            <input type="number" id="modalPostPeakRpm" class="num-input" value="5900" min="4500" max="6800" step="50" />
-            <span class="num-unit-badge">RPM</span>
+      <!-- SECTION 1: POST-RACE TUNE & GAUGES -->
+      <div class="card-elevated post-race-section-card" style="margin-bottom: 12px;">
+        <div class="section-eyebrow" style="margin-bottom: 8px;">1 &bull; Post-Race Tune &amp; Gauges</div>
+
+        <!-- 1A. Top / Peak WOT RPM (Full-Width) -->
+        <div class="field-group" style="margin-bottom: 10px;">
+          <div class="field-label-row">
+            <label class="field-label" for="modalPostPeakRpm">Peak WOT RPM</label>
+            <span class="field-hint">Tach Recall</span>
           </div>
-          <button type="button" class="stepper-btn" data-stepper-target="modalPostPeakRpm" data-step="50" aria-label="Increase Peak WOT RPM">+</button>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostPeakRpm" data-step="-50" aria-label="Decrease Peak WOT RPM">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="modalPostPeakRpm" class="num-input" value="5900" min="4500" max="6800" step="50" />
+              <span class="num-unit-badge">RPM</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostPeakRpm" data-step="50" aria-label="Increase Peak WOT RPM">+</button>
+          </div>
+        </div>
+
+        <!-- 1B. Peak WOT Collector AFR (Full-Width + Skip Toggle if AFR Gauge Not Read) -->
+        <div class="field-group" style="margin-bottom: 10px;">
+          <div class="field-label-row">
+            <label class="field-label" for="modalPostWotAfr">Peak WOT Collector AFR</label>
+            <span class="field-hint emerald" id="modalPostEndCylPreview">#1/#6 Est: 12.77</span>
+          </div>
+          <div class="num-stepper" id="modalPostWotAfrStepperWrap">
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="-0.05" aria-label="Decrease Post-Race WOT AFR">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="modalPostWotAfr" class="num-input" value="12.50" min="10.50" max="15.50" step="0.05" />
+              <span class="num-unit-badge">AFR</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="0.05" aria-label="Increase Post-Race WOT AFR">+</button>
+          </div>
+          <label class="post-afr-skip-row" for="modalPostSkipAfr">
+            <input type="checkbox" id="modalPostSkipAfr" />
+            <span>AFR gauge not read (keep current baseline AFR)</span>
+          </label>
+        </div>
+
+        <!-- Collapsible 3D Metal Toggle Bar for Optional Mid-Range RPM Sweep (3500-5500 RPM) -->
+        <div style="margin-bottom: 10px;">
+          <button
+            type="button"
+            class="btn btn-secondary btn-full"
+            id="btnTogglePostMidSweep"
+            aria-expanded="false"
+            aria-controls="postMidSweepWrap"
+            style="min-height: 42px; font-size: 0.78rem;"
+          >
+            + Optional Mid-Range RPM Sweep (3500&ndash;5500 RPM)
+          </button>
+
+          <div id="postMidSweepWrap" class="mid-sweep-panel" style="display: none;">
+            <div class="mid-sweep-head">
+              <span class="field-hint">Leave any unlogged RPM stage blank (&mdash;)</span>
+              <button type="button" class="btn btn-danger btn-xs" id="btnClearPostMidSweep">
+                Clear Sweep (Leave Blank)
+              </button>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 10px;">
+              <label class="field-label" for="modalPost3500">3500 RPM AFR (Optional)</label>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="modalPost3500" data-step="-0.05" aria-label="Decrease 3500 AFR">&minus;</button>
+                <div class="num-input-wrap">
+                  <input type="number" id="modalPost3500" class="num-input" value="" placeholder="&mdash;" min="10.50" max="15.50" step="0.05" />
+                  <span class="num-unit-badge">AFR</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="modalPost3500" data-step="0.05" aria-label="Increase 3500 AFR">+</button>
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 10px;">
+              <label class="field-label" for="modalPost4000">4000 RPM AFR (Optional)</label>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="modalPost4000" data-step="-0.05" aria-label="Decrease 4000 AFR">&minus;</button>
+                <div class="num-input-wrap">
+                  <input type="number" id="modalPost4000" class="num-input" value="" placeholder="&mdash;" min="10.50" max="15.50" step="0.05" />
+                  <span class="num-unit-badge">AFR</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="modalPost4000" data-step="0.05" aria-label="Increase 4000 AFR">+</button>
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 10px;">
+              <label class="field-label" for="modalPost4500">4500 RPM AFR (Optional)</label>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="modalPost4500" data-step="-0.05" aria-label="Decrease 4500 AFR">&minus;</button>
+                <div class="num-input-wrap">
+                  <input type="number" id="modalPost4500" class="num-input" value="" placeholder="&mdash;" min="10.50" max="15.50" step="0.05" />
+                  <span class="num-unit-badge">AFR</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="modalPost4500" data-step="0.05" aria-label="Increase 4500 AFR">+</button>
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 10px;">
+              <label class="field-label" for="modalPost5000">5000 RPM AFR (Optional)</label>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="modalPost5000" data-step="-0.05" aria-label="Decrease 5000 AFR">&minus;</button>
+                <div class="num-input-wrap">
+                  <input type="number" id="modalPost5000" class="num-input" value="" placeholder="&mdash;" min="10.50" max="15.50" step="0.05" />
+                  <span class="num-unit-badge">AFR</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="modalPost5000" data-step="0.05" aria-label="Increase 5000 AFR">+</button>
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 0;">
+              <label class="field-label" for="modalPost5500">5500 RPM AFR (Optional)</label>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="modalPost5500" data-step="-0.05" aria-label="Decrease 5500 AFR">&minus;</button>
+                <div class="num-input-wrap">
+                  <input type="number" id="modalPost5500" class="num-input" value="" placeholder="&mdash;" min="10.50" max="15.50" step="0.05" />
+                  <span class="num-unit-badge">AFR</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="modalPost5500" data-step="0.05" aria-label="Increase 5500 AFR">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1C & 1D. WOT Fuel Pressure + Peak Water Temp (2-Col Pair) -->
+        <div class="form-grid-2 compact-pair-grid">
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="modalPostFuelPsi">WOT Fuel PSI</label>
+              <span class="field-hint emerald" id="modalPostFuelPsiHint">4.0&ndash;5.5 psi</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelPsi" data-step="-0.1" aria-label="Decrease Post-Race Fuel Pressure">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="modalPostFuelPsi" class="num-input" value="5.0" min="2.0" max="8.5" step="0.1" />
+                <span class="num-unit-badge">psi</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelPsi" data-step="0.1" aria-label="Increase Post-Race Fuel Pressure">+</button>
+            </div>
+          </div>
+
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="modalPostWaterTemp">Peak Water Temp</label>
+              <span class="field-hint amber" id="modalPostWaterHint">warn &ge; 98&deg;C</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostWaterTemp" data-step="-1" aria-label="Decrease Peak Water Temp">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="modalPostWaterTemp" class="num-input" value="85" min="50" max="125" step="1" />
+                <span class="num-unit-badge">&deg;C</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostWaterTemp" data-step="1" aria-label="Increase Peak Water Temp">+</button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- 2. Peak WOT Collector AFR (Full-Width + Skip Toggle if AFR Gauge Not Read) -->
-      <div class="field-group" style="margin-bottom: 12px;">
-        <div class="field-label-row">
-          <label class="field-label" for="modalPostWotAfr">Peak WOT Collector AFR</label>
-          <span class="field-hint emerald" id="modalPostEndCylPreview">#1/#6 Est: 12.77</span>
-        </div>
-        <div class="num-stepper" id="modalPostWotAfrStepperWrap">
-          <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="-0.05" aria-label="Decrease Post-Race WOT AFR">&minus;</button>
-          <div class="num-input-wrap">
-            <input type="number" id="modalPostWotAfr" class="num-input" value="12.50" min="10.50" max="15.50" step="0.05" />
-            <span class="num-unit-badge">AFR</span>
+      <!-- SECTION 2: POST-RACE FUEL PUMP-OUT (OPTIONAL IF PUMPED) -->
+      <div class="card-elevated post-race-section-card" style="margin-bottom: 12px;">
+        <div class="section-eyebrow" style="margin-bottom: 8px;">2 &bull; Post-Race Fuel Pump-Out (Optional)</div>
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="modalPostFuelInL">Fuel In (L)</label>
+              <span class="field-hint">Start Tank</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelInL" data-step="-0.1" aria-label="Decrease Post-Race Fuel In">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="modalPostFuelInL" class="num-input" value="" placeholder="&mdash;" min="0.0" max="74.0" step="0.1" inputmode="decimal" />
+                <span class="num-unit-badge">L</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelInL" data-step="0.1" aria-label="Increase Post-Race Fuel In">+</button>
+            </div>
           </div>
-          <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="0.05" aria-label="Increase Post-Race WOT AFR">+</button>
+
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="modalPostFuelOutL">Pumped Out (L)</label>
+              <span class="field-hint">Left in Tank</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelOutL" data-step="-0.1" aria-label="Decrease Post-Race Fuel Pumped Out">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="modalPostFuelOutL" class="num-input" value="" placeholder="&mdash;" min="0.0" max="74.0" step="0.1" inputmode="decimal" />
+                <span class="num-unit-badge">L</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelOutL" data-step="0.1" aria-label="Increase Post-Race Fuel Pumped Out">+</button>
+            </div>
+          </div>
         </div>
-        <label class="post-afr-skip-row" for="modalPostSkipAfr">
-          <input type="checkbox" id="modalPostSkipAfr" />
-          <span>AFR gauge not read (log RPM, Fuel PSI &amp; Water Temp without overwriting AFR)</span>
-        </label>
+
+        <div class="form-grid-2 compact-pair-grid" style="align-items: stretch;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="modalPostRacedLaps">Raced Laps</label>
+              <span class="field-hint emerald">Added to Tyres</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostRacedLaps" data-step="-1" aria-label="Decrease Raced Laps">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="modalPostRacedLaps" class="num-input" value="10" min="1" max="100" step="1" inputmode="numeric" />
+                <span class="num-unit-badge">laps</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostRacedLaps" data-step="1" aria-label="Increase Raced Laps">+</button>
+            </div>
+          </div>
+
+          <div class="telem-cell" style="justify-content: center;">
+            <span class="telem-label">Live Measured Burn</span>
+            <span class="telem-val txt-emerald" id="modalPostMeasuredBurnOut">1.30 L/lap</span>
+            <span class="telem-sub" id="modalPostMeasuredUsedSub">Updates circuit L/lap</span>
+          </div>
+        </div>
       </div>
 
-      <!-- 3. WOT Fuel Pressure (Full-Width) -->
-      <div class="field-group" style="margin-bottom: 12px;">
-        <div class="field-label-row">
-          <label class="field-label" for="modalPostFuelPsi">WOT Fuel Pressure</label>
-          <span class="field-hint emerald" id="modalPostFuelPsiHint">4.0&ndash;5.5 psi target</span>
+      <!-- SECTION 3: POST-RACE HOT TYRE PSIs (4-CORNER FL / FR / RL / RR) -->
+      <div class="card-elevated post-race-section-card" style="margin-bottom: 12px;">
+        <div class="field-label-row" style="margin-bottom: 8px;">
+          <span class="section-eyebrow">3 &bull; Post-Race Hot Tyre PSIs (FL / FR / RL / RR)</span>
+          <span class="field-hint emerald" id="modalPostHotTargetLabel">Target 44.0 PSI</span>
         </div>
-        <div class="num-stepper">
-          <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelPsi" data-step="-0.1" aria-label="Decrease Post-Race Fuel Pressure">&minus;</button>
-          <div class="num-input-wrap">
-            <input type="number" id="modalPostFuelPsi" class="num-input" value="5.0" min="2.0" max="8.5" step="0.1" />
-            <span class="num-unit-badge">psi</span>
+
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 8px;">
+          <!-- FL -->
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="modalPostHotPsi_FL">FL Hot PSI</label>
+              <span class="field-hint emerald" id="modalPostNextCold_FL">Next: 30.0</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostHotPsi_FL" data-step="-0.2" aria-label="Decrease FL Hot PSI">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="modalPostHotPsi_FL" class="num-input" value="" placeholder="&mdash;" min="20.0" max="60.0" step="0.2" inputmode="decimal" />
+                <span class="num-unit-badge">psi</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostHotPsi_FL" data-step="0.2" aria-label="Increase FL Hot PSI">+</button>
+            </div>
           </div>
-          <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelPsi" data-step="0.1" aria-label="Increase Post-Race Fuel Pressure">+</button>
+
+          <!-- FR -->
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="modalPostHotPsi_FR">FR Hot PSI</label>
+              <span class="field-hint emerald" id="modalPostNextCold_FR">Next: 30.0</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostHotPsi_FR" data-step="-0.2" aria-label="Decrease FR Hot PSI">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="modalPostHotPsi_FR" class="num-input" value="" placeholder="&mdash;" min="20.0" max="60.0" step="0.2" inputmode="decimal" />
+                <span class="num-unit-badge">psi</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostHotPsi_FR" data-step="0.2" aria-label="Increase FR Hot PSI">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid-2 compact-pair-grid">
+          <!-- RL -->
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="modalPostHotPsi_RL">RL Hot PSI</label>
+              <span class="field-hint emerald" id="modalPostNextCold_RL">Next: 30.0</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostHotPsi_RL" data-step="-0.2" aria-label="Decrease RL Hot PSI">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="modalPostHotPsi_RL" class="num-input" value="" placeholder="&mdash;" min="20.0" max="60.0" step="0.2" inputmode="decimal" />
+                <span class="num-unit-badge">psi</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostHotPsi_RL" data-step="0.2" aria-label="Increase RL Hot PSI">+</button>
+            </div>
+          </div>
+
+          <!-- RR -->
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="modalPostHotPsi_RR">RR Hot PSI</label>
+              <span class="field-hint emerald" id="modalPostNextCold_RR">Next: 30.0</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostHotPsi_RR" data-step="-0.2" aria-label="Decrease RR Hot PSI">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="modalPostHotPsi_RR" class="num-input" value="" placeholder="&mdash;" min="20.0" max="60.0" step="0.2" inputmode="decimal" />
+                <span class="num-unit-badge">psi</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostHotPsi_RR" data-step="0.2" aria-label="Increase RR Hot PSI">+</button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- 4. Peak Water Temp (Full-Width) -->
-      <div class="field-group" style="margin-bottom: 12px;">
-        <div class="field-label-row">
-          <label class="field-label" for="modalPostWaterTemp">Peak Water Temp</label>
-          <span class="field-hint amber" id="modalPostWaterHint">warn &ge; 98&deg;C</span>
-        </div>
-        <div class="num-stepper">
-          <button type="button" class="stepper-btn" data-stepper-target="modalPostWaterTemp" data-step="-1" aria-label="Decrease Peak Water Temp">&minus;</button>
-          <div class="num-input-wrap">
-            <input type="number" id="modalPostWaterTemp" class="num-input" value="85" min="50" max="125" step="1" />
-            <span class="num-unit-badge">&deg;C</span>
-          </div>
-          <button type="button" class="stepper-btn" data-stepper-target="modalPostWaterTemp" data-step="1" aria-label="Increase Peak Water Temp">+</button>
-        </div>
-      </div>
-
-      <!-- 5. Post-Session Notes -->
+      <!-- SECTION 4: POST-RACE NOTES -->
       <div class="field-group" style="margin-bottom: 14px;">
         <div class="field-label-row">
-          <label class="field-label" for="modalPostNotes">Post-Session Notes</label>
-          <span class="field-hint">Track &amp; Gauge Notes</span>
+          <label class="field-label" for="modalPostNotes">Post-Race Notes</label>
+          <span class="field-hint emerald">Saved to Session Log</span>
         </div>
         <input
           type="text"
           id="modalPostNotes"
           class="text-input"
-          placeholder="e.g. Steady 5.0 psi at 5900, water crept to 92°C in traffic"
+          placeholder="e.g. Car strong off hairpin, 12.82 AFR down chute, P2"
           autocomplete="off"
         />
       </div>
 
-      <!-- Collapsible 3D Metal Toggle Bar for Optional Mid-Range RPM Sweep (3500-5500 RPM) -->
-      <div style="margin-bottom: 14px;">
-        <button
-          type="button"
-          class="btn btn-secondary btn-full"
-          id="btnTogglePostMidSweep"
-          aria-expanded="false"
-          aria-controls="postMidSweepWrap"
-        >
-          + Optional Mid-Range RPM Sweep (3500&ndash;5500 RPM)
-        </button>
-
-        <div id="postMidSweepWrap" class="mid-sweep-panel" style="display: none;">
-          <div class="mid-sweep-head">
-            <span class="field-hint">Leave any unlogged RPM stage blank (&mdash;)</span>
-            <button type="button" class="btn btn-danger btn-xs" id="btnClearPostMidSweep">
-              Clear Sweep (Leave Blank)
-            </button>
-          </div>
-
-          <div class="field-group" style="margin-bottom: 10px;">
-            <label class="field-label" for="modalPost3500">3500 RPM AFR (Optional)</label>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="modalPost3500" data-step="-0.05" aria-label="Decrease 3500 AFR">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="modalPost3500" class="num-input" value="" placeholder="&mdash;" min="10.50" max="15.50" step="0.05" />
-                <span class="num-unit-badge">AFR</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="modalPost3500" data-step="0.05" aria-label="Increase 3500 AFR">+</button>
-            </div>
-          </div>
-
-          <div class="field-group" style="margin-bottom: 10px;">
-            <label class="field-label" for="modalPost4000">4000 RPM AFR (Optional)</label>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="modalPost4000" data-step="-0.05" aria-label="Decrease 4000 AFR">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="modalPost4000" class="num-input" value="" placeholder="&mdash;" min="10.50" max="15.50" step="0.05" />
-                <span class="num-unit-badge">AFR</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="modalPost4000" data-step="0.05" aria-label="Increase 4000 AFR">+</button>
-            </div>
-          </div>
-
-          <div class="field-group" style="margin-bottom: 10px;">
-            <label class="field-label" for="modalPost4500">4500 RPM AFR (Optional)</label>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="modalPost4500" data-step="-0.05" aria-label="Decrease 4500 AFR">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="modalPost4500" class="num-input" value="" placeholder="&mdash;" min="10.50" max="15.50" step="0.05" />
-                <span class="num-unit-badge">AFR</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="modalPost4500" data-step="0.05" aria-label="Increase 4500 AFR">+</button>
-            </div>
-          </div>
-
-          <div class="field-group" style="margin-bottom: 10px;">
-            <label class="field-label" for="modalPost5000">5000 RPM AFR (Optional)</label>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="modalPost5000" data-step="-0.05" aria-label="Decrease 5000 AFR">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="modalPost5000" class="num-input" value="" placeholder="&mdash;" min="10.50" max="15.50" step="0.05" />
-                <span class="num-unit-badge">AFR</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="modalPost5000" data-step="0.05" aria-label="Increase 5000 AFR">+</button>
-            </div>
-          </div>
-
-          <div class="field-group" style="margin-bottom: 0;">
-            <label class="field-label" for="modalPost5500">5500 RPM AFR (Optional)</label>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="modalPost5500" data-step="-0.05" aria-label="Decrease 5500 AFR">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="modalPost5500" class="num-input" value="" placeholder="&mdash;" min="10.50" max="15.50" step="0.05" />
-                <span class="num-unit-badge">AFR</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="modalPost5500" data-step="0.05" aria-label="Increase 5500 AFR">+</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <button type="button" class="btn btn-confirm btn-full" id="btnSavePostRaceAfr">
-        SAVE POST RACE SESSION
+      <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSavePostRaceAfr">
+        SAVE POST-RACE &amp; COMPLETE SESSION
       </button>
     </div>
   </div>
@@ -2780,9 +2663,158 @@
     </div>
   </div>
 
+  <!-- =========================================================
+       MODAL: PROMPT FOR NEXT SESSION (AUTOMATIC ROLL-FORWARD)
+       ========================================================= -->
+  <div id="modalPromptNextSession" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="promptNextSessionTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow" style="color: #6ee7b7;">Baseline Rolled Forward</div>
+          <h3 class="modal-title" id="promptNextSessionTitle">Practice 1 Saved &amp; Locked as New Baseline</h3>
+        </div>
+      </div>
+
+      <div class="gate-baseline-summary-box" style="margin-bottom: 14px;">
+        <div class="gate-baseline-head">NEW BASELINE CARRIED FORWARD</div>
+        <div class="gate-baseline-summary-grid">
+          <div class="telem-cell">
+            <span class="telem-label">Tune &amp; AFR</span>
+            <span class="telem-val txt-emerald" id="promptBaseTuneSummary">Jet #78 &bull; 12.82 AFR</span>
+            <span class="telem-sub" id="promptBaseTuneSub">1 DME &bull; 94.3% RAD</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">Circuit Burn</span>
+            <span class="telem-val txt-amber" id="promptBaseFuelSummary">1.30 L/lap</span>
+            <span class="telem-sub" id="promptBaseFuelSub">1377.0 kg Scale Wt</span>
+          </div>
+          <div class="telem-cell gate-tyre-span">
+            <span class="telem-label">4-Corner Next Cold Set PSIs</span>
+            <span class="telem-val txt-emerald" id="promptBaseTyreSummary">FL 30.2 &bull; FR 29.5 &bull; RL 30.5 &bull; RR 29.8 psi</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom: 12px;">
+        <div class="field-label-row">
+          <label class="field-label" for="nextSessionSelect">Next Session in Event</label>
+          <span class="field-hint emerald">Auto-Advanced</span>
+        </div>
+        <select id="nextSessionSelect" class="select-input" aria-label="Select Next Session">
+          <option value="Practice 1">Practice 1</option>
+          <option value="Practice 2" selected>Practice 2</option>
+          <option value="Practice 3">Practice 3</option>
+          <option value="Practice 4">Practice 4</option>
+          <option value="Practice 5">Practice 5</option>
+          <option value="Practice 6">Practice 6</option>
+          <option value="Practice 7">Practice 7</option>
+          <option value="Qualifying">Qualifying</option>
+          <option value="Warm Up">Warm Up</option>
+          <option value="Race 1">Race 1</option>
+          <option value="Race 2">Race 2</option>
+          <option value="Race 3">Race 3</option>
+          <option value="Race 4">Race 4</option>
+          <option value="Final">Final</option>
+          <option value="__CUSTOM__">Custom Session...</option>
+        </select>
+      </div>
+
+      <div id="nextSessionCustomWrap" class="field-group" style="display: none; margin-bottom: 12px;">
+        <div class="field-label-row">
+          <label class="field-label" for="nextSessionCustomInput">Custom Session Name</label>
+          <span class="field-hint amber">Required</span>
+        </div>
+        <input type="text" id="nextSessionCustomInput" class="text-input" placeholder="e.g. Trophy Race / Feature" autocomplete="off" />
+      </div>
+
+      <div class="field-group" style="margin-bottom: 16px;">
+        <div class="field-label-row">
+          <label class="field-label" for="nextSessionPreNotes">Pre-Race Change Notes (Optional)</label>
+          <span class="field-hint">What are you changing for this run?</span>
+        </div>
+        <input
+          type="text"
+          id="nextSessionPreNotes"
+          class="text-input"
+          placeholder="e.g. Leaving #78 in, setting Next Cold PSIs"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="prompt-next-actions">
+        <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnConfirmStartNextSession">
+          START NEXT SESSION NOW
+        </button>
+        <div class="form-grid-2" style="gap: 8px; margin-top: 8px;">
+          <button type="button" class="btn btn-secondary btn-full" id="btnDeferNextSession">
+            DO LATER (BETWEEN SESSIONS)
+          </button>
+          <button type="button" class="btn btn-danger btn-full" id="btnEndEventFromPrompt">
+            END EVENT
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL: 2-STEP DOUBLE CONFIRMATION TO DELETE A SESSION
+       ========================================================= -->
+  <div id="modalDeleteSessionConfirm" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="deleteSessionModalTitle">
+    <div class="modal-sheet">
+      <input type="hidden" id="deleteSessionTargetId" />
+
+      <!-- STEP 1 OF 2 -->
+      <div id="deleteSessionStep1">
+        <div class="modal-head">
+          <div>
+            <div class="section-eyebrow" style="color: #fbbf24;">Safety Check 1 of 2</div>
+            <h3 class="modal-title" id="deleteSessionModalTitle">Delete Session? (Check 1 of 2)</h3>
+          </div>
+        </div>
+
+        <div class="delete-confirm-step-banner step1" id="deleteSessionStep1Text">
+          Are you sure you want to remove <strong>Practice 1</strong> from <strong>Calder Park Raceway</strong>?
+        </div>
+
+        <div class="form-grid-2" style="gap: 10px; margin-top: 14px;">
+          <button type="button" class="btn btn-secondary btn-full" id="btnCancelDeleteSessionStep1">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-danger btn-full" id="btnAdvanceDeleteSessionStep2">
+            Yes, Continue (1/2)
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2 OF 2 -->
+      <div id="deleteSessionStep2" style="display: none;">
+        <div class="modal-head">
+          <div>
+            <div class="section-eyebrow" style="color: #f87171;">Irreversible Action &bull; Check 2 of 2</div>
+            <h3 class="modal-title" style="color: #fca5a5;">FINAL CONFIRMATION (2 of 2)</h3>
+          </div>
+        </div>
+
+        <div class="delete-confirm-step-banner step2" id="deleteSessionStep2Text">
+          Permanently delete <strong>Practice 1</strong> and ALL its Tune, Fuel &amp; Tyre data? This cannot be undone.
+        </div>
+
+        <div class="form-grid-2" style="gap: 10px; margin-top: 14px;">
+          <button type="button" class="btn btn-secondary btn-full" id="btnCancelDeleteSessionStep2">
+            Keep Session
+          </button>
+          <button type="button" class="btn btn-danger btn-full" id="btnConfirmPermanentDeleteSession">
+            PERMANENTLY DELETE SESSION
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.5.7"></script>
+  <script src="./app.js?v=0.5.8"></script>
 </body>
 </html>
