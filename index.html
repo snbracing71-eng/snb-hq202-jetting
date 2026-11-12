@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.6.0" />
+  <link rel="stylesheet" href="./styles.css?v=0.7.0" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -816,10 +816,20 @@
       <div class="card">
         <div class="section-head" style="flex-wrap: wrap; gap: 8px;">
           <div>
-            <div class="section-eyebrow">Card 2 &bull; Group 3H Scrutineering Compliance</div>
+            <div class="section-eyebrow">Card 2 &bull; Group 3H Scrutineering Factual Anchor</div>
             <h2 class="section-title">Weekend Track Scales &amp; 1365 kg Check</h2>
           </div>
           <span class="locked-badge" id="minWeightBadge">Legal Min: 1365.0 kg &bull; Target w/ +5 kg Buffer: 1370.0 kg</span>
+        </div>
+
+        <div class="scale-fact-banner" id="scaleFactSourceWrap">
+          <div class="scale-fact-banner-text">
+            <span class="scale-fact-eyebrow">LIVE WEEKEND SCALE FACT (EDITABLE ANYTIME)</span>
+            <span class="scale-fact-source" id="scaleFactSourceBadge">Anchored to Official Track Scale Check (1377.0 kg @ 27.0 L)</span>
+          </div>
+          <button type="button" class="btn btn-amber-outline btn-xs" id="btnUpdateScaleFact">
+            Update Scale Fact
+          </button>
         </div>
 
         <div class="card-elevated" id="fuelPreRaceScaleGroup" style="margin-bottom: 14px;">
@@ -859,7 +869,7 @@
           <!-- Clean 2-Col Live Readout Strip: Dry Car + Driver | Predicted Post-Race Weight -->
           <div class="form-grid-2" style="gap: 10px;">
             <div class="telem-cell">
-              <span class="telem-label">Dry Car + Driver</span>
+              <span class="telem-label">Dry Car + Driver (Fact)</span>
               <span class="telem-val" id="outDryCarDriverKg">1357.0 kg</span>
               <span class="telem-sub" id="outDryCarDriverSub">1377.0 kg &minus; 20.0 kg fuel</span>
             </div>
@@ -895,15 +905,15 @@
     </section>
 
     <!-- =========================================================
-         TAB 3: TYRES (Visual Car Chassis 2x2 Matrix: FL | FR over RL | RR)
+         TAB 3: TYRES / SPRINGS (Visual Car Chassis 2x2 Matrix: FL | FR over RL | RR)
          ========================================================= -->
     <section id="tab-tyres" class="tab-panel" aria-labelledby="navTabTyres">
       <div id="tyresActiveSessionContent">
       <div class="card">
         <div class="section-head">
           <div>
-            <div class="section-eyebrow">Kenda KR15 Control Tyre (205/65R15) &bull; Visual Car Layout</div>
-            <h2 class="section-title">4-Corner Tyre Pressure Matrix</h2>
+            <div class="section-eyebrow">Kenda KR15 (205/65R15) + Pedders GSR Shocks &amp; Springs</div>
+            <h2 class="section-title">4-Corner Tyres &amp; Suspension Matrix</h2>
           </div>
           <span class="locked-badge" id="tyreTargetBadge">Target 44.0 PSI</span>
         </div>
@@ -1013,6 +1023,23 @@
               <select id="selectMountedTyre_FL" class="select-input tyre-mount-select" data-corner-tyre-select="FL" aria-label="Select Mounted Tyre for Front Left"></select>
             </div>
 
+            <div class="corner-susp-box">
+              <div class="corner-susp-row">
+                <div class="corner-susp-top">
+                  <label class="corner-susp-label" for="shockSelect_FL">SHOCK #</label>
+                  <span class="corner-susp-badge" id="outShockSpec_FL">King: &mdash;</span>
+                </div>
+                <select id="shockSelect_FL" class="select-input corner-susp-select" data-corner-shock-select="FL" aria-label="Select Front Left Shock"></select>
+              </div>
+              <div class="corner-susp-row">
+                <div class="corner-susp-top">
+                  <label class="corner-susp-label" for="springSelect_FL">SPRING #</label>
+                  <span class="corner-susp-badge" id="outSpringSpec_FL">King: &mdash;</span>
+                </div>
+                <select id="springSelect_FL" class="select-input corner-susp-select" data-corner-spring-select="FL" aria-label="Select Front Left Spring"></select>
+              </div>
+            </div>
+
             <div class="field-group tyre-stack-field">
               <label class="field-label" for="inputColdPsi_FL">Cold PSI</label>
               <div class="num-stepper">
@@ -1066,6 +1093,23 @@
                 <span class="tyre-laps-badge" id="outTyreTotalLaps_FR">BUFF &bull; 24 laps &bull; 4.6mm &bull; 63A</span>
               </div>
               <select id="selectMountedTyre_FR" class="select-input tyre-mount-select" data-corner-tyre-select="FR" aria-label="Select Mounted Tyre for Front Right"></select>
+            </div>
+
+            <div class="corner-susp-box">
+              <div class="corner-susp-row">
+                <div class="corner-susp-top">
+                  <label class="corner-susp-label" for="shockSelect_FR">SHOCK #</label>
+                  <span class="corner-susp-badge" id="outShockSpec_FR">King: &mdash;</span>
+                </div>
+                <select id="shockSelect_FR" class="select-input corner-susp-select" data-corner-shock-select="FR" aria-label="Select Front Right Shock"></select>
+              </div>
+              <div class="corner-susp-row">
+                <div class="corner-susp-top">
+                  <label class="corner-susp-label" for="springSelect_FR">SPRING #</label>
+                  <span class="corner-susp-badge" id="outSpringSpec_FR">King: &mdash;</span>
+                </div>
+                <select id="springSelect_FR" class="select-input corner-susp-select" data-corner-spring-select="FR" aria-label="Select Front Right Spring"></select>
+              </div>
             </div>
 
             <div class="field-group tyre-stack-field">
@@ -1123,6 +1167,23 @@
               <select id="selectMountedTyre_RL" class="select-input tyre-mount-select" data-corner-tyre-select="RL" aria-label="Select Mounted Tyre for Rear Left"></select>
             </div>
 
+            <div class="corner-susp-box">
+              <div class="corner-susp-row">
+                <div class="corner-susp-top">
+                  <label class="corner-susp-label" for="shockSelect_RL">SHOCK #</label>
+                  <span class="corner-susp-badge" id="outShockSpec_RL">King: &mdash;</span>
+                </div>
+                <select id="shockSelect_RL" class="select-input corner-susp-select" data-corner-shock-select="RL" aria-label="Select Rear Left Shock"></select>
+              </div>
+              <div class="corner-susp-row">
+                <div class="corner-susp-top">
+                  <label class="corner-susp-label" for="springSelect_RL">SPRING #</label>
+                  <span class="corner-susp-badge" id="outSpringSpec_RL">138 N/mm &bull; 184mm</span>
+                </div>
+                <select id="springSelect_RL" class="select-input corner-susp-select" data-corner-spring-select="RL" aria-label="Select Rear Left Spring"></select>
+              </div>
+            </div>
+
             <div class="field-group tyre-stack-field">
               <label class="field-label" for="inputColdPsi_RL">Cold PSI</label>
               <div class="num-stepper">
@@ -1178,6 +1239,23 @@
               <select id="selectMountedTyre_RR" class="select-input tyre-mount-select" data-corner-tyre-select="RR" aria-label="Select Mounted Tyre for Rear Right"></select>
             </div>
 
+            <div class="corner-susp-box">
+              <div class="corner-susp-row">
+                <div class="corner-susp-top">
+                  <label class="corner-susp-label" for="shockSelect_RR">SHOCK #</label>
+                  <span class="corner-susp-badge" id="outShockSpec_RR">King: &mdash;</span>
+                </div>
+                <select id="shockSelect_RR" class="select-input corner-susp-select" data-corner-shock-select="RR" aria-label="Select Rear Right Shock"></select>
+              </div>
+              <div class="corner-susp-row">
+                <div class="corner-susp-top">
+                  <label class="corner-susp-label" for="springSelect_RR">SPRING #</label>
+                  <span class="corner-susp-badge" id="outSpringSpec_RR">141 N/mm &bull; 185mm</span>
+                </div>
+                <select id="springSelect_RR" class="select-input corner-susp-select" data-corner-spring-select="RR" aria-label="Select Rear Right Spring"></select>
+              </div>
+            </div>
+
             <div class="field-group tyre-stack-field">
               <label class="field-label" for="inputColdPsi_RR">Cold PSI</label>
               <div class="num-stepper">
@@ -1221,27 +1299,27 @@
 
         <div class="field-group" style="margin-top: 12px;">
           <div class="field-label-row">
-            <label class="field-label" for="inputTyreRunNotes">Tyre Run Notes (Optional)</label>
+            <label class="field-label" for="inputTyreRunNotes">Tyre &amp; Suspension Run Notes (Optional)</label>
             <span class="field-hint">Saved to Unified Session Log</span>
           </div>
           <input
             type="text"
             id="inputTyreRunNotes"
             class="text-input"
-            placeholder="e.g. Bled FL -1.2 psi to 44.0 hot, strong turn-in"
+            placeholder="e.g. Bled FL -1.2 psi to 44.0 hot, R6/R5 rear springs balanced"
             autocomplete="off"
           />
         </div>
 
         <div class="unlock-prerace-row" id="unlockTyresPreRaceRow" style="display: none; margin-top: 10px;">
           <button type="button" class="btn-unlock-prerace" id="btnUnlockTyresPreRace">
-            Unlock Pre-Race Tyres
+            Unlock Pre-Race Tyres &amp; Suspension
           </button>
         </div>
 
         <!-- Standalone Full-Width 3D Emerald Action Button -->
         <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveTyresSession" style="margin-top: 12px;">
-          SAVE PRE-RACE TYRES TO SESSION
+          SAVE PRE-RACE TYRES &amp; SUSPENSION TO SESSION
         </button>
         <button type="button" class="btn btn-locked-grey btn-stage-locked btn-full btn-cta-lg" id="btnCompleteSessionFromTyres" style="margin-top: 8px;" disabled>
           LOCK PRE-RACE TYRES FIRST (POST-RACE LOCKED)
@@ -1426,7 +1504,7 @@
             type="search"
             id="searchLogQuery"
             class="text-input log-quick-search-input"
-            placeholder="Quick search jet (#78, 2.000), carby, manifold, exhaust, AFR, tyre, notes..."
+            placeholder="Quick search jet (#78, 2.000), carby, manifold, exhaust, AFR, tyre, shock, spring, notes..."
             autocomplete="off"
             spellcheck="false"
             aria-label="Quick search session log"
@@ -1440,6 +1518,10 @@
             aria-label="Clear search query"
           >&#10005;</button>
         </div>
+
+        <button type="button" class="btn btn-ai-dump-gold btn-full" id="btnOpenAiDataDump" style="margin-top: 8px;">
+          &#128203; AI DATA DUMP (COPY FOR REVIEW)
+        </button>
       </div>
 
       <div id="sessionLogList"></div>
@@ -1470,7 +1552,7 @@
     </section>
 
     <!-- =========================================================
-         TAB 5: 40MM CARBY FLEET, MANIFOLDS, EXHAUSTS & M1 JET KIT
+         TAB 5: 40MM CARBY FLEET, MANIFOLDS, EXHAUSTS, SHOCKS, SPRINGS & M1 JET KIT
          ========================================================= -->
     <section id="tab-fleet" class="tab-panel" aria-labelledby="navTabFleet">
       <!-- 1) Compact Carburettors (40mm BXUV-3) Card -->
@@ -1543,6 +1625,78 @@
         </div>
 
         <div id="exhaustFleetContainer"></div>
+      </div>
+
+      <!-- 4) Shocks Fleet (Pedders GSR 9033 Front / 9067 Rear) Card -->
+      <div class="card" id="shockFleetCard">
+        <div class="section-head">
+          <div>
+            <div class="section-eyebrow">Pedders GSR 9033 (Front) &bull; GSR 9067 (Rear) &bull; King Springs @ 200 mm/s</div>
+            <h2 class="section-title">Shocks Fleet (#77 &amp; Spares)</h2>
+          </div>
+          <span class="locked-badge" id="fleetShockActiveBadge">FL:F29 FR:F27 &bull; RL:R26 RR:R25</span>
+        </div>
+
+        <div class="tyre-stock-filter-bar" role="group" aria-label="Filter Shocks Fleet" style="margin-bottom: 10px;">
+          <button type="button" class="tyre-filter-pill active" data-shock-fleet-filter="all" id="btnFilterShocksAll">
+            All (<span id="countFilterShocksAll">28</span>)
+          </button>
+          <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="F" id="btnFilterShocksFront">
+            Front (<span id="countFilterShocksFront">14</span>)
+          </button>
+          <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="R" id="btnFilterShocksRear">
+            Rear (<span id="countFilterShocksRear">14</span>)
+          </button>
+          <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="mounted" id="btnFilterShocksMounted">
+            On Car #77 (<span id="countFilterShocksMounted">4</span>)
+          </button>
+        </div>
+
+        <div class="fleet-selector-bar" style="margin-bottom: 12px;">
+          <label class="sr-only" for="selectFleetShock">Select Shock from Fleet</label>
+          <select id="selectFleetShock" class="select-input" aria-label="Select Shock from Fleet"></select>
+          <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddShock">
+            + Add Shock
+          </button>
+        </div>
+
+        <div id="shockFleetContainer"></div>
+      </div>
+
+      <!-- 5) Springs Fleet (Pedders 5608 Front / 5609 Rear) Card -->
+      <div class="card" id="springFleetCard">
+        <div class="section-head">
+          <div>
+            <div class="section-eyebrow">Pedders 5608 (Front) &bull; 5609 (Rear) &bull; King Springs Rate &amp; Height</div>
+            <h2 class="section-title">Springs Fleet (#77 &amp; Spares)</h2>
+          </div>
+          <span class="locked-badge" id="fleetSpringActiveBadge">FL:F11 FR:F12 &bull; RL:R6 RR:R5</span>
+        </div>
+
+        <div class="tyre-stock-filter-bar" role="group" aria-label="Filter Springs Fleet" style="margin-bottom: 10px;">
+          <button type="button" class="tyre-filter-pill active" data-spring-fleet-filter="all" id="btnFilterSpringsAll">
+            All (<span id="countFilterSpringsAll">16</span>)
+          </button>
+          <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="F" id="btnFilterSpringsFront">
+            Front (<span id="countFilterSpringsFront">8</span>)
+          </button>
+          <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="R" id="btnFilterSpringsRear">
+            Rear (<span id="countFilterSpringsRear">8</span>)
+          </button>
+          <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="mounted" id="btnFilterSpringsMounted">
+            On Car #77 (<span id="countFilterSpringsMounted">4</span>)
+          </button>
+        </div>
+
+        <div class="fleet-selector-bar" style="margin-bottom: 12px;">
+          <label class="sr-only" for="selectFleetSpring">Select Spring from Fleet</label>
+          <select id="selectFleetSpring" class="select-input" aria-label="Select Spring from Fleet"></select>
+          <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddSpring">
+            + Add Spring
+          </button>
+        </div>
+
+        <div id="springFleetContainer"></div>
       </div>
 
       <!-- Live Inch <-> mm <-> Area (mm^2) Orifice Converter -->
@@ -1627,7 +1781,7 @@
     </section>
   </main>
 
-  <!-- Sticky Bottom 5-Tab Navigation (Single Row: Calculator | Fuel & Wt | Tyres | Session Log | Fleet & Kit) -->
+  <!-- Sticky Bottom 5-Tab Navigation (Single Row: Calculator | Fuel & Wt | Tyres / Springs | Session Log | Fleet & Kit) -->
   <nav class="bottom-tab-bar" role="navigation" aria-label="Primary App Tabs">
     <div class="bottom-tab-inner">
       <button type="button" class="tab-btn active" id="navTabCalc" data-tab="tab-calc" aria-controls="tab-calc" aria-selected="true">
@@ -1655,7 +1809,7 @@
           <line x1="3" y1="12" x2="8" y2="12"></line>
           <line x1="16" y1="12" x2="21" y2="12"></line>
         </svg>
-        <span>Tyres</span>
+        <span>Tyres / Springs</span>
       </button>
       <button type="button" class="tab-btn" id="navTabLog" data-tab="tab-log" aria-controls="tab-log" aria-selected="false">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1850,9 +2004,9 @@
         </div>
       </div>
 
-      <!-- SECTION 2: POST-RACE FUEL PUMP-OUT (OPTIONAL IF PUMPED) -->
+      <!-- SECTION 2: POST-RACE FUEL PUMP-OUT & OFFICIAL SCALES (OPTIONAL) -->
       <div class="card-elevated post-race-section-card" style="margin-bottom: 12px;">
-        <div class="section-eyebrow" style="margin-bottom: 8px;">2 &bull; Post-Race Fuel Pump-Out (Optional)</div>
+        <div class="section-eyebrow" style="margin-bottom: 8px;">2 &bull; Post-Race Fuel Pump-Out &amp; Scales (Optional)</div>
         <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
@@ -1885,7 +2039,7 @@
           </div>
         </div>
 
-        <div class="form-grid-2 compact-pair-grid" style="align-items: stretch;">
+        <div class="form-grid-2 compact-pair-grid" style="align-items: stretch; margin-bottom: 10px;">
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
               <label class="field-label" for="modalPostRacedLaps">Raced Laps</label>
@@ -1905,6 +2059,22 @@
             <span class="telem-label">Live Measured Burn</span>
             <span class="telem-val txt-emerald" id="modalPostMeasuredBurnOut">1.30 L/lap</span>
             <span class="telem-sub" id="modalPostMeasuredUsedSub">Updates circuit L/lap</span>
+          </div>
+        </div>
+
+        <!-- Optional Post-Race Official Scale Weight (kg) -> Auto-Updates Weekend Scale Fact when paired with Pumped Out (L) -->
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="modalPostScaleKg">Post-Race Official Scale Wt (kg) (Optional)</label>
+            <span class="field-hint emerald" id="modalPostScaleFactHint">With Pumped Out L &rarr; Updates Scale Fact</span>
+          </div>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostScaleKg" data-step="-0.5" aria-label="Decrease Post-Race Official Scale Weight">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="modalPostScaleKg" class="num-input" value="" placeholder="&mdash; (Not re-weighed)" min="500.0" max="1650.0" step="0.5" inputmode="decimal" />
+              <span class="num-unit-badge">kg</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostScaleKg" data-step="0.5" aria-label="Increase Post-Race Official Scale Weight">+</button>
           </div>
         </div>
       </div>
@@ -2703,8 +2873,8 @@
         <strong>READ-ONLY LOCK WARNING:</strong> Ending this event permanently saves and locks all sessions from this weekend. Locked events cannot be edited or deleted later.
       </div>
 
-      <div class="form-grid-2" style="gap: 10px;">
-        <button type="button" class="btn btn-secondary btn-full" id="btnKeepEventOpen">
+      <div class="end-event-actions-grid">
+        <button type="button" class="btn btn-confirm btn-full" id="btnKeepEventOpen">
           Keep Event Open
         </button>
         <button type="button" class="btn btn-danger btn-full" id="btnConfirmEndEvent">
@@ -2903,9 +3073,258 @@
     </div>
   </div>
 
+  <!-- =========================================================
+       MODAL 3D: EDIT SHOCK SPEC (PEDDERS GSR 9033 FRONT / 9067 REAR)
+       ========================================================= -->
+  <div class="modal-backdrop" id="modalEditShock" role="dialog" aria-modal="true" aria-labelledby="modalEditShockTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">Pedders GSR 9033 (Front) &bull; GSR 9067 (Rear)</div>
+          <h2 class="section-title" id="modalEditShockTitle">Edit Shock Spec</h2>
+        </div>
+        <button type="button" class="btn btn-danger" data-close-modal="modalEditShock" aria-label="Close Shock Spec Modal">
+          Close
+        </button>
+      </div>
+
+      <input type="hidden" id="editShockIdHidden" />
+
+      <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editShockCode">Shock Code / Stamp</label>
+            <span class="field-hint amber">e.g. F29 / R26</span>
+          </div>
+          <input type="text" id="editShockCode" class="text-input" placeholder="e.g. F29 or R26" autocomplete="off" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editShockEnd">End (Front / Rear)</label>
+            <span class="field-hint">9033 F / 9067 R</span>
+          </div>
+          <select id="editShockEnd" class="select-input">
+            <option value="F">Front (GSR 9033)</option>
+            <option value="R">Rear (GSR 9067)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editShockOrigin">Origin / Batch</label>
+            <span class="field-hint">Optional</span>
+          </div>
+          <input type="text" id="editShockOrigin" class="text-input" placeholder="e.g. #77 / ex-#71 / new 2026" autocomplete="off" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editShockStatus">Availability</label>
+            <span class="field-hint emerald">Car #77 Pool</span>
+          </div>
+          <select id="editShockStatus" class="select-input">
+            <option value="available">Available / Car #77 Pool</option>
+            <option value="other_car">In Other Car (e.g. LS Rails)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card-elevated" style="margin-bottom: 12px;">
+        <div class="section-eyebrow" style="margin-bottom: 8px;">King Springs Dyno @ 200 mm/s (Leave blank if untested)</div>
+        <div class="form-grid-2 compact-pair-grid">
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="editShockKingComp">Comp @ 200 mm/s</label>
+              <span class="field-hint emerald">Bump</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="editShockKingComp" data-step="-1" aria-label="Decrease King Compression">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="editShockKingComp" class="num-input" value="" placeholder="&mdash;" min="-500" max="500" step="1" inputmode="decimal" />
+                <span class="num-unit-badge">N</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="editShockKingComp" data-step="1" aria-label="Increase King Compression">+</button>
+            </div>
+          </div>
+
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="editShockKingReb">Rebound @ 200 mm/s</label>
+              <span class="field-hint amber">e.g. -180</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="editShockKingReb" data-step="-1" aria-label="Decrease King Rebound">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="editShockKingReb" class="num-input" value="" placeholder="&mdash;" min="-600" max="500" step="1" inputmode="decimal" />
+                <span class="num-unit-badge">N</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="editShockKingReb" data-step="1" aria-label="Increase King Rebound">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom: 14px;">
+        <div class="field-label-row">
+          <label class="field-label" for="editShockNotes">Shock Notes</label>
+          <span class="field-hint">Dyno / Valving / Allocation</span>
+        </div>
+        <input type="text" id="editShockNotes" class="text-input" placeholder="e.g. On Car #77 / in LS Rails / fresh dyno" autocomplete="off" />
+      </div>
+
+      <button type="button" class="btn btn-confirm btn-full" id="btnSaveShockModal">
+        Save Shock Spec
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 3E: EDIT SPRING SPEC (PEDDERS 5608 FRONT / 5609 REAR)
+       ========================================================= -->
+  <div class="modal-backdrop" id="modalEditSpring" role="dialog" aria-modal="true" aria-labelledby="modalEditSpringTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">Pedders 5608 (Front) &bull; 5609 (Rear)</div>
+          <h2 class="section-title" id="modalEditSpringTitle">Edit Spring Spec</h2>
+        </div>
+        <button type="button" class="btn btn-danger" data-close-modal="modalEditSpring" aria-label="Close Spring Spec Modal">
+          Close
+        </button>
+      </div>
+
+      <input type="hidden" id="editSpringIdHidden" />
+
+      <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editSpringCode">Spring Code / Stamp</label>
+            <span class="field-hint amber">e.g. F11 / R6</span>
+          </div>
+          <input type="text" id="editSpringCode" class="text-input" placeholder="e.g. F11 or R6" autocomplete="off" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editSpringEnd">End (Front / Rear)</label>
+            <span class="field-hint">5608 F / 5609 R</span>
+          </div>
+          <select id="editSpringEnd" class="select-input">
+            <option value="F">Front (Pedders 5608)</option>
+            <option value="R">Rear (Pedders 5609)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editSpringOrigin">Origin / Batch</label>
+            <span class="field-hint">Optional</span>
+          </div>
+          <input type="text" id="editSpringOrigin" class="text-input" placeholder="e.g. #77 / ex-#71 / Spare" autocomplete="off" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editSpringStatus">Availability</label>
+            <span class="field-hint emerald">Car #77 Pool</span>
+          </div>
+          <select id="editSpringStatus" class="select-input">
+            <option value="available">Available / Car #77 Pool</option>
+            <option value="other_car">In Other Car (e.g. LS Rails)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card-elevated" style="margin-bottom: 12px;">
+        <div class="section-eyebrow" style="margin-bottom: 8px;">King Springs Rate &amp; Install Height (Leave blank if untested)</div>
+        <div class="form-grid-2 compact-pair-grid">
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="editSpringKingRate">King Rate (N/mm)</label>
+              <span class="field-hint emerald">Spring Rate</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="editSpringKingRate" data-step="-0.5" aria-label="Decrease King Spring Rate">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="editSpringKingRate" class="num-input" value="" placeholder="&mdash;" min="40" max="300" step="0.01" inputmode="decimal" />
+                <span class="num-unit-badge">N/mm</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="editSpringKingRate" data-step="0.5" aria-label="Increase King Spring Rate">+</button>
+            </div>
+          </div>
+
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="editSpringKingHeight">Install Height / Defor</label>
+              <span class="field-hint amber">mm</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="editSpringKingHeight" data-step="-0.5" aria-label="Decrease King Spring Height">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="editSpringKingHeight" class="num-input" value="" placeholder="&mdash;" min="100" max="400" step="0.01" inputmode="decimal" />
+                <span class="num-unit-badge">mm</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="editSpringKingHeight" data-step="0.5" aria-label="Increase King Spring Height">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom: 14px;">
+        <div class="field-label-row">
+          <label class="field-label" for="editSpringNotes">Spring Notes</label>
+          <span class="field-hint">Rate / Free Height / Allocation</span>
+        </div>
+        <input type="text" id="editSpringNotes" class="text-input" placeholder="e.g. On Car #77 / Unmarked spare / King tested" autocomplete="off" />
+      </div>
+
+      <button type="button" class="btn btn-confirm btn-full" id="btnSaveSpringModal">
+        Save Spring Spec
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL: AI DATA DUMP (1-TAP COPY FOR AI / ENGINEERING REVIEW)
+       ========================================================= -->
+  <div class="modal-backdrop" id="modalAiDataDump" role="dialog" aria-modal="true" aria-labelledby="modalAiDataDumpTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow" style="color: #fbbf24;">Full Self-Learning Telemetry &amp; Fleet Export</div>
+          <h2 class="section-title" id="modalAiDataDumpTitle">AI Data Dump (Copy for Review)</h2>
+        </div>
+        <button type="button" class="btn btn-danger" data-close-modal="modalAiDataDump" aria-label="Close AI Data Dump Modal">
+          Close
+        </button>
+      </div>
+
+      <p style="margin: 0 0 10px; font-size: 0.78rem; color: var(--text-secondary); line-height: 1.45;">
+        Tap <strong>COPY DATA DUMP TO CLIPBOARD</strong> below and paste directly into chat so AI can review your complete Events, Sessions, Self-Learned Carby/Track Factors, Fuel &amp; Scale Facts, 4-Corner Tyres, and 4-Corner Shocks &amp; Springs.
+      </p>
+
+      <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnCopyAiDataDump" style="margin-bottom: 10px;">
+        &#128203; COPY DATA DUMP TO CLIPBOARD
+      </button>
+
+      <textarea
+        id="aiDataDumpTextarea"
+        class="ai-dump-textarea"
+        readonly
+        rows="14"
+        aria-label="Formatted AI Data Dump Text"
+      ></textarea>
+    </div>
+  </div>
+
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.6.0"></script>
+  <script src="./app.js?v=0.7.0"></script>
 </body>
 </html>
