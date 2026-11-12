@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.5.3" />
+  <link rel="stylesheet" href="./styles.css?v=0.5.4" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -1486,22 +1486,60 @@
          TAB 4: SESSION LOG (Immediate Race Log + Bottom Backup Drawer)
          ========================================================= -->
     <section id="tab-log" class="tab-panel" aria-labelledby="navTabLog">
-      <div class="log-search-bar" role="search" aria-label="Search Session Log by Track and Year">
-        <div class="log-search-field log-search-track-wrap">
-          <label class="sr-only" for="searchLogTrack">Filter by Saved Track</label>
-          <select id="searchLogTrack" class="select-input" aria-label="Filter Session Log by Saved Track">
-            <option value="ALL">All Saved Tracks (7)</option>
-            <option value="Calder Park Raceway">Calder Park Raceway (7)</option>
-          </select>
+      <div class="log-search-panel" role="search" aria-label="Search Session Log by Track, Year, and Keyword">
+        <div class="log-search-top-row">
+          <div class="log-search-field log-search-track-wrap">
+            <label class="sr-only" for="searchLogTrack">Filter by Saved Track</label>
+            <select id="searchLogTrack" class="select-input" aria-label="Filter Session Log by Saved Track">
+              <option value="ALL">All Saved Tracks (7)</option>
+              <option value="Calder Park Raceway">Calder Park Raceway (7)</option>
+            </select>
+          </div>
+          <div class="log-search-field log-search-year-wrap">
+            <label class="sr-only" for="searchLogYear">Filter by Year</label>
+            <select id="searchLogYear" class="select-input" aria-label="Filter Session Log by Year">
+              <option value="ALL">All Years</option>
+              <option value="2026">2026</option>
+            </select>
+          </div>
+          <span class="locked-badge" id="sessionCountBadge">7 RUNS</span>
         </div>
-        <div class="log-search-field log-search-year-wrap">
-          <label class="sr-only" for="searchLogYear">Filter by Year</label>
-          <select id="searchLogYear" class="select-input" aria-label="Filter Session Log by Year">
-            <option value="ALL">All Years</option>
-            <option value="2026">2026</option>
-          </select>
+
+        <div class="log-quick-search-wrap">
+          <svg
+            class="log-quick-search-icon"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#94a3b8"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <label class="sr-only" for="searchLogQuery">Quick search session log</label>
+          <input
+            type="search"
+            id="searchLogQuery"
+            class="text-input log-quick-search-input"
+            placeholder="Quick search jet (#78, 2.000), carby, manifold, exhaust, AFR, tyre, notes..."
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="Quick search session log"
+          />
+          <button
+            type="button"
+            id="btnClearLogQuery"
+            class="btn-clear-log-query"
+            hidden
+            title="Clear search query"
+            aria-label="Clear search query"
+          >&#10005;</button>
         </div>
-        <span class="locked-badge" id="sessionCountBadge">7 RUNS</span>
       </div>
 
       <div id="sessionLogList"></div>
@@ -2500,6 +2538,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.5.3"></script>
+  <script src="./app.js?v=0.5.4"></script>
 </body>
 </html>

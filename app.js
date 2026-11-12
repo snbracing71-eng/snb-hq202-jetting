@@ -1491,6 +1491,7 @@
     newTyreSpec: 'buffed',  // 'buffed' | 'wet'
     logSearchTrack: 'ALL',
     logSearchYear: 'ALL',
+    logSearchQuery: '',
     selectedFleetCarbyId: state.baseline.carbyId || '1 DME',
     selectedFleetManifoldId: state.activeManifoldId || 'Macca',
     selectedFleetExhaustId: state.activeExhaustId || 'Macca',
@@ -4642,6 +4643,60 @@
     return 35;
   }
 
+  function buildSessionSearchBlob(s) {
+    if (!s) return '';
+    const tyreParts = [];
+    if (s.tyreCondition) tyreParts.push(s.tyreCondition);
+    if (s.tyres && typeof s.tyres === 'object') {
+      ['FL', 'FR', 'RL', 'RR'].forEach((corner) => {
+        const cr = s.tyres[corner];
+        if (!cr) return;
+        const code = cr.tyreId || '';
+        if (code) {
+          tyreParts.push(code);
+          if (code.toUpperCase().startsWith('KB')) tyreParts.push('KB', 'dry', 'buffed');
+          if (code.toUpperCase().startsWith('KW')) tyreParts.push('KW', 'wet');
+        }
+        if (cr.cold !== null && cr.cold !== undefined && cr.cold !== '') tyreParts.push(Number(cr.cold).toFixed(1));
+        if (cr.hot !== null && cr.hot !== undefined && cr.hot !== '') tyreParts.push(Number(cr.hot).toFixed(1));
+      });
+    }
+    const jetMmStr = Number.isFinite(Number(s.jetMm)) ? Number(s.jetMm).toFixed(3) : '';
+    const radStr = Number.isFinite(Number(s.rad)) ? Number(s.rad).toFixed(1) : '';
+    const sgStr = Number.isFinite(Number(s.fuelSg)) ? Number(s.fuelSg).toFixed(3) : '';
+    const timingStr = Number.isFinite(Number(s.timing)) ? Number(s.timing).toFixed(1) : '';
+    const wotStr = Number.isFinite(Number(s.afrWot)) ? Number(s.afrWot).toFixed(2) : '';
+    const peakRpmStr = Number.isFinite(Number(s.peakRpm)) ? String(Math.round(Number(s.peakRpm))) : '';
+    const psiStr = Number.isFinite(Number(s.fuelPsi)) ? Number(s.fuelPsi).toFixed(1) : '';
+    const waterStr = s.waterTempC !== null && s.waterTempC !== undefined && s.waterTempC !== '' ? `${s.waterTempC}c` : '';
+
+    return [
+      s.sessionName || '',
+      s.venue || '',
+      s.sessionDate || '',
+      s.sessionIsoDate || s.sessionDateIso || '',
+      s.timestamp || '',
+      s.carbyId || '',
+      s.manifoldId || 'Macca',
+      s.exhaustId || 'Macca',
+      s.jetLabel || '',
+      jetMmStr,
+      `${jetMmStr}mm`,
+      radStr,
+      sgStr,
+      timingStr,
+      wotStr,
+      peakRpmStr,
+      psiStr,
+      waterStr,
+      s.afrStatus || '',
+      tyreParts.join(' '),
+      s.notes || ''
+    ]
+      .join(' ')
+      .toLowerCase();
+  }
+
   function renderSessionLog() {
     const fallbackIso = getLocalTodayIso();
     const trackCounts = new Map();
@@ -4656,6 +4711,8 @@
 
     const trackSel = $('searchLogTrack');
     const yearSel = $('searchLogYear');
+    const queryInput = $('searchLogQuery');
+    const clearBtn = $('btnClearLogQuery');
 
     const tracksList = Array.from(trackCounts.keys()).sort((a, b) => a.localeCompare(b));
     if (ui.logSearchTrack !== 'ALL' && !trackCounts.has(ui.logSearchTrack)) {
@@ -4699,16 +4756,34 @@
     const activeYear = yearSel ? yearSel.value : ui.logSearchYear || 'ALL';
     ui.logSearchYear = activeYear;
 
+    if (queryInput && document.activeElement !== queryInput) {
+      queryInput.value = ui.logSearchQuery || '';
+    }
+    const rawQuery = String(queryInput ? queryInput.value : ui.logSearchQuery || '');
+    ui.logSearchQuery = rawQuery;
+    if (clearBtn) {
+      clearBtn.hidden = rawQuery.length === 0;
+    }
+
+    const queryTokens = rawQuery
+      .trim()
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(Boolean);
+
     const indexedFiltered = state.sessions
       .map((s, idx) => ({ s, idx }))
       .filter(({ s }) => {
         const matchTrack = activeTrack === 'ALL' || normalizeVenueName(s.venue) === activeTrack;
         const matchYear = activeYear === 'ALL' || extractSessionYear(s) === activeYear;
-        return matchTrack && matchYear;
+        if (!matchTrack || !matchYear) return false;
+        if (queryTokens.length === 0) return true;
+        const blob = buildSessionSearchBlob(s);
+        return queryTokens.every((tok) => blob.includes(tok));
       });
 
     // Strict chronological sort: MOST RECENT DATE FIRST down to OLDEST DATE LAST
-    // Tie-break same-day runs by session progression weight descending (Race 3 -> Race 2 -> Race 1 -> Quali -> Practice), then array index descending
+    // Tie-break same-day runs by session progression weight descending (Race 3 -> Race 2 -> Race 1 -> Quali -> Practice), then createdAt / array index descending
     indexedFiltered.sort((a, b) => {
       const isoA = a.s.sessionIsoDate || resolveSessionIsoDate(a.s, fallbackIso);
       const isoB = b.s.sessionIsoDate || resolveSessionIsoDate(b.s, fallbackIso);
@@ -4719,6 +4794,11 @@
       const weightB = getSessionOrderWeight(b.s);
       if (weightA !== weightB) {
         return weightB - weightA;
+      }
+      const createdA = Number(a.s.createdAt) || 0;
+      const createdB = Number(b.s.createdAt) || 0;
+      if (createdA !== createdB) {
+        return createdB - createdA;
       }
       return b.idx - a.idx;
     });
@@ -4733,7 +4813,13 @@
     if (!listEl) return;
 
     if (ordered.length === 0) {
-      listEl.innerHTML = `<div class="subtext" style="text-align:center; padding: 18px 12px;">No saved sessions match the selected Track &amp; Year filter.</div>`;
+      listEl.innerHTML = `
+        <div class="log-empty-state-card">
+          <div class="log-empty-state-title">No Matching Sessions Found</div>
+          <div class="log-empty-state-sub">No saved runs matched your active Track, Year, or keyword search filters.</div>
+          <button type="button" class="btn btn-secondary" data-reset-log-filters="1">Reset Search Filters</button>
+        </div>
+      `;
       return;
     }
 
@@ -6933,6 +7019,17 @@
         return;
       }
 
+      const resetLogFiltersBtn = e.target.closest('[data-reset-log-filters]');
+      if (resetLogFiltersBtn) {
+        ui.logSearchTrack = 'ALL';
+        ui.logSearchYear = 'ALL';
+        ui.logSearchQuery = '';
+        if ($('searchLogQuery')) $('searchLogQuery').value = '';
+        if ($('btnClearLogQuery')) $('btnClearLogQuery').hidden = true;
+        renderSessionLog();
+        return;
+      }
+
       const editSessionBtn = e.target.closest('[data-edit-session-afr]');
       if (editSessionBtn) {
         const sid = editSessionBtn.getAttribute('data-edit-session-afr');
@@ -7779,6 +7876,29 @@
         renderSessionLog();
       });
     }
+    if ($('searchLogQuery')) {
+      const handleLogQueryInput = (e) => {
+        ui.logSearchQuery = e.target.value || '';
+        if ($('btnClearLogQuery')) {
+          $('btnClearLogQuery').hidden = ui.logSearchQuery.length === 0;
+        }
+        renderSessionLog();
+      };
+      $('searchLogQuery').addEventListener('input', handleLogQueryInput);
+      $('searchLogQuery').addEventListener('search', handleLogQueryInput);
+    }
+    if ($('btnClearLogQuery')) {
+      $('btnClearLogQuery').addEventListener('click', () => {
+        ui.logSearchQuery = '';
+        const qInp = $('searchLogQuery');
+        if (qInp) {
+          qInp.value = '';
+          qInp.focus();
+        }
+        $('btnClearLogQuery').hidden = true;
+        renderSessionLog();
+      });
+    }
     $('btnExportSessionsCsv').addEventListener('click', exportSessionsCsv);
     $('btnBackupJson').addEventListener('click', backupJsonState);
     $('inputRestoreJson').addEventListener('change', (e) => {
@@ -7805,6 +7925,9 @@
       ui.weatherOnly = false;
       ui.logSearchTrack = 'ALL';
       ui.logSearchYear = 'ALL';
+      ui.logSearchQuery = '';
+      if ($('searchLogQuery')) $('searchLogQuery').value = '';
+      if ($('btnClearLogQuery')) $('btnClearLogQuery').hidden = true;
       if ($('selectCalcCarby')) {
         $('selectCalcCarby').value = state.baseline.carbyId;
       }
