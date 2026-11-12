@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.4.9" />
+  <link rel="stylesheet" href="./styles.css?v=0.5.0" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -923,6 +923,28 @@
           <button type="button" class="btn btn-amber-outline tyre-quick-mount-btn" id="btnQuickMountSet">
             Mount Wet Set (KW1&ndash;KW4)
           </button>
+        </div>
+
+        <!-- 3-Button Wet Severity Stagger Bar (Shown when DECLARED WET KW is active) -->
+        <div class="wet-severity-bar" id="wetSeverityBar" style="display: none;">
+          <div class="wet-severity-head">
+            <span class="wet-severity-title">Wet Cold Stagger Preset</span>
+            <span class="field-hint cyan" id="wetTrackDirBadge">CW &bull; Left-Loaded (FL/RL)</span>
+          </div>
+          <div class="seg-toggle wet-preset-seg" role="group" aria-label="Wet Severity Stagger Preset">
+            <button type="button" class="seg-btn" id="btnWetPreset_drying" data-wet-preset="drying">
+              <span class="wet-preset-name">Drying Line</span>
+              <span class="wet-preset-sub" id="subWetPreset_drying">36.5F &bull; 44.0 Hot</span>
+            </button>
+            <button type="button" class="seg-btn active" id="btnWetPreset_light" data-wet-preset="light">
+              <span class="wet-preset-name">Light Rain</span>
+              <span class="wet-preset-sub" id="subWetPreset_light">38.8F &bull; 43.5 Hot</span>
+            </button>
+            <button type="button" class="seg-btn" id="btnWetPreset_heavy" data-wet-preset="heavy">
+              <span class="wet-preset-name">Heavy Rain</span>
+              <span class="wet-preset-sub" id="subWetPreset_heavy">41.0F &bull; 44.5 Hot</span>
+            </button>
+          </div>
         </div>
 
         <!-- Shared Active Session Bar Row 1: Circuit / Track + Session Date -->
@@ -2245,6 +2267,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.4.9"></script>
+  <script src="./app.js?v=0.5.0"></script>
 </body>
 </html>

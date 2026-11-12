@@ -504,6 +504,99 @@
     'Hidden Valley Raceway': 1.60
   };
 
+  const TRACK_DIRECTION_MAP = {
+    'Calder Park': 'CW',
+    'Calder Park Raceway': 'CW',
+    'Winton': 'CW',
+    'Winton Motor Raceway': 'CW',
+    'Sandown': 'CCW',
+    'Sandown Raceway': 'CCW',
+    'Sandown International Raceway': 'CCW',
+    'Phillip Island': 'CCW',
+    'Phillip Island Grand Prix Circuit': 'CCW',
+    'Sydney Motorsport Park': 'CCW',
+    'Sydney Motorsport Park (SMSP)': 'CCW',
+    'The Bend': 'CCW',
+    'The Bend Motorsport Park': 'CCW',
+    'Symmons Plains': 'CW',
+    'Symmons Plains Raceway': 'CW',
+    'Queensland Raceway': 'CCW',
+    'Queensland Raceway (Willowbank)': 'CCW',
+    'Mallala': 'CW',
+    'Mallala Motorsport Park': 'CW',
+    'Morgan Park': 'CW',
+    'Morgan Park Raceway': 'CW',
+    'Wakefield Park': 'CCW',
+    'Wakefield Park / One Raceway': 'CCW',
+    'One Raceway': 'CCW',
+    'Barbagallo': 'CW',
+    'Wanneroo': 'CW',
+    'CARCO.com.au Raceway (Wanneroo)': 'CW',
+    'Hidden Valley': 'CW',
+    'Hidden Valley Raceway': 'CW',
+    'Baskerville': 'CW',
+    'Baskerville Raceway': 'CW',
+    'Mount Panorama (Bathurst)': 'CCW',
+    'Bathurst': 'CCW',
+    'Lakeside Park': 'CW',
+    'Broadford': 'CW',
+    'Haunted Hills': 'CW',
+    'Pheasant Wood': 'CW',
+    'Collie Motorplex': 'CCW',
+    'Townsville': 'CW'
+  };
+
+  const WET_PRESET_PROFILES = {
+    drying: {
+      label: 'Drying Line',
+      unloadedFrontCold: 36.5,
+      rearOffset: -1.2,      // Rear 1.2 psi softer for live-axle traction + drum brake footprint
+      loadedSideOffset: -1.0,// Higher L/R stagger as dry line heats outside tyre
+      hotTargetPsi: 44.0
+    },
+    light: {
+      label: 'Light Rain',
+      unloadedFrontCold: 38.8,
+      rearOffset: -1.2,
+      loadedSideOffset: -0.7,
+      hotTargetPsi: 43.5
+    },
+    heavy: {
+      label: 'Heavy Rain',
+      unloadedFrontCold: 41.0,
+      rearOffset: -1.2,
+      loadedSideOffset: -0.4,// Minimal L/R stagger; water quenches both sides evenly
+      hotTargetPsi: 44.5     // Extra structural crown to clear standing water
+    }
+  };
+
+  function getTrackDirection(venueName = '') {
+    if (TRACK_DIRECTION_MAP[venueName]) return TRACK_DIRECTION_MAP[venueName];
+    const match = Object.keys(TRACK_DIRECTION_MAP).find((k) =>
+      venueName.toLowerCase().includes(k.toLowerCase())
+    );
+    return match ? TRACK_DIRECTION_MAP[match] : 'CW';
+  }
+
+  function computeWetColdStagger(presetKey, direction) {
+    const p = WET_PRESET_PROFILES[presetKey] || WET_PRESET_PROFILES.light;
+    const unloadedF = p.unloadedFrontCold;
+    const unloadedR = Number((unloadedF + p.rearOffset).toFixed(1));
+    const loadedF   = Number((unloadedF + p.loadedSideOffset).toFixed(1));
+    const loadedR   = Number((unloadedR + p.loadedSideOffset).toFixed(1));
+
+    // Clockwise (CW) loads LEFT side (FL/RL); Anti-Clockwise (CCW) loads RIGHT side (FR/RR)
+    const isCW = direction === 'CW';
+    return {
+      FL: isCW ? loadedF : unloadedF,
+      FR: isCW ? unloadedF : loadedF,
+      RL: isCW ? loadedR : unloadedR,
+      RR: isCW ? unloadedR : loadedR,
+      hotTargetPsi: p.hotTargetPsi,
+      direction
+    };
+  }
+
   function createDefaultWetTyreSet(purchaseDate = '2026-01-01') {
     return [
       {
@@ -631,13 +724,15 @@
   function createDefaultTrackProfiles() {
     const profiles = {};
     Object.keys(DEFAULT_TRACK_BURN_L).forEach((track) => {
+      const dir = getTrackDirection(track);
+      const wetDef = computeWetColdStagger('light', dir);
       profiles[track] = {
         burnLPerLap: DEFAULT_TRACK_BURN_L[track],
         coldTyres:
           track === 'Calder Park Raceway'
             ? { FL: 30.2, FR: 29.5, RL: 30.5, RR: 29.8 }
             : { FL: 30.0, FR: 30.0, RL: 30.0, RR: 30.0 },
-        wetColdTyres: { FL: 28.0, FR: 28.0, RL: 28.0, RR: 28.0 }
+        wetColdTyres: { FL: wetDef.FL, FR: wetDef.FR, RL: wetDef.RL, RR: wetDef.RR }
       };
     });
     return profiles;
@@ -656,6 +751,7 @@
       scaleCheckFuelL: 27.0,
       tyreHotTarget: 44.0,
       tyreCondition: 'dry',
+      wetPreset: 'light',
       mountedTyres: { FL: 'KB1', FR: 'KB2', RL: 'KB3', RR: 'KB4' },
       coldTyres: { FL: 30.2, FR: 29.5, RL: 30.5, RR: 29.8 },
       hotTyres: { FL: null, FR: null, RL: null, RR: null },
@@ -953,12 +1049,25 @@
     } else {
       const ch = candidate.chassis;
       const mergedProfiles = createDefaultTrackProfiles();
+      const wetPresetVal =
+        typeof ch.wetPreset === 'string' && WET_PRESET_PROFILES[ch.wetPreset]
+          ? ch.wetPreset
+          : 'light';
+
       if (ch.trackProfiles && typeof ch.trackProfiles === 'object') {
         Object.keys(ch.trackProfiles).forEach((k) => {
           const p = ch.trackProfiles[k];
           if (p && typeof p === 'object') {
             const ct = p.coldTyres || {};
             const wct = p.wetColdTyres || {};
+            const wDef = computeWetColdStagger(wetPresetVal, getTrackDirection(k));
+            const pickWetCorner = (cKey) => {
+              const v = Number(wct[cKey]);
+              if (!Number.isFinite(v) || v <= 0 || Math.abs(v - 28.0) < 0.05) {
+                return wDef[cKey];
+              }
+              return v;
+            };
             mergedProfiles[k] = {
               burnLPerLap: Number.isFinite(Number(p.burnLPerLap))
                 ? Number(Number(p.burnLPerLap).toFixed(2))
@@ -970,10 +1079,10 @@
                 RR: Number.isFinite(Number(ct.RR)) ? Number(ct.RR) : 30.0
               },
               wetColdTyres: {
-                FL: Number.isFinite(Number(wct.FL)) ? Number(wct.FL) : 28.0,
-                FR: Number.isFinite(Number(wct.FR)) ? Number(wct.FR) : 28.0,
-                RL: Number.isFinite(Number(wct.RL)) ? Number(wct.RL) : 28.0,
-                RR: Number.isFinite(Number(wct.RR)) ? Number(wct.RR) : 28.0
+                FL: pickWetCorner('FL'),
+                FR: pickWetCorner('FR'),
+                RL: pickWetCorner('RL'),
+                RR: pickWetCorner('RR')
               }
             };
           }
@@ -1085,6 +1194,7 @@
           : defChassis.scaleCheckFuelL,
         tyreHotTarget: Number.isFinite(Number(ch.tyreHotTarget)) ? Number(ch.tyreHotTarget) : defChassis.tyreHotTarget,
         tyreCondition: ch.tyreCondition === 'wet' ? 'wet' : 'dry',
+        wetPreset: wetPresetVal,
         mountedTyres: {
           FL: validTyreId(mt.FL, 'KB1'),
           FR: validTyreId(mt.FR, 'KB2'),
@@ -1586,9 +1696,11 @@
       state.chassis.trackProfiles = createDefaultTrackProfiles();
     }
     if (!state.chassis.trackProfiles[key]) {
+      const wDef = computeWetColdStagger(state.chassis.wetPreset || 'light', getTrackDirection(key));
       state.chassis.trackProfiles[key] = {
         burnLPerLap: DEFAULT_TRACK_BURN_L[key] || 1.30,
-        coldTyres: { FL: 30.0, FR: 30.0, RL: 30.0, RR: 30.0 }
+        coldTyres: { FL: 30.0, FR: 30.0, RL: 30.0, RR: 30.0 },
+        wetColdTyres: { FL: wDef.FL, FR: wDef.FR, RL: wDef.RL, RR: wDef.RR }
       };
     }
     return state.chassis.trackProfiles[key];
@@ -1683,11 +1795,19 @@
   function getTrackLearnedColdTyres(venueName, targetHotPsi = 44.0, conditionOpt) {
     const venue = venueName || 'Calder Park Raceway';
     const condition = conditionOpt || (state.chassis && state.chassis.tyreCondition) || 'dry';
-    const seedCold = condition === 'wet' ? 28.0 : 30.0;
+    const presetKey = (state.chassis && state.chassis.wetPreset) || 'light';
+    const direction = getTrackDirection(venue);
+    const wetStagger = computeWetColdStagger(presetKey, direction);
+    const presetProfile = WET_PRESET_PROFILES[presetKey] || WET_PRESET_PROFILES.light;
+    const seedCold = condition === 'wet' ? wetStagger.FL : 30.0;
     const hotTarget = Number.isFinite(Number(targetHotPsi)) && Number(targetHotPsi) > 0 ? Number(targetHotPsi) : 44.0;
     const result = {
       venue,
       condition,
+      direction,
+      wetPreset: presetKey,
+      wetPresetLabel: presetProfile.label,
+      wetStagger,
       seedCold,
       hotTarget,
       totalRuns: 0,
@@ -1712,6 +1832,7 @@
         }
       });
 
+      const cornerSeed = condition === 'wet' ? wetStagger[c] : 30.0;
       if (ideals.length > 0) {
         const avg = Number((ideals.reduce((a, b) => a + b, 0) / ideals.length).toFixed(1));
         const min = Number(Math.min(...ideals).toFixed(1));
@@ -1726,9 +1847,9 @@
       } else {
         result.corners[c] = {
           learned: false,
-          avg: seedCold,
-          min: seedCold,
-          max: seedCold,
+          avg: cornerSeed,
+          min: cornerSeed,
+          max: cornerSeed,
           count: 0
         };
       }
@@ -1749,12 +1870,22 @@
     }
 
     const condition = (state.chassis && state.chassis.tyreCondition) || 'dry';
-    const hotTarget = readNum('inputTyreHotTarget', (state.chassis && state.chassis.tyreHotTarget) || 44.0);
-    const tyreStats = getTrackLearnedColdTyres(venue, hotTarget, condition);
-    const targetColdMap =
+    const presetKey = (state.chassis && state.chassis.wetPreset) || 'light';
+    const wetStagger = computeWetColdStagger(presetKey, getTrackDirection(venue));
+    const hotTarget =
       condition === 'wet'
-        ? prof.wetColdTyres || (prof.wetColdTyres = { FL: 28.0, FR: 28.0, RL: 28.0, RR: 28.0 })
-        : prof.coldTyres;
+        ? wetStagger.hotTargetPsi
+        : readNum('inputTyreHotTarget', (state.chassis && state.chassis.tyreHotTarget) || 44.0);
+    if (condition === 'wet' && $('inputTyreHotTarget')) {
+      $('inputTyreHotTarget').value = hotTarget.toFixed(1);
+      if (state.chassis) state.chassis.tyreHotTarget = hotTarget;
+    }
+
+    const tyreStats = getTrackLearnedColdTyres(venue, hotTarget, condition);
+    if (condition === 'wet') {
+      prof.wetColdTyres = { FL: wetStagger.FL, FR: wetStagger.FR, RL: wetStagger.RL, RR: wetStagger.RR };
+    }
+    const targetColdMap = condition === 'wet' ? prof.wetColdTyres : prof.coldTyres;
 
     if (state.chassis && !state.chassis.coldTyres) {
       state.chassis.coldTyres = { FL: 30.0, FR: 30.0, RL: 30.0, RR: 30.0 };
@@ -1762,10 +1893,12 @@
 
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const cStat = tyreStats.corners[c];
-      const fallbackCold = condition === 'wet' ? 28.0 : 30.0;
+      const fallbackCold = condition === 'wet' ? wetStagger[c] : 30.0;
       const coldVal =
         cStat && cStat.learned
           ? cStat.avg
+          : condition === 'wet'
+          ? wetStagger[c]
           : targetColdMap && Number.isFinite(Number(targetColdMap[c]))
           ? Number(targetColdMap[c])
           : fallbackCold;
@@ -2600,9 +2733,16 @@
   function syncTyreConditionUi() {
     if (!state.chassis) state.chassis = createDefaultChassisState();
     const isWet = state.chassis.tyreCondition === 'wet';
+    const presetKey = state.chassis.wetPreset && WET_PRESET_PROFILES[state.chassis.wetPreset] ? state.chassis.wetPreset : 'light';
+    const venue = getSelectedTyreTrackVenue();
+    const direction = getTrackDirection(venue);
+
     const btnDry = $('btnTyreCondDry');
     const btnWet = $('btnTyreCondWet');
     const btnQuick = $('btnQuickMountSet');
+    const wetBar = $('wetSeverityBar');
+    const dirBadge = $('wetTrackDirBadge');
+
     if (btnDry) {
       btnDry.classList.toggle('active', !isWet);
       btnDry.setAttribute('aria-pressed', !isWet ? 'true' : 'false');
@@ -2611,6 +2751,30 @@
       btnWet.classList.toggle('active', isWet);
       btnWet.setAttribute('aria-pressed', isWet ? 'true' : 'false');
     }
+    if (wetBar) {
+      wetBar.style.display = isWet ? 'block' : 'none';
+    }
+    if (dirBadge) {
+      dirBadge.textContent =
+        direction === 'CCW'
+          ? 'CCW • Right-Loaded (FR/RR)'
+          : 'CW • Left-Loaded (FL/RL)';
+    }
+
+    ['drying', 'light', 'heavy'].forEach((k) => {
+      const pBtn = $(`btnWetPreset_${k}`);
+      if (pBtn) {
+        const active = k === presetKey;
+        pBtn.classList.toggle('active', active);
+        pBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      }
+      const subEl = $(`subWetPreset_${k}`);
+      if (subEl && WET_PRESET_PROFILES[k]) {
+        const stg = computeWetColdStagger(k, direction);
+        subEl.textContent = `${stg.FL.toFixed(1)}/${stg.FR.toFixed(1)}F • ${stg.hotTargetPsi.toFixed(1)}H`;
+      }
+    });
+
     if (btnQuick) {
       const mounted = ensureMountedTyresState();
       const mountedSpecs = ['FL', 'FR', 'RL', 'RR']
@@ -2636,6 +2800,48 @@
     }
   }
 
+  function applyWetPreset(presetKey, silentToast = false) {
+    if (!state.chassis) state.chassis = createDefaultChassisState();
+    const validKey = WET_PRESET_PROFILES[presetKey] ? presetKey : 'light';
+    state.chassis.wetPreset = validKey;
+    state.chassis.tyreCondition = 'wet';
+
+    const venue = getSelectedTyreTrackVenue();
+    const prof = ensureTrackProfile(venue);
+    const direction = getTrackDirection(venue);
+    const stagger = computeWetColdStagger(validKey, direction);
+
+    state.chassis.tyreHotTarget = stagger.hotTargetPsi;
+    if ($('inputTyreHotTarget')) {
+      $('inputTyreHotTarget').value = stagger.hotTargetPsi.toFixed(1);
+    }
+
+    prof.wetColdTyres = { FL: stagger.FL, FR: stagger.FR, RL: stagger.RL, RR: stagger.RR };
+    if (!state.chassis.coldTyres || typeof state.chassis.coldTyres !== 'object') {
+      state.chassis.coldTyres = { FL: stagger.FL, FR: stagger.FR, RL: stagger.RL, RR: stagger.RR };
+    }
+
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      state.chassis.coldTyres[c] = stagger[c];
+      const coldEl = $(`inputColdPsi_${c}`);
+      if (coldEl) {
+        coldEl.value = stagger[c].toFixed(1);
+      }
+    });
+
+    saveState();
+    syncTyreConditionUi();
+    syncClearColdPsiBtnText();
+    recalcTyres();
+
+    if (!silentToast) {
+      const pLabel = WET_PRESET_PROFILES[validKey].label;
+      showToast(
+        `${pLabel} (${direction}): FL ${stagger.FL.toFixed(1)} • FR ${stagger.FR.toFixed(1)} • RL ${stagger.RL.toFixed(1)} • RR ${stagger.RR.toFixed(1)} (Hot Target ${stagger.hotTargetPsi.toFixed(1)})`
+      );
+    }
+  }
+
   function mountTyreSetBySpec(targetSpec) {
     if (!state.chassis) state.chassis = createDefaultChassisState();
     const isWet = targetSpec === 'wet';
@@ -2655,11 +2861,23 @@
     });
 
     const venue = getSelectedTyreTrackVenue();
-    const learnedStats = getTrackLearnedColdTyres(venue, state.chassis.tyreHotTarget || 44.0, state.chassis.tyreCondition);
+    const presetKey = state.chassis.wetPreset || 'light';
+    const wetStagger = computeWetColdStagger(presetKey, getTrackDirection(venue));
+    const targetHot = isWet ? wetStagger.hotTargetPsi : 44.0;
+    state.chassis.tyreHotTarget = targetHot;
+    if ($('inputTyreHotTarget')) {
+      $('inputTyreHotTarget').value = targetHot.toFixed(1);
+    }
+
+    const learnedStats = getTrackLearnedColdTyres(venue, targetHot, state.chassis.tyreCondition);
     corners.forEach((c) => {
+      const coldVal = learnedStats.corners[c] ? learnedStats.corners[c].avg : isWet ? wetStagger[c] : 30.0;
       const coldEl = $(`inputColdPsi_${c}`);
-      if (coldEl && learnedStats.corners[c]) {
-        coldEl.value = learnedStats.corners[c].avg.toFixed(1);
+      if (coldEl) {
+        coldEl.value = coldVal.toFixed(1);
+      }
+      if (state.chassis.coldTyres) {
+        state.chassis.coldTyres[c] = coldVal;
       }
     });
 
@@ -3810,7 +4028,9 @@
       $('tyreTrackLearnedHint').textContent =
         learnedStats.totalRuns > 0
           ? `${condLabel} (${learnedStats.totalRuns} run${learnedStats.totalRuns === 1 ? '' : 's'})`
-          : `${condLabel} Seed 30.0 PSI`;
+          : activeCond === 'wet'
+          ? `${learnedStats.wetPresetLabel} (${learnedStats.direction})`
+          : `${condLabel} Seed (${learnedStats.direction})`;
     }
     if ($('outTyreTrackLearnedSummary')) {
       const c = learnedStats.corners;
@@ -3819,8 +4039,10 @@
     if ($('outTyreTrackLearnedSub')) {
       $('outTyreTrackLearnedSub').textContent =
         learnedStats.totalRuns > 0
-          ? `Auto-learned (${condLabel}) from ${learnedStats.totalRuns} hot-logged run${learnedStats.totalRuns === 1 ? '' : 's'} at ${venue}`
-          : `Default 30.0 PSI cold start (${condLabel}) • Log Cold + Hot PSI to auto-learn ${venue}`;
+          ? `Auto-learned (${condLabel}) from ${learnedStats.totalRuns} hot-logged run${learnedStats.totalRuns === 1 ? '' : 's'} at ${venue} (${learnedStats.direction})`
+          : activeCond === 'wet'
+          ? `${learnedStats.wetPresetLabel} (${learnedStats.direction} ${learnedStats.direction === 'CCW' ? 'FR/RR loaded' : 'FL/RL loaded'}) • Target ${learnedStats.wetStagger.hotTargetPsi.toFixed(1)} PSI`
+          : `Default 30.0 PSI cold start (${condLabel} • ${learnedStats.direction}) • Log Cold + Hot PSI to auto-learn ${venue}`;
     }
 
     renderMountedTyreSelectors();
@@ -3880,8 +4102,11 @@
               : `${cLearned.count} run${cLearned.count === 1 ? '' : 's'}`;
           learnedEl.textContent = `${cLearned.avg.toFixed(1)} psi (${rangeStr})`;
           learnedEl.className = 'mono txt-amber';
+        } else if (activeCond === 'wet') {
+          learnedEl.textContent = `${cLearned.avg.toFixed(1)} psi (${learnedStats.wetPresetLabel} ${learnedStats.direction})`;
+          learnedEl.className = 'mono txt-amber';
         } else {
-          learnedEl.textContent = '30.0 psi (seed)';
+          learnedEl.textContent = `${cLearned.avg.toFixed(1)} psi (seed)`;
           learnedEl.className = 'mono';
         }
       }
@@ -6030,6 +6255,13 @@
       if (condBtn) {
         const cond = condBtn.getAttribute('data-tyre-condition') === 'wet' ? 'wet' : 'dry';
         mountTyreSetBySpec(cond === 'wet' ? 'wet' : 'buffed');
+        return;
+      }
+
+      const wetPresetBtn = e.target.closest('[data-wet-preset]');
+      if (wetPresetBtn) {
+        const pKey = wetPresetBtn.getAttribute('data-wet-preset');
+        applyWetPreset(pKey, false);
         return;
       }
 
