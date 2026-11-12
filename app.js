@@ -1466,6 +1466,9 @@
         tyreHotTarget,
         tyreCondition: inferredWet ? 'wet' : 'dry',
         tyres,
+        fuelPreLocked: Boolean(s.fuelPreLocked),
+        tyresPreLocked: Boolean(s.tyresPreLocked),
+        tunePreLocked: Boolean(s.tunePreLocked),
         preRaceNotes,
         postRaceNotes,
         notes: combinedNotes
@@ -2865,6 +2868,184 @@
     }
 
     syncPreRaceNotesInputs(activeSess.preRaceNotes || '');
+    syncPreRacePostRaceLocksUi();
+  }
+
+  function applyStageButtonState(btnEl, isActiveStep, labelText) {
+    if (!btnEl) return;
+    if (isActiveStep) {
+      btnEl.disabled = false;
+      btnEl.classList.add('btn-confirm');
+      btnEl.classList.remove('btn-locked-grey', 'btn-stage-locked', 'btn-secondary');
+      btnEl.textContent = labelText;
+    } else {
+      btnEl.disabled = true;
+      btnEl.classList.remove('btn-confirm', 'btn-secondary');
+      btnEl.classList.add('btn-locked-grey', 'btn-stage-locked');
+      btnEl.textContent = labelText;
+    }
+  }
+
+  function setPreRaceControlsLocked(inputIds, containerIds, isLocked) {
+    (inputIds || []).forEach((id) => {
+      const el = $(id);
+      if (el) {
+        el.disabled = Boolean(isLocked);
+      }
+      document.querySelectorAll(`[data-stepper-target="${id}"]`).forEach((stepBtn) => {
+        stepBtn.disabled = Boolean(isLocked);
+      });
+    });
+    (containerIds || []).forEach((cid) => {
+      const cEl = $(cid);
+      if (cEl) {
+        cEl.classList.toggle('prerace-locked-group', Boolean(isLocked));
+      }
+    });
+  }
+
+  function syncPreRacePostRaceLocksUi() {
+    const activeSess = getActiveSession();
+
+    // 1. FUEL & WT TAB (#tab-fuel)
+    const fuelLocked = Boolean(activeSess && activeSess.fuelPreLocked);
+    const btnSaveFuel = $('btnSaveFuelWeightSession') || $('btnSaveFuelSession');
+    const btnPostFuel = $('btnCompleteSessionFromFuel') || $('btnCompleteFromFuel');
+    const unlockFuelRow = $('unlockFuelPreRaceRow');
+
+    applyStageButtonState(
+      btnSaveFuel,
+      !fuelLocked,
+      fuelLocked ? '✓ PRE-RACE FUEL & WEIGHT LOCKED' : 'SAVE PRE-RACE FUEL & WEIGHT TO SESSION'
+    );
+    applyStageButtonState(
+      btnPostFuel,
+      fuelLocked,
+      fuelLocked ? 'ENTER POST-RACE DATA & COMPLETE SESSION' : 'LOCK PRE-RACE FUEL FIRST (POST-RACE LOCKED)'
+    );
+    if (unlockFuelRow) {
+      unlockFuelRow.style.display = fuelLocked ? 'flex' : 'none';
+    }
+    setPreRaceControlsLocked(
+      ['inputTrackBurnLPerLap', 'inputRaceLaps', 'inputFuelFloorL', 'inputScaleCheckKg', 'inputScaleCheckFuelL'],
+      ['fuelPreRaceTrackBurnGroup', 'fuelPreRacePlannerGroup', 'fuelPreRaceScaleGroup'],
+      fuelLocked
+    );
+
+    // 2. TYRES TAB (#tab-tyres)
+    const tyresLocked = Boolean(activeSess && activeSess.tyresPreLocked);
+    const btnSaveTyres = $('btnSaveTyresSession');
+    const btnPostTyres = $('btnCompleteSessionFromTyres') || $('btnCompleteFromTyres');
+    const unlockTyresRow = $('unlockTyresPreRaceRow');
+
+    applyStageButtonState(
+      btnSaveTyres,
+      !tyresLocked,
+      tyresLocked ? '✓ PRE-RACE TYRES LOCKED' : 'SAVE PRE-RACE TYRES TO SESSION'
+    );
+    applyStageButtonState(
+      btnPostTyres,
+      tyresLocked,
+      tyresLocked ? 'ENTER POST-RACE DATA & COMPLETE SESSION' : 'LOCK PRE-RACE TYRES FIRST (POST-RACE LOCKED)'
+    );
+    if (unlockTyresRow) {
+      unlockTyresRow.style.display = tyresLocked ? 'flex' : 'none';
+    }
+    setPreRaceControlsLocked(
+      [
+        'btnTyreCondDry',
+        'btnTyreCondWet',
+        'btnWetPreset_drying',
+        'btnWetPreset_light',
+        'btnWetPreset_heavy',
+        'inputTyreHotTarget',
+        'inputTyreSessionLaps',
+        'btnUnmountAllTyres',
+        'btnClearAllColdPsi',
+        'selectMountedTyre_FL',
+        'selectMountedTyre_FR',
+        'selectMountedTyre_RL',
+        'selectMountedTyre_RR',
+        'inputColdPsi_FL',
+        'inputColdPsi_FR',
+        'inputColdPsi_RL',
+        'inputColdPsi_RR'
+      ],
+      [],
+      tyresLocked
+    );
+
+    // 3. CALCULATOR TAB (#tab-calc)
+    const tuneLocked = Boolean(activeSess && activeSess.tunePreLocked);
+    const btnConfirmJet = $('btnConfirmLockJet');
+    const btnPostCalc = $('btnOpenPostRaceAfr');
+    const unlockTuneTop = $('unlockTunePreRaceRowTop');
+    const unlockTuneStep2 = $('unlockTunePreRaceRowStep2');
+
+    applyStageButtonState(
+      btnConfirmJet,
+      !tuneLocked,
+      tuneLocked ? '✓ PRE-RACE JET & TUNE LOCKED' : 'CONFIRM JET & LOCK TO SESSION'
+    );
+    applyStageButtonState(
+      btnPostCalc,
+      tuneLocked,
+      tuneLocked ? 'ENTER POST-RACE DATA & COMPLETE SESSION' : 'LOCK PRE-RACE JET FIRST (POST-RACE LOCKED)'
+    );
+    if (unlockTuneTop) {
+      unlockTuneTop.style.display = tuneLocked ? 'flex' : 'none';
+    }
+    if (unlockTuneStep2) {
+      unlockTuneStep2.style.display = tuneLocked ? 'flex' : 'none';
+    }
+    setPreRaceControlsLocked(
+      [
+        'selectCalcCarby',
+        'selectCalcManifold',
+        'selectCalcExhaust',
+        'inputPreRaceNotes',
+        'btnModeRad',
+        'btnModeRaw',
+        'inputRadPct',
+        'inputTempC',
+        'inputPressure',
+        'btnTogglePressUnit',
+        'inputRhPct',
+        'inputFuelSg',
+        'inputFuelTempC',
+        'inputTotalTiming',
+        'inputTargetAfr',
+        'selectFullJetKit',
+        'inputRunNotes'
+      ],
+      [],
+      tuneLocked
+    );
+    document.querySelectorAll('[data-pick-jet]').forEach((jetBtn) => {
+      jetBtn.disabled = tuneLocked;
+      jetBtn.classList.toggle('prerace-locked-group', tuneLocked);
+    });
+  }
+
+  function unlockPreRaceSection(sectionKey) {
+    const activeSess = getActiveSession();
+    if (!activeSess) return;
+    if (sectionKey === 'fuel') {
+      activeSess.fuelPreLocked = false;
+      saveState();
+      syncPreRacePostRaceLocksUi();
+      showToast('Unlocked Pre-Race Fuel & Weight — Save again to re-enable Post-Race');
+    } else if (sectionKey === 'tyres') {
+      activeSess.tyresPreLocked = false;
+      saveState();
+      syncPreRacePostRaceLocksUi();
+      showToast('Unlocked Pre-Race Tyres — Save again to re-enable Post-Race');
+    } else if (sectionKey === 'tune') {
+      activeSess.tunePreLocked = false;
+      saveState();
+      syncPreRacePostRaceLocksUi();
+      showToast('Unlocked Pre-Race Tune — Confirm Jet again to re-enable Post-Race');
+    }
   }
 
   function createAndActivateSessionInEvent(targetEvt, sessionName, initialPreNotes) {
@@ -3038,6 +3219,9 @@
       tyreHotTarget: hotTarget,
       tyreCondition: activeCond,
       tyres: initialCorners,
+      fuelPreLocked: false,
+      tyresPreLocked: false,
+      tunePreLocked: false,
       preRaceNotes: preNotes,
       postRaceNotes: '',
       notes: preNotes
@@ -3048,6 +3232,7 @@
     state.awaitingPostRaceId = created.id;
     syncFlatSessionsFromEvents(state);
     syncPreRaceNotesInputs(preNotes);
+    syncPreRacePostRaceLocksUi();
     return created;
   }
 
@@ -3743,6 +3928,7 @@
     fullSelect.value = ui.selectedJetId;
 
     updateSelectedJetProtectionBanner(phys);
+    syncPreRacePostRaceLocksUi();
   }
 
   function updateSelectedJetProtectionBanner(phys) {
@@ -3783,6 +3969,7 @@
       b1.setAttribute('aria-selected', 'true');
       b2.setAttribute('aria-selected', 'false');
       renderStep1LiveHints();
+      syncPreRacePostRaceLocksUi();
     } else {
       s1.style.display = 'none';
       s2.style.display = 'block';
@@ -3803,6 +3990,10 @@
     const activeSess = getActiveSession();
     if (!activeSess) {
       openPromptNextSessionModal();
+      return;
+    }
+    if (activeSess.tunePreLocked) {
+      showToast('Pre-Race Jet & Tune already locked — tap Unlock Pre-Race Tune if changing on grid');
       return;
     }
 
@@ -3852,6 +4043,7 @@
       afrWot: predWot,
       peakRpm: activeSess.peakRpm || 5900,
       afrStatus: 'estimated',
+      tunePreLocked: true,
       preRaceNotes: userPreNotes
     });
     if (!unifiedSession) return;
@@ -3904,7 +4096,7 @@
     renderAll();
     setCalculatorStep(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    showToast(`Locked ${chosenJet.label} to ${sessionName} (${venue})`);
+    showToast(`Locked ${chosenJet.label} to ${sessionName} — Post-Race Completion Ready`);
   }
 
   /* ------------------------------------------------------------------------
@@ -5561,6 +5753,7 @@
     });
 
     syncClearColdPsiBtnText();
+    syncPreRacePostRaceLocksUi();
     saveState();
 
     return {
@@ -5598,6 +5791,7 @@
     const measured = hasValidPump ? Number(fuelSnap.pumpMeasuredBurn.toFixed(2)) : null;
 
     const unified = upsertUnifiedSession({
+      id: activeSess.id,
       sessionId: activeSess.id,
       venue: activeEvt.venue,
       sessionDateIso: activeEvt.eventDate,
@@ -5613,9 +5807,12 @@
       racedLaps: hasValidPump ? fuelSnap.pumpLaps : fuelSnap.raceLaps,
       measuredBurnLPerLap: measured !== null ? measured : Number(fuelSnap.burnLPerLap.toFixed(2)),
       scaleWeightKg: Number(fuelSnap.scaleCheckKg.toFixed(1)),
-      postRaceEstKg: Number(fuelSnap.predictedPostRaceKg.toFixed(1))
+      postRaceEstKg: Number(fuelSnap.predictedPostRaceKg.toFixed(1)),
+      fuelPreLocked: true
     });
     if (!unified) return;
+    activeSess.fuelPreLocked = true;
+    unified.fuelPreLocked = true;
 
     if (hasValidPump) {
       recalculateTrackAverageBurn(activeEvt.venue);
@@ -5627,8 +5824,9 @@
     recalcTyres();
     renderTyreStockList();
     renderSessionLog();
+    syncPreRacePostRaceLocksUi();
 
-    showToast(`Saved Pre-Race Fuel & Scale Wt to ${unified.sessionName}`);
+    showToast(`✓ Pre-Race Fuel & Scale Wt Locked (${unified.sessionName}) — Post-Race Ready`);
   }
 
   function saveTyresToSession() {
@@ -5666,6 +5864,7 @@
         : tyreSnap.tyreSessionLaps;
 
     const unified = upsertUnifiedSession({
+      id: activeSess.id,
       sessionId: activeSess.id,
       venue: activeEvt.venue,
       sessionDateIso: activeEvt.eventDate,
@@ -5680,9 +5879,12 @@
         RL: { ...tyreSnap.corners.RL },
         RR: { ...tyreSnap.corners.RR }
       },
-      appendPreRaceNote: notes
+      appendPreRaceNote: notes,
+      tyresPreLocked: true
     });
     if (!unified) return;
+    activeSess.tyresPreLocked = true;
+    unified.tyresPreLocked = true;
 
     if ($('inputTyreRunNotes')) {
       $('inputTyreRunNotes').value = '';
@@ -5699,7 +5901,8 @@
     recalcTyres();
     renderTyreStockList();
     renderSessionLog();
-    showToast(`Locked & Saved Pre-Race Cold Tyres to ${unified.sessionName}`);
+    syncPreRacePostRaceLocksUi();
+    showToast(`✓ Pre-Race Tyres Locked (${unified.sessionName}) — Post-Race Ready`);
   }
 
   function exportTyresCsv() {
@@ -7576,6 +7779,21 @@
       return;
     }
 
+    // Hard JS safety guard: enforce Pre-Race -> Post-Race lock on the active tab before opening Post-Race completion
+    const activeTabId = ui.activeTab || 'tab-calc';
+    if (activeTabId === 'tab-fuel' && !linked.fuelPreLocked) {
+      showToast('Save & lock Pre-Race setup first');
+      return;
+    }
+    if (activeTabId === 'tab-tyres' && !linked.tyresPreLocked) {
+      showToast('Save & lock Pre-Race setup first');
+      return;
+    }
+    if (activeTabId === 'tab-calc' && !linked.tunePreLocked) {
+      showToast('Save & lock Pre-Race setup first');
+      return;
+    }
+
     ui.postRaceTargetSessionId = linked.id;
 
     const b = state.baseline;
@@ -8531,6 +8749,7 @@
     if (tabId === 'tab-dyno') {
       requestAnimationFrame(() => renderDynoCanvas());
     }
+    syncPreRacePostRaceLocksUi();
     window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
   }
 
@@ -8564,6 +8783,7 @@
     renderExhaustFleet();
     renderJetInventory();
     updateOrificeConverter('mm');
+    syncPreRacePostRaceLocksUi();
   }
 
   /* ------------------------------------------------------------------------
@@ -8889,6 +9109,11 @@
 
       const condBtn = e.target.closest('[data-tyre-condition]');
       if (condBtn) {
+        const activeSess = getActiveSession();
+        if (activeSess && activeSess.tyresPreLocked) {
+          showToast('Pre-Race Tyres are locked — click "Unlock Pre-Race Tyres" to change');
+          return;
+        }
         const cond = condBtn.getAttribute('data-tyre-condition') === 'wet' ? 'wet' : 'dry';
         mountTyreSetBySpec(cond === 'wet' ? 'wet' : 'buffed');
         return;
@@ -8896,6 +9121,11 @@
 
       const wetPresetBtn = e.target.closest('[data-wet-preset]');
       if (wetPresetBtn) {
+        const activeSess = getActiveSession();
+        if (activeSess && activeSess.tyresPreLocked) {
+          showToast('Pre-Race Tyres are locked — click "Unlock Pre-Race Tyres" to change');
+          return;
+        }
         const pKey = wetPresetBtn.getAttribute('data-wet-preset');
         applyWetPreset(pKey, false);
         return;
@@ -9312,18 +9542,30 @@
       });
     }
 
-    // Tab 2 (Fuel & Wt) and Tab 3 (Tyres) unified session save, Complete Session & Tyre Stock buttons
+    // Tab 2 (Fuel & Wt) and Tab 3 (Tyres) unified session save, Complete Session, Unlock Pre-Race & Tyre Stock buttons
     if ($('btnSaveFuelWeightSession')) {
       $('btnSaveFuelWeightSession').addEventListener('click', saveFuelAndWeightToSession);
     }
     if ($('btnCompleteSessionFromFuel')) {
       $('btnCompleteSessionFromFuel').addEventListener('click', openPostRaceAfrModal);
     }
+    if ($('btnUnlockFuelPreRace')) {
+      $('btnUnlockFuelPreRace').addEventListener('click', () => unlockPreRaceSection('fuel'));
+    }
     if ($('btnSaveTyresSession')) {
       $('btnSaveTyresSession').addEventListener('click', saveTyresToSession);
     }
     if ($('btnCompleteSessionFromTyres')) {
       $('btnCompleteSessionFromTyres').addEventListener('click', openPostRaceAfrModal);
+    }
+    if ($('btnUnlockTyresPreRace')) {
+      $('btnUnlockTyresPreRace').addEventListener('click', () => unlockPreRaceSection('tyres'));
+    }
+    if ($('btnUnlockTunePreRaceTop')) {
+      $('btnUnlockTunePreRaceTop').addEventListener('click', () => unlockPreRaceSection('tune'));
+    }
+    if ($('btnUnlockTunePreRace')) {
+      $('btnUnlockTunePreRace').addEventListener('click', () => unlockPreRaceSection('tune'));
     }
     if ($('btnClearAllColdPsi')) {
       $('btnClearAllColdPsi').addEventListener('click', toggleClearOrRestoreColdPsi);

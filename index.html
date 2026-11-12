@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.5.9" />
+  <link rel="stylesheet" href="./styles.css?v=0.6.0" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -295,14 +295,22 @@
         </div>
       </div>
 
-      <!-- Standalone Full-Width 3D Anodized Emerald Post-Race Session Completion Button -->
+      <!-- Subtle right-aligned Unlock Pre-Race Tune button (shown only when tunePreLocked === true) -->
+      <div class="unlock-prerace-row" id="unlockTunePreRaceRowTop" style="display: none;">
+        <button type="button" class="btn-unlock-prerace" id="btnUnlockTunePreRaceTop">
+          Unlock Pre-Race Tune
+        </button>
+      </div>
+
+      <!-- Standalone Full-Width 3D Post-Race Session Completion Button (Locked Grey until Pre-Race Jet is Locked) -->
       <button
         type="button"
-        class="btn btn-confirm btn-full btn-cta-lg"
+        class="btn btn-locked-grey btn-stage-locked btn-full btn-cta-lg"
         id="btnOpenPostRaceAfr"
         style="margin-bottom: 14px;"
+        disabled
       >
-        ENTER POST-RACE DATA &amp; COMPLETE SESSION
+        LOCK PRE-RACE JET FIRST (POST-RACE LOCKED)
       </button>
 
       <!-- Step Progress Navigation -->
@@ -635,6 +643,12 @@
             />
           </div>
 
+          <div class="unlock-prerace-row" id="unlockTunePreRaceRowStep2" style="display: none;">
+            <button type="button" class="btn-unlock-prerace" id="btnUnlockTunePreRace">
+              Unlock Pre-Race Tune
+            </button>
+          </div>
+
           <div class="step2-bottom-actions">
             <button type="button" id="btnBackToStep1Bottom" class="btn btn-back-step btn-full">
               &larr; BACK / EDIT INPUTS
@@ -664,7 +678,7 @@
         </div>
 
         <!-- Track Burn (L/lap) Full-Width (Track, Date & Session Locked in Event Header) -->
-        <div class="field-group" style="margin-bottom: 10px;">
+        <div class="field-group" id="fuelPreRaceTrackBurnGroup" style="margin-bottom: 10px;">
           <div class="field-label-row">
             <label class="field-label" for="inputTrackBurnLPerLap">Track Burn Rate (L/lap)</label>
             <span class="field-hint emerald" id="trackBurnSourceHint">Auto-Learned</span>
@@ -684,7 +698,7 @@
         </div>
 
         <!-- Sub-section A: Pre-Race Fuel Load Planner (Pumped Empty Tank • 12.0 L Surge Min + Auto 1370 kg Scale Buffer) -->
-        <div class="card-elevated" style="margin-bottom: 14px;">
+        <div class="card-elevated" id="fuelPreRacePlannerGroup" style="margin-bottom: 14px;">
           <div class="section-eyebrow" style="margin-bottom: 10px;">Sub-Section A &bull; Pre-Race Fuel Load Planner (Litres)</div>
 
           <!-- Row 1: Raced Laps | Baseline Surge Point (L) -->
@@ -808,7 +822,7 @@
           <span class="locked-badge" id="minWeightBadge">Legal Min: 1365.0 kg &bull; Target w/ +5 kg Buffer: 1370.0 kg</span>
         </div>
 
-        <div class="card-elevated" style="margin-bottom: 14px;">
+        <div class="card-elevated" id="fuelPreRaceScaleGroup" style="margin-bottom: 14px;">
           <!-- ONLY 2 Side-by-Side Inputs: Official Track Scale Wt (kg) | Fuel in Tank When Weighed (L) -->
           <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 12px;">
             <div class="field-group" style="margin-bottom: 0;">
@@ -865,11 +879,16 @@
           </p>
         </div>
 
+        <div class="unlock-prerace-row" id="unlockFuelPreRaceRow" style="display: none;">
+          <button type="button" class="btn-unlock-prerace" id="btnUnlockFuelPreRace">
+            Unlock Pre-Race
+          </button>
+        </div>
         <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveFuelWeightSession">
           SAVE PRE-RACE FUEL &amp; WEIGHT TO SESSION
         </button>
-        <button type="button" class="btn btn-secondary btn-full" id="btnCompleteSessionFromFuel" style="margin-top: 8px;">
-          ENTER POST-RACE DATA &amp; COMPLETE SESSION
+        <button type="button" class="btn btn-locked-grey btn-stage-locked btn-full btn-cta-lg" id="btnCompleteSessionFromFuel" style="margin-top: 8px;" disabled>
+          LOCK PRE-RACE FUEL FIRST (POST-RACE LOCKED)
         </button>
       </div>
       </div>
@@ -1214,12 +1233,18 @@
           />
         </div>
 
+        <div class="unlock-prerace-row" id="unlockTyresPreRaceRow" style="display: none; margin-top: 10px;">
+          <button type="button" class="btn-unlock-prerace" id="btnUnlockTyresPreRace">
+            Unlock Pre-Race Tyres
+          </button>
+        </div>
+
         <!-- Standalone Full-Width 3D Emerald Action Button -->
         <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveTyresSession" style="margin-top: 12px;">
-          SAVE COLD TYRES TO SESSION
+          SAVE PRE-RACE TYRES TO SESSION
         </button>
-        <button type="button" class="btn btn-secondary btn-full" id="btnCompleteSessionFromTyres" style="margin-top: 8px;">
-          ENTER POST-RACE DATA &amp; COMPLETE SESSION
+        <button type="button" class="btn btn-locked-grey btn-stage-locked btn-full btn-cta-lg" id="btnCompleteSessionFromTyres" style="margin-top: 8px;" disabled>
+          LOCK PRE-RACE TYRES FIRST (POST-RACE LOCKED)
         </button>
       </div>
 
@@ -2881,6 +2906,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.5.9"></script>
+  <script src="./app.js?v=0.6.0"></script>
 </body>
 </html>
