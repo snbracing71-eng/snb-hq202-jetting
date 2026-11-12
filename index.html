@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.5.8" />
+  <link rel="stylesheet" href="./styles.css?v=0.5.9" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -111,24 +111,27 @@
         </button>
       </div>
 
-      <!-- GATE B: Event Live, Between Sessions (state.activeEventId && !state.activeSessionId) -->
+      <!-- GATE B: Event Live, Select Session to Commence (state.activeEventId && !state.activeSessionId) -->
       <div id="eventGateBetweenSessionsView" class="event-gate-card between-sessions" style="display: none;">
-        <div class="live-event-top-row" style="margin-bottom: 10px; text-align: left;">
+        <div class="live-event-top-row" style="margin-bottom: 12px; text-align: left;">
           <div class="live-event-title-wrap">
             <div class="live-event-badge-row">
               <span class="live-event-pill">
                 <span class="live-event-dot"></span>
-                EVENT LIVE &bull; BETWEEN SESSIONS
+                <span id="gateBLiveEventBannerPill">CALDER PARK RACEWAY &bull; 13 NOV 2026 &bull; RACE WEEKEND</span>
               </span>
-              <span class="live-event-date-tag tabular" id="gateBEventDateLabel">13 Nov 2026</span>
             </div>
-            <div class="live-event-venue-name" id="gateBEventVenueLabel">Calder Park Raceway</div>
-            <div class="live-event-sub-title" id="gateBEventTitleLabel">Previous session completed &amp; locked as new baseline</div>
+            <div class="live-event-venue-name" id="gateBEventVenueLabel" style="margin-top: 4px;">SELECT SESSION TO COMMENCE</div>
+            <div class="live-event-sub-title" id="gateBEventTitleLabel">Choose which session you are commencing next from the dropdown below</div>
           </div>
+
+          <button type="button" class="btn btn-danger live-end-event-btn" id="btnOpenEndEventFromGateB" aria-label="End and Lock Event">
+            END EVENT
+          </button>
         </div>
 
         <div class="gate-baseline-summary-box">
-          <div class="gate-baseline-head">CARRIED-FORWARD BASELINE FOR NEXT RUN</div>
+          <div class="gate-baseline-head" id="gateBaselineBoxHeader">CARRIED-FORWARD BASELINE FOR NEXT RUN</div>
           <div class="gate-baseline-summary-grid">
             <div class="telem-cell">
               <span class="telem-label">Locked Tune &amp; AFR</span>
@@ -147,12 +150,56 @@
           </div>
         </div>
 
-        <div class="gate-b-actions">
-          <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnOpenCreateNextSession">
-            + CREATE NEXT SESSION
-          </button>
-          <button type="button" class="btn btn-danger btn-full" id="btnOpenEndEventFromGateB">
-            END EVENT
+        <div class="gate-b-commence-form">
+          <div class="field-group" style="margin-bottom: 10px; text-align: left;">
+            <div class="field-label-row">
+              <label class="field-label" for="gateBCommenceSessionSelect">Session to Commence</label>
+              <span class="field-hint amber" id="gateBSessionSelectHint">Required</span>
+            </div>
+            <select id="gateBCommenceSessionSelect" class="select-input" aria-label="Select Session to Commence">
+              <option value="" selected>-- Select Session to Commence --</option>
+              <option value="Practice 1">Practice 1</option>
+              <option value="Practice 2">Practice 2</option>
+              <option value="Practice 3">Practice 3</option>
+              <option value="Practice 4">Practice 4</option>
+              <option value="Practice 5">Practice 5</option>
+              <option value="Practice 6">Practice 6</option>
+              <option value="Practice 7">Practice 7</option>
+              <option value="Qualifying">Qualifying</option>
+              <option value="Warm Up">Warm Up</option>
+              <option value="Race 1">Race 1</option>
+              <option value="Race 2">Race 2</option>
+              <option value="Race 3">Race 3</option>
+              <option value="Race 4">Race 4</option>
+              <option value="Final">Final</option>
+              <option value="__CUSTOM__">Custom Session...</option>
+            </select>
+          </div>
+
+          <div id="gateBCustomSessionWrap" class="field-group" style="display: none; margin-bottom: 10px; text-align: left;">
+            <div class="field-label-row">
+              <label class="field-label" for="gateBCustomSessionInput">Custom Session Name</label>
+              <span class="field-hint amber">Required</span>
+            </div>
+            <input type="text" id="gateBCustomSessionInput" class="text-input" placeholder="e.g. Trophy Race / Shakedown" autocomplete="off" />
+          </div>
+
+          <div class="field-group" style="margin-bottom: 12px; text-align: left;">
+            <div class="field-label-row">
+              <label class="field-label" for="gateBPreRaceNotesInput">Pre-Race Change Notes (Optional)</label>
+              <span class="field-hint">What are you changing for this run?</span>
+            </div>
+            <input
+              type="text"
+              id="gateBPreRaceNotesInput"
+              class="text-input"
+              placeholder="e.g. Fitted #78 jet, set Next Cold PSIs, 29L fuel"
+              autocomplete="off"
+            />
+          </div>
+
+          <button type="button" class="btn btn-confirm btn-full btn-cta-lg btn-commence-disabled" id="btnCommenceSelectedSessionGateB" aria-disabled="true">
+            COMMENCE SELECTED SESSION
           </button>
         </div>
       </div>
@@ -169,6 +216,15 @@
             </div>
             <div class="in-session-locked-row">
               <span class="in-session-locked-pill" id="liveLockedSessionPill">IN SESSION: PRACTICE 1</span>
+              <button
+                type="button"
+                class="btn btn-secondary btn-change-session-inline"
+                id="btnChangeActiveSessionName"
+                title="Change Active Session Name"
+                aria-label="Change Active Session Name"
+              >
+                Change
+              </button>
               <span class="live-event-sub-title" id="liveEventTitleLabel">Club Championship Rd 4</span>
             </div>
           </div>
@@ -2510,7 +2566,7 @@
       </div>
 
       <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0 0 12px 0; line-height: 1.45;">
-        Starting an Event sets the circuit &amp; date across Calculator, Fuel &amp; Wt, and Tyres. Every session you run logs straight into this Event until you tap <strong>END EVENT</strong>.
+        Starting an Event sets the circuit &amp; date across Calculator, Fuel &amp; Wt, and Tyres. Once started, you will select each session you commence from the session dropdown until you tap <strong>END EVENT</strong>.
       </p>
 
       <div class="field-group">
@@ -2568,42 +2624,12 @@
         <input type="text" id="newEventCustomTrack" class="text-input" placeholder="e.g. Wakefield / Test Track" autocomplete="off" />
       </div>
 
-      <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 12px;">
-        <div class="field-group" style="margin-bottom: 0;">
-          <div class="field-label-row">
-            <label class="field-label" for="newEventDate">Event Start Date</label>
-            <span class="field-hint">Weekend Start</span>
-          </div>
-          <input type="date" id="newEventDate" class="text-input" aria-label="Event Start Date" />
-        </div>
-
-        <div class="field-group" style="margin-bottom: 0;">
-          <div class="field-label-row">
-            <label class="field-label" for="newEventFirstSession">Starting Session</label>
-            <span class="field-hint emerald">Session #1</span>
-          </div>
-          <select id="newEventFirstSession" class="select-input" aria-label="Starting Session">
-            <option value="Practice 1" selected>Practice 1</option>
-            <option value="Practice 2">Practice 2</option>
-            <option value="Practice 3">Practice 3</option>
-            <option value="Qualifying">Qualifying</option>
-            <option value="Warm Up">Warm Up</option>
-            <option value="Race 1">Race 1</option>
-            <option value="Race 2">Race 2</option>
-            <option value="Race 3">Race 3</option>
-            <option value="Race 4">Race 4</option>
-            <option value="Final">Final</option>
-            <option value="__CUSTOM__">Custom Session...</option>
-          </select>
-        </div>
-      </div>
-
-      <div id="newEventCustomSessionWrap" class="field-group" style="display: none;">
+      <div class="field-group" style="margin-bottom: 12px;">
         <div class="field-label-row">
-          <label class="field-label" for="newEventCustomSession">Custom Starting Session</label>
-          <span class="field-hint amber">Required</span>
+          <label class="field-label" for="newEventDate">Event Date</label>
+          <span class="field-hint">Weekend Start</span>
         </div>
-        <input type="text" id="newEventCustomSession" class="text-input" placeholder="e.g. Friday Shakedown" autocomplete="off" />
+        <input type="date" id="newEventDate" class="text-input" aria-label="Event Start Date" />
       </div>
 
       <div class="field-group" style="margin-bottom: 16px;">
@@ -2697,12 +2723,13 @@
 
       <div class="field-group" style="margin-bottom: 12px;">
         <div class="field-label-row">
-          <label class="field-label" for="nextSessionSelect">Next Session in Event</label>
-          <span class="field-hint emerald">Auto-Advanced</span>
+          <label class="field-label" for="nextSessionSelect">Select Session to Commence</label>
+          <span class="field-hint amber" id="promptNextSessionSelectHint">Required</span>
         </div>
-        <select id="nextSessionSelect" class="select-input" aria-label="Select Next Session">
+        <select id="nextSessionSelect" class="select-input" aria-label="Select Session to Commence">
+          <option value="" selected>-- Select Session to Commence --</option>
           <option value="Practice 1">Practice 1</option>
-          <option value="Practice 2" selected>Practice 2</option>
+          <option value="Practice 2">Practice 2</option>
           <option value="Practice 3">Practice 3</option>
           <option value="Practice 4">Practice 4</option>
           <option value="Practice 5">Practice 5</option>
@@ -2742,18 +2769,57 @@
       </div>
 
       <div class="prompt-next-actions">
-        <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnConfirmStartNextSession">
-          START NEXT SESSION NOW
+        <button type="button" class="btn btn-confirm btn-full btn-cta-lg btn-commence-disabled" id="btnConfirmStartNextSession" aria-disabled="true">
+          COMMENCE SELECTED SESSION
         </button>
         <div class="form-grid-2" style="gap: 8px; margin-top: 8px;">
           <button type="button" class="btn btn-secondary btn-full" id="btnDeferNextSession">
-            DO LATER (BETWEEN SESSIONS)
+            Select Later
           </button>
           <button type="button" class="btn btn-danger btn-full" id="btnEndEventFromPrompt">
             END EVENT
           </button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL: CHANGE ACTIVE PRE-RACE SESSION NAME
+       ========================================================= -->
+  <div id="modalChangeActiveSession" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="changeActiveSessionModalTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">Active Pre-Race Session</div>
+          <h3 class="modal-title" id="changeActiveSessionModalTitle">Change Active Session Name</h3>
+        </div>
+        <button type="button" class="btn btn-secondary" id="btnCancelChangeSessionName" style="padding: 6px 12px;">Cancel</button>
+      </div>
+
+      <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0 0 12px 0; line-height: 1.45;">
+        Picked the wrong session by mistake? Select the correct session name for this active run below.
+      </p>
+
+      <div class="field-group" style="margin-bottom: 12px;">
+        <div class="field-label-row">
+          <label class="field-label" for="changeActiveSessionSelect">Active Session Name</label>
+          <span class="field-hint emerald">Updates Current Run</span>
+        </div>
+        <select id="changeActiveSessionSelect" class="select-input" aria-label="Select Active Session Name"></select>
+      </div>
+
+      <div id="changeActiveSessionCustomWrap" class="field-group" style="display: none; margin-bottom: 14px;">
+        <div class="field-label-row">
+          <label class="field-label" for="changeActiveSessionCustomInput">Custom Session Name</label>
+          <span class="field-hint amber">Required</span>
+        </div>
+        <input type="text" id="changeActiveSessionCustomInput" class="text-input" placeholder="e.g. Qualifying / Trophy Race" autocomplete="off" />
+      </div>
+
+      <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveChangedSessionName">
+        SAVE SESSION NAME
+      </button>
     </div>
   </div>
 
@@ -2774,7 +2840,7 @@
         </div>
 
         <div class="delete-confirm-step-banner step1" id="deleteSessionStep1Text">
-          Are you sure you want to remove <strong>Practice 1</strong> from <strong>Calder Park Raceway</strong>?
+          Are you sure you want to remove <strong id="deleteSessionTargetLabel">Practice 1</strong>?
         </div>
 
         <div class="form-grid-2" style="gap: 10px; margin-top: 14px;">
@@ -2797,7 +2863,7 @@
         </div>
 
         <div class="delete-confirm-step-banner step2" id="deleteSessionStep2Text">
-          Permanently delete <strong>Practice 1</strong> and ALL its Tune, Fuel &amp; Tyre data? This cannot be undone.
+          Permanently delete this session and ALL its Tune, Fuel &amp; Tyre data? This cannot be undone.
         </div>
 
         <div class="form-grid-2" style="gap: 10px; margin-top: 14px;">
@@ -2815,6 +2881,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.5.8"></script>
+  <script src="./app.js?v=0.5.9"></script>
 </body>
 </html>

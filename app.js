@@ -2565,8 +2565,9 @@
 
   function updateCustomSessionVisibility() {
     [
-      ['newEventFirstSession', 'newEventCustomSessionWrap'],
-      ['nextSessionSelect', 'nextSessionCustomWrap']
+      ['gateBCommenceSessionSelect', 'gateBCustomSessionWrap'],
+      ['nextSessionSelect', 'nextSessionCustomWrap'],
+      ['changeActiveSessionSelect', 'changeActiveSessionCustomWrap']
     ].forEach(([selId, wrapId]) => {
       const sel = $(selId);
       const wrap = $(wrapId);
@@ -2574,6 +2575,74 @@
         wrap.style.display = sel.value === '__CUSTOM__' ? 'block' : 'none';
       }
     });
+  }
+
+  function populateCommenceSessionSelect(selectEl, activeEvent, opts = {}) {
+    if (!selectEl) return;
+    const includePlaceholder = opts.includePlaceholder !== false;
+    const excludeSessionId = opts.excludeSessionId || null;
+    const preserveValue = Boolean(opts.preserveValue);
+    const prevValue = preserveValue ? selectEl.value : '';
+
+    const sessions = activeEvent && Array.isArray(activeEvent.sessions) ? activeEvent.sessions : [];
+    const loggedNamesLower = new Set(
+      sessions
+        .filter((s) => s && s.id !== excludeSessionId && s.sessionName)
+        .map((s) => String(s.sessionName).trim().toLowerCase())
+    );
+
+    const htmlParts = [];
+    if (includePlaceholder) {
+      htmlParts.push('<option value="">-- Select Session to Commence --</option>');
+    }
+
+    SESSION_PROGRESSION.forEach((stdName) => {
+      const isLogged = loggedNamesLower.has(stdName.toLowerCase());
+      if (isLogged) {
+        htmlParts.push(
+          `<option value="${escapeHtml(stdName)}" disabled>${escapeHtml(stdName)} (Already Logged)</option>`
+        );
+      } else {
+        htmlParts.push(`<option value="${escapeHtml(stdName)}">${escapeHtml(stdName)}</option>`);
+      }
+    });
+
+    htmlParts.push('<option value="__CUSTOM__">Custom Session...</option>');
+    selectEl.innerHTML = htmlParts.join('');
+
+    if (preserveValue && prevValue) {
+      const matchingOpt = Array.from(selectEl.options).find(
+        (opt) => opt.value === prevValue && !opt.disabled
+      );
+      selectEl.value = matchingOpt ? prevValue : '';
+    } else if (includePlaceholder) {
+      selectEl.value = '';
+    }
+  }
+
+  function readExplicitCommenceSessionChoice(selId, customId) {
+    const sel = $(selId);
+    if (!sel || !sel.value) return '';
+    if (sel.value === '__CUSTOM__') {
+      const customVal = (($(customId) && $(customId).value) || '').trim();
+      return customVal;
+    }
+    return sel.value.trim();
+  }
+
+  function syncCommenceButtonState(selId, customWrapId, customInputId, btnId) {
+    const sel = $(selId);
+    const wrap = $(customWrapId);
+    if (sel && wrap) {
+      wrap.style.display = sel.value === '__CUSTOM__' ? 'block' : 'none';
+    }
+    const chosen = readExplicitCommenceSessionChoice(selId, customInputId);
+    const btn = $(btnId);
+    if (btn) {
+      const isDisabled = !chosen;
+      btn.classList.toggle('btn-commence-disabled', isDisabled);
+      btn.setAttribute('aria-disabled', isDisabled ? 'true' : 'false');
+    }
   }
 
   function setSessionNameOnAllTabs(sessionName) {
@@ -2650,27 +2719,6 @@
     return (state.baseline && state.baseline.sessionName) || 'Practice 1';
   }
 
-  function getNextLogicalSessionName(liveEvt, refNameOpt) {
-    const sessions = (liveEvt && Array.isArray(liveEvt.sessions)) ? liveEvt.sessions : [];
-    const existingNames = new Set(sessions.map((s) => s && s.sessionName).filter(Boolean));
-    const lastSess = sessions.length > 0 ? sessions[sessions.length - 1] : null;
-    const refName = refNameOpt || (lastSess && lastSess.sessionName) || '';
-    const idx = SESSION_PROGRESSION.indexOf(refName);
-    if (idx !== -1) {
-      for (let i = idx + 1; i < SESSION_PROGRESSION.length; i++) {
-        if (!existingNames.has(SESSION_PROGRESSION[i])) {
-          return SESSION_PROGRESSION[i];
-        }
-      }
-    }
-    for (let i = 0; i < SESSION_PROGRESSION.length; i++) {
-      if (!existingNames.has(SESSION_PROGRESSION[i])) {
-        return SESSION_PROGRESSION[i];
-      }
-    }
-    return `Session ${sessions.length + 1}`;
-  }
-
   function syncPreRaceNotesInputs(notesStr) {
     const val = typeof notesStr === 'string' ? notesStr : '';
     ['inputPreRaceNotes', 'inputRunNotes'].forEach((id) => {
@@ -2692,25 +2740,29 @@
       b.wotAfr !== null && b.wotAfr !== undefined && Number.isFinite(Number(b.wotAfr))
         ? `${Number(b.wotAfr).toFixed(2)} WOT AFR`
         : 'Weather-Only';
-    const tuneStr = `${b.carbyId} • ${b.jetLabel} (${Number(b.jetMm).toFixed(3)}mm) @ ${Number(b.rad).toFixed(1)}% RAD • ${afrTxt}`;
+    const tuneMain = `${b.carbyId} • ${b.jetLabel} (${Number(b.jetMm).toFixed(3)} mm)`;
+    const tuneSub = `${Number(b.rad).toFixed(1)}% RAD • ${Number(b.fuelSg).toFixed(3)} SG • ${afrTxt}`;
+    const tuneStr = `${tuneMain} @ ${tuneSub}`;
 
     const fuelStats = getTrackLearnedFuelStats(venue);
     const ch = state.chassis || createDefaultChassisState();
     const scaleWt = Number(ch.scaleCheckKg);
-    const scaleStr = Number.isFinite(scaleWt) && scaleWt > 500 ? `${scaleWt.toFixed(1)} kg Scale Wt` : 'Surge+Burn Mode';
-    const fuelStr = `${fuelStats.avg.toFixed(2)} L/lap (${venue}) • ${ch.raceLaps || 12} Laps • ${scaleStr}`;
+    const scaleStr = Number.isFinite(scaleWt) && scaleWt > 500 ? `${scaleWt.toFixed(1)} kg Scale Wt` : 'Surge + Burn Mode';
+    const fuelMain = `${fuelStats.avg.toFixed(2)} L/lap (${venue})`;
+    const fuelSub = `${ch.raceLaps || 12} Laps • ${scaleStr}`;
+    const fuelStr = `${fuelMain} • ${fuelSub}`;
 
     const ct = (ch && ch.coldTyres) || { FL: 30.0, FR: 30.0, RL: 30.0, RR: 30.0 };
     const mt = ensureMountedTyresState();
     const fmtC = (c) => {
       const v = ct[c];
       const psi = v !== null && v !== undefined && Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v).toFixed(1) : '30.0';
-      const tid = mt[c] ? `[${mt[c]}] ` : '';
-      return `${c} ${tid}${psi}`;
+      const tid = mt[c] ? ` (${mt[c]})` : '';
+      return `${c}: ${psi}${tid}`;
     };
-    const tyreStr = `Next Cold Set: ${fmtC('FL')} • ${fmtC('FR')} • ${fmtC('RL')} • ${fmtC('RR')} PSI`;
+    const tyreStr = `${fmtC('FL')} • ${fmtC('FR')} • ${fmtC('RL')} • ${fmtC('RR')} PSI`;
 
-    return { tuneStr, fuelStr, tyreStr };
+    return { tuneMain, tuneSub, fuelMain, fuelSub, tyreStr, tuneStr, fuelStr };
   }
 
   function renderWeekendEventBanner() {
@@ -2758,22 +2810,39 @@
       liveView.style.display = 'none';
 
       const lastCompleted = sessions.length > 0 ? sessions[sessions.length - 1] : null;
-      const titleSuffix = liveEvt.eventTitle ? ` • ${liveEvt.eventTitle}` : '';
-      if ($('gateBetweenVenueDateLabel')) {
-        $('gateBetweenVenueDateLabel').textContent = `\uD83D\uDFE2 ${liveEvt.venue} • ${dispDate}${titleSuffix}`;
+      if ($('gateBLiveEventBannerPill')) {
+        $('gateBLiveEventBannerPill').textContent = '\uD83D\uDFE2 LIVE EVENT ACTIVE';
       }
-      if ($('gateBetweenCompletedTitle')) {
-        $('gateBetweenCompletedTitle').textContent = lastCompleted
-          ? `${lastCompleted.sessionName} Completed — Ready for Next Session`
-          : `Event Active — Ready for Next Session`;
+      if ($('gateBEventVenueLabel')) {
+        $('gateBEventVenueLabel').textContent = `${liveEvt.venue} • ${dispDate}`;
       }
-      if ($('gateBetweenBaselineSummary')) {
-        const summary = buildCarriedForwardBaselineSummaryParts(liveEvt.venue);
-        $('gateBetweenBaselineSummary').innerHTML = `
-          <div><strong>Tune Baseline:</strong> ${escapeHtml(summary.tuneStr)}</div>
-          <div><strong>Fuel &amp; Wt:</strong> ${escapeHtml(summary.fuelStr)}</div>
-          <div><strong>4-Corner Tyres:</strong> ${escapeHtml(summary.tyreStr)}</div>
-        `;
+      if ($('gateBEventTitleLabel')) {
+        const roundLbl = liveEvt.eventTitle || 'Race Weekend';
+        const countLbl = `${sessions.length} ${sessions.length === 1 ? 'Session' : 'Sessions'} Logged`;
+        $('gateBEventTitleLabel').textContent = `${roundLbl} • ${countLbl} — Select Session to Commence`;
+      }
+      if ($('gateBaselineBoxHeader')) {
+        $('gateBaselineBoxHeader').textContent = lastCompleted
+          ? `CARRIED-FORWARD BASELINE (FROM ${lastCompleted.sessionName.toUpperCase()})`
+          : 'CARRIED-FORWARD BASELINE (READY FOR FIRST SESSION)';
+      }
+
+      const summary = buildCarriedForwardBaselineSummaryParts(liveEvt.venue);
+      if ($('gateBaseTuneVal')) $('gateBaseTuneVal').textContent = summary.tuneMain;
+      if ($('gateBaseTuneSub')) $('gateBaseTuneSub').textContent = summary.tuneSub;
+      if ($('gateBaseFuelVal')) $('gateBaseFuelVal').textContent = summary.fuelMain;
+      if ($('gateBaseFuelSub')) $('gateBaseFuelSub').textContent = summary.fuelSub;
+      if ($('gateBaseTyreVal')) $('gateBaseTyreVal').textContent = summary.tyreStr;
+
+      const gateBSel = $('gateBCommenceSessionSelect');
+      if (gateBSel) {
+        populateCommenceSessionSelect(gateBSel, liveEvt, { preserveValue: true });
+        syncCommenceButtonState(
+          'gateBCommenceSessionSelect',
+          'gateBCustomSessionWrap',
+          'gateBCustomSessionInput',
+          'btnCommenceSelectedSessionGateB'
+        );
       }
       return;
     }
@@ -2789,6 +2858,10 @@
     }
     if ($('liveLockedSessionPill')) {
       $('liveLockedSessionPill').textContent = `IN SESSION: ${activeSess.sessionName}`;
+    }
+    if ($('liveEventTitleLabel')) {
+      const roundLbl = liveEvt.eventTitle || 'Race Weekend';
+      $('liveEventTitleLabel').textContent = `${roundLbl} • ${sessions.length} ${sessions.length === 1 ? 'session' : 'sessions'} in event`;
     }
 
     syncPreRaceNotesInputs(activeSess.preRaceNotes || '');
@@ -3000,12 +3073,6 @@
     if ($('newEventDate')) {
       $('newEventDate').value = getLocalTodayIso();
     }
-    if ($('newEventFirstSession')) {
-      $('newEventFirstSession').value = 'Practice 1';
-    }
-    if ($('newEventCustomSessionWrap')) {
-      $('newEventCustomSessionWrap').style.display = 'none';
-    }
     if ($('newEventTitle')) {
       $('newEventTitle').value = '';
     }
@@ -3016,7 +3083,6 @@
     const venue = normalizeVenueName(readVenueFromSelectorPair('newEventTrack', 'newEventCustomTrack'));
     const eventDate = ($('newEventDate') && $('newEventDate').value) || getLocalTodayIso();
     const eventTitle = (($('newEventTitle') && $('newEventTitle').value) || '').trim();
-    const firstSessionName = readSessionNameFromSelectorPair('newEventFirstSession', 'newEventCustomSession');
 
     // Lock any previously open event before starting the new one
     if (Array.isArray(state.events)) {
@@ -3046,15 +3112,27 @@
 
     state.events.unshift(newEvt);
     state.activeEventId = newEvt.id;
+    state.activeSessionId = null;
+    state.awaitingPostRaceId = null;
     ui.expandedEventIds.add(newEvt.id);
 
-    // Load circuit profile for Fuel & Tyres
+    // Sync circuit's saved L/lap & cold tyre baselines immediately
     loadTrackProfileToFuelAndTyreInputs(venue);
 
-    // Create and lock into the initial active session immediately
-    createAndActivateSessionInEvent(newEvt, firstSessionName, '');
+    // Reset Gate B session dropdown so user explicitly picks their first session
+    if ($('gateBCommenceSessionSelect')) {
+      populateCommenceSessionSelect($('gateBCommenceSessionSelect'), newEvt, { preserveValue: false });
+    }
+    if ($('gateBCustomSessionInput')) $('gateBCustomSessionInput').value = '';
+    if ($('gateBCustomSessionWrap')) $('gateBCustomSessionWrap').style.display = 'none';
+    if ($('gateBPreRaceNotesInput')) $('gateBPreRaceNotesInput').value = '';
+    syncCommenceButtonState(
+      'gateBCommenceSessionSelect',
+      'gateBCustomSessionWrap',
+      'gateBCustomSessionInput',
+      'btnCommenceSelectedSessionGateB'
+    );
 
-    const pendingFn = ui.pendingActionAfterNewEvent;
     ui.pendingActionAfterNewEvent = null;
     closeModal('modalNewEvent');
 
@@ -3062,12 +3140,49 @@
     setCalculatorStep(1);
     renderAll();
 
-    if (typeof pendingFn === 'function') {
-      pendingFn();
+    showToast(`LIVE EVENT STARTED: ${venue} — Select Session to Commence`);
+  }
+
+  function commenceSessionFromGateB() {
+    const liveEvt = getActiveEvent();
+    if (!liveEvt) {
+      openNewEventModal();
       return;
     }
 
-    showToast(`LIVE EVENT STARTED: ${venue} • IN SESSION: ${firstSessionName}`);
+    const chosenName = readExplicitCommenceSessionChoice(
+      'gateBCommenceSessionSelect',
+      'gateBCustomSessionInput'
+    );
+    if (!chosenName) {
+      showToast('Select which session you are about to commence first');
+      if ($('gateBCommenceSessionSelect')) {
+        $('gateBCommenceSessionSelect').focus();
+      }
+      return;
+    }
+
+    const alreadyLogged = (liveEvt.sessions || []).some(
+      (s) => s && s.sessionName && s.sessionName.trim().toLowerCase() === chosenName.toLowerCase()
+    );
+    if (alreadyLogged) {
+      showToast(`${chosenName} is already logged in this event — select the next session`);
+      return;
+    }
+
+    const preNotes = (($('gateBPreRaceNotesInput') && $('gateBPreRaceNotesInput').value) || '').trim();
+    const created = createAndActivateSessionInEvent(liveEvt, chosenName, preNotes);
+    ui.expandedEventIds.add(liveEvt.id);
+
+    if ($('gateBCommenceSessionSelect')) $('gateBCommenceSessionSelect').value = '';
+    if ($('gateBCustomSessionInput')) $('gateBCustomSessionInput').value = '';
+    if ($('gateBCustomSessionWrap')) $('gateBCustomSessionWrap').style.display = 'none';
+    if ($('gateBPreRaceNotesInput')) $('gateBPreRaceNotesInput').value = '';
+
+    saveState();
+    setCalculatorStep(1);
+    renderAll();
+    showToast(`IN SESSION: ${created.sessionName} (${liveEvt.venue})`);
   }
 
   function openPromptNextSessionModal(completedSess) {
@@ -3085,34 +3200,31 @@
 
     const completedName = lastSess ? lastSess.sessionName : 'Previous Session';
     if ($('promptNextSessionTitle')) {
-      $('promptNextSessionTitle').textContent = `${completedName} Saved & Locked as New Baseline`;
+      $('promptNextSessionTitle').textContent = `${completedName} Saved & Locked — Select Next Session`;
     }
 
     const summary = buildCarriedForwardBaselineSummaryParts(liveEvt.venue);
-    if ($('promptBaseTuneSummary')) $('promptBaseTuneSummary').textContent = summary.tuneStr;
-    if ($('promptBaseFuelSummary')) $('promptBaseFuelSummary').textContent = summary.fuelStr;
+    if ($('promptBaseTuneSummary')) $('promptBaseTuneSummary').textContent = summary.tuneMain;
+    if ($('promptBaseTuneSub')) $('promptBaseTuneSub').textContent = summary.tuneSub;
+    if ($('promptBaseFuelSummary')) $('promptBaseFuelSummary').textContent = summary.fuelMain;
+    if ($('promptBaseFuelSub')) $('promptBaseFuelSub').textContent = summary.fuelSub;
     if ($('promptBaseTyreSummary')) $('promptBaseTyreSummary').textContent = summary.tyreStr;
 
-    const suggestedNext = getNextLogicalSessionName(liveEvt, lastSess ? lastSess.sessionName : '');
     const sel = $('nextSessionSelect');
-    const customWrap = $('nextSessionCustomWrap');
-    const customInp = $('nextSessionCustomInput');
     if (sel) {
-      const hasOpt = Array.from(sel.options).some(
-        (opt) => opt.value === suggestedNext && opt.value !== '__CUSTOM__'
-      );
-      if (hasOpt) {
-        sel.value = suggestedNext;
-        if (customWrap) customWrap.style.display = 'none';
-      } else {
-        sel.value = '__CUSTOM__';
-        if (customWrap) customWrap.style.display = 'block';
-        if (customInp) customInp.value = suggestedNext;
-      }
+      populateCommenceSessionSelect(sel, liveEvt, { preserveValue: false });
     }
+    if ($('nextSessionCustomInput')) $('nextSessionCustomInput').value = '';
+    if ($('nextSessionCustomWrap')) $('nextSessionCustomWrap').style.display = 'none';
     if ($('nextSessionPreNotes')) {
       $('nextSessionPreNotes').value = '';
     }
+    syncCommenceButtonState(
+      'nextSessionSelect',
+      'nextSessionCustomWrap',
+      'nextSessionCustomInput',
+      'btnConfirmStartNextSession'
+    );
 
     openModal('modalPromptNextSession');
   }
@@ -3125,7 +3237,23 @@
       return;
     }
 
-    const nextName = readSessionNameFromSelectorPair('nextSessionSelect', 'nextSessionCustomInput');
+    const nextName = readExplicitCommenceSessionChoice('nextSessionSelect', 'nextSessionCustomInput');
+    if (!nextName) {
+      showToast('Select which session you are about to commence first');
+      if ($('nextSessionSelect')) {
+        $('nextSessionSelect').focus();
+      }
+      return;
+    }
+
+    const alreadyLogged = (liveEvt.sessions || []).some(
+      (s) => s && s.sessionName && s.sessionName.trim().toLowerCase() === nextName.toLowerCase()
+    );
+    if (alreadyLogged) {
+      showToast(`${nextName} is already logged in this event — select the next session`);
+      return;
+    }
+
     const preNotes = (($('nextSessionPreNotes') && $('nextSessionPreNotes').value) || '').trim();
 
     const created = createAndActivateSessionInEvent(liveEvt, nextName, preNotes);
@@ -3146,7 +3274,81 @@
     closeModal('modalPromptNextSession');
     saveState();
     renderAll();
-    showToast('Between Sessions — Tap "+ CREATE NEXT SESSION" when ready for pre-race setup');
+    showToast('Between Sessions — Select your next session on Gate B when ready');
+  }
+
+  function openChangeActiveSessionModal() {
+    const liveEvt = getActiveEvent();
+    const activeSess = getActiveSession();
+    if (!liveEvt || !activeSess) return;
+
+    const sel = $('changeActiveSessionSelect');
+    const customWrap = $('changeActiveSessionCustomWrap');
+    const customInp = $('changeActiveSessionCustomInput');
+    if (sel) {
+      populateCommenceSessionSelect(sel, liveEvt, {
+        includePlaceholder: false,
+        excludeSessionId: activeSess.id,
+        preserveValue: false
+      });
+      const isStandard = SESSION_PROGRESSION.some(
+        (std) => std.toLowerCase() === String(activeSess.sessionName || '').trim().toLowerCase()
+      );
+      if (isStandard) {
+        const matchStd = SESSION_PROGRESSION.find(
+          (std) => std.toLowerCase() === String(activeSess.sessionName || '').trim().toLowerCase()
+        );
+        sel.value = matchStd || SESSION_PROGRESSION[0];
+        if (customWrap) customWrap.style.display = 'none';
+        if (customInp) customInp.value = '';
+      } else {
+        sel.value = '__CUSTOM__';
+        if (customWrap) customWrap.style.display = 'block';
+        if (customInp) customInp.value = activeSess.sessionName || '';
+      }
+    }
+    openModal('modalChangeActiveSession');
+  }
+
+  function saveChangedActiveSessionName() {
+    const liveEvt = getActiveEvent();
+    const activeSess = getActiveSession();
+    if (!liveEvt || !activeSess) {
+      closeModal('modalChangeActiveSession');
+      return;
+    }
+
+    const newName = readExplicitCommenceSessionChoice(
+      'changeActiveSessionSelect',
+      'changeActiveSessionCustomInput'
+    );
+    if (!newName) {
+      showToast('Enter a valid session name');
+      return;
+    }
+
+    const duplicate = (liveEvt.sessions || []).some(
+      (s) =>
+        s &&
+        s.id !== activeSess.id &&
+        s.sessionName &&
+        s.sessionName.trim().toLowerCase() === newName.toLowerCase()
+    );
+    if (duplicate) {
+      showToast(`${newName} is already logged in this event`);
+      return;
+    }
+
+    activeSess.sessionName = newName;
+    if (state.baseline && state.baseline.linkedSessionId === activeSess.id) {
+      state.baseline.sessionName = newName;
+    }
+
+    syncFlatSessionsFromEvents(state);
+    saveState();
+    closeModal('modalChangeActiveSession');
+    renderAll();
+    showToast(`Active session updated: IN SESSION: ${newName}`);
   }
 
   function startNextLiveSession() {
@@ -8882,26 +9084,54 @@
         }
       });
     }
-    if ($('newEventFirstSession')) {
-      $('newEventFirstSession').addEventListener('change', () => {
-        if ($('newEventCustomSessionWrap')) {
-          $('newEventCustomSessionWrap').style.display =
-            $('newEventFirstSession').value === '__CUSTOM__' ? 'block' : 'none';
-        }
-      });
-    }
     if ($('btnStartLiveEvent')) {
       $('btnStartLiveEvent').addEventListener('click', startLiveEventFromModal);
     }
-    if ($('btnOpenCreateNextSession')) {
-      $('btnOpenCreateNextSession').addEventListener('click', () => openPromptNextSessionModal());
+
+    // Gate B explicit session selector & Commence button
+    if ($('gateBCommenceSessionSelect')) {
+      $('gateBCommenceSessionSelect').addEventListener('change', () => {
+        syncCommenceButtonState(
+          'gateBCommenceSessionSelect',
+          'gateBCustomSessionWrap',
+          'gateBCustomSessionInput',
+          'btnCommenceSelectedSessionGateB'
+        );
+      });
     }
+    if ($('gateBCustomSessionInput')) {
+      $('gateBCustomSessionInput').addEventListener('input', () => {
+        syncCommenceButtonState(
+          'gateBCommenceSessionSelect',
+          'gateBCustomSessionWrap',
+          'gateBCustomSessionInput',
+          'btnCommenceSelectedSessionGateB'
+        );
+      });
+    }
+    if ($('btnCommenceSelectedSessionGateB')) {
+      $('btnCommenceSelectedSessionGateB').addEventListener('click', commenceSessionFromGateB);
+    }
+
+    // Post-race Next Session modal explicit selector & Commence button
     if ($('nextSessionSelect')) {
       $('nextSessionSelect').addEventListener('change', () => {
-        if ($('nextSessionCustomWrap')) {
-          $('nextSessionCustomWrap').style.display =
-            $('nextSessionSelect').value === '__CUSTOM__' ? 'block' : 'none';
-        }
+        syncCommenceButtonState(
+          'nextSessionSelect',
+          'nextSessionCustomWrap',
+          'nextSessionCustomInput',
+          'btnConfirmStartNextSession'
+        );
+      });
+    }
+    if ($('nextSessionCustomInput')) {
+      $('nextSessionCustomInput').addEventListener('input', () => {
+        syncCommenceButtonState(
+          'nextSessionSelect',
+          'nextSessionCustomWrap',
+          'nextSessionCustomInput',
+          'btnConfirmStartNextSession'
+        );
       });
     }
     if ($('btnConfirmStartNextSession')) {
@@ -8910,6 +9140,26 @@
     if ($('btnDeferNextSession')) {
       $('btnDeferNextSession').addEventListener('click', deferNextSessionToGateB);
     }
+
+    // Rename Active Session ("Change" button next to IN SESSION pill)
+    if ($('btnChangeActiveSessionName')) {
+      $('btnChangeActiveSessionName').addEventListener('click', openChangeActiveSessionModal);
+    }
+    if ($('changeActiveSessionSelect')) {
+      $('changeActiveSessionSelect').addEventListener('change', () => {
+        if ($('changeActiveSessionCustomWrap')) {
+          $('changeActiveSessionCustomWrap').style.display =
+            $('changeActiveSessionSelect').value === '__CUSTOM__' ? 'block' : 'none';
+        }
+      });
+    }
+    if ($('btnSaveChangedSessionName')) {
+      $('btnSaveChangedSessionName').addEventListener('click', saveChangedActiveSessionName);
+    }
+    if ($('btnCancelChangeSessionName')) {
+      $('btnCancelChangeSessionName').addEventListener('click', () => closeModal('modalChangeActiveSession'));
+    }
+
     if ($('btnOpenEndEventModal')) {
       $('btnOpenEndEventModal').addEventListener('click', openEndEventModal);
     }
