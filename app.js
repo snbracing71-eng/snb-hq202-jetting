@@ -1157,58 +1157,58 @@
   function createDefaultShocks() {
     return [
       // Front Shocks (14 units, Pedders GSR 9033 — end: 'F')
-      { id: 'shk_F29', code: 'F29', end: 'F', origin: '#77', kingComp: null, kingReb: null, status: 'available', notes: 'On Car #77' },
-      { id: 'shk_F27', code: 'F27', end: 'F', origin: '#77', kingComp: null, kingReb: null, status: 'available', notes: 'On Car #77' },
-      { id: 'shk_F4',  code: 'F4',  end: 'F', origin: '',    kingComp: 62,   kingReb: -180, status: 'other_car', notes: 'in LS Rails' },
-      { id: 'shk_F7',  code: 'F7',  end: 'F', origin: '#71', kingComp: 74,   kingReb: -180, status: 'available', notes: '' },
-      { id: 'shk_F9',  code: 'F9',  end: 'F', origin: '#71', kingComp: 58,   kingReb: -275, status: 'available', notes: '' },
-      { id: 'shk_F10', code: 'F10', end: 'F', origin: '',    kingComp: 62,   kingReb: -252, status: 'available', notes: '' },
-      { id: 'shk_F11', code: 'F11', end: 'F', origin: '#71', kingComp: 52,   kingReb: -260, status: 'available', notes: '' },
-      { id: 'shk_F12', code: 'F12', end: 'F', origin: '',    kingComp: 70,   kingReb: -248, status: 'available', notes: '' },
-      { id: 'shk_F13', code: 'F13', end: 'F', origin: '',    kingComp: 40,   kingReb: -270, status: 'other_car', notes: 'in LS Rails' },
-      { id: 'shk_F15', code: 'F15', end: 'F', origin: '',    kingComp: 75,   kingReb: -240, status: 'available', notes: '' },
-      { id: 'shk_F16', code: 'F16', end: 'F', origin: '',    kingComp: 70,   kingReb: -180, status: 'available', notes: '' },
-      { id: 'shk_F17', code: 'F17', end: 'F', origin: '',    kingComp: null, kingReb: null, status: 'available', notes: '' },
-      { id: 'shk_F18', code: 'F18', end: 'F', origin: '',    kingComp: null, kingReb: null, status: 'available', notes: '' },
-      { id: 'shk_F19', code: 'F19', end: 'F', origin: '#71', kingComp: null, kingReb: null, status: 'available', notes: '' },
+      { id: 'shk_F29', code: 'F29', end: 'F', partNo: '9033', origin: '#77', compMmS: null, rebMmS: null, status: 'available', notes: 'On Car #77' },
+      { id: 'shk_F27', code: 'F27', end: 'F', partNo: '9033', origin: '#77', compMmS: null, rebMmS: null, status: 'available', notes: 'On Car #77' },
+      { id: 'shk_F4',  code: 'F4',  end: 'F', partNo: '9033', origin: '',    compMmS: 62,   rebMmS: -180, status: 'other_car', notes: 'in LS Rails' },
+      { id: 'shk_F7',  code: 'F7',  end: 'F', partNo: '9033', origin: '#71', compMmS: 74,   rebMmS: -180, status: 'available', notes: '' },
+      { id: 'shk_F9',  code: 'F9',  end: 'F', partNo: '9033', origin: '#71', compMmS: 58,   rebMmS: -275, status: 'available', notes: '' },
+      { id: 'shk_F10', code: 'F10', end: 'F', partNo: '9033', origin: '',    compMmS: 62,   rebMmS: -252, status: 'available', notes: '' },
+      { id: 'shk_F11', code: 'F11', end: 'F', partNo: '9033', origin: '#71', compMmS: 52,   rebMmS: -260, status: 'available', notes: '' },
+      { id: 'shk_F12', code: 'F12', end: 'F', partNo: '9033', origin: '',    compMmS: 70,   rebMmS: -248, status: 'available', notes: '' },
+      { id: 'shk_F13', code: 'F13', end: 'F', partNo: '9033', origin: '',    compMmS: 40,   rebMmS: -270, status: 'other_car', notes: 'in LS Rails' },
+      { id: 'shk_F15', code: 'F15', end: 'F', partNo: '9033', origin: '',    compMmS: 75,   rebMmS: -240, status: 'available', notes: '' },
+      { id: 'shk_F16', code: 'F16', end: 'F', partNo: '9033', origin: '',    compMmS: 70,   rebMmS: -180, status: 'available', notes: '' },
+      { id: 'shk_F17', code: 'F17', end: 'F', partNo: '9033', origin: '',    compMmS: null, rebMmS: null, status: 'available', notes: '' },
+      { id: 'shk_F18', code: 'F18', end: 'F', partNo: '9033', origin: '',    compMmS: null, rebMmS: null, status: 'available', notes: '' },
+      { id: 'shk_F19', code: 'F19', end: 'F', partNo: '9033', origin: '#71', compMmS: null, rebMmS: null, status: 'available', notes: '' },
       // Rear Shocks (14 units, Pedders GSR 9067 — end: 'R')
-      { id: 'shk_R26', code: 'R26', end: 'R', origin: '#77', kingComp: null, kingReb: null, status: 'available', notes: 'On Car #77' },
-      { id: 'shk_R25', code: 'R25', end: 'R', origin: '#77', kingComp: null, kingReb: null, status: 'available', notes: 'On Car #77' },
-      { id: 'shk_R1',  code: 'R1',  end: 'R', origin: '',    kingComp: 42,   kingReb: -80,  status: 'available', notes: '' },
-      { id: 'shk_R3',  code: 'R3',  end: 'R', origin: '',    kingComp: 39,   kingReb: -92,  status: 'available', notes: '' },
-      { id: 'shk_R5',  code: 'R5',  end: 'R', origin: '',    kingComp: 42,   kingReb: -83,  status: 'available', notes: '' },
-      { id: 'shk_R6',  code: 'R6',  end: 'R', origin: '',    kingComp: 38,   kingReb: -92,  status: 'available', notes: '' },
-      { id: 'shk_R9',  code: 'R9',  end: 'R', origin: '#71', kingComp: null, kingReb: null, status: 'available', notes: '' },
-      { id: 'shk_R10', code: 'R10', end: 'R', origin: '',    kingComp: 37,   kingReb: -90,  status: 'available', notes: '' },
-      { id: 'shk_R11', code: 'R11', end: 'R', origin: '#71', kingComp: null, kingReb: null, status: 'available', notes: '' },
-      { id: 'shk_R12', code: 'R12', end: 'R', origin: '#71', kingComp: null, kingReb: null, status: 'available', notes: '' },
-      { id: 'shk_R13', code: 'R13', end: 'R', origin: '',    kingComp: 50,   kingReb: -80,  status: 'available', notes: '' },
-      { id: 'shk_R14', code: 'R14', end: 'R', origin: '',    kingComp: 40,   kingReb: -86,  status: 'available', notes: '' },
-      { id: 'shk_R15', code: 'R15', end: 'R', origin: '',    kingComp: null, kingReb: null, status: 'available', notes: '' },
-      { id: 'shk_R16', code: 'R16', end: 'R', origin: '#71', kingComp: null, kingReb: null, status: 'available', notes: '' }
+      { id: 'shk_R26', code: 'R26', end: 'R', partNo: '9067', origin: '#77', compMmS: null, rebMmS: null, status: 'available', notes: 'On Car #77' },
+      { id: 'shk_R25', code: 'R25', end: 'R', partNo: '9067', origin: '#77', compMmS: null, rebMmS: null, status: 'available', notes: 'On Car #77' },
+      { id: 'shk_R1',  code: 'R1',  end: 'R', partNo: '9067', origin: '',    compMmS: 42,   rebMmS: -80,  status: 'available', notes: '' },
+      { id: 'shk_R3',  code: 'R3',  end: 'R', partNo: '9067', origin: '',    compMmS: 39,   rebMmS: -92,  status: 'available', notes: '' },
+      { id: 'shk_R5',  code: 'R5',  end: 'R', partNo: '9067', origin: '',    compMmS: 42,   rebMmS: -83,  status: 'available', notes: '' },
+      { id: 'shk_R6',  code: 'R6',  end: 'R', partNo: '9067', origin: '',    compMmS: 38,   rebMmS: -92,  status: 'available', notes: '' },
+      { id: 'shk_R9',  code: 'R9',  end: 'R', partNo: '9067', origin: '#71', compMmS: null, rebMmS: null, status: 'available', notes: '' },
+      { id: 'shk_R10', code: 'R10', end: 'R', partNo: '9067', origin: '',    compMmS: 37,   rebMmS: -90,  status: 'available', notes: '' },
+      { id: 'shk_R11', code: 'R11', end: 'R', partNo: '9067', origin: '#71', compMmS: null, rebMmS: null, status: 'available', notes: '' },
+      { id: 'shk_R12', code: 'R12', end: 'R', partNo: '9067', origin: '#71', compMmS: null, rebMmS: null, status: 'available', notes: '' },
+      { id: 'shk_R13', code: 'R13', end: 'R', partNo: '9067', origin: '',    compMmS: 50,   rebMmS: -80,  status: 'available', notes: '' },
+      { id: 'shk_R14', code: 'R14', end: 'R', partNo: '9067', origin: '',    compMmS: 40,   rebMmS: -86,  status: 'available', notes: '' },
+      { id: 'shk_R15', code: 'R15', end: 'R', partNo: '9067', origin: '',    compMmS: null, rebMmS: null, status: 'available', notes: '' },
+      { id: 'shk_R16', code: 'R16', end: 'R', partNo: '9067', origin: '#71', compMmS: null, rebMmS: null, status: 'available', notes: '' }
     ];
   }
 
   function createDefaultSprings() {
     return [
       // Front Springs (8 units, Pedders 5608 — end: 'F')
-      { id: 'spr_F11',   code: 'F11',   end: 'F', origin: '#77', kingRate: null,   kingHeight: null,   status: 'available', notes: 'On Car #77' },
-      { id: 'spr_F12',   code: 'F12',   end: 'F', origin: '#77', kingRate: null,   kingHeight: null,   status: 'available', notes: 'On Car #77' },
-      { id: 'spr_F9',    code: 'F9',    end: 'F', origin: '#71', kingRate: 106.44, kingHeight: 270.98, status: 'available', notes: '' },
-      { id: 'spr_F10',   code: 'F10',   end: 'F', origin: '#71', kingRate: 105.83, kingHeight: 271.80, status: 'available', notes: '' },
-      { id: 'spr_F13',   code: 'F13',   end: 'F', origin: '#71', kingRate: null,   kingHeight: null,   status: 'available', notes: '' },
-      { id: 'spr_F_unk', code: 'F??',   end: 'F', origin: '#71', kingRate: null,   kingHeight: null,   status: 'available', notes: 'Unmarked front spring' },
-      { id: 'spr_F_sp7', code: 'F-SP7', end: 'F', origin: '',    kingRate: null,   kingHeight: null,   status: 'available', notes: 'Spare Front #7 (enter ID/specs when known)' },
-      { id: 'spr_F_sp8', code: 'F-SP8', end: 'F', origin: '',    kingRate: null,   kingHeight: null,   status: 'available', notes: 'Spare Front #8 (enter ID/specs when known)' },
+      { id: 'spr_F11',   code: 'F11',   end: 'F', partNo: '5608', origin: '#77', rateNmm: null,   heightMm: null,   status: 'available', notes: 'On Car #77' },
+      { id: 'spr_F12',   code: 'F12',   end: 'F', partNo: '5608', origin: '#77', rateNmm: null,   heightMm: null,   status: 'available', notes: 'On Car #77' },
+      { id: 'spr_F9',    code: 'F9',    end: 'F', partNo: '5608', origin: '#71', rateNmm: 106.44, heightMm: 270.98, status: 'available', notes: '' },
+      { id: 'spr_F10',   code: 'F10',   end: 'F', partNo: '5608', origin: '#71', rateNmm: 105.83, heightMm: 271.80, status: 'available', notes: '' },
+      { id: 'spr_F13',   code: 'F13',   end: 'F', partNo: '5608', origin: '#71', rateNmm: null,   heightMm: null,   status: 'available', notes: '' },
+      { id: 'spr_F_unk', code: 'F??',   end: 'F', partNo: '5608', origin: '#71', rateNmm: null,   heightMm: null,   status: 'available', notes: 'Unmarked front spring' },
+      { id: 'spr_F_sp7', code: 'F-SP7', end: 'F', partNo: '5608', origin: '',    rateNmm: null,   heightMm: null,   status: 'available', notes: 'Spare Front #7 (enter ID/specs when known)' },
+      { id: 'spr_F_sp8', code: 'F-SP8', end: 'F', partNo: '5608', origin: '',    rateNmm: null,   heightMm: null,   status: 'available', notes: 'Spare Front #8 (enter ID/specs when known)' },
       // Rear Springs (8 units, Pedders 5609 — end: 'R')
-      { id: 'spr_R6',    code: 'R6',    end: 'R', origin: '#77', kingRate: 138,  kingHeight: 184,  status: 'available', notes: 'On Car #77' },
-      { id: 'spr_R5',    code: 'R5',    end: 'R', origin: '#77', kingRate: 141,  kingHeight: 185,  status: 'available', notes: 'On Car #77' },
-      { id: 'spr_R9',    code: 'R9',    end: 'R', origin: '#71', kingRate: 143,  kingHeight: null, status: 'available', notes: '' },
-      { id: 'spr_R10',   code: 'R10',   end: 'R', origin: '#71', kingRate: 143,  kingHeight: null, status: 'available', notes: '' },
-      { id: 'spr_R11',   code: 'R11',   end: 'R', origin: '#71', kingRate: null, kingHeight: null, status: 'available', notes: '' },
-      { id: 'spr_R12',   code: 'R12',   end: 'R', origin: '#71', kingRate: null, kingHeight: null, status: 'available', notes: '' },
-      { id: 'spr_D2',    code: 'D2',    end: 'R', origin: '',    kingRate: null, kingHeight: null, status: 'available', notes: 'Spare Rear D2' },
-      { id: 'spr_R_sp8', code: 'R-SP8', end: 'R', origin: '',    kingRate: null, kingHeight: null, status: 'available', notes: 'Spare Rear #8 (enter ID/specs when known)' }
+      { id: 'spr_R6',    code: 'R6',    end: 'R', partNo: '5609', origin: '#77', rateNmm: 138,  heightMm: 184,  status: 'available', notes: 'On Car #77' },
+      { id: 'spr_R5',    code: 'R5',    end: 'R', partNo: '5609', origin: '#77', rateNmm: 141,  heightMm: 185,  status: 'available', notes: 'On Car #77' },
+      { id: 'spr_R9',    code: 'R9',    end: 'R', partNo: '5609', origin: '#71', rateNmm: 143,  heightMm: null, status: 'available', notes: '' },
+      { id: 'spr_R10',   code: 'R10',   end: 'R', partNo: '5609', origin: '#71', rateNmm: 143,  heightMm: null, status: 'available', notes: '' },
+      { id: 'spr_R11',   code: 'R11',   end: 'R', partNo: '5609', origin: '#71', rateNmm: null, heightMm: null, status: 'available', notes: '' },
+      { id: 'spr_R12',   code: 'R12',   end: 'R', partNo: '5609', origin: '#71', rateNmm: null, heightMm: null, status: 'available', notes: '' },
+      { id: 'spr_D2',    code: 'D2',    end: 'R', partNo: '5609', origin: '',    rateNmm: null, heightMm: null, status: 'available', notes: 'Spare Rear D2' },
+      { id: 'spr_R_sp8', code: 'R-SP8', end: 'R', partNo: '5609', origin: '',    rateNmm: null, heightMm: null, status: 'available', notes: 'Spare Rear #8 (enter ID/specs when known)' }
     ];
   }
 
@@ -1343,31 +1343,45 @@
       ex.onCar = ex.id === candidate.activeExhaustId;
     });
 
-    // Hydrate Shocks & Springs Inventory (one-time seed gated by suspensionSeededV1 = true)
+    // Hydrate Shocks & Springs Inventory + suspensionSeededV2 repair migration
     const defShocks = createDefaultShocks();
     const defSprings = createDefaultSprings();
+    const needsV2Repair = !candidate.suspensionSeededV2;
     if (!candidate.suspensionSeededV1 || !Array.isArray(candidate.shocks) || candidate.shocks.length === 0) {
       candidate.shocks = defShocks;
       candidate.springs = defSprings;
       candidate.mountedShocks = { ...DEFAULT_MOUNTED_SHOCKS };
       candidate.mountedSprings = { ...DEFAULT_MOUNTED_SPRINGS };
       candidate.suspensionSeededV1 = true;
+      candidate.suspensionSeededV2 = true;
     } else {
       const seenShockIds = new Set();
       candidate.shocks = candidate.shocks
         .map((sh, idx) => {
           const code = String(sh.code || sh.label || sh.id || `S${idx + 1}`).trim();
           const id = String(sh.id || `shk_${code}`).trim();
-          const end = sh.end === 'R' || /^R/i.test(code) ? 'R' : 'F';
+          const isFront = /^F/i.test(code) || sh.end === 'F' || sh.end === 'front';
+          const end = isFront ? 'F' : 'R';
+          const partNo = end === 'F' ? '9033' : '9067';
+          const seedSh = defShocks.find(
+            (ds) => ds.id.toLowerCase() === id.toLowerCase() || ds.code.toLowerCase() === code.toLowerCase()
+          );
+          const compMmS = needsV2Repair && seedSh
+            ? seedSh.compMmS
+            : pickOptNum(sh.compMmS !== undefined ? sh.compMmS : sh.kingComp);
+          const rebMmS = needsV2Repair && seedSh
+            ? seedSh.rebMmS
+            : pickOptNum(sh.rebMmS !== undefined ? sh.rebMmS : sh.kingReb);
           return {
-            id,
-            code,
+            id: seedSh ? seedSh.id : id,
+            code: seedSh ? seedSh.code : code,
             end,
-            origin: typeof sh.origin === 'string' ? sh.origin.trim() : '',
-            kingComp: pickOptNum(sh.kingComp),
-            kingReb: pickOptNum(sh.kingReb),
-            status: sh.status === 'other_car' ? 'other_car' : 'available',
-            notes: typeof sh.notes === 'string' ? sh.notes.trim() : ''
+            partNo,
+            origin: typeof sh.origin === 'string' && sh.origin.trim() ? sh.origin.trim() : seedSh ? seedSh.origin : '',
+            compMmS,
+            rebMmS,
+            status: sh.status === 'other_car' || (needsV2Repair && seedSh && seedSh.status === 'other_car') ? 'other_car' : 'available',
+            notes: typeof sh.notes === 'string' && sh.notes.trim() ? sh.notes.trim() : seedSh ? seedSh.notes : ''
           };
         })
         .filter((sh) => {
@@ -1376,21 +1390,41 @@
           return true;
         });
 
+      if (needsV2Repair) {
+        defShocks.forEach((ds) => {
+          if (!candidate.shocks.some((s) => s.id.toLowerCase() === ds.id.toLowerCase() || s.code.toLowerCase() === ds.code.toLowerCase())) {
+            candidate.shocks.push({ ...ds });
+          }
+        });
+      }
+
       const seenSpringIds = new Set();
       candidate.springs = (Array.isArray(candidate.springs) && candidate.springs.length > 0 ? candidate.springs : defSprings)
         .map((sp, idx) => {
           const code = String(sp.code || sp.label || sp.id || `SP${idx + 1}`).trim();
           const id = String(sp.id || `spr_${code}`).trim();
-          const end = sp.end === 'R' || /^(R|D2)/i.test(code) ? 'R' : 'F';
+          const isFront = /^F/i.test(code) || (sp.end === 'F' || sp.end === 'front') && !/^(R|D2)/i.test(code);
+          const end = isFront ? 'F' : 'R';
+          const partNo = end === 'F' ? '5608' : '5609';
+          const seedSp = defSprings.find(
+            (dsp) => dsp.id.toLowerCase() === id.toLowerCase() || dsp.code.toLowerCase() === code.toLowerCase()
+          );
+          const rateNmm = needsV2Repair && seedSp
+            ? seedSp.rateNmm
+            : pickOptNum(sp.rateNmm !== undefined ? sp.rateNmm : sp.kingRate);
+          const heightMm = needsV2Repair && seedSp
+            ? seedSp.heightMm
+            : pickOptNum(sp.heightMm !== undefined ? sp.heightMm : sp.kingHeight);
           return {
-            id,
-            code,
+            id: seedSp ? seedSp.id : id,
+            code: seedSp ? seedSp.code : code,
             end,
-            origin: typeof sp.origin === 'string' ? sp.origin.trim() : '',
-            kingRate: pickOptNum(sp.kingRate),
-            kingHeight: pickOptNum(sp.kingHeight),
-            status: sp.status === 'other_car' ? 'other_car' : 'available',
-            notes: typeof sp.notes === 'string' ? sp.notes.trim() : ''
+            partNo,
+            origin: typeof sp.origin === 'string' && sp.origin.trim() ? sp.origin.trim() : seedSp ? seedSp.origin : '',
+            rateNmm,
+            heightMm,
+            status: sp.status === 'other_car' || (needsV2Repair && seedSp && seedSp.status === 'other_car') ? 'other_car' : 'available',
+            notes: typeof sp.notes === 'string' && sp.notes.trim() ? sp.notes.trim() : seedSp ? seedSp.notes : ''
           };
         })
         .filter((sp) => {
@@ -1398,6 +1432,14 @@
           seenSpringIds.add(sp.id);
           return true;
         });
+
+      if (needsV2Repair) {
+        defSprings.forEach((dsp) => {
+          if (!candidate.springs.some((s) => s.id.toLowerCase() === dsp.id.toLowerCase() || s.code.toLowerCase() === dsp.code.toLowerCase())) {
+            candidate.springs.push({ ...dsp });
+          }
+        });
+      }
 
       // Enforce One-Spot-Per-Unit & end matching on mountedShocks and mountedSprings
       const rawMs = normalizeCornerUnitMap(candidate.mountedShocks, DEFAULT_MOUNTED_SHOCKS);
@@ -1427,6 +1469,9 @@
           candidate.mountedSprings[c] = spObj.id;
         }
       });
+
+      candidate.suspensionSeededV1 = true;
+      candidate.suspensionSeededV2 = true;
     }
 
     const defTyrePool = createDefaultTyrePool();
@@ -5258,27 +5303,42 @@
     return state.springs.find((sp) => sp && (sp.id === springId || sp.code === springId)) || null;
   }
 
+  function isFiniteSpecNum(val) {
+    return val !== null && val !== undefined && val !== '' && Number.isFinite(Number(val));
+  }
+
+  function formatSpringMetricNum(val) {
+    if (!isFiniteSpecNum(val)) return '—';
+    const num = Number(val);
+    return Number.isInteger(num) ? String(num) : String(Number(num.toFixed(2)));
+  }
+
   function formatShockKingBadge(shObj) {
     if (!shObj) return '— Unmounted —';
-    const hasReb = shObj.reb200N !== null && shObj.reb200N !== undefined && Number.isFinite(Number(shObj.reb200N));
-    const hasComp = shObj.comp200N !== null && shObj.comp200N !== undefined && Number.isFinite(Number(shObj.comp200N));
-    if (hasReb && hasComp) {
-      return `R ${Math.round(Number(shObj.reb200N))} / C ${Math.round(Number(shObj.comp200N))} N`;
+    const comp = shObj.compMmS !== undefined ? shObj.compMmS : shObj.kingComp;
+    const reb = shObj.rebMmS !== undefined ? shObj.rebMmS : shObj.kingReb;
+    if (isFiniteSpecNum(comp) && isFiniteSpecNum(reb)) {
+      return `${Math.round(Number(comp))} / ${Math.round(Number(reb))} mm/s`;
     }
-    return `Pedders ${shObj.partNo || (shObj.end === 'front' ? '9033' : '9067')} • Untested`;
+    return 'Untested';
   }
 
   function formatSpringKingBadge(spObj) {
     if (!spObj) return '— Unmounted —';
-    const hasLb = spObj.rateLbIn !== null && spObj.rateLbIn !== undefined && Number.isFinite(Number(spObj.rateLbIn));
-    const hasHt = spObj.freeHeightMm !== null && spObj.freeHeightMm !== undefined && Number.isFinite(Number(spObj.freeHeightMm));
-    if (hasLb && hasHt) {
-      return `${Number(spObj.rateLbIn).toFixed(1)} lb/in • ${Math.round(Number(spObj.freeHeightMm))}mm`;
+    const rate = spObj.rateNmm !== undefined ? spObj.rateNmm : spObj.kingRate;
+    const ht = spObj.heightMm !== undefined ? spObj.heightMm : spObj.kingHeight;
+    const hasRate = isFiniteSpecNum(rate);
+    const hasHt = isFiniteSpecNum(ht);
+    if (hasRate && hasHt) {
+      return `${formatSpringMetricNum(rate)} N/mm • ${formatSpringMetricNum(ht)} mm`;
     }
-    if (hasLb) {
-      return `${Number(spObj.rateLbIn).toFixed(1)} lb/in`;
+    if (hasRate) {
+      return `${formatSpringMetricNum(rate)} N/mm • Ht —`;
     }
-    return `Pedders ${spObj.partNo || (spObj.end === 'front' ? '5608' : '5609')} • Untested`;
+    if (hasHt) {
+      return `Rate — • ${formatSpringMetricNum(ht)} mm`;
+    }
+    return 'Untested';
   }
 
   function renderCornerSuspensionSelectors() {
@@ -5288,41 +5348,37 @@
     const isLocked = Boolean(activeSess && activeSess.tyresPreLocked);
 
     ['FL', 'FR', 'RL', 'RR'].forEach((corner) => {
-      const endType = corner === 'FL' || corner === 'FR' ? 'front' : 'rear';
+      const endType = corner === 'FL' || corner === 'FR' ? 'F' : 'R';
 
-      // 1) SHOCK # Dropdown & King Spec Pill
+      // 1) SHOCK # Dropdown & Spec Pill
       const shockSel = $(`shockSelect_${corner}`);
       const shockBadge = $(`outShockSpec_${corner}`);
       const curShockId = mountedShocks[corner] || '';
       const curShockObj = getShockById(curShockId);
 
       if (shockSel) {
-        const endShocks = (state.shocks || []).filter((sh) => sh && sh.end === endType);
+        const endShocks = (state.shocks || []).filter((sh) => {
+          if (!sh) return false;
+          const normEnd = /^F/i.test(String(sh.code || '')) || sh.end === 'F' || sh.end === 'front' ? 'F' : 'R';
+          return normEnd === endType;
+        });
         const optionsHtml = [
           `<option value="">-- Unmounted --</option>`,
           ...endShocks.map((sh) => {
             const otherCornerEntry = Object.entries(mountedShocks).find(
               ([cKey, sId]) => cKey !== corner && sId === sh.id
             );
-            const isOtherCar = sh.status === 'other_car' && sh.id !== curShockId;
+            const isMountedHere = sh.id === curShockId;
+            const isOtherCar = sh.status === 'other_car' && !isMountedHere;
             const isDisabled = Boolean(otherCornerEntry || isOtherCar);
-            const hasSpec =
-              sh.reb200N !== null &&
-              sh.reb200N !== undefined &&
-              Number.isFinite(Number(sh.reb200N)) &&
-              sh.comp200N !== null &&
-              sh.comp200N !== undefined &&
-              Number.isFinite(Number(sh.comp200N));
-            const specPart = hasSpec
-              ? `${Math.round(Number(sh.reb200N))}/${Math.round(Number(sh.comp200N))} N`
-              : `Pedders ${sh.partNo || (endType === 'front' ? '9033' : '9067')}`;
+            const specPart = formatShockKingBadge(sh);
 
-            let labelTxt = `${sh.code} (${specPart})`;
+            let labelTxt = `${sh.code} — ${specPart}${isMountedHere ? ` ★ ON CAR (${corner})` : ''}`;
             if (otherCornerEntry) {
               labelTxt = `${sh.code} — Mounted on ${otherCornerEntry[0]} (Remove first)`;
             } else if (isOtherCar) {
-              const noteShort = sh.notes ? sh.notes.split('—')[0].trim() : 'Other Car';
-              labelTxt = `${sh.code} — ${noteShort}`;
+              const noteShort = sh.notes ? sh.notes.split('—')[0].trim() : 'in Other Car';
+              labelTxt = `${sh.code} — ${specPart} (${noteShort})`;
             }
             return `<option value="${escapeHtml(sh.id)}" ${isDisabled ? 'disabled' : ''}>${escapeHtml(labelTxt)}</option>`;
           })
@@ -5336,37 +5392,35 @@
         shockBadge.className = curShockObj ? 'corner-susp-badge mono' : 'corner-susp-badge mono is-unmounted';
       }
 
-      // 2) SPRING # Dropdown & King Spec Pill
+      // 2) SPRING # Dropdown & Spec Pill
       const springSel = $(`springSelect_${corner}`);
       const springBadge = $(`outSpringSpec_${corner}`);
       const curSpringId = mountedSprings[corner] || '';
       const curSpringObj = getSpringById(curSpringId);
 
       if (springSel) {
-        const endSprings = (state.springs || []).filter((sp) => sp && sp.end === endType);
+        const endSprings = (state.springs || []).filter((sp) => {
+          if (!sp) return false;
+          const normEnd = /^F/i.test(String(sp.code || '')) || ((sp.end === 'F' || sp.end === 'front') && !/^(R|D2)/i.test(String(sp.code || ''))) ? 'F' : 'R';
+          return normEnd === endType;
+        });
         const spOptionsHtml = [
           `<option value="">-- Unmounted --</option>`,
           ...endSprings.map((sp) => {
             const otherCornerEntry = Object.entries(mountedSprings).find(
               ([cKey, spId]) => cKey !== corner && spId === sp.id
             );
-            const isOtherCar = sp.status === 'other_car' && sp.id !== curSpringId;
+            const isMountedHere = sp.id === curSpringId;
+            const isOtherCar = sp.status === 'other_car' && !isMountedHere;
             const isDisabled = Boolean(otherCornerEntry || isOtherCar);
-            const hasLb = sp.rateLbIn !== null && sp.rateLbIn !== undefined && Number.isFinite(Number(sp.rateLbIn));
-            const hasHt = sp.freeHeightMm !== null && sp.freeHeightMm !== undefined && Number.isFinite(Number(sp.freeHeightMm));
-            const specPart =
-              hasLb && hasHt
-                ? `${Number(sp.rateLbIn).toFixed(1)} lb/in • ${Math.round(Number(sp.freeHeightMm))}mm`
-                : hasLb
-                ? `${Number(sp.rateLbIn).toFixed(1)} lb/in`
-                : `Pedders ${sp.partNo || (endType === 'front' ? '5608' : '5609')}`;
+            const specPart = formatSpringKingBadge(sp);
 
-            let labelTxt = `${sp.code} (${specPart})`;
+            let labelTxt = `${sp.code} — ${specPart}${isMountedHere ? ` ★ ON CAR (${corner})` : ''}`;
             if (otherCornerEntry) {
               labelTxt = `${sp.code} — Mounted on ${otherCornerEntry[0]} (Remove first)`;
             } else if (isOtherCar) {
-              const noteShort = sp.notes ? sp.notes.split('—')[0].trim() : 'Other Car';
-              labelTxt = `${sp.code} — ${noteShort}`;
+              const noteShort = sp.notes ? sp.notes.split('—')[0].trim() : 'in Other Car';
+              labelTxt = `${sp.code} — ${specPart} (${noteShort})`;
             }
             return `<option value="${escapeHtml(sp.id)}" ${isDisabled ? 'disabled' : ''}>${escapeHtml(labelTxt)}</option>`;
           })
@@ -6533,13 +6587,17 @@
         const spObj = getSpringById(spMap[c]);
         const shCode = shObj ? shObj.code : shMap[c] ? String(shMap[c]).replace(/^shk_/, '') : '—';
         const spCode = spObj ? spObj.code : spMap[c] ? String(spMap[c]).replace(/^spr_/, '') : '—';
+        const comp = shObj ? (shObj.compMmS !== undefined ? shObj.compMmS : shObj.kingComp) : null;
+        const reb = shObj ? (shObj.rebMmS !== undefined ? shObj.rebMmS : shObj.kingReb) : null;
         const shSpec =
-          shObj && shObj.reb200N !== null && shObj.comp200N !== null
-            ? `${Math.round(Number(shObj.reb200N))}/${Math.round(Number(shObj.comp200N))}N`
+          isFiniteSpecNum(comp) && isFiniteSpecNum(reb)
+            ? `${Math.round(Number(comp))}/${Math.round(Number(reb))} mm/s`
             : '';
+        const rate = spObj ? (spObj.rateNmm !== undefined ? spObj.rateNmm : spObj.kingRate) : null;
+        const ht = spObj ? (spObj.heightMm !== undefined ? spObj.heightMm : spObj.kingHeight) : null;
         const spSpec =
-          spObj && spObj.rateLbIn !== null
-            ? `${Number(spObj.rateLbIn).toFixed(0)}lb${spObj.freeHeightMm ? `•${Math.round(Number(spObj.freeHeightMm))}mm` : ''}`
+          isFiniteSpecNum(rate)
+            ? `${formatSpringMetricNum(rate)} N/mm${isFiniteSpecNum(ht) ? `•${formatSpringMetricNum(ht)}mm` : ''}`
             : '';
         const subLine = [shSpec, spSpec].filter(Boolean).join(' • ');
 
@@ -6555,7 +6613,7 @@
 
     return `
       <div class="unified-session-subblock">
-        <div class="unified-subblock-title">4-Corner Shocks &amp; Springs (Pedders GSR / King Tested)</div>
+        <div class="unified-subblock-title">4-Corner Shocks &amp; Springs (Pedders GSR 9033/9067 &amp; 5608/5609)</div>
         <div class="unified-tyre-grid">${pillsHtml}</div>
       </div>
     `;
@@ -6960,8 +7018,9 @@
 
         return `
           <section class="event-log-card ${isLiveEvt ? 'event-live' : 'event-locked'} ${isExpanded ? 'expanded' : ''}" data-event-id="${escapeHtml(evt.id)}">
-            <button
-              type="button"
+            <div
+              role="button"
+              tabindex="0"
               class="event-card-header"
               data-toggle-event-acc="${escapeHtml(evt.id)}"
               aria-expanded="${isExpanded ? 'true' : 'false'}"
@@ -6973,9 +7032,16 @@
               <div class="event-header-right">
                 ${statusBadgeHtml}
                 <span class="event-session-count-pill tabular">${sessCount} ${sessCount === 1 ? 'SESSION' : 'SESSIONS'}</span>
+                <button
+                  type="button"
+                  class="btn-icon-delete event-delete-btn"
+                  data-delete-event="${escapeHtml(evt.id)}"
+                  title="Delete Event"
+                  aria-label="Delete Event"
+                >&#10005;</button>
                 <span class="event-acc-chevron" aria-hidden="true">&#9660;</span>
               </div>
-            </button>
+            </div>
 
             <div class="event-sessions-body" style="display: ${isExpanded ? 'block' : 'none'};">
               ${
@@ -8157,10 +8223,26 @@
     showToast(`${targetId} Exhaust set ★ ON CAR`);
   }
 
+  function getNormShockEnd(sh) {
+    if (!sh) return 'F';
+    const code = String(sh.code || '');
+    if (/^F/i.test(code)) return 'F';
+    if (/^R/i.test(code)) return 'R';
+    return sh.end === 'R' || sh.end === 'rear' ? 'R' : 'F';
+  }
+
+  function getNormSpringEnd(sp) {
+    if (!sp) return 'F';
+    const code = String(sp.code || '');
+    if (/^F/i.test(code)) return 'F';
+    if (/^(R|D2)/i.test(code)) return 'R';
+    return sp.end === 'R' || sp.end === 'rear' ? 'R' : 'F';
+  }
+
   function renderShockFleet() {
     const container = $('shockFleetContainer');
     const selectEl = $('selectFleetShock');
-    const badgeEl = $('fleetShockSummaryBadge');
+    const badgeEl = $('fleetShockActiveBadge') || $('fleetShockSummaryBadge');
     if (!container) return;
 
     if (!Array.isArray(state.shocks) || state.shocks.length === 0) {
@@ -8168,21 +8250,38 @@
     }
     const mounted = ensureMountedShocksState();
 
+    // Update filter counts
+    const allCount = state.shocks.length;
+    const frontCount = state.shocks.filter((sh) => sh && getNormShockEnd(sh) === 'F').length;
+    const rearCount = state.shocks.filter((sh) => sh && getNormShockEnd(sh) === 'R').length;
+    const mountedCount = Object.values(mounted).filter((id) => Boolean(id && getShockById(id))).length;
+    if ($('countFilterShocksAll')) $('countFilterShocksAll').textContent = String(allCount);
+    if ($('countFilterShocksFront')) $('countFilterShocksFront').textContent = String(frontCount);
+    if ($('countFilterShocksRear')) $('countFilterShocksRear').textContent = String(rearCount);
+    if ($('countFilterShocksMounted')) $('countFilterShocksMounted').textContent = String(mountedCount);
+
+    // Normalize filter value ('all' | 'F' | 'R' | 'oncar')
+    let filterMode = ui.shockFleetFilter || 'all';
+    if (filterMode === 'front') filterMode = 'F';
+    if (filterMode === 'rear') filterMode = 'R';
+    if (filterMode === 'mounted' || filterMode === 'on_car') filterMode = 'oncar';
+    ui.shockFleetFilter = filterMode;
+
     // Update filter button active states
-    document.querySelectorAll('[data-shock-filter]').forEach((btn) => {
-      const f = btn.getAttribute('data-shock-filter') || 'all';
-      const active = (ui.shockFleetFilter || 'all') === f;
+    document.querySelectorAll('[data-shock-fleet-filter]').forEach((btn) => {
+      const f = btn.getAttribute('data-shock-fleet-filter') || 'all';
+      const active = filterMode === f;
       btn.classList.toggle('active', active);
-      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
 
-    const filterMode = ui.shockFleetFilter || 'all';
     const filteredList = state.shocks.filter((sh) => {
       if (!sh) return false;
+      const normEnd = getNormShockEnd(sh);
       const isMounted = Object.values(mounted).includes(sh.id);
-      if (filterMode === 'front') return sh.end === 'front';
-      if (filterMode === 'rear') return sh.end === 'rear';
-      if (filterMode === 'on_car') return isMounted;
+      if (filterMode === 'F') return normEnd === 'F';
+      if (filterMode === 'R') return normEnd === 'R';
+      if (filterMode === 'oncar') return isMounted;
       return true;
     });
 
@@ -8196,46 +8295,44 @@
       const frCode = (getShockById(mounted.FR) && getShockById(mounted.FR).code) || '—';
       const rlCode = (getShockById(mounted.RL) && getShockById(mounted.RL).code) || '—';
       const rrCode = (getShockById(mounted.RR) && getShockById(mounted.RR).code) || '—';
-      badgeEl.textContent = `FL ${flCode} • FR ${frCode} • RL ${rlCode} • RR ${rrCode}`;
+      badgeEl.textContent = `FL:${flCode} FR:${frCode} • RL:${rlCode} RR:${rrCode}`;
     }
 
     if (selectEl) {
       selectEl.innerHTML = poolForSelect
         .map((sh) => {
           const mountedCorner = Object.entries(mounted).find(([, sId]) => sId === sh.id);
-          const cornerTag = mountedCorner ? ` ★ ON CAR (${mountedCorner[0]})` : sh.status === 'other_car' ? ' [Other Car]' : '';
-          const specTxt =
-            sh.reb200N !== null && sh.comp200N !== null
-              ? `${Math.round(Number(sh.reb200N))}/${Math.round(Number(sh.comp200N))} N`
-              : `Pedders ${sh.partNo}`;
+          const noteSuffix = sh.status === 'other_car' ? ` (${sh.notes || 'Other Car'})` : '';
+          const cornerTag = mountedCorner ? ` ★ ON CAR (${mountedCorner[0]})` : noteSuffix;
+          const specTxt = formatShockKingBadge(sh);
           return `<option value="${escapeHtml(sh.id)}">${escapeHtml(sh.code)} — ${escapeHtml(specTxt)}${escapeHtml(cornerTag)}</option>`;
         })
         .join('');
       selectEl.value = ui.selectedFleetShockId;
     }
 
-    const sh = state.shocks.find((item) => item.id === ui.selectedFleetShockId) || poolForSelect[0];
+    const sh = poolForSelect.find((item) => item.id === ui.selectedFleetShockId) || poolForSelect[0];
     if (!sh) return;
+    const normEnd = getNormShockEnd(sh);
+    const partNo = normEnd === 'F' ? '9033' : '9067';
     const mountedEntry = Object.entries(mounted).find(([, sId]) => sId === sh.id);
     const isMounted = Boolean(mountedEntry);
     const mountedCorner = mountedEntry ? mountedEntry[0] : null;
-    const endLabel = sh.end === 'front' ? 'Front Damper' : 'Rear Damper';
-    const hasReb = sh.reb200N !== null && sh.reb200N !== undefined && Number.isFinite(Number(sh.reb200N));
-    const hasComp = sh.comp200N !== null && sh.comp200N !== undefined && Number.isFinite(Number(sh.comp200N));
-    const ratioVal = hasReb && hasComp && Number(sh.comp200N) > 0 ? Number(sh.reb200N) / Number(sh.comp200N) : null;
+    const endLabel = normEnd === 'F' ? 'Front Damper' : 'Rear Damper';
+    const compVal = sh.compMmS !== undefined ? sh.compMmS : sh.kingComp;
+    const rebVal = sh.rebMmS !== undefined ? sh.rebMmS : sh.kingReb;
+    const hasComp = isFiniteSpecNum(compVal);
+    const hasReb = isFiniteSpecNum(rebVal);
     const isConfirmingDel = ui.confirmDeleteShockId === sh.id;
 
-    let statusText = 'In Trailer / Spare';
+    let statusText = 'Available (#77 Pool)';
     let statusClass = 'txt-emerald';
     if (isMounted) {
       statusText = `★ Mounted on ${mountedCorner}`;
       statusClass = 'txt-emerald';
     } else if (sh.status === 'other_car') {
-      statusText = 'Other Car / Unavailable';
+      statusText = sh.notes ? `Other Car (${sh.notes})` : 'In Other Car';
       statusClass = 'txt-amber';
-    } else if (sh.status === 'retired') {
-      statusText = 'Retired / Rebuild';
-      statusClass = 'txt-danger';
     }
 
     container.innerHTML = `
@@ -8246,10 +8343,10 @@
               Shock ${escapeHtml(sh.code)}
               ${isMounted ? `<span class="locked-badge" style="margin-left: 6px;">★ ON CAR (${escapeHtml(mountedCorner)})</span>` : ''}
             </div>
-            <div class="session-meta-line">${escapeHtml(endLabel)} &bull; Pedders GSR ${escapeHtml(sh.partNo || (sh.end === 'front' ? '9033' : '9067'))} &bull; King Springs Tested</div>
+            <div class="session-meta-line">${escapeHtml(endLabel)} &bull; Pedders GSR ${escapeHtml(partNo)}${sh.origin ? ` &bull; Origin ${escapeHtml(sh.origin)}` : ''}</div>
           </div>
           <div style="display: flex; align-items: center; gap: 6px;">
-            <span class="locked-badge">${sh.end === 'front' ? 'FRONT 9033' : 'REAR 9067'}</span>
+            <span class="locked-badge">${normEnd === 'F' ? 'FRONT 9033' : 'REAR 9067'}</span>
             ${
               !isMounted && state.shocks.length > 1
                 ? `<button type="button" class="btn ${isConfirmingDel ? 'btn-danger' : 'btn-secondary'} btn-xs" data-delete-fleet-shock="${escapeHtml(sh.id)}">${isConfirmingDel ? 'Confirm Delete?' : '&#10005;'}</button>`
@@ -8260,19 +8357,19 @@
 
         <div class="carby-specs-grid">
           <div class="telem-cell">
-            <span class="telem-label">REBOUND @ 200 MM/S</span>
-            <span class="telem-val ${hasReb ? 'txt-emerald' : 'txt-amber'}">${hasReb ? `${Math.round(Number(sh.reb200N))} N` : 'Untested'}</span>
-            <span class="telem-sub">King Springs Dyno</span>
-          </div>
-          <div class="telem-cell">
             <span class="telem-label">COMPRESSION @ 200 MM/S</span>
-            <span class="telem-val ${hasComp ? 'txt-emerald' : 'txt-amber'}">${hasComp ? `${Math.round(Number(sh.comp200N))} N` : 'Untested'}</span>
-            <span class="telem-sub">King Springs Dyno</span>
+            <span class="telem-val ${hasComp ? 'txt-emerald' : 'txt-amber'}">${hasComp ? `${Math.round(Number(compVal))} mm/s` : 'Untested'}</span>
+            <span class="telem-sub">Pedders GSR ${escapeHtml(partNo)}</span>
           </div>
           <div class="telem-cell">
-            <span class="telem-label">REB : COMP RATIO</span>
-            <span class="telem-val">${ratioVal !== null ? `${ratioVal.toFixed(2)} : 1` : '—'}</span>
-            <span class="telem-sub">Pedders GSR ${escapeHtml(sh.partNo || '')}</span>
+            <span class="telem-label">REBOUND @ 200 MM/S</span>
+            <span class="telem-val ${hasReb ? 'txt-emerald' : 'txt-amber'}">${hasReb ? `${Math.round(Number(rebVal))} mm/s` : 'Untested'}</span>
+            <span class="telem-sub">Pedders GSR ${escapeHtml(partNo)}</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">ORIGIN / BATCH</span>
+            <span class="telem-val">${sh.origin ? escapeHtml(sh.origin) : '&mdash;'}</span>
+            <span class="telem-sub">Unit ${escapeHtml(sh.code)}</span>
           </div>
           <div class="telem-cell">
             <span class="telem-label">AVAILABILITY / CORNER</span>
@@ -8297,45 +8394,44 @@
 
   function openEditShockModal(shockId) {
     const isNew = !shockId || shockId === '__NEW__';
+    const defaultEnd = ui.shockFleetFilter === 'R' ? 'R' : 'F';
     const sh = isNew
       ? {
           id: '__NEW__',
           code: '',
-          end: ui.shockFleetFilter === 'rear' ? 'rear' : 'front',
-          partNo: ui.shockFleetFilter === 'rear' ? '9067' : '9033',
-          reb200N: 2680,
-          comp200N: 1090,
-          status: 'spare',
+          end: defaultEnd,
+          partNo: defaultEnd === 'R' ? '9067' : '9033',
+          origin: '#77',
+          compMmS: null,
+          rebMmS: null,
+          status: 'available',
           notes: ''
         }
       : getShockById(shockId);
     if (!sh) return;
 
+    const normEnd = getNormShockEnd(sh);
+    const partNo = normEnd === 'F' ? '9033' : '9067';
+    const compVal = sh.compMmS !== undefined ? sh.compMmS : sh.kingComp;
+    const rebVal = sh.rebMmS !== undefined ? sh.rebMmS : sh.kingReb;
+
     if ($('editShockIdHidden')) $('editShockIdHidden').value = isNew ? '__NEW__' : sh.id;
     if ($('modalEditShockTitle')) {
       $('modalEditShockTitle').textContent = isNew
         ? 'Add New Shock (Pedders GSR 9033 / 9067)'
-        : `Edit Shock ${sh.code} (Pedders GSR ${sh.partNo})`;
+        : `Edit Shock ${sh.code} (Pedders GSR ${partNo})`;
     }
     if ($('editShockCode')) $('editShockCode').value = isNew ? '' : sh.code || '';
-    if ($('editShockEnd')) $('editShockEnd').value = sh.end === 'rear' ? 'rear' : 'front';
-    if ($('editShockPartNo')) $('editShockPartNo').value = sh.partNo || (sh.end === 'rear' ? '9067' : '9033');
+    if ($('editShockEnd')) $('editShockEnd').value = normEnd;
+    if ($('editShockOrigin')) $('editShockOrigin').value = sh.origin || '';
     if ($('editShockStatus')) {
-      const mounted = ensureMountedShocksState();
-      const isMounted = Object.values(mounted).includes(sh.id);
-      $('editShockStatus').value = isMounted ? 'on_car' : sh.status || 'spare';
+      $('editShockStatus').value = sh.status === 'other_car' ? 'other_car' : 'available';
     }
-    if ($('editShockReb200')) {
-      $('editShockReb200').value =
-        sh.reb200N !== null && sh.reb200N !== undefined && Number.isFinite(Number(sh.reb200N))
-          ? String(Math.round(Number(sh.reb200N)))
-          : '';
+    if ($('editShockKingComp')) {
+      $('editShockKingComp').value = isFiniteSpecNum(compVal) ? String(Math.round(Number(compVal))) : '';
     }
-    if ($('editShockComp200')) {
-      $('editShockComp200').value =
-        sh.comp200N !== null && sh.comp200N !== undefined && Number.isFinite(Number(sh.comp200N))
-          ? String(Math.round(Number(sh.comp200N)))
-          : '';
+    if ($('editShockKingReb')) {
+      $('editShockKingReb').value = isFiniteSpecNum(rebVal) ? String(Math.round(Number(rebVal))) : '';
     }
     if ($('editShockNotes')) $('editShockNotes').value = sh.notes || '';
 
@@ -8351,14 +8447,16 @@
       return;
     }
 
-    const endVal = $('editShockEnd') && $('editShockEnd').value === 'rear' ? 'rear' : 'front';
-    const partNo = ($('editShockPartNo') ? $('editShockPartNo').value.trim() : '') || (endVal === 'rear' ? '9067' : '9033');
-    const statusVal = ($('editShockStatus') ? $('editShockStatus').value : 'spare') || 'spare';
-    const rawReb = $('editShockReb200') ? $('editShockReb200').value.trim() : '';
-    const rawComp = $('editShockComp200') ? $('editShockComp200').value.trim() : '';
-    const reb200N = rawReb !== '' && Number.isFinite(parseFloat(rawReb)) ? Math.round(parseFloat(rawReb)) : null;
-    const comp200N = rawComp !== '' && Number.isFinite(parseFloat(rawComp)) ? Math.round(parseFloat(rawComp)) : null;
-    const notes = ($('editShockNotes') ? $('editShockNotes').value.trim() : '');
+    const selectEnd = $('editShockEnd') ? $('editShockEnd').value : 'F';
+    const endVal = /^F/i.test(rawCode) ? 'F' : /^R/i.test(rawCode) ? 'R' : selectEnd === 'R' ? 'R' : 'F';
+    const partNo = endVal === 'R' ? '9067' : '9033';
+    const origin = $('editShockOrigin') ? $('editShockOrigin').value.trim() : '';
+    const statusVal = $('editShockStatus') && $('editShockStatus').value === 'other_car' ? 'other_car' : 'available';
+    const rawComp = $('editShockKingComp') ? $('editShockKingComp').value.trim() : '';
+    const rawReb = $('editShockKingReb') ? $('editShockKingReb').value.trim() : '';
+    const compMmS = rawComp !== '' && Number.isFinite(parseFloat(rawComp)) ? Math.round(parseFloat(rawComp)) : null;
+    const rebMmS = rawReb !== '' && Number.isFinite(parseFloat(rawReb)) ? Math.round(parseFloat(rawReb)) : null;
+    const notes = $('editShockNotes') ? $('editShockNotes').value.trim() : '';
 
     let sh = isNew ? null : getShockById(id);
     if (isNew) {
@@ -8372,8 +8470,9 @@
         code: rawCode,
         end: endVal,
         partNo,
-        reb200N,
-        comp200N,
+        origin,
+        compMmS,
+        rebMmS,
         status: statusVal,
         notes
       };
@@ -8383,8 +8482,9 @@
       sh.code = rawCode;
       sh.end = endVal;
       sh.partNo = partNo;
-      sh.reb200N = reb200N;
-      sh.comp200N = comp200N;
+      sh.origin = origin;
+      sh.compMmS = compMmS;
+      sh.rebMmS = rebMmS;
       sh.status = statusVal;
       sh.notes = notes;
     }
@@ -8425,7 +8525,7 @@
   function renderSpringFleet() {
     const container = $('springFleetContainer');
     const selectEl = $('selectFleetSpring');
-    const badgeEl = $('fleetSpringSummaryBadge');
+    const badgeEl = $('fleetSpringActiveBadge') || $('fleetSpringSummaryBadge');
     if (!container) return;
 
     if (!Array.isArray(state.springs) || state.springs.length === 0) {
@@ -8433,20 +8533,37 @@
     }
     const mounted = ensureMountedSpringsState();
 
-    document.querySelectorAll('[data-spring-filter]').forEach((btn) => {
-      const f = btn.getAttribute('data-spring-filter') || 'all';
-      const active = (ui.springFleetFilter || 'all') === f;
+    // Update filter counts
+    const allCount = state.springs.length;
+    const frontCount = state.springs.filter((sp) => sp && getNormSpringEnd(sp) === 'F').length;
+    const rearCount = state.springs.filter((sp) => sp && getNormSpringEnd(sp) === 'R').length;
+    const mountedCount = Object.values(mounted).filter((id) => Boolean(id && getSpringById(id))).length;
+    if ($('countFilterSpringsAll')) $('countFilterSpringsAll').textContent = String(allCount);
+    if ($('countFilterSpringsFront')) $('countFilterSpringsFront').textContent = String(frontCount);
+    if ($('countFilterSpringsRear')) $('countFilterSpringsRear').textContent = String(rearCount);
+    if ($('countFilterSpringsMounted')) $('countFilterSpringsMounted').textContent = String(mountedCount);
+
+    // Normalize filter value ('all' | 'F' | 'R' | 'oncar')
+    let filterMode = ui.springFleetFilter || 'all';
+    if (filterMode === 'front') filterMode = 'F';
+    if (filterMode === 'rear') filterMode = 'R';
+    if (filterMode === 'mounted' || filterMode === 'on_car') filterMode = 'oncar';
+    ui.springFleetFilter = filterMode;
+
+    document.querySelectorAll('[data-spring-fleet-filter]').forEach((btn) => {
+      const f = btn.getAttribute('data-spring-fleet-filter') || 'all';
+      const active = filterMode === f;
       btn.classList.toggle('active', active);
-      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
 
-    const filterMode = ui.springFleetFilter || 'all';
     const filteredList = state.springs.filter((sp) => {
       if (!sp) return false;
+      const normEnd = getNormSpringEnd(sp);
       const isMounted = Object.values(mounted).includes(sp.id);
-      if (filterMode === 'front') return sp.end === 'front';
-      if (filterMode === 'rear') return sp.end === 'rear';
-      if (filterMode === 'on_car') return isMounted;
+      if (filterMode === 'F') return normEnd === 'F';
+      if (filterMode === 'R') return normEnd === 'R';
+      if (filterMode === 'oncar') return isMounted;
       return true;
     });
 
@@ -8460,14 +8577,15 @@
       const frCode = (getSpringById(mounted.FR) && getSpringById(mounted.FR).code) || '—';
       const rlCode = (getSpringById(mounted.RL) && getSpringById(mounted.RL).code) || '—';
       const rrCode = (getSpringById(mounted.RR) && getSpringById(mounted.RR).code) || '—';
-      badgeEl.textContent = `FL ${flCode} • FR ${frCode} • RL ${rlCode} • RR ${rrCode}`;
+      badgeEl.textContent = `FL:${flCode} FR:${frCode} • RL:${rlCode} RR:${rrCode}`;
     }
 
     if (selectEl) {
       selectEl.innerHTML = poolForSelect
         .map((sp) => {
           const mountedCorner = Object.entries(mounted).find(([, spId]) => spId === sp.id);
-          const cornerTag = mountedCorner ? ` ★ ON CAR (${mountedCorner[0]})` : sp.status === 'other_car' ? ' [Other Car]' : '';
+          const noteSuffix = sp.status === 'other_car' ? ` (${sp.notes || 'Other Car'})` : '';
+          const cornerTag = mountedCorner ? ` ★ ON CAR (${mountedCorner[0]})` : noteSuffix;
           const specTxt = formatSpringKingBadge(sp);
           return `<option value="${escapeHtml(sp.id)}">${escapeHtml(sp.code)} — ${escapeHtml(specTxt)}${escapeHtml(cornerTag)}</option>`;
         })
@@ -8475,28 +8593,28 @@
       selectEl.value = ui.selectedFleetSpringId;
     }
 
-    const sp = state.springs.find((item) => item.id === ui.selectedFleetSpringId) || poolForSelect[0];
+    const sp = poolForSelect.find((item) => item.id === ui.selectedFleetSpringId) || poolForSelect[0];
     if (!sp) return;
+    const normEnd = getNormSpringEnd(sp);
+    const partNo = normEnd === 'F' ? '5608' : '5609';
     const mountedEntry = Object.entries(mounted).find(([, spId]) => spId === sp.id);
     const isMounted = Boolean(mountedEntry);
     const mountedCorner = mountedEntry ? mountedEntry[0] : null;
-    const endLabel = sp.end === 'front' ? 'Front Coil Spring' : 'Rear Coil Spring';
-    const hasLb = sp.rateLbIn !== null && sp.rateLbIn !== undefined && Number.isFinite(Number(sp.rateLbIn));
-    const hasNm = sp.rateNmm !== null && sp.rateNmm !== undefined && Number.isFinite(Number(sp.rateNmm));
-    const hasHt = sp.freeHeightMm !== null && sp.freeHeightMm !== undefined && Number.isFinite(Number(sp.freeHeightMm));
+    const endLabel = normEnd === 'F' ? 'Front Spring' : 'Rear Spring';
+    const rateVal = sp.rateNmm !== undefined ? sp.rateNmm : sp.kingRate;
+    const htVal = sp.heightMm !== undefined ? sp.heightMm : sp.kingHeight;
+    const hasRate = isFiniteSpecNum(rateVal);
+    const hasHt = isFiniteSpecNum(htVal);
     const isConfirmingDel = ui.confirmDeleteSpringId === sp.id;
 
-    let statusText = 'In Trailer / Spare';
+    let statusText = 'Available (#77 Pool)';
     let statusClass = 'txt-emerald';
     if (isMounted) {
       statusText = `★ Mounted on ${mountedCorner}`;
       statusClass = 'txt-emerald';
     } else if (sp.status === 'other_car') {
-      statusText = 'Other Car / Unavailable';
+      statusText = sp.notes ? `Other Car (${sp.notes})` : 'In Other Car';
       statusClass = 'txt-amber';
-    } else if (sp.status === 'retired') {
-      statusText = 'Retired / Sagged';
-      statusClass = 'txt-danger';
     }
 
     container.innerHTML = `
@@ -8507,10 +8625,10 @@
               Spring ${escapeHtml(sp.code)}
               ${isMounted ? `<span class="locked-badge" style="margin-left: 6px;">★ ON CAR (${escapeHtml(mountedCorner)})</span>` : ''}
             </div>
-            <div class="session-meta-line">${escapeHtml(endLabel)} &bull; Pedders ${escapeHtml(sp.partNo || (sp.end === 'front' ? '5608' : '5609'))} &bull; King Springs Tested</div>
+            <div class="session-meta-line">${escapeHtml(endLabel)} &bull; Pedders ${escapeHtml(partNo)}${sp.origin ? ` &bull; Origin ${escapeHtml(sp.origin)}` : ''}</div>
           </div>
           <div style="display: flex; align-items: center; gap: 6px;">
-            <span class="locked-badge">${sp.end === 'front' ? 'FRONT 5608' : 'REAR 5609'}</span>
+            <span class="locked-badge">${normEnd === 'F' ? 'FRONT 5608' : 'REAR 5609'}</span>
             ${
               !isMounted && state.springs.length > 1
                 ? `<button type="button" class="btn ${isConfirmingDel ? 'btn-danger' : 'btn-secondary'} btn-xs" data-delete-fleet-spring="${escapeHtml(sp.id)}">${isConfirmingDel ? 'Confirm Delete?' : '&#10005;'}</button>`
@@ -8521,19 +8639,19 @@
 
         <div class="carby-specs-grid">
           <div class="telem-cell">
-            <span class="telem-label">SPRING RATE (LB/IN)</span>
-            <span class="telem-val ${hasLb ? 'txt-emerald' : 'txt-amber'}">${hasLb ? `${Number(sp.rateLbIn).toFixed(1)} lb/in` : 'Untested'}</span>
-            <span class="telem-sub">King Springs Load Cell</span>
+            <span class="telem-label">RATE (N/MM)</span>
+            <span class="telem-val ${hasRate ? 'txt-emerald' : 'txt-amber'}">${hasRate ? `${formatSpringMetricNum(rateVal)} N/mm` : 'Untested'}</span>
+            <span class="telem-sub">Pedders ${escapeHtml(partNo)}</span>
           </div>
           <div class="telem-cell">
-            <span class="telem-label">METRIC RATE (N/MM)</span>
-            <span class="telem-val">${hasNm ? `${Number(sp.rateNmm).toFixed(2)} N/mm` : '—'}</span>
-            <span class="telem-sub">1 lb/in = 0.1751 N/mm</span>
-          </div>
-          <div class="telem-cell">
-            <span class="telem-label">FREE HEIGHT</span>
-            <span class="telem-val txt-amber">${hasHt ? `${Math.round(Number(sp.freeHeightMm))} mm` : '—'}</span>
+            <span class="telem-label">HEIGHT (MM)</span>
+            <span class="telem-val ${hasHt ? 'txt-amber' : ''}">${hasHt ? `${formatSpringMetricNum(htVal)} mm` : '&mdash;'}</span>
             <span class="telem-sub">Unloaded Free Length</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">ORIGIN / BATCH</span>
+            <span class="telem-val">${sp.origin ? escapeHtml(sp.origin) : '&mdash;'}</span>
+            <span class="telem-sub">Unit ${escapeHtml(sp.code)}</span>
           </div>
           <div class="telem-cell">
             <span class="telem-label">AVAILABILITY / CORNER</span>
@@ -8558,52 +8676,44 @@
 
   function openEditSpringModal(springId) {
     const isNew = !springId || springId === '__NEW__';
+    const defaultEnd = ui.springFleetFilter === 'R' ? 'R' : 'F';
     const sp = isNew
       ? {
           id: '__NEW__',
           code: '',
-          end: ui.springFleetFilter === 'rear' ? 'rear' : 'front',
-          partNo: ui.springFleetFilter === 'rear' ? '5609' : '5608',
-          rateLbIn: ui.springFleetFilter === 'rear' ? 236.0 : 655.0,
-          rateNmm: ui.springFleetFilter === 'rear' ? 41.33 : 114.71,
-          freeHeightMm: ui.springFleetFilter === 'rear' ? 259 : 284,
-          status: 'spare',
+          end: defaultEnd,
+          partNo: defaultEnd === 'R' ? '5609' : '5608',
+          origin: '#77',
+          rateNmm: null,
+          heightMm: null,
+          status: 'available',
           notes: ''
         }
       : getSpringById(springId);
     if (!sp) return;
 
+    const normEnd = getNormSpringEnd(sp);
+    const partNo = normEnd === 'F' ? '5608' : '5609';
+    const rateVal = sp.rateNmm !== undefined ? sp.rateNmm : sp.kingRate;
+    const htVal = sp.heightMm !== undefined ? sp.heightMm : sp.kingHeight;
+
     if ($('editSpringIdHidden')) $('editSpringIdHidden').value = isNew ? '__NEW__' : sp.id;
     if ($('modalEditSpringTitle')) {
       $('modalEditSpringTitle').textContent = isNew
         ? 'Add New Spring (Pedders 5608 / 5609)'
-        : `Edit Spring ${sp.code} (Pedders ${sp.partNo})`;
+        : `Edit Spring ${sp.code} (Pedders ${partNo})`;
     }
     if ($('editSpringCode')) $('editSpringCode').value = isNew ? '' : sp.code || '';
-    if ($('editSpringEnd')) $('editSpringEnd').value = sp.end === 'rear' ? 'rear' : 'front';
-    if ($('editSpringPartNo')) $('editSpringPartNo').value = sp.partNo || (sp.end === 'rear' ? '5609' : '5608');
+    if ($('editSpringEnd')) $('editSpringEnd').value = normEnd;
+    if ($('editSpringOrigin')) $('editSpringOrigin').value = sp.origin || '';
     if ($('editSpringStatus')) {
-      const mounted = ensureMountedSpringsState();
-      const isMounted = Object.values(mounted).includes(sp.id);
-      $('editSpringStatus').value = isMounted ? 'on_car' : sp.status || 'spare';
+      $('editSpringStatus').value = sp.status === 'other_car' ? 'other_car' : 'available';
     }
-    if ($('editSpringRateLb')) {
-      $('editSpringRateLb').value =
-        sp.rateLbIn !== null && sp.rateLbIn !== undefined && Number.isFinite(Number(sp.rateLbIn))
-          ? Number(sp.rateLbIn).toFixed(1)
-          : '';
+    if ($('editSpringKingRate')) {
+      $('editSpringKingRate').value = isFiniteSpecNum(rateVal) ? String(formatSpringMetricNum(rateVal)) : '';
     }
-    if ($('editSpringRateNmm')) {
-      $('editSpringRateNmm').value =
-        sp.rateNmm !== null && sp.rateNmm !== undefined && Number.isFinite(Number(sp.rateNmm))
-          ? Number(sp.rateNmm).toFixed(2)
-          : '';
-    }
-    if ($('editSpringHeightMm')) {
-      $('editSpringHeightMm').value =
-        sp.freeHeightMm !== null && sp.freeHeightMm !== undefined && Number.isFinite(Number(sp.freeHeightMm))
-          ? String(Math.round(Number(sp.freeHeightMm)))
-          : '';
+    if ($('editSpringKingHeight')) {
+      $('editSpringKingHeight').value = isFiniteSpecNum(htVal) ? String(formatSpringMetricNum(htVal)) : '';
     }
     if ($('editSpringNotes')) $('editSpringNotes').value = sp.notes || '';
 
@@ -8619,22 +8729,17 @@
       return;
     }
 
-    const endVal = $('editSpringEnd') && $('editSpringEnd').value === 'rear' ? 'rear' : 'front';
-    const partNo = ($('editSpringPartNo') ? $('editSpringPartNo').value.trim() : '') || (endVal === 'rear' ? '5609' : '5608');
-    const statusVal = ($('editSpringStatus') ? $('editSpringStatus').value : 'spare') || 'spare';
-    const rawLb = $('editSpringRateLb') ? $('editSpringRateLb').value.trim() : '';
-    const rawNm = $('editSpringRateNmm') ? $('editSpringRateNmm').value.trim() : '';
-    const rawHt = $('editSpringHeightMm') ? $('editSpringHeightMm').value.trim() : '';
+    const selectEnd = $('editSpringEnd') ? $('editSpringEnd').value : 'F';
+    const endVal = /^F/i.test(rawCode) ? 'F' : /^(R|D2)/i.test(rawCode) ? 'R' : selectEnd === 'R' ? 'R' : 'F';
+    const partNo = endVal === 'R' ? '5609' : '5608';
+    const origin = $('editSpringOrigin') ? $('editSpringOrigin').value.trim() : '';
+    const statusVal = $('editSpringStatus') && $('editSpringStatus').value === 'other_car' ? 'other_car' : 'available';
+    const rawRate = $('editSpringKingRate') ? $('editSpringKingRate').value.trim() : '';
+    const rawHt = $('editSpringKingHeight') ? $('editSpringKingHeight').value.trim() : '';
 
-    let rateLbIn = rawLb !== '' && Number.isFinite(parseFloat(rawLb)) ? Number(parseFloat(rawLb).toFixed(1)) : null;
-    let rateNmm = rawNm !== '' && Number.isFinite(parseFloat(rawNm)) ? Number(parseFloat(rawNm).toFixed(2)) : null;
-    if (rateLbIn !== null && rateNmm === null) {
-      rateNmm = Number((rateLbIn * 0.1751268).toFixed(2));
-    } else if (rateNmm !== null && rateLbIn === null) {
-      rateLbIn = Number((rateNmm / 0.1751268).toFixed(1));
-    }
-    const freeHeightMm = rawHt !== '' && Number.isFinite(parseFloat(rawHt)) ? Math.round(parseFloat(rawHt)) : null;
-    const notes = ($('editSpringNotes') ? $('editSpringNotes').value.trim() : '');
+    const rateNmm = rawRate !== '' && Number.isFinite(parseFloat(rawRate)) ? Number(parseFloat(rawRate).toFixed(2)) : null;
+    const heightMm = rawHt !== '' && Number.isFinite(parseFloat(rawHt)) ? Number(parseFloat(rawHt).toFixed(2)) : null;
+    const notes = $('editSpringNotes') ? $('editSpringNotes').value.trim() : '';
 
     let sp = isNew ? null : getSpringById(id);
     if (isNew) {
@@ -8648,9 +8753,9 @@
         code: rawCode,
         end: endVal,
         partNo,
-        rateLbIn,
+        origin,
         rateNmm,
-        freeHeightMm,
+        heightMm,
         status: statusVal,
         notes
       };
@@ -8660,9 +8765,9 @@
       sp.code = rawCode;
       sp.end = endVal;
       sp.partNo = partNo;
-      sp.rateLbIn = rateLbIn;
+      sp.origin = origin;
       sp.rateNmm = rateNmm;
-      sp.freeHeightMm = freeHeightMm;
+      sp.heightMm = heightMm;
       sp.status = statusVal;
       sp.notes = notes;
     }
@@ -8759,7 +8864,7 @@
 
     const lines = [];
     lines.push('====================================================================');
-    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.7.0)');
+    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.7.1)');
     lines.push(`Exported: ${new Date().toISOString()}`);
     lines.push('====================================================================');
     lines.push('');
@@ -8832,10 +8937,24 @@
 
     // 5. Shocks & Springs Inventory Summary
     lines.push('[5] PEDDERS GSR SHOCKS (9033 FRONT / 9067 REAR) & SPRINGS (5608 FRONT / 5609 REAR)');
-    const frontShocks = (state.shocks || []).filter((s) => s.end === 'front').map((s) => `${s.code}:${s.reb200N ?? '?'}/${s.comp200N ?? '?'}N${s.status === 'other_car' ? '[LS]' : ''}`).join(', ');
-    const rearShocks = (state.shocks || []).filter((s) => s.end === 'rear').map((s) => `${s.code}:${s.reb200N ?? '?'}/${s.comp200N ?? '?'}N`).join(', ');
-    const frontSprings = (state.springs || []).filter((s) => s.end === 'front').map((s) => `${s.code}:${s.rateLbIn ?? '?'}lb/${s.freeHeightMm ?? '?'}mm`).join(', ');
-    const rearSprings = (state.springs || []).filter((s) => s.end === 'rear').map((s) => `${s.code}:${s.rateLbIn ?? '?'}lb/${s.freeHeightMm ?? '?'}mm`).join(', ');
+    const fmtDumpShock = (s) => {
+      const comp = s.compMmS !== undefined ? s.compMmS : s.kingComp;
+      const reb = s.rebMmS !== undefined ? s.rebMmS : s.kingReb;
+      const spec = isFiniteSpecNum(comp) && isFiniteSpecNum(reb) ? `${Math.round(Number(comp))}/${Math.round(Number(reb))}mm/s` : 'Untested';
+      return `${s.code}:${spec}${s.status === 'other_car' ? '[OtherCar]' : ''}`;
+    };
+    const fmtDumpSpring = (s) => {
+      const rate = s.rateNmm !== undefined ? s.rateNmm : s.kingRate;
+      const ht = s.heightMm !== undefined ? s.heightMm : s.kingHeight;
+      const spec = isFiniteSpecNum(rate)
+        ? `${formatSpringMetricNum(rate)}N/mm${isFiniteSpecNum(ht) ? `/${formatSpringMetricNum(ht)}mm` : ''}`
+        : 'Untested';
+      return `${s.code}:${spec}`;
+    };
+    const frontShocks = (state.shocks || []).filter((s) => getNormShockEnd(s) === 'F').map(fmtDumpShock).join(', ');
+    const rearShocks = (state.shocks || []).filter((s) => getNormShockEnd(s) === 'R').map(fmtDumpShock).join(', ');
+    const frontSprings = (state.springs || []).filter((s) => getNormSpringEnd(s) === 'F').map(fmtDumpSpring).join(', ');
+    const rearSprings = (state.springs || []).filter((s) => getNormSpringEnd(s) === 'R').map(fmtDumpSpring).join(', ');
     lines.push(`- Front Shocks (9033): ${frontShocks}`);
     lines.push(`- Rear Shocks (9067): ${rearShocks}`);
     lines.push(`- Front Springs (5608): ${frontSprings}`);
@@ -9601,6 +9720,91 @@
     showToast(`Permanently deleted ${removedName}`);
   }
 
+  function openDeleteEventModal(eventId) {
+    if (!eventId || !Array.isArray(state.events)) return;
+    const evt = state.events.find((e) => e && e.id === eventId);
+    if (!evt) return;
+
+    ui.confirmDeleteEventId = evt.id;
+    if ($('deleteEventTargetId')) $('deleteEventTargetId').value = evt.id;
+    const dispDate = formatIsoDateDisplay(evt.eventDate || getLocalTodayIso()) || evt.eventDate || '';
+    const sessCount = Array.isArray(evt.sessions) ? evt.sessions.length : 0;
+    const titlePart = evt.eventTitle ? ` • ${evt.eventTitle}` : '';
+    const labelStr = `${evt.venue} (${dispDate}${titlePart})`;
+    if ($('deleteEventTargetLabel')) {
+      $('deleteEventTargetLabel').textContent = labelStr;
+    }
+    if ($('deleteEventStep1Text')) {
+      $('deleteEventStep1Text').innerHTML = `Are you sure you want to delete <strong class="txt-amber">${escapeHtml(labelStr)}</strong> (${sessCount} ${sessCount === 1 ? 'session' : 'sessions'})?`;
+    }
+    if ($('deleteEventStep2Text')) {
+      $('deleteEventStep2Text').innerHTML = `FINAL CHECK: Permanently delete <strong class="txt-amber">${escapeHtml(labelStr)}</strong> and all <strong>${sessCount}</strong> logged ${sessCount === 1 ? 'session' : 'sessions'} inside it? This cannot be undone.`;
+    }
+    if ($('deleteEventStep1')) $('deleteEventStep1').style.display = 'block';
+    if ($('deleteEventStep2')) $('deleteEventStep2').style.display = 'none';
+    openModal('modalDeleteEventConfirm');
+  }
+
+  function advanceDeleteEventStep2() {
+    if (!ui.confirmDeleteEventId) return;
+    if ($('deleteEventStep1')) $('deleteEventStep1').style.display = 'none';
+    if ($('deleteEventStep2')) $('deleteEventStep2').style.display = 'block';
+  }
+
+  function confirmPermanentDeleteEvent() {
+    const eid = ui.confirmDeleteEventId || ($('deleteEventTargetId') ? $('deleteEventTargetId').value : '');
+    if (!eid || !Array.isArray(state.events)) {
+      closeModal('modalDeleteEventConfirm');
+      return;
+    }
+    const targetEvt = state.events.find((e) => e && e.id === eid);
+    if (!targetEvt) {
+      closeModal('modalDeleteEventConfirm');
+      return;
+    }
+
+    const removedVenue = normalizeVenueName(targetEvt.venue || 'Calder Park Raceway');
+    const removedDispDate = formatIsoDateDisplay(targetEvt.eventDate || getLocalTodayIso()) || targetEvt.eventDate || '';
+    const sessionIdsInEvent = new Set(
+      (Array.isArray(targetEvt.sessions) ? targetEvt.sessions : []).map((s) => s && s.id).filter(Boolean)
+    );
+
+    state.events = state.events.filter((e) => e && e.id !== eid);
+    if (state.activeEventId === eid) {
+      state.activeEventId = null;
+      state.activeSessionId = null;
+      state.awaitingPostRaceId = null;
+    } else if (state.activeSessionId && sessionIdsInEvent.has(state.activeSessionId)) {
+      state.activeSessionId = null;
+    }
+    if (state.awaitingPostRaceId && sessionIdsInEvent.has(state.awaitingPostRaceId)) {
+      state.awaitingPostRaceId = null;
+    }
+    if (state.baseline && state.baseline.linkedSessionId && sessionIdsInEvent.has(state.baseline.linkedSessionId)) {
+      state.baseline.linkedSessionId = null;
+    }
+    if (ui.editingSessionId && sessionIdsInEvent.has(ui.editingSessionId)) {
+      ui.editingSessionId = null;
+    }
+    if (ui.expandedEventIds instanceof Set) {
+      ui.expandedEventIds.delete(eid);
+    }
+    ui.confirmDeleteEventId = null;
+
+    syncFlatSessionsFromEvents(state);
+    recalculateTrackAverageBurn(removedVenue);
+    if (Array.isArray(state.tyrePool)) {
+      state.tyrePool.forEach((t) => {
+        t.totalLaps = getTyreCumulativeLaps(t.id);
+      });
+    }
+
+    closeModal('modalDeleteEventConfirm');
+    saveState();
+    renderAll();
+    showToast(`Permanently deleted Event: ${removedVenue} (${removedDispDate})`);
+  }
+
   function syncEditBaselineModalWeatherOnlyUi() {
     const btn = $('btnToggleEditBaseWeatherOnly');
     const pill = $('editBaseWeatherOnlyPill');
@@ -10201,10 +10405,31 @@
       }
     };
 
+    // Prevent Android/iOS Chrome long-press context/copy/preview popup on steppers
+    ['contextmenu', 'selectstart'].forEach((evtName) => {
+      document.addEventListener(
+        evtName,
+        (e) => {
+          if (e.target && e.target.closest && e.target.closest('.num-stepper, [data-stepper-target]')) {
+            e.preventDefault();
+            e.stopPropagation();
+            clearStepperHoldTimers();
+          }
+        },
+        true
+      );
+    });
+
     document.addEventListener('pointerdown', (e) => {
       const stepperBtn = e.target.closest('[data-stepper-target]');
       if (!stepperBtn || stepperBtn.disabled) return;
       if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      try {
+        stepperBtn.setPointerCapture(e.pointerId);
+      } catch (_) {}
 
       clearStepperHoldTimers();
       const targetId = stepperBtn.getAttribute('data-stepper-target');
@@ -10249,7 +10474,7 @@
       }, 320);
     });
 
-    ['pointerup', 'pointercancel', 'pointerleave', 'contextmenu'].forEach((evtName) => {
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach((evtName) => {
       document.addEventListener(evtName, clearStepperHoldTimers, true);
     });
     window.addEventListener('blur', clearStepperHoldTimers);
@@ -10298,6 +10523,14 @@
       const closeModalBtn = e.target.closest('[data-close-modal]');
       if (closeModalBtn) {
         closeModal(closeModalBtn.getAttribute('data-close-modal'));
+        return;
+      }
+
+      const deleteEventBtn = e.target.closest('[data-delete-event]');
+      if (deleteEventBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        openDeleteEventModal(deleteEventBtn.getAttribute('data-delete-event'));
         return;
       }
 
@@ -10529,9 +10762,12 @@
         return;
       }
 
-      const shockFilterBtn = e.target.closest('[data-shock-filter]');
+      const shockFilterBtn = e.target.closest('[data-shock-fleet-filter], [data-shock-filter]');
       if (shockFilterBtn) {
-        ui.shockFleetFilter = shockFilterBtn.getAttribute('data-shock-filter') || 'ALL';
+        ui.shockFleetFilter =
+          shockFilterBtn.getAttribute('data-shock-fleet-filter') ||
+          shockFilterBtn.getAttribute('data-shock-filter') ||
+          'all';
         renderShockFleet();
         return;
       }
@@ -10548,9 +10784,12 @@
         return;
       }
 
-      const springFilterBtn = e.target.closest('[data-spring-filter]');
+      const springFilterBtn = e.target.closest('[data-spring-fleet-filter], [data-spring-filter]');
       if (springFilterBtn) {
-        ui.springFleetFilter = springFilterBtn.getAttribute('data-spring-filter') || 'ALL';
+        ui.springFleetFilter =
+          springFilterBtn.getAttribute('data-spring-fleet-filter') ||
+          springFilterBtn.getAttribute('data-spring-filter') ||
+          'all';
         renderSpringFleet();
         return;
       }
@@ -10969,6 +11208,26 @@
     }
     if ($('btnConfirmPermanentDeleteSession')) {
       $('btnConfirmPermanentDeleteSession').addEventListener('click', confirmPermanentDeleteSession);
+    }
+
+    // Two-step Delete Event Confirmation Modal
+    if ($('btnCancelDeleteEventStep1')) {
+      $('btnCancelDeleteEventStep1').addEventListener('click', () => {
+        ui.confirmDeleteEventId = null;
+        closeModal('modalDeleteEventConfirm');
+      });
+    }
+    if ($('btnAdvanceDeleteEventStep2')) {
+      $('btnAdvanceDeleteEventStep2').addEventListener('click', advanceDeleteEventStep2);
+    }
+    if ($('btnCancelDeleteEventStep2')) {
+      $('btnCancelDeleteEventStep2').addEventListener('click', () => {
+        ui.confirmDeleteEventId = null;
+        closeModal('modalDeleteEventConfirm');
+      });
+    }
+    if ($('btnConfirmPermanentDeleteEvent')) {
+      $('btnConfirmPermanentDeleteEvent').addEventListener('click', confirmPermanentDeleteEvent);
     }
 
     // Live Pre-Race Notes sync between Step 1 (#inputPreRaceNotes), Step 2 (#inputRunNotes), and active session
@@ -11436,6 +11695,7 @@
       state = {
         eventArchitectureV1: true,
         suspensionSeededV1: true,
+        suspensionSeededV2: true,
         activeEventId: null,
         activeSessionId: null,
         events: defaultEvents,

@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.7.0" />
+  <link rel="stylesheet" href="./styles.css?v=0.7.1" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -1027,14 +1027,14 @@
               <div class="corner-susp-row">
                 <div class="corner-susp-top">
                   <label class="corner-susp-label" for="shockSelect_FL">SHOCK #</label>
-                  <span class="corner-susp-badge" id="outShockSpec_FL">King: &mdash;</span>
+                  <span class="corner-susp-badge" id="outShockSpec_FL">Untested</span>
                 </div>
                 <select id="shockSelect_FL" class="select-input corner-susp-select" data-corner-shock-select="FL" aria-label="Select Front Left Shock"></select>
               </div>
               <div class="corner-susp-row">
                 <div class="corner-susp-top">
                   <label class="corner-susp-label" for="springSelect_FL">SPRING #</label>
-                  <span class="corner-susp-badge" id="outSpringSpec_FL">King: &mdash;</span>
+                  <span class="corner-susp-badge" id="outSpringSpec_FL">Untested</span>
                 </div>
                 <select id="springSelect_FL" class="select-input corner-susp-select" data-corner-spring-select="FL" aria-label="Select Front Left Spring"></select>
               </div>
@@ -1099,14 +1099,14 @@
               <div class="corner-susp-row">
                 <div class="corner-susp-top">
                   <label class="corner-susp-label" for="shockSelect_FR">SHOCK #</label>
-                  <span class="corner-susp-badge" id="outShockSpec_FR">King: &mdash;</span>
+                  <span class="corner-susp-badge" id="outShockSpec_FR">Untested</span>
                 </div>
                 <select id="shockSelect_FR" class="select-input corner-susp-select" data-corner-shock-select="FR" aria-label="Select Front Right Shock"></select>
               </div>
               <div class="corner-susp-row">
                 <div class="corner-susp-top">
                   <label class="corner-susp-label" for="springSelect_FR">SPRING #</label>
-                  <span class="corner-susp-badge" id="outSpringSpec_FR">King: &mdash;</span>
+                  <span class="corner-susp-badge" id="outSpringSpec_FR">Untested</span>
                 </div>
                 <select id="springSelect_FR" class="select-input corner-susp-select" data-corner-spring-select="FR" aria-label="Select Front Right Spring"></select>
               </div>
@@ -1171,14 +1171,14 @@
               <div class="corner-susp-row">
                 <div class="corner-susp-top">
                   <label class="corner-susp-label" for="shockSelect_RL">SHOCK #</label>
-                  <span class="corner-susp-badge" id="outShockSpec_RL">King: &mdash;</span>
+                  <span class="corner-susp-badge" id="outShockSpec_RL">Untested</span>
                 </div>
                 <select id="shockSelect_RL" class="select-input corner-susp-select" data-corner-shock-select="RL" aria-label="Select Rear Left Shock"></select>
               </div>
               <div class="corner-susp-row">
                 <div class="corner-susp-top">
                   <label class="corner-susp-label" for="springSelect_RL">SPRING #</label>
-                  <span class="corner-susp-badge" id="outSpringSpec_RL">138 N/mm &bull; 184mm</span>
+                  <span class="corner-susp-badge" id="outSpringSpec_RL">138 N/mm &bull; 184 mm</span>
                 </div>
                 <select id="springSelect_RL" class="select-input corner-susp-select" data-corner-spring-select="RL" aria-label="Select Rear Left Spring"></select>
               </div>
@@ -1243,14 +1243,14 @@
               <div class="corner-susp-row">
                 <div class="corner-susp-top">
                   <label class="corner-susp-label" for="shockSelect_RR">SHOCK #</label>
-                  <span class="corner-susp-badge" id="outShockSpec_RR">King: &mdash;</span>
+                  <span class="corner-susp-badge" id="outShockSpec_RR">Untested</span>
                 </div>
                 <select id="shockSelect_RR" class="select-input corner-susp-select" data-corner-shock-select="RR" aria-label="Select Rear Right Shock"></select>
               </div>
               <div class="corner-susp-row">
                 <div class="corner-susp-top">
                   <label class="corner-susp-label" for="springSelect_RR">SPRING #</label>
-                  <span class="corner-susp-badge" id="outSpringSpec_RR">141 N/mm &bull; 185mm</span>
+                  <span class="corner-susp-badge" id="outSpringSpec_RR">141 N/mm &bull; 185 mm</span>
                 </div>
                 <select id="springSelect_RR" class="select-input corner-susp-select" data-corner-spring-select="RR" aria-label="Select Rear Right Spring"></select>
               </div>
@@ -1631,7 +1631,7 @@
       <div class="card" id="shockFleetCard">
         <div class="section-head">
           <div>
-            <div class="section-eyebrow">Pedders GSR 9033 (Front) &bull; GSR 9067 (Rear) &bull; King Springs @ 200 mm/s</div>
+            <div class="section-eyebrow">PEDDERS GSR 9033 (FRONT) &bull; GSR 9067 (REAR) &bull; @ 200 MM/S</div>
             <h2 class="section-title">Shocks Fleet (#77 &amp; Spares)</h2>
           </div>
           <span class="locked-badge" id="fleetShockActiveBadge">FL:F29 FR:F27 &bull; RL:R26 RR:R25</span>
@@ -1647,7 +1647,7 @@
           <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="R" id="btnFilterShocksRear">
             Rear (<span id="countFilterShocksRear">14</span>)
           </button>
-          <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="mounted" id="btnFilterShocksMounted">
+          <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="oncar" id="btnFilterShocksMounted">
             On Car #77 (<span id="countFilterShocksMounted">4</span>)
           </button>
         </div>
@@ -1667,7 +1667,7 @@
       <div class="card" id="springFleetCard">
         <div class="section-head">
           <div>
-            <div class="section-eyebrow">Pedders 5608 (Front) &bull; 5609 (Rear) &bull; King Springs Rate &amp; Height</div>
+            <div class="section-eyebrow">PEDDERS 5608 (FRONT) &bull; 5609 (REAR) &bull; RATE &amp; HEIGHT</div>
             <h2 class="section-title">Springs Fleet (#77 &amp; Spares)</h2>
           </div>
           <span class="locked-badge" id="fleetSpringActiveBadge">FL:F11 FR:F12 &bull; RL:R6 RR:R5</span>
@@ -1683,7 +1683,7 @@
           <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="R" id="btnFilterSpringsRear">
             Rear (<span id="countFilterSpringsRear">8</span>)
           </button>
-          <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="mounted" id="btnFilterSpringsMounted">
+          <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="oncar" id="btnFilterSpringsMounted">
             On Car #77 (<span id="countFilterSpringsMounted">4</span>)
           </button>
         </div>
@@ -3074,13 +3074,68 @@
   </div>
 
   <!-- =========================================================
+       MODAL: 2-STEP DOUBLE CONFIRMATION TO DELETE AN EVENT
+       ========================================================= -->
+  <div id="modalDeleteEventConfirm" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="deleteEventModalTitle">
+    <div class="modal-sheet">
+      <input type="hidden" id="deleteEventTargetId" />
+
+      <!-- STEP 1 OF 2 -->
+      <div id="deleteEventStep1">
+        <div class="modal-head">
+          <div>
+            <div class="section-eyebrow" style="color: #fbbf24;">Safety Check 1 of 2</div>
+            <h3 class="modal-title" id="deleteEventModalTitle">Delete Event? (Check 1 of 2)</h3>
+          </div>
+        </div>
+
+        <div class="delete-confirm-step-banner step1" id="deleteEventStep1Text">
+          Are you sure you want to delete <strong id="deleteEventTargetLabel">Calder Park Raceway (8 Nov 2026)</strong>?
+        </div>
+
+        <div class="end-event-actions-grid" style="margin-top: 14px;">
+          <button type="button" class="btn btn-confirm btn-full" id="btnCancelDeleteEventStep1">
+            Keep Event
+          </button>
+          <button type="button" class="btn btn-danger btn-full" id="btnAdvanceDeleteEventStep2">
+            Yes, Continue (1/2)
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2 OF 2 -->
+      <div id="deleteEventStep2" style="display: none;">
+        <div class="modal-head">
+          <div>
+            <div class="section-eyebrow" style="color: #f87171;">Irreversible Action &bull; Check 2 of 2</div>
+            <h3 class="modal-title" style="color: #fca5a5;">FINAL CONFIRMATION (2 of 2)</h3>
+          </div>
+        </div>
+
+        <div class="delete-confirm-step-banner step2" id="deleteEventStep2Text">
+          Permanently delete this Event and all logged sessions inside it? This cannot be undone.
+        </div>
+
+        <div class="end-event-actions-grid" style="margin-top: 14px;">
+          <button type="button" class="btn btn-confirm btn-full" id="btnCancelDeleteEventStep2">
+            Keep Event
+          </button>
+          <button type="button" class="btn btn-danger btn-full" id="btnConfirmPermanentDeleteEvent">
+            PERMANENTLY DELETE EVENT
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
        MODAL 3D: EDIT SHOCK SPEC (PEDDERS GSR 9033 FRONT / 9067 REAR)
        ========================================================= -->
   <div class="modal-backdrop" id="modalEditShock" role="dialog" aria-modal="true" aria-labelledby="modalEditShockTitle">
     <div class="modal-sheet">
       <div class="modal-head">
         <div>
-          <div class="section-eyebrow">Pedders GSR 9033 (Front) &bull; GSR 9067 (Rear)</div>
+          <div class="section-eyebrow">PEDDERS GSR 9033 (FRONT) &bull; GSR 9067 (REAR) &bull; @ 200 MM/S</div>
           <h2 class="section-title" id="modalEditShockTitle">Edit Shock Spec</h2>
         </div>
         <button type="button" class="btn btn-danger" data-close-modal="modalEditShock" aria-label="Close Shock Spec Modal">
@@ -3133,20 +3188,20 @@
       </div>
 
       <div class="card-elevated" style="margin-bottom: 12px;">
-        <div class="section-eyebrow" style="margin-bottom: 8px;">King Springs Dyno @ 200 mm/s (Leave blank if untested)</div>
+        <div class="section-eyebrow" style="margin-bottom: 8px;">Damper Dyno @ 200 mm/s (Leave blank if untested)</div>
         <div class="form-grid-2 compact-pair-grid">
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
-              <label class="field-label" for="editShockKingComp">Comp @ 200 mm/s</label>
+              <label class="field-label" for="editShockKingComp">Compression @ 200 mm/s</label>
               <span class="field-hint emerald">Bump</span>
             </div>
             <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="editShockKingComp" data-step="-1" aria-label="Decrease King Compression">&minus;</button>
+              <button type="button" class="stepper-btn" data-stepper-target="editShockKingComp" data-step="-1" aria-label="Decrease Compression @ 200 mm/s">&minus;</button>
               <div class="num-input-wrap">
                 <input type="number" id="editShockKingComp" class="num-input" value="" placeholder="&mdash;" min="-500" max="500" step="1" inputmode="decimal" />
-                <span class="num-unit-badge">N</span>
+                <span class="num-unit-badge">mm/s</span>
               </div>
-              <button type="button" class="stepper-btn" data-stepper-target="editShockKingComp" data-step="1" aria-label="Increase King Compression">+</button>
+              <button type="button" class="stepper-btn" data-stepper-target="editShockKingComp" data-step="1" aria-label="Increase Compression @ 200 mm/s">+</button>
             </div>
           </div>
 
@@ -3156,12 +3211,12 @@
               <span class="field-hint amber">e.g. -180</span>
             </div>
             <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="editShockKingReb" data-step="-1" aria-label="Decrease King Rebound">&minus;</button>
+              <button type="button" class="stepper-btn" data-stepper-target="editShockKingReb" data-step="-1" aria-label="Decrease Rebound @ 200 mm/s">&minus;</button>
               <div class="num-input-wrap">
                 <input type="number" id="editShockKingReb" class="num-input" value="" placeholder="&mdash;" min="-600" max="500" step="1" inputmode="decimal" />
-                <span class="num-unit-badge">N</span>
+                <span class="num-unit-badge">mm/s</span>
               </div>
-              <button type="button" class="stepper-btn" data-stepper-target="editShockKingReb" data-step="1" aria-label="Increase King Rebound">+</button>
+              <button type="button" class="stepper-btn" data-stepper-target="editShockKingReb" data-step="1" aria-label="Increase Rebound @ 200 mm/s">+</button>
             </div>
           </div>
         </div>
@@ -3188,7 +3243,7 @@
     <div class="modal-sheet">
       <div class="modal-head">
         <div>
-          <div class="section-eyebrow">Pedders 5608 (Front) &bull; 5609 (Rear)</div>
+          <div class="section-eyebrow">PEDDERS 5608 (FRONT) &bull; 5609 (REAR) &bull; RATE &amp; HEIGHT</div>
           <h2 class="section-title" id="modalEditSpringTitle">Edit Spring Spec</h2>
         </div>
         <button type="button" class="btn btn-danger" data-close-modal="modalEditSpring" aria-label="Close Spring Spec Modal">
@@ -3241,35 +3296,35 @@
       </div>
 
       <div class="card-elevated" style="margin-bottom: 12px;">
-        <div class="section-eyebrow" style="margin-bottom: 8px;">King Springs Rate &amp; Install Height (Leave blank if untested)</div>
+        <div class="section-eyebrow" style="margin-bottom: 8px;">Spring Rate &amp; Height (Leave blank if untested)</div>
         <div class="form-grid-2 compact-pair-grid">
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
-              <label class="field-label" for="editSpringKingRate">King Rate (N/mm)</label>
+              <label class="field-label" for="editSpringKingRate">Rate (N/mm)</label>
               <span class="field-hint emerald">Spring Rate</span>
             </div>
             <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="editSpringKingRate" data-step="-0.5" aria-label="Decrease King Spring Rate">&minus;</button>
+              <button type="button" class="stepper-btn" data-stepper-target="editSpringKingRate" data-step="-0.5" aria-label="Decrease Spring Rate">&minus;</button>
               <div class="num-input-wrap">
                 <input type="number" id="editSpringKingRate" class="num-input" value="" placeholder="&mdash;" min="40" max="300" step="0.01" inputmode="decimal" />
                 <span class="num-unit-badge">N/mm</span>
               </div>
-              <button type="button" class="stepper-btn" data-stepper-target="editSpringKingRate" data-step="0.5" aria-label="Increase King Spring Rate">+</button>
+              <button type="button" class="stepper-btn" data-stepper-target="editSpringKingRate" data-step="0.5" aria-label="Increase Spring Rate">+</button>
             </div>
           </div>
 
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
-              <label class="field-label" for="editSpringKingHeight">Install Height / Defor</label>
+              <label class="field-label" for="editSpringKingHeight">Height (mm)</label>
               <span class="field-hint amber">mm</span>
             </div>
             <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="editSpringKingHeight" data-step="-0.5" aria-label="Decrease King Spring Height">&minus;</button>
+              <button type="button" class="stepper-btn" data-stepper-target="editSpringKingHeight" data-step="-0.5" aria-label="Decrease Spring Height">&minus;</button>
               <div class="num-input-wrap">
                 <input type="number" id="editSpringKingHeight" class="num-input" value="" placeholder="&mdash;" min="100" max="400" step="0.01" inputmode="decimal" />
                 <span class="num-unit-badge">mm</span>
               </div>
-              <button type="button" class="stepper-btn" data-stepper-target="editSpringKingHeight" data-step="0.5" aria-label="Increase King Spring Height">+</button>
+              <button type="button" class="stepper-btn" data-stepper-target="editSpringKingHeight" data-step="0.5" aria-label="Increase Spring Height">+</button>
             </div>
           </div>
         </div>
@@ -3280,7 +3335,7 @@
           <label class="field-label" for="editSpringNotes">Spring Notes</label>
           <span class="field-hint">Rate / Free Height / Allocation</span>
         </div>
-        <input type="text" id="editSpringNotes" class="text-input" placeholder="e.g. On Car #77 / Unmarked spare / King tested" autocomplete="off" />
+        <input type="text" id="editSpringNotes" class="text-input" placeholder="e.g. On Car #77 / Unmarked spare / Measured rate" autocomplete="off" />
       </div>
 
       <button type="button" class="btn btn-confirm btn-full" id="btnSaveSpringModal">
@@ -3325,6 +3380,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.7.0"></script>
+  <script src="./app.js?v=0.7.1"></script>
 </body>
 </html>

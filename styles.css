@@ -754,7 +754,10 @@ body {
   text-align: center;
   text-decoration: none;
   transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.12s ease;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
   user-select: none;
+  touch-action: manipulation;
 }
 
 .btn:active {
@@ -1178,6 +1181,10 @@ textarea:focus-visible {
     inset 0 4px 8px rgba(0, 0, 0, 0.95),
     0 1px 0 rgba(255, 255, 255, 0.08);
   min-height: 64px;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
 }
 
 .stepper-btn {
@@ -1208,7 +1215,10 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
   user-select: none;
+  touch-action: manipulation;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
 
@@ -3698,6 +3708,17 @@ textarea:focus-visible {
   font-weight: 900;
   color: #E2E8F0;
   white-space: nowrap;
+}
+
+.event-card-header .btn-icon-delete {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  font-size: 15px;
+  border-radius: 8px;
+  padding: 0;
+  flex-shrink: 0;
 }
 
 .event-acc-chevron {
