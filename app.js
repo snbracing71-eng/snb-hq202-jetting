@@ -657,6 +657,7 @@
       tyreHotTarget: 44.0,
       tyreCondition: 'dry',
       mountedTyres: { FL: 'KB1', FR: 'KB2', RL: 'KB3', RR: 'KB4' },
+      coldTyres: { FL: 30.2, FR: 29.5, RL: 30.5, RR: 29.8 },
       hotTyres: { FL: null, FR: null, RL: null, RR: null },
       trackProfiles: createDefaultTrackProfiles(),
       pumpRuns: [],
@@ -668,14 +669,22 @@
 
   function normalizeTyreCornersObject(rawCorners) {
     if (!rawCorners || typeof rawCorners !== 'object') return null;
-    const pickOpt = (v) => (v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v)) ? Number(v) : null);
+    const pickOptPos = (v) =>
+      v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v)) && Number(v) > 0
+        ? Number(Number(v).toFixed(1))
+        : null;
     const normCorner = (newKey, oldKey) => {
       const src = rawCorners[newKey] || rawCorners[oldKey];
       if (!src || typeof src !== 'object') return null;
-      const cold = Number.isFinite(Number(src.cold)) ? Number(Number(src.cold).toFixed(1)) : 30.0;
-      const hot = pickOpt(src.hot);
-      const build = hot !== null ? Number((hot - cold).toFixed(1)) : pickOpt(src.build);
-      const nextCold = Number.isFinite(Number(src.nextCold)) ? Number(Number(src.nextCold).toFixed(1)) : cold;
+      const cold = pickOptPos(src.cold);
+      const hot = pickOptPos(src.hot);
+      const build = cold !== null && hot !== null ? Number((hot - cold).toFixed(1)) : null;
+      const nextCold =
+        cold !== null && hot !== null
+          ? pickOptPos(src.nextCold)
+          : cold !== null
+          ? cold
+          : null;
       const rawTid =
         typeof src.tyreId === 'string' && src.tyreId.trim()
           ? src.tyreId.trim()
@@ -684,7 +693,7 @@
       return {
         tyreId,
         cold,
-        hot: hot !== null ? Number(hot.toFixed(1)) : null,
+        hot,
         build,
         nextCold
       };
@@ -695,10 +704,10 @@
     const rr = normCorner('RR', 'RR');
     if (!fl && !fr && !rl && !rr) return null;
     return {
-      FL: fl || { tyreId: 'KB1', cold: 30.0, hot: null, build: null, nextCold: 30.0 },
-      FR: fr || { tyreId: 'KB2', cold: 30.0, hot: null, build: null, nextCold: 30.0 },
-      RL: rl || { tyreId: 'KB3', cold: 30.0, hot: null, build: null, nextCold: 30.0 },
-      RR: rr || { tyreId: 'KB4', cold: 30.0, hot: null, build: null, nextCold: 30.0 }
+      FL: fl || { tyreId: 'KB1', cold: null, hot: null, build: null, nextCold: null },
+      FR: fr || { tyreId: 'KB2', cold: null, hot: null, build: null, nextCold: null },
+      RL: rl || { tyreId: 'KB3', cold: null, hot: null, build: null, nextCold: null },
+      RR: rr || { tyreId: 'KB4', cold: null, hot: null, build: null, nextCold: null }
     };
   }
 
@@ -1053,6 +1062,14 @@
 
       const rawFloor = Number(ch.fuelFloorL);
       const migratedFloor = Number.isFinite(rawFloor) ? (rawFloor === 19.0 ? 12.0 : rawFloor) : defChassis.fuelFloorL;
+      const hasColdObj = ch.coldTyres && typeof ch.coldTyres === 'object';
+      const ctObj = hasColdObj ? ch.coldTyres : {};
+      const pickColdCorner = (cKey, fallbackVal) => {
+        if (!hasColdObj) return fallbackVal;
+        const v = ctObj[cKey];
+        if (v === null || v === '') return null;
+        return Number.isFinite(Number(v)) && Number(v) > 0 ? Number(Number(v).toFixed(1)) : fallbackVal;
+      };
 
       candidate.chassis = {
         raceLaps: Number.isFinite(Number(ch.raceLaps)) ? Math.round(Number(ch.raceLaps)) : defChassis.raceLaps,
@@ -1073,6 +1090,12 @@
           FR: validTyreId(mt.FR, 'KB2'),
           RL: validTyreId(mt.RL, 'KB3'),
           RR: validTyreId(mt.RR, 'KB4')
+        },
+        coldTyres: {
+          FL: pickColdCorner('FL', defChassis.coldTyres.FL),
+          FR: pickColdCorner('FR', defChassis.coldTyres.FR),
+          RL: pickColdCorner('RL', defChassis.coldTyres.RL),
+          RR: pickColdCorner('RR', defChassis.coldTyres.RR)
         },
         hotTyres: {
           FL: pickOptNum(ht.FL ?? ht.LF),
@@ -1678,9 +1701,11 @@
         if ((s.venue || 'Calder Park Raceway') !== venue) return;
         if (!s.tyres || !s.tyres[c]) return;
         if (getSessionTyreCondition(s) !== condition) return;
-        const cold = Number(s.tyres[c].cold);
-        const hot = s.tyres[c].hot !== null && s.tyres[c].hot !== undefined ? Number(s.tyres[c].hot) : NaN;
-        if (Number.isFinite(cold) && cold > 0 && Number.isFinite(hot) && hot > 0) {
+        const rawCold = s.tyres[c].cold;
+        const rawHot = s.tyres[c].hot;
+        const cold = rawCold !== null && rawCold !== undefined && rawCold !== '' ? Number(rawCold) : NaN;
+        const hot = rawHot !== null && rawHot !== undefined && rawHot !== '' ? Number(rawHot) : NaN;
+        if (Number.isFinite(cold) && cold > 10 && Number.isFinite(hot) && hot > 10) {
           const idealCold = ((hotTarget + 14.7) * (cold + 14.7)) / (hot + 14.7) - 14.7;
           ideals.push(idealCold);
           runSet.add(s.id);
@@ -1726,7 +1751,14 @@
     const condition = (state.chassis && state.chassis.tyreCondition) || 'dry';
     const hotTarget = readNum('inputTyreHotTarget', (state.chassis && state.chassis.tyreHotTarget) || 44.0);
     const tyreStats = getTrackLearnedColdTyres(venue, hotTarget, condition);
-    const targetColdMap = condition === 'wet' ? (prof.wetColdTyres || (prof.wetColdTyres = { FL: 28.0, FR: 28.0, RL: 28.0, RR: 28.0 })) : prof.coldTyres;
+    const targetColdMap =
+      condition === 'wet'
+        ? prof.wetColdTyres || (prof.wetColdTyres = { FL: 28.0, FR: 28.0, RL: 28.0, RR: 28.0 })
+        : prof.coldTyres;
+
+    if (state.chassis && !state.chassis.coldTyres) {
+      state.chassis.coldTyres = { FL: 30.0, FR: 30.0, RL: 30.0, RR: 30.0 };
+    }
 
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const cStat = tyreStats.corners[c];
@@ -1738,6 +1770,9 @@
           ? Number(targetColdMap[c])
           : fallbackCold;
       if (targetColdMap) targetColdMap[c] = coldVal;
+      if (state.chassis && state.chassis.coldTyres) {
+        state.chassis.coldTyres[c] = Number(coldVal.toFixed(1));
+      }
       const coldEl = $(`inputColdPsi_${c}`);
       if (coldEl) {
         coldEl.value = Number(coldVal).toFixed(1);
@@ -3389,30 +3424,97 @@
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const coldEl = $(`inputColdPsi_${c}`);
       if (coldEl) {
-        const cStat = tyreStats.corners[c];
-        const coldVal =
-          cStat && cStat.learned
-            ? cStat.avg
-            : prof.coldTyres && Number.isFinite(Number(prof.coldTyres[c]))
-            ? Number(prof.coldTyres[c])
-            : 30.0;
-        prof.coldTyres[c] = coldVal;
-        coldEl.value = coldVal.toFixed(1);
+        if (ch.coldTyres && ch.coldTyres[c] === null) {
+          coldEl.value = '';
+        } else {
+          const cStat = tyreStats.corners[c];
+          const storedCold =
+            ch.coldTyres && ch.coldTyres[c] !== null && ch.coldTyres[c] !== undefined && Number.isFinite(Number(ch.coldTyres[c])) && Number(ch.coldTyres[c]) > 0
+              ? Number(ch.coldTyres[c])
+              : null;
+          const coldVal =
+            storedCold !== null
+              ? storedCold
+              : cStat && cStat.learned
+              ? cStat.avg
+              : prof.coldTyres && prof.coldTyres[c] !== null && Number.isFinite(Number(prof.coldTyres[c])) && Number(prof.coldTyres[c]) > 0
+              ? Number(prof.coldTyres[c])
+              : 30.0;
+          prof.coldTyres[c] = coldVal;
+          if (ch.coldTyres) ch.coldTyres[c] = coldVal;
+          coldEl.value = coldVal.toFixed(1);
+        }
       }
       const hotEl = $(`inputHotPsi_${c}`);
       if (hotEl) {
         const hotVal =
-          ch.hotTyres && ch.hotTyres[c] !== null && Number.isFinite(Number(ch.hotTyres[c]))
+          ch.hotTyres && ch.hotTyres[c] !== null && ch.hotTyres[c] !== undefined && ch.hotTyres[c] !== '' && Number.isFinite(Number(ch.hotTyres[c])) && Number(ch.hotTyres[c]) > 0
             ? Number(ch.hotTyres[c])
             : null;
         hotEl.value = hotVal !== null ? hotVal.toFixed(1) : '';
       }
     });
 
+    syncClearColdPsiBtnText();
     syncNewTyreSpecUi(ui.newTyreSpec || 'buffed');
     syncTyreConditionUi();
     renderMountedTyreSelectors();
     renderTyreStockList();
+  }
+
+  function syncClearColdPsiBtnText() {
+    const btn = $('btnClearAllColdPsi');
+    if (!btn) return;
+    const anyColdHasVal = ['FL', 'FR', 'RL', 'RR'].some((c) => {
+      const el = $(`inputColdPsi_${c}`);
+      return el && String(el.value || '').trim() !== '';
+    });
+    btn.textContent = anyColdHasVal
+      ? 'Clear Cold PSI (Already Bled Hot)'
+      : 'Restore Learned Cold PSI';
+  }
+
+  function toggleClearOrRestoreColdPsi() {
+    if (!state.chassis) state.chassis = createDefaultChassisState();
+    const ch = state.chassis;
+    if (!ch.coldTyres || typeof ch.coldTyres !== 'object') {
+      ch.coldTyres = { FL: 30.2, FR: 29.5, RL: 30.5, RR: 29.8 };
+    }
+    const anyColdHasVal = ['FL', 'FR', 'RL', 'RR'].some((c) => {
+      const el = $(`inputColdPsi_${c}`);
+      return el && String(el.value || '').trim() !== '';
+    });
+
+    if (anyColdHasVal) {
+      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+        const el = $(`inputColdPsi_${c}`);
+        if (el) el.value = '';
+        ch.coldTyres[c] = null;
+      });
+      syncClearColdPsiBtnText();
+      recalcTyres();
+      showToast('Cleared Cold PSI (Hot-Only / Already Bled Hot mode)');
+    } else {
+      const venue = getSelectedTyreTrackVenue();
+      const prof = ensureTrackProfile(venue);
+      const activeCond = ch.tyreCondition === 'wet' ? 'wet' : 'dry';
+      const tyreStats = getTrackLearnedColdTyres(venue, ch.tyreHotTarget || 44.0, activeCond);
+      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+        const cStat = tyreStats.corners[c];
+        const coldVal =
+          cStat && cStat.learned
+            ? cStat.avg
+            : prof.coldTyres && prof.coldTyres[c] !== null && Number.isFinite(Number(prof.coldTyres[c])) && Number(prof.coldTyres[c]) > 0
+            ? Number(prof.coldTyres[c])
+            : 30.0;
+        const el = $(`inputColdPsi_${c}`);
+        if (el) el.value = coldVal.toFixed(1);
+        ch.coldTyres[c] = coldVal;
+      });
+      syncClearColdPsiBtnText();
+      recalcTyres();
+      showToast(`Restored ${venue} Cold PSIs`);
+    }
   }
 
   function recalcFuelAndWeight() {
@@ -3723,28 +3825,46 @@
 
     renderMountedTyreSelectors();
 
+    if (!ch.coldTyres || typeof ch.coldTyres !== 'object') {
+      ch.coldTyres = { FL: 30.2, FR: 29.5, RL: 30.5, RR: 29.8 };
+    }
+
     const corners = {};
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const cLearned = learnedStats.corners[c];
       if (cLearned && cLearned.learned && activeCond === 'dry') {
         prof.coldTyres[c] = cLearned.avg;
       }
-      const cold = readNum(`inputColdPsi_${c}`, (prof.coldTyres && prof.coldTyres[c]) || 30.0);
+
+      const coldEl = $(`inputColdPsi_${c}`);
+      const rawCold = coldEl ? String(coldEl.value || '').trim() : '';
+      const parsedCold = rawCold === '' ? null : parseFloat(rawCold);
+      const cold =
+        parsedCold !== null && Number.isFinite(parsedCold) && parsedCold > 0
+          ? Number(parsedCold.toFixed(1))
+          : null;
+
       const hotEl = $(`inputHotPsi_${c}`);
       const rawHot = hotEl ? String(hotEl.value || '').trim() : '';
-      const parsedHot = rawHot !== '' ? parseFloat(rawHot) : NaN;
-      const hot = Number.isFinite(parsedHot) && parsedHot > 0 ? Number(parsedHot.toFixed(1)) : null;
+      const parsedHot = rawHot === '' ? null : parseFloat(rawHot);
+      const hot =
+        parsedHot !== null && Number.isFinite(parsedHot) && parsedHot > 0
+          ? Number(parsedHot.toFixed(1))
+          : null;
 
-      const build = hot !== null ? Number((hot - cold).toFixed(1)) : null;
+      const build = cold !== null && hot !== null ? Number((hot - cold).toFixed(1)) : null;
       const diff = hot !== null ? Number((hot - tyreHotTarget).toFixed(1)) : null;
       const nextCold =
-        hot !== null
+        cold !== null && hot !== null
           ? Number((((tyreHotTarget + 14.7) * (cold + 14.7)) / (hot + 14.7) - 14.7).toFixed(1))
-          : Number(cold.toFixed(1));
+          : cold !== null
+          ? Number(cold.toFixed(1))
+          : null;
 
       const tyreId = mounted[c] || DEFAULT_CORNER_TYRE_IDS[c] || 'KB1';
       corners[c] = { tyreId, cold, hot, build, diff, nextCold };
 
+      ch.coldTyres[c] = cold;
       ch.hotTyres[c] = hot;
 
       const buildEl = $(`outTyreBuild_${c}`);
@@ -3766,42 +3886,53 @@
         }
       }
 
-      if (hot === null) {
-        if (buildEl) {
-          buildEl.textContent = '—';
-          buildEl.className = 'mono txt-amber';
-        }
-        if (actionEl) {
+      // Top Corner Action Badge depends ONLY on hotVal vs tyreHotTarget
+      if (actionEl) {
+        if (hot === null) {
           actionEl.textContent = 'HOT PSI?';
           actionEl.className = 'afr-status-badge estimated';
+        } else if (Math.abs(diff) <= 0.15) {
+          actionEl.textContent = `${tyreHotTarget.toFixed(1)} OK`;
+          actionEl.className = 'afr-status-badge verified';
+        } else if (diff > 0.15) {
+          actionEl.textContent = `BLEED −${diff.toFixed(1)}`;
+          actionEl.className = diff >= 1.5 ? 'afr-status-badge danger' : 'afr-status-badge estimated';
+        } else {
+          actionEl.textContent = `ADD +${Math.abs(diff).toFixed(1)}`;
+          actionEl.className = 'afr-status-badge cyan';
         }
-        if (nextColdEl) {
-          nextColdEl.textContent = `${cold.toFixed(1)} psi`;
-        }
-      } else {
+      }
+
+      // Bottom Corner Telemetry Strip (GAIN & NEXT COLD SET)
+      if (cold !== null && hot !== null) {
         const bSign = build >= 0 ? '+' : '';
         if (buildEl) {
           buildEl.textContent = `${bSign}${build.toFixed(1)} psi`;
           buildEl.className = build >= 8.0 && build <= 16.0 ? 'mono txt-emerald' : 'mono txt-amber';
         }
-        if (actionEl) {
-          if (Math.abs(diff) <= 0.15) {
-            actionEl.textContent = `${tyreHotTarget.toFixed(1)} OK`;
-            actionEl.className = 'afr-status-badge verified';
-          } else if (diff > 0.15) {
-            actionEl.textContent = `BLEED −${diff.toFixed(1)}`;
-            actionEl.className = diff >= 1.5 ? 'afr-status-badge danger' : 'afr-status-badge estimated';
-          } else {
-            actionEl.textContent = `ADD +${Math.abs(diff).toFixed(1)}`;
-            actionEl.className = 'afr-status-badge cyan';
-          }
-        }
         if (nextColdEl) {
           nextColdEl.textContent = `${nextCold.toFixed(1)} psi`;
+        }
+      } else if (cold === null && hot !== null) {
+        if (buildEl) {
+          buildEl.textContent = '— (Hot-only)';
+          buildEl.className = 'mono txt-amber';
+        }
+        if (nextColdEl) {
+          nextColdEl.textContent = 'Bled Hot';
+        }
+      } else {
+        if (buildEl) {
+          buildEl.textContent = '—';
+          buildEl.className = 'mono txt-amber';
+        }
+        if (nextColdEl) {
+          nextColdEl.textContent = cold !== null ? `${cold.toFixed(1)} psi` : '—';
         }
       }
     });
 
+    syncClearColdPsiBtnText();
     saveState();
 
     return {
@@ -3891,7 +4022,7 @@
       appendNote: notes
     });
 
-    // Auto-populate Cold PSIs with newly learned track cold targets if Hot PSI was logged
+    // Auto-populate Cold PSIs with newly learned track cold targets ONLY on corners where Cold + Hot were both logged
     const learnedTyres = getTrackLearnedColdTyres(tyreSnap.venue, tyreSnap.tyreHotTarget, tyreSnap.tyreCondition || 'dry');
     const prof = ensureTrackProfile(tyreSnap.venue);
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
@@ -3899,8 +4030,13 @@
         if (tyreSnap.tyreCondition !== 'wet') {
           prof.coldTyres[c] = learnedTyres.corners[c].avg;
         }
-        const coldEl = $(`inputColdPsi_${c}`);
-        if (coldEl) coldEl.value = learnedTyres.corners[c].avg.toFixed(1);
+        if (tyreSnap.corners[c].cold !== null && tyreSnap.corners[c].hot !== null) {
+          const coldEl = $(`inputColdPsi_${c}`);
+          if (coldEl) coldEl.value = learnedTyres.corners[c].avg.toFixed(1);
+          if (state.chassis && state.chassis.coldTyres) {
+            state.chassis.coldTyres[c] = learnedTyres.corners[c].avg;
+          }
+        }
       }
     });
 
@@ -3911,7 +4047,7 @@
     recalcTyres();
     renderTyreStockList();
     renderSessionLog();
-    showToast(`Locked & Saved Tyres (${racedLapsToSave} laps) to ${unified.sessionName} • Auto-Updated Learned Cold PSI`);
+    showToast(`Locked & Saved Tyres (${racedLapsToSave} laps) to ${unified.sessionName}`);
   }
 
   function exportTyresCsv() {
@@ -3982,15 +4118,30 @@
     const lapsStr = Number.isFinite(Number(s.racedLaps)) && Number(s.racedLaps) > 0 ? ` • ${Math.round(Number(s.racedLaps))} Laps` : '';
     const pillsHtml = ['FL', 'FR', 'RL', 'RR']
       .map((c) => {
-        const cr = s.tyres[c] || { tyreId: DEFAULT_CORNER_TYRE_IDS[c], cold: 30.0, hot: null, nextCold: 30.0 };
+        const cr = s.tyres[c] || { tyreId: DEFAULT_CORNER_TYRE_IDS[c], cold: null, hot: null, nextCold: null };
         const tyreCode = cr.tyreId || DEFAULT_CORNER_TYRE_IDS[c] || c;
-        const coldStr = Number.isFinite(Number(cr.cold)) ? `${Number(cr.cold).toFixed(1)}C` : '—C';
-        const hotStr = cr.hot !== null && Number.isFinite(Number(cr.hot)) ? `${Number(cr.hot).toFixed(1)}H` : '—H';
-        const nextStr = Number.isFinite(Number(cr.nextCold)) ? `Next ${Number(cr.nextCold).toFixed(1)}` : '';
+        const hasCold = cr.cold !== null && cr.cold !== undefined && cr.cold !== '' && Number.isFinite(Number(cr.cold)) && Number(cr.cold) > 0;
+        const hasHot = cr.hot !== null && cr.hot !== undefined && cr.hot !== '' && Number.isFinite(Number(cr.hot)) && Number(cr.hot) > 0;
+        const hasNext = cr.nextCold !== null && cr.nextCold !== undefined && cr.nextCold !== '' && Number.isFinite(Number(cr.nextCold)) && Number(cr.nextCold) > 0;
+
+        let valHtml = '';
+        let nextStr = '';
+        if (hasCold && hasHot) {
+          valHtml = `${Number(cr.cold).toFixed(1)}&rarr;${Number(cr.hot).toFixed(1)}`;
+          if (hasNext) nextStr = `Next ${Number(cr.nextCold).toFixed(1)}`;
+        } else if (!hasCold && hasHot) {
+          valHtml = `Hot ${Number(cr.hot).toFixed(1)}`;
+          nextStr = 'Bled Hot';
+        } else if (hasCold && !hasHot) {
+          valHtml = `Cold ${Number(cr.cold).toFixed(1)}`;
+        } else {
+          valHtml = `[${escapeHtml(tyreCode)}]`;
+        }
+
         return `
           <div class="unified-tyre-pill">
             <span class="unified-tyre-corner">${c} [${escapeHtml(tyreCode)}]</span>
-            <span class="unified-tyre-val">${coldStr} &rarr; ${hotStr}</span>
+            <span class="unified-tyre-val">${valHtml}</span>
             ${nextStr ? `<span class="unified-tyre-next">${nextStr}</span>` : ''}
           </div>
         `;
@@ -4309,7 +4460,13 @@
       const peakRpmVal = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
       const dateStr = s.sessionDate || formatIsoDateDisplay(s.sessionDateIso || getLocalTodayIso());
       const t = s.tyres || {};
-      const fmtCorner = (c, k) => (t[c] ? fmtOptDec(t[c][k], 1) : '');
+      const fmtCorner = (c, k) => {
+        if (!t[c]) return '';
+        const v = t[c][k];
+        return v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v)) && Number(v) > 0
+          ? Number(v).toFixed(1)
+          : '';
+      };
       const fmtCornerTyreId = (c) => (t[c] && t[c].tyreId ? String(t[c].tyreId) : '');
       return [
         s.sessionName,
@@ -5496,10 +5653,24 @@
     const stepStr = String(Math.abs(delta));
     const decimals = stepStr.includes('.') ? stepStr.split('.')[1].length : 0;
 
-    // If an optional AFR, Hot Tyre PSI, Tyre Temp, or Water Temp field is blank, start at a sensible default when stepping
+    // If an optional AFR, Cold/Hot Tyre PSI, Tyre Temp, or Water Temp field is blank, start at a sensible default when stepping
     const idStr = String(inputEl.id || '');
     if (idStr === 'inputScaleCheckKg' && (!Number.isFinite(current) || current <= 500)) {
       inputEl.value = delta > 0 ? '1375.0' : '0.0';
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+      inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+    if (idStr.startsWith('inputColdPsi_') && (!Number.isFinite(current) || current <= 0)) {
+      const cKey = idStr.replace('inputColdPsi_', '');
+      const venue = getSelectedTyreTrackVenue();
+      const activeCond = state.chassis && state.chassis.tyreCondition === 'wet' ? 'wet' : 'dry';
+      const learned = getTrackLearnedColdTyres(venue, readNum('inputTyreHotTarget', 44.0), activeCond);
+      const startCold =
+        learned && learned.corners && learned.corners[cKey] && Number.isFinite(learned.corners[cKey].avg)
+          ? learned.corners[cKey].avg
+          : 30.0;
+      inputEl.value = startCold.toFixed(1);
       inputEl.dispatchEvent(new Event('input', { bubbles: true }));
       inputEl.dispatchEvent(new Event('change', { bubbles: true }));
       return;
@@ -6166,6 +6337,9 @@
     }
     if ($('btnSaveTyresSession')) {
       $('btnSaveTyresSession').addEventListener('click', saveTyresToSession);
+    }
+    if ($('btnClearAllColdPsi')) {
+      $('btnClearAllColdPsi').addEventListener('click', toggleClearOrRestoreColdPsi);
     }
     if ($('btnQuickMountSet')) {
       $('btnQuickMountSet').addEventListener('click', () => {

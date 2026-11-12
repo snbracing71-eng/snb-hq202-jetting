@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.4.8" />
+  <link rel="stylesheet" href="./styles.css?v=0.4.9" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -1059,8 +1059,13 @@
           </div>
         </div>
 
-        <div class="car-orientation-banner">
-          <span>&uarr; FRONT OF RACE CAR &uarr;</span>
+        <div class="car-orientation-bar">
+          <div class="car-orientation-banner" style="margin-bottom: 0; flex: 1;">
+            <span>&uarr; FRONT OF RACE CAR &uarr;</span>
+          </div>
+          <button type="button" class="btn btn-secondary btn-clear-cold-psi" id="btnClearAllColdPsi">
+            Clear Cold PSI (Already Bled Hot)
+          </button>
         </div>
 
         <!-- Strict 2x2 Visual Car Chassis Grid: FL | FR on Top, RL | RR on Bottom -->
@@ -1085,7 +1090,7 @@
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FL" data-step="-0.5" aria-label="Decrease FL Cold PSI">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputColdPsi_FL" class="num-input" value="30.0" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputColdPsi_FL" class="num-input" value="30.0" placeholder="&mdash;" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
                   <span class="num-unit-badge">psi</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FL" data-step="0.5" aria-label="Increase FL Cold PSI">+</button>
@@ -1140,7 +1145,7 @@
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FR" data-step="-0.5" aria-label="Decrease FR Cold PSI">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputColdPsi_FR" class="num-input" value="30.0" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputColdPsi_FR" class="num-input" value="30.0" placeholder="&mdash;" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
                   <span class="num-unit-badge">psi</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FR" data-step="0.5" aria-label="Increase FR Cold PSI">+</button>
@@ -1195,7 +1200,7 @@
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RL" data-step="-0.5" aria-label="Decrease RL Cold PSI">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputColdPsi_RL" class="num-input" value="30.0" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputColdPsi_RL" class="num-input" value="30.0" placeholder="&mdash;" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
                   <span class="num-unit-badge">psi</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RL" data-step="0.5" aria-label="Increase RL Cold PSI">+</button>
@@ -1250,7 +1255,7 @@
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RR" data-step="-0.5" aria-label="Decrease RR Cold PSI">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputColdPsi_RR" class="num-input" value="30.0" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputColdPsi_RR" class="num-input" value="30.0" placeholder="&mdash;" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
                   <span class="num-unit-badge">psi</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RR" data-step="0.5" aria-label="Increase RR Cold PSI">+</button>
@@ -2240,6 +2245,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.4.8"></script>
+  <script src="./app.js?v=0.4.9"></script>
 </body>
 </html>
