@@ -1294,29 +1294,32 @@
       }
 
       const ht = (ch.hotTyres && typeof ch.hotTyres === 'object') ? ch.hotTyres : {};
-      const mt = (ch.mountedTyres && typeof ch.mountedTyres === 'object') ? ch.mountedTyres : {};
+      const hasMountedObj = Boolean(ch.mountedTyres && typeof ch.mountedTyres === 'object');
+      const mt = hasMountedObj ? ch.mountedTyres : {};
       const usedCornerTyres = new Set();
       const validTyreId = (val, fallback) => {
-        const rawStr = typeof val === 'string' && val.trim() ? val.trim() : fallback;
+        if (!hasMountedObj) {
+          const migDef = migrateLegacyTyreId(fallback);
+          if (candidate.tyrePool.some((t) => t.id === migDef) && !usedCornerTyres.has(migDef)) {
+            usedCornerTyres.add(migDef);
+            return migDef;
+          }
+          return '';
+        }
+        if (val === '' || val === 'UNASSIGNED' || val === null || val === undefined) {
+          return '';
+        }
+        const rawStr = typeof val === 'string' ? val.trim() : '';
+        if (!rawStr || rawStr === 'UNASSIGNED') {
+          return '';
+        }
         const str = migrateLegacyTyreId(rawStr);
-        if (str === 'UNASSIGNED') return 'UNASSIGNED';
         if (candidate.tyrePool.some((t) => t.id === str) && !usedCornerTyres.has(str)) {
           usedCornerTyres.add(str);
           return str;
         }
-        const migFallback = migrateLegacyTyreId(fallback);
-        if (candidate.tyrePool.some((t) => t.id === migFallback) && !usedCornerTyres.has(migFallback)) {
-          usedCornerTyres.add(migFallback);
-          return migFallback;
-        }
-        const spare =
-          candidate.tyrePool.find((t) => !t.retired && !usedCornerTyres.has(t.id)) ||
-          candidate.tyrePool.find((t) => !usedCornerTyres.has(t.id));
-        if (spare) {
-          usedCornerTyres.add(spare.id);
-          return spare.id;
-        }
-        return 'UNASSIGNED';
+        // Duplicate tyreId across multiple corners or missing from pool -> Unmounted ('')
+        return '';
       };
 
       // Migrate any legacy standalone pumpRuns or historyRuns into unified candidate.sessions
@@ -2986,32 +2989,25 @@
 
     const usedIds = new Set();
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-      const curId = migrateLegacyTyreId(state.chassis.mountedTyres[c]);
-      state.chassis.mountedTyres[c] = curId;
-      if (curId && curId !== 'UNASSIGNED' && state.tyrePool.some((t) => t.id === curId) && !usedIds.has(curId)) {
+      const rawVal = state.chassis.mountedTyres[c];
+      if (!rawVal || rawVal === 'UNASSIGNED') {
+        state.chassis.mountedTyres[c] = '';
+        return;
+      }
+      const curId = migrateLegacyTyreId(String(rawVal).trim());
+      if (!curId || curId === 'UNASSIGNED') {
+        state.chassis.mountedTyres[c] = '';
+        return;
+      }
+      if (state.tyrePool.some((t) => t.id === curId) && !usedIds.has(curId)) {
+        state.chassis.mountedTyres[c] = curId;
         usedIds.add(curId);
-      } else if (curId !== 'UNASSIGNED') {
-        state.chassis.mountedTyres[c] = null;
+      } else {
+        // Duplicate tyreId across multiple corners or missing from pool -> Unmounted ('')
+        state.chassis.mountedTyres[c] = '';
       }
     });
 
-    const preferredSpec = state.chassis.tyreCondition === 'wet' ? 'wet' : 'buffed';
-    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-      const curId = state.chassis.mountedTyres[c];
-      if (curId === 'UNASSIGNED') return;
-      if (!curId || !state.tyrePool.some((t) => t.id === curId)) {
-        const spare =
-          state.tyrePool.find((t) => !t.retired && t.spec === preferredSpec && !usedIds.has(t.id)) ||
-          state.tyrePool.find((t) => !t.retired && !usedIds.has(t.id)) ||
-          state.tyrePool.find((t) => !usedIds.has(t.id));
-        if (spare) {
-          state.chassis.mountedTyres[c] = spare.id;
-          usedIds.add(spare.id);
-        } else {
-          state.chassis.mountedTyres[c] = 'UNASSIGNED';
-        }
-      }
-    });
     return state.chassis.mountedTyres;
   }
 
@@ -3112,11 +3108,18 @@
     const fallbackCodes = isWet ? ['KW1', 'KW2', 'KW3', 'KW4'] : ['KB1', 'KB2', 'KB3', 'KB4'];
     const corners = ['FL', 'FR', 'RL', 'RR'];
 
+    // Clear all 4 corners cleanly first and assign 4 distinct unique tyres (never duplicating a tyre across two corners)
+    state.chassis.mountedTyres = { FL: '', FR: '', RL: '', RR: '' };
+    const assignedIds = new Set();
+
     corners.forEach((c, idx) => {
-      const byDefaultCode = pool.find((t) => t.id === fallbackCodes[idx]);
-      const chosen = byDefaultCode || matching[idx];
+      const byDefaultCode = pool.find((t) => !t.retired && t.id === fallbackCodes[idx] && !assignedIds.has(t.id));
+      const chosen = byDefaultCode || matching.find((t) => !assignedIds.has(t.id)) || null;
       if (chosen) {
         state.chassis.mountedTyres[c] = chosen.id;
+        assignedIds.add(chosen.id);
+      } else {
+        state.chassis.mountedTyres[c] = '';
       }
     });
 
@@ -3147,7 +3150,7 @@
     renderTyreStockList();
     recalcTyres();
 
-    const mountedSummary = corners.map((c) => `${c}:${state.chassis.mountedTyres[c]}`).join(' • ');
+    const mountedSummary = corners.map((c) => `${c}:${state.chassis.mountedTyres[c] || '—'}`).join(' • ');
     showToast(`Switched to ${isWet ? 'DECLARED WET (KW)' : 'DRY — BUFFED (KB)'} (${mountedSummary})`);
   }
 
@@ -3158,35 +3161,45 @@
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const selEl = $(`selectMountedTyre_${c}`);
       const badgeEl = $(`outTyreTotalLaps_${c}`);
-      const mountedId = mounted[c] || 'UNASSIGNED';
-      const mountedTyre = mountedId !== 'UNASSIGNED' ? getTyreById(mountedId) : null;
+      const mountedId = mounted[c] || '';
+      const mountedTyre = mountedId ? getTyreById(mountedId) : null;
       const totalLaps = mountedTyre ? getTyreCumulativeLaps(mountedTyre.id) : 0;
       const treadMm = mountedTyre && Number.isFinite(Number(mountedTyre.treadMm)) ? Number(mountedTyre.treadMm) : 5.0;
       const duro = mountedTyre && Number.isFinite(Number(mountedTyre.durometer)) ? Math.round(Number(mountedTyre.durometer)) : 62;
       const treadStatus = getTreadStatusInfo(treadMm);
 
       if (selEl) {
-        // List ALL tyres in state.tyrePool (never disable or hide tyres mounted on other corners) + -- Unassigned --
-        const options = pool.map((t) => {
+        const options = [
+          `<option value="">-- Remove Tyre (Unmounted) --</option>`
+        ];
+        pool.forEach((t) => {
           const laps = getTyreCumulativeLaps(t.id);
-          const cornerEntry = Object.entries(mounted).find(([, tid]) => tid === t.id);
-          const locSuffix = cornerEntry ? ` (on ${cornerEntry[0]})` : '';
+          const otherCornerEntry = Object.entries(mounted).find(([k, tid]) => k !== c && tid === t.id);
           const tMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : 5.0;
           const displayLabel = t.label || t.code || t.id;
-          return `<option value="${escapeHtml(t.id)}">${escapeHtml(displayLabel)} — ${laps} Laps • ${tMm.toFixed(1)}mm${escapeHtml(locSuffix)}</option>`;
+          if (otherCornerEntry) {
+            const otherCorner = otherCornerEntry[0];
+            options.push(
+              `<option value="${escapeHtml(t.id)}" disabled>${escapeHtml(displayLabel)} — Mounted on ${escapeHtml(otherCorner)} (Remove from ${escapeHtml(otherCorner)} first)</option>`
+            );
+          } else {
+            const suffix = t.id === mountedId ? ` (on ${c})` : ' (SPARE RACK)';
+            options.push(
+              `<option value="${escapeHtml(t.id)}">${escapeHtml(displayLabel)} — ${laps} Laps • ${tMm.toFixed(1)}mm${escapeHtml(suffix)}</option>`
+            );
+          }
         });
-        options.push(`<option value="UNASSIGNED">-- Unassigned --</option>`);
         selEl.innerHTML = options.join('');
-        selEl.value = mountedTyre ? mountedId : 'UNASSIGNED';
+        selEl.value = mountedTyre ? mountedId : '';
       }
 
       if (badgeEl) {
         if (!mountedTyre) {
-          badgeEl.textContent = 'UNASSIGNED • Select Tyre';
-          badgeEl.className = 'tyre-laps-badge warn';
+          badgeEl.textContent = 'Unmounted';
+          badgeEl.className = 'tyre-laps-badge unmounted';
         } else {
           const specLabel = mountedTyre.spec === 'wet' ? 'WET' : 'BUFF';
-          const warnSuffix = treadMm < 1.5 ? ' (ILLEGAL <1.5mm!)' : treadMm <= 2.0 ? ' (LOW TREAD)' : '';
+          const warnSuffix = treadMm < 1.5 ? ' (!<1.5)' : treadMm <= 2.0 ? ' (LOW)' : '';
           badgeEl.textContent = `${specLabel} • ${totalLaps} laps • ${treadMm.toFixed(1)}mm • ${duro}A${warnSuffix}`;
           badgeEl.className = treadStatus.badgeClass;
         }
@@ -3520,13 +3533,6 @@
     };
     state.tyrePool.push(newTyre);
 
-    if (state.chassis && state.chassis.mountedTyres) {
-      const unassignedCorner = ['FL', 'FR', 'RL', 'RR'].find((c) => state.chassis.mountedTyres[c] === 'UNASSIGNED');
-      if (unassignedCorner) {
-        state.chassis.mountedTyres[unassignedCorner] = newTyre.id;
-      }
-    }
-
     if ($('newTyreLabel')) $('newTyreLabel').value = '';
     if ($('newTyreDate')) $('newTyreDate').value = getLocalTodayIso();
     if ($('newTyreBaseLaps')) $('newTyreBaseLaps').value = '0';
@@ -3568,16 +3574,7 @@
       const mt = state.chassis.mountedTyres;
       ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
         if (mt[c] === tyreId) {
-          const currentlyMounted = new Set(
-            ['FL', 'FR', 'RL', 'RR']
-              .filter((k) => k !== c)
-              .map((k) => mt[k])
-              .filter((id) => id && id !== tyreId && id !== 'UNASSIGNED')
-          );
-          const spare =
-            state.tyrePool.find((t) => !t.retired && !currentlyMounted.has(t.id)) ||
-            state.tyrePool.find((t) => !currentlyMounted.has(t.id));
-          mt[c] = spare ? spare.id : 'UNASSIGNED';
+          mt[c] = '';
         }
       });
     }
@@ -3637,37 +3634,44 @@
 
   function handleCornerTyreSelectChange(corner, newTyreId) {
     const mounted = ensureMountedTyresState();
-    const prevTyreOnCorner = mounted[corner] || 'UNASSIGNED';
-    if (!newTyreId || newTyreId === prevTyreOnCorner) return;
+    const prevTyreOnCorner = mounted[corner] || '';
+    const cleanNewId = !newTyreId || newTyreId === 'UNASSIGNED' ? '' : String(newTyreId).trim();
+    if (cleanNewId === prevTyreOnCorner) return;
 
-    if (newTyreId === 'UNASSIGNED') {
-      mounted[corner] = 'UNASSIGNED';
+    if (cleanNewId === '') {
+      const prevTyreObj = prevTyreOnCorner ? getTyreById(prevTyreOnCorner) : null;
+      const prevLabel = prevTyreObj ? prevTyreObj.label || prevTyreObj.id : prevTyreOnCorner;
+      mounted[corner] = '';
       saveState();
       renderMountedTyreSelectors();
       renderTyreStockList();
       recalcTyres();
-      showToast(`Set ${corner} to Unassigned`);
+      showToast(prevLabel ? `Removed ${prevLabel} from ${corner} (Unmounted)` : `${corner} set to Unmounted`);
       return;
     }
 
-    const otherCornerEntry = Object.entries(mounted).find(([cKey, tId]) => cKey !== corner && tId === newTyreId);
+    const otherCornerEntry = Object.entries(mounted).find(([cKey, tId]) => cKey !== corner && tId === cleanNewId);
     if (otherCornerEntry) {
       const otherCorner = otherCornerEntry[0];
-      mounted[otherCorner] = prevTyreOnCorner;
-      mounted[corner] = newTyreId;
-      saveState();
+      const tyreObj = getTyreById(cleanNewId);
+      const tyreLabel = tyreObj ? tyreObj.label || tyreObj.id : cleanNewId;
+      const selEl = $(`selectMountedTyre_${corner}`);
+      if (selEl) {
+        selEl.value = prevTyreOnCorner || '';
+      }
       renderMountedTyreSelectors();
-      renderTyreStockList();
-      recalcTyres();
-      showToast(`Swapped ${newTyreId} (${corner}) ↔ ${prevTyreOnCorner} (${otherCorner})`);
-    } else {
-      mounted[corner] = newTyreId;
-      saveState();
-      renderMountedTyreSelectors();
-      renderTyreStockList();
-      recalcTyres();
-      showToast(`Mounted ${newTyreId} on ${corner}`);
+      showToast(`Remove ${tyreLabel} from ${otherCorner} first before mounting on ${corner}`);
+      return;
     }
+
+    mounted[corner] = cleanNewId;
+    saveState();
+    renderMountedTyreSelectors();
+    renderTyreStockList();
+    recalcTyres();
+    const mountedObj = getTyreById(cleanNewId);
+    const mountedLabel = mountedObj ? mountedObj.label || mountedObj.id : cleanNewId;
+    showToast(`Mounted ${mountedLabel} on ${corner}`);
   }
 
   function swapMountedTyresLR() {
@@ -4331,7 +4335,7 @@
           ? Number(cold.toFixed(1))
           : null;
 
-      const tyreId = mounted[c] || DEFAULT_CORNER_TYRE_IDS[c] || 'KB1';
+      const tyreId = mounted[c] || '';
       corners[c] = { tyreId, cold, hot, build, diff, nextCold };
 
       ch.coldTyres[c] = cold;

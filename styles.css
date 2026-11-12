@@ -2101,6 +2101,7 @@ textarea:focus-visible {
 .tyre-chassis-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
   gap: 10px;
 }
 
@@ -2114,19 +2115,22 @@ textarea:focus-visible {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  height: 100%;
   padding: 11px 10px;
   min-width: 0;
 }
 
 .tyre-corner-head {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   gap: 4px;
+  min-height: 26px;
   margin-bottom: 8px;
   padding-bottom: 6px;
   border-bottom: 1.5px solid #2E3A4D;
+  min-width: 0;
 }
 
 .tyre-corner-badge {
@@ -2138,11 +2142,17 @@ textarea:focus-visible {
   text-transform: uppercase;
   color: #FEF08A;
   text-shadow: 0 2px 3px rgba(0, 0, 0, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .tyre-corner-head .afr-status-badge {
   font-size: 11px;
   padding: 2px 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .tyre-stack-field {
@@ -2192,7 +2202,7 @@ textarea:focus-visible {
 }
 
 .tyre-corner-readouts {
-  margin-top: 2px;
+  margin-top: auto;
   padding: 7px 8px;
   background:
     radial-gradient(ellipse 80% 40% at 50% 6%, rgba(255, 255, 255, 0.06) 0%, transparent 70%),
@@ -2651,19 +2661,24 @@ textarea:focus-visible {
 
 .tyre-mount-box {
   padding: 7px 8px;
+  margin-bottom: 8px;
   border-radius: 10px;
   background: rgba(7, 10, 15, 0.86);
   border: 1px solid #2D3B4F;
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.85);
+  min-width: 0;
 }
 
-.tyre-mount-top {
+.tyre-mount-top,
+.mounted-tyre-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: nowrap;
   gap: 6px;
+  min-height: 24px;
   margin-bottom: 5px;
-  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .tyre-mount-label {
@@ -2672,19 +2687,45 @@ textarea:focus-visible {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: #CBD5E1;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.mount-label-short {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .mount-label-full {
+    display: none;
+  }
+  .mount-label-short {
+    display: inline;
+  }
 }
 
 .tyre-laps-badge {
-  display: inline-flex;
-  align-items: center;
+  display: inline-block;
   padding: 2px 7px;
   border-radius: 999px;
   font-family: var(--font-mono);
   font-size: 11.5px;
   font-weight: 900;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  min-width: 0;
   background: rgba(16, 185, 129, 0.16);
   border: 1px solid rgba(52, 211, 153, 0.45);
   color: #6EE7B7;
+}
+
+.tyre-laps-badge.unmounted {
+  background: rgba(51, 65, 85, 0.35);
+  border-color: rgba(100, 116, 139, 0.55);
+  color: #94A3B8;
 }
 
 .tyre-laps-badge.warn {
