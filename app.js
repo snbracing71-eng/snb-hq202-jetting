@@ -1424,6 +1424,32 @@
         pumpRuns: [],
         historyRuns: []
       };
+
+      // Strict Scrutineering Rule: never allow Wet (KW) and Buffed (KB) on car simultaneously
+      const mountedSpecs = new Set();
+      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+        const tid = candidate.chassis.mountedTyres[c];
+        if (!tid) return;
+        const tObj = candidate.tyrePool.find((t) => t.id === tid);
+        if (tObj) {
+          mountedSpecs.add(tObj.spec === 'wet' ? 'wet' : 'buffed');
+        }
+      });
+      if (mountedSpecs.size > 1) {
+        const preferredSpec = candidate.chassis.tyreCondition === 'wet' ? 'wet' : 'buffed';
+        ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+          const tid = candidate.chassis.mountedTyres[c];
+          if (!tid) return;
+          const tObj = candidate.tyrePool.find((t) => t.id === tid);
+          const tSpec = tObj && tObj.spec === 'wet' ? 'wet' : 'buffed';
+          if (!tObj || tSpec !== preferredSpec) {
+            candidate.chassis.mountedTyres[c] = '';
+          }
+        });
+      } else if (mountedSpecs.size === 1) {
+        const singleSpec = Array.from(mountedSpecs)[0];
+        candidate.chassis.tyreCondition = singleSpec === 'wet' ? 'wet' : 'dry';
+      }
     }
 
     // Compute live totalLaps = baseLaps + sum(session.racedLaps) for every tyre in candidate.tyrePool
@@ -3008,7 +3034,45 @@
       }
     });
 
+    // Strict scrutineering rule: never allow 'wet' (KW) and 'buffed' (KB) tyres on the car simultaneously
+    const mountedSpecs = new Set();
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const tid = state.chassis.mountedTyres[c];
+      if (!tid) return;
+      const tObj = state.tyrePool.find((t) => t.id === tid);
+      if (tObj) {
+        mountedSpecs.add(tObj.spec === 'wet' ? 'wet' : 'buffed');
+      }
+    });
+    if (mountedSpecs.size > 1) {
+      const targetSpec = state.chassis.tyreCondition === 'wet' ? 'wet' : 'buffed';
+      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+        const tid = state.chassis.mountedTyres[c];
+        if (!tid) return;
+        const tObj = state.tyrePool.find((t) => t.id === tid);
+        const tSpec = tObj && tObj.spec === 'wet' ? 'wet' : 'buffed';
+        if (tSpec !== targetSpec) {
+          state.chassis.mountedTyres[c] = '';
+        }
+      });
+    }
+
     return state.chassis.mountedTyres;
+  }
+
+  function unmountAllTyres() {
+    const mounted = ensureMountedTyresState();
+    const hadMounted = ['FL', 'FR', 'RL', 'RR'].some((c) => Boolean(mounted[c]));
+    state.chassis.mountedTyres = { FL: '', FR: '', RL: '', RR: '' };
+    saveState();
+    renderMountedTyreSelectors();
+    renderTyreStockList();
+    recalcTyres();
+    showToast(
+      hadMounted
+        ? 'Unmounted all 4 corners — Ready for fresh KB (Dry) or KW (Wet) set'
+        : 'All 4 corners are already Unmounted'
+    );
   }
 
   function syncTyreConditionUi() {
@@ -3108,7 +3172,7 @@
     const fallbackCodes = isWet ? ['KW1', 'KW2', 'KW3', 'KW4'] : ['KB1', 'KB2', 'KB3', 'KB4'];
     const corners = ['FL', 'FR', 'RL', 'RR'];
 
-    // Clear all 4 corners cleanly first and assign 4 distinct unique tyres (never duplicating a tyre across two corners)
+    // Clear all 4 corners cleanly first (unmounting all opposite-spec tyres) and assign 4 distinct unique tyres
     state.chassis.mountedTyres = { FL: '', FR: '', RL: '', RR: '' };
     const assignedIds = new Set();
 
@@ -3158,6 +3222,17 @@
     const mounted = ensureMountedTyresState();
     const pool = state.tyrePool || [];
 
+    // Determine activeMountedSpec: if 1 or more tyres are currently mounted, lock to their spec ('wet' or 'buffed')
+    let activeMountedSpec = null;
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const tid = mounted[c];
+      if (!tid || activeMountedSpec) return;
+      const tObj = getTyreById(tid);
+      if (tObj) {
+        activeMountedSpec = tObj.spec === 'wet' ? 'wet' : 'buffed';
+      }
+    });
+
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const selEl = $(`selectMountedTyre_${c}`);
       const badgeEl = $(`outTyreTotalLaps_${c}`);
@@ -3168,6 +3243,18 @@
       const duro = mountedTyre && Number.isFinite(Number(mountedTyre.durometer)) ? Math.round(Number(mountedTyre.durometer)) : 62;
       const treadStatus = getTreadStatusInfo(treadMm);
 
+      // Check if any OTHER corner has a tyre mounted (so we know whether switching this single corner would create an illegal mix)
+      let otherCornersSpec = null;
+      ['FL', 'FR', 'RL', 'RR'].forEach((otherC) => {
+        if (otherC === c || otherCornersSpec) return;
+        const otherTid = mounted[otherC];
+        if (!otherTid) return;
+        const otherObj = getTyreById(otherTid);
+        if (otherObj) {
+          otherCornersSpec = otherObj.spec === 'wet' ? 'wet' : 'buffed';
+        }
+      });
+
       if (selEl) {
         const options = [
           `<option value="">-- Remove Tyre (Unmounted) --</option>`
@@ -3177,10 +3264,20 @@
           const otherCornerEntry = Object.entries(mounted).find(([k, tid]) => k !== c && tid === t.id);
           const tMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : 5.0;
           const displayLabel = t.label || t.code || t.id;
+          const tyreSpec = t.spec === 'wet' ? 'wet' : 'buffed';
+
           if (otherCornerEntry) {
             const otherCorner = otherCornerEntry[0];
             options.push(
               `<option value="${escapeHtml(t.id)}" disabled>${escapeHtml(displayLabel)} — Mounted on ${escapeHtml(otherCorner)} (Remove from ${escapeHtml(otherCorner)} first)</option>`
+            );
+          } else if (otherCornersSpec && tyreSpec !== otherCornersSpec) {
+            const conflictReason =
+              otherCornersSpec === 'buffed'
+                ? 'ILLEGAL MIX (Remove Buffed tyres first)'
+                : 'ILLEGAL MIX (Remove Wet tyres first)';
+            options.push(
+              `<option value="${escapeHtml(t.id)}" disabled>${escapeHtml(displayLabel)} — ${conflictReason}</option>`
             );
           } else {
             const suffix = t.id === mountedId ? ` (on ${c})` : ' (SPARE RACK)';
@@ -3199,7 +3296,7 @@
           badgeEl.className = 'tyre-laps-badge unmounted';
         } else {
           const specLabel = mountedTyre.spec === 'wet' ? 'WET' : 'BUFF';
-          const warnSuffix = treadMm < 1.5 ? ' (!<1.5)' : treadMm <= 2.0 ? ' (LOW)' : '';
+          const warnSuffix = treadMm < 1.5 ? ' (ILLEGAL <1.5mm!)' : treadMm <= 2.0 ? ' (LOW TREAD)' : '';
           badgeEl.textContent = `${specLabel} • ${totalLaps} laps • ${treadMm.toFixed(1)}mm • ${duro}A${warnSuffix}`;
           badgeEl.className = treadStatus.badgeClass;
         }
@@ -3664,13 +3761,40 @@
       return;
     }
 
+    const chosenTyreObj = getTyreById(cleanNewId);
+    const chosenSpec = chosenTyreObj && chosenTyreObj.spec === 'wet' ? 'wet' : 'buffed';
+
+    // Strict scrutineering guard: check the other 3 corners before saving
+    const conflictingCorner = ['FL', 'FR', 'RL', 'RR'].find((cKey) => {
+      if (cKey === corner) return false;
+      const otherId = mounted[cKey];
+      if (!otherId) return false;
+      const otherObj = getTyreById(otherId);
+      if (!otherObj) return false;
+      const otherSpec = otherObj.spec === 'wet' ? 'wet' : 'buffed';
+      return otherSpec !== chosenSpec;
+    });
+
+    if (conflictingCorner) {
+      const selEl = $(`selectMountedTyre_${corner}`);
+      if (selEl) {
+        selEl.value = prevTyreOnCorner || '';
+      }
+      renderMountedTyreSelectors();
+      showToast('Illegal Tyre Mix: Cannot have Wet (KW) and Buffed (KB) tyres on the car at the same time!');
+      return;
+    }
+
     mounted[corner] = cleanNewId;
+    if (state.chassis) {
+      state.chassis.tyreCondition = chosenSpec === 'wet' ? 'wet' : 'dry';
+    }
     saveState();
+    syncTyreConditionUi();
     renderMountedTyreSelectors();
     renderTyreStockList();
     recalcTyres();
-    const mountedObj = getTyreById(cleanNewId);
-    const mountedLabel = mountedObj ? mountedObj.label || mountedObj.id : cleanNewId;
+    const mountedLabel = chosenTyreObj ? chosenTyreObj.label || chosenTyreObj.id : cleanNewId;
     showToast(`Mounted ${mountedLabel} on ${corner}`);
   }
 
@@ -4472,6 +4596,22 @@
 
   function saveTyresToSession() {
     const tyreSnap = recalcTyres();
+
+    // Save Session Guard: verify zero mixed specs across FL..RR before writing to state.sessions
+    const mountedSpecs = new Set();
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const tid = tyreSnap.corners[c] && tyreSnap.corners[c].tyreId;
+      if (!tid || tid === 'UNASSIGNED') return;
+      const tObj = getTyreById(tid);
+      if (tObj) {
+        mountedSpecs.add(tObj.spec === 'wet' ? 'wet' : 'buffed');
+      }
+    });
+    if (mountedSpecs.size > 1) {
+      showToast('Illegal Tyre Mix: Cannot have Wet (KW) and Buffed (KB) tyres on the car at the same time!');
+      return;
+    }
+
     const { iso: sessionDateIso, display: sessionDate } = getSelectedSessionDate();
     const sessionName = getSelectedSessionName();
     const notes = (($('inputTyreRunNotes') && $('inputTyreRunNotes').value) || '').trim();
@@ -7684,6 +7824,9 @@
     }
     if ($('btnClearAllColdPsi')) {
       $('btnClearAllColdPsi').addEventListener('click', toggleClearOrRestoreColdPsi);
+    }
+    if ($('btnUnmountAllTyres')) {
+      $('btnUnmountAllTyres').addEventListener('click', unmountAllTyres);
     }
     if ($('btnCrossSwapTyresX')) {
       $('btnCrossSwapTyresX').addEventListener('click', () => {

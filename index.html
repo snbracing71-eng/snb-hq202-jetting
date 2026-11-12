@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.5.5" />
+  <link rel="stylesheet" href="./styles.css?v=0.5.6" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -1101,9 +1101,14 @@
           <div class="car-orientation-banner" style="margin-bottom: 0; flex: 1;">
             <span>&uarr; FRONT OF RACE CAR &uarr;</span>
           </div>
-          <button type="button" class="btn btn-secondary btn-clear-cold-psi" id="btnClearAllColdPsi">
-            Clear Cold PSI (Already Bled Hot)
-          </button>
+          <div class="car-orientation-actions">
+            <button type="button" class="btn btn-secondary btn-clear-cold-psi" id="btnUnmountAllTyres" title="Strip all 4 hubs before changing tyre sets">
+              Unmount All 4
+            </button>
+            <button type="button" class="btn btn-secondary btn-clear-cold-psi" id="btnClearAllColdPsi">
+              Clear Cold PSI (Already Bled Hot)
+            </button>
+          </div>
         </div>
 
         <!-- Strict 2x2 Visual Car Chassis Grid: FL | FR on Top, RL | RR on Bottom -->
@@ -1116,11 +1121,8 @@
             </div>
 
             <div class="tyre-mount-box">
-              <div class="tyre-mount-top mounted-tyre-header">
-                <label class="tyre-mount-label" for="selectMountedTyre_FL">
-                  <span class="mount-label-full">Mounted Tyre</span>
-                  <span class="mount-label-short">Mounted</span>
-                </label>
+              <div class="tyre-mount-top">
+                <label class="tyre-mount-label" for="selectMountedTyre_FL">Mounted Tyre</label>
                 <span class="tyre-laps-badge" id="outTyreTotalLaps_FL">BUFF &bull; 24 laps &bull; 4.8mm &bull; 62A</span>
               </div>
               <select id="selectMountedTyre_FL" class="select-input tyre-mount-select" data-corner-tyre-select="FL" aria-label="Select Mounted Tyre for Front Left"></select>
@@ -1174,11 +1176,8 @@
             </div>
 
             <div class="tyre-mount-box">
-              <div class="tyre-mount-top mounted-tyre-header">
-                <label class="tyre-mount-label" for="selectMountedTyre_FR">
-                  <span class="mount-label-full">Mounted Tyre</span>
-                  <span class="mount-label-short">Mounted</span>
-                </label>
+              <div class="tyre-mount-top">
+                <label class="tyre-mount-label" for="selectMountedTyre_FR">Mounted Tyre</label>
                 <span class="tyre-laps-badge" id="outTyreTotalLaps_FR">BUFF &bull; 24 laps &bull; 4.6mm &bull; 63A</span>
               </div>
               <select id="selectMountedTyre_FR" class="select-input tyre-mount-select" data-corner-tyre-select="FR" aria-label="Select Mounted Tyre for Front Right"></select>
@@ -1232,11 +1231,8 @@
             </div>
 
             <div class="tyre-mount-box">
-              <div class="tyre-mount-top mounted-tyre-header">
-                <label class="tyre-mount-label" for="selectMountedTyre_RL">
-                  <span class="mount-label-full">Mounted Tyre</span>
-                  <span class="mount-label-short">Mounted</span>
-                </label>
+              <div class="tyre-mount-top">
+                <label class="tyre-mount-label" for="selectMountedTyre_RL">Mounted Tyre</label>
                 <span class="tyre-laps-badge" id="outTyreTotalLaps_RL">BUFF &bull; 24 laps &bull; 5.0mm &bull; 62A</span>
               </div>
               <select id="selectMountedTyre_RL" class="select-input tyre-mount-select" data-corner-tyre-select="RL" aria-label="Select Mounted Tyre for Rear Left"></select>
@@ -1290,11 +1286,8 @@
             </div>
 
             <div class="tyre-mount-box">
-              <div class="tyre-mount-top mounted-tyre-header">
-                <label class="tyre-mount-label" for="selectMountedTyre_RR">
-                  <span class="mount-label-full">Mounted Tyre</span>
-                  <span class="mount-label-short">Mounted</span>
-                </label>
+              <div class="tyre-mount-top">
+                <label class="tyre-mount-label" for="selectMountedTyre_RR">Mounted Tyre</label>
                 <span class="tyre-laps-badge" id="outTyreTotalLaps_RR">BUFF &bull; 24 laps &bull; 4.9mm &bull; 62A</span>
               </div>
               <select id="selectMountedTyre_RR" class="select-input tyre-mount-select" data-corner-tyre-select="RR" aria-label="Select Mounted Tyre for Rear Right"></select>
@@ -2550,6 +2543,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.5.5"></script>
+  <script src="./app.js?v=0.5.6"></script>
 </body>
 </html>

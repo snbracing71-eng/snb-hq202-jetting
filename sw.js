@@ -1,4 +1,4 @@
-const CACHE_NAME = 'snb-hq202-jetting-v0.5.5';
+const CACHE_NAME = 'snb-hq202-jetting-v0.5.6';
 const OFFLINE_ASSETS = [
   './',
   './index.html',
