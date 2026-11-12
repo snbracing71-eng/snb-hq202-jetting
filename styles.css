@@ -3090,24 +3090,52 @@ textarea:focus-visible {
 /* ============================================================================
    SLIM SESSION LOG TOP FILTER BAR & BOTTOM COLLAPSIBLE BACKUP DRAWER
    ============================================================================ */
-.log-top-filter-bar {
-  display: flex;
+.log-search-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(110px, 0.9fr) auto;
+  gap: 8px;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
   margin-bottom: 12px;
-  padding: 2px 0;
+  padding: 6px 8px;
+  background:
+    radial-gradient(ellipse 80% 45% at 50% 6%, rgba(255, 255, 255, 0.08) 0%, transparent 70%),
+    linear-gradient(180deg, #171E2A 0%, #0D1219 100%);
+  border: 1.5px solid #2E3B4E;
+  border-top-color: #465873;
+  border-bottom-color: #18202C;
+  border-radius: var(--radius-md);
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.75),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
-.log-filter-select-wrap {
-  flex: 1 1 auto;
+.log-search-field {
   min-width: 0;
 }
 
-.log-top-filter-bar .select-input {
+.log-search-bar .select-input {
+  width: 100%;
   min-height: 44px;
-  padding: 8px 34px 8px 12px;
-  font-size: 15px;
+  padding: 8px 30px 8px 10px;
+  font-size: 14.5px;
+  font-weight: 800;
+}
+
+.log-search-bar #sessionCountBadge {
+  white-space: nowrap;
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  padding: 6px 10px;
+}
+
+@media (max-width: 370px) {
+  .log-search-bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .log-search-bar .log-search-track-wrap {
+    grid-column: 1 / -1;
+  }
 }
 
 .pit-admin-drawer {

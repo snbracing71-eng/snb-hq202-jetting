@@ -165,6 +165,58 @@
     return `${day} ${monthName} ${year}`;
   }
 
+  function normalizeVenueName(rawVenue) {
+    const str = String(rawVenue || '').trim();
+    if (!str || /^calder\s*park(\s*\/\s*track|\s*raceway)?$/i.test(str)) {
+      return 'Calder Park Raceway';
+    }
+    return str;
+  }
+
+  function resolveSessionIsoDate(s, fallbackIso) {
+    const fallback = (typeof fallbackIso === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(fallbackIso.trim()))
+      ? fallbackIso.trim()
+      : getLocalTodayIso();
+    if (!s || typeof s !== 'object') return fallback;
+
+    const candidates = [s.sessionIsoDate, s.sessionDateIso, s.sessionDate, s.date];
+    for (const raw of candidates) {
+      if (!raw || typeof raw !== 'string') continue;
+      const str = raw.trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+        return str;
+      }
+      // Match "11 Nov 2026" or "2 Nov 2025"
+      const dmyText = str.match(/^(\d{1,2})\s+([A-Za-z]{3,9})\s+(\d{4})$/);
+      if (dmyText) {
+        const dd = String(Number(dmyText[1])).padStart(2, '0');
+        const mShort = dmyText[2].slice(0, 3).toLowerCase();
+        const mIdx = MONTHS_SHORT.findIndex((m) => m.toLowerCase() === mShort);
+        if (mIdx !== -1) {
+          const mm = String(mIdx + 1).padStart(2, '0');
+          return `${dmyText[3]}-${mm}-${dd}`;
+        }
+      }
+      // Match "DD/MM/YYYY"
+      const dmySlash = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+      if (dmySlash) {
+        const dd = String(Number(dmySlash[1])).padStart(2, '0');
+        const mm = String(Number(dmySlash[2])).padStart(2, '0');
+        return `${dmySlash[3]}-${mm}-${dd}`;
+      }
+    }
+    return fallback;
+  }
+
+  function extractSessionYear(s) {
+    const iso = resolveSessionIsoDate(s);
+    const mIso = iso.match(/^(\d{4})-/);
+    if (mIso) return mIso[1];
+    const disp = String((s && (s.sessionDate || s.date)) || '');
+    const mYear = disp.match(/\b(20\d{2}|19\d{2})\b/);
+    return mYear ? mYear[1] : String(new Date().getFullYear());
+  }
+
   function normalizeOptionalAfr(val) {
     if (val === null || val === undefined || val === '') return null;
     const num = Number(val);
@@ -1052,14 +1104,12 @@
     }
 
     const b = candidate.baseline || createDefaultBaseline();
-    if (!b.venue || b.venue === 'Calder Park' || b.venue === 'Calder Park / Track') {
-      b.venue = 'Calder Park Raceway';
-    }
-    if (!b.sessionDateIso) {
-      b.sessionDateIso = todayIso;
-    }
+    b.venue = normalizeVenueName(b.venue);
+    const baseIso = resolveSessionIsoDate(b, todayIso);
+    b.sessionDateIso = baseIso;
+    b.sessionIsoDate = baseIso;
     if (!b.sessionDate) {
-      b.sessionDate = formatIsoDateDisplay(b.sessionDateIso) || todayDisp;
+      b.sessionDate = formatIsoDateDisplay(baseIso) || todayDisp;
     }
     if (!b.manifoldId) {
       b.manifoldId = candidate.activeManifoldId || 'Macca';
@@ -1093,11 +1143,9 @@
     const defCalderR1 = defaultSessions.find((ds) => ds.id === 'calder_r1');
 
     candidate.sessions = (candidate.sessions || []).map((s) => {
-      const venue =
-        !s.venue || s.venue === 'Calder Park' || s.venue === 'Calder Park / Track'
-          ? 'Calder Park Raceway'
-          : s.venue;
-      const sessionDateIso = s.sessionDateIso || todayIso;
+      const venue = normalizeVenueName(s.venue);
+      const sessionDateIso = resolveSessionIsoDate(s, todayIso);
+      const sessionIsoDate = sessionDateIso;
       const sessionDate = s.sessionDate || formatIsoDateDisplay(sessionDateIso) || todayDisp;
       const a35 = normalizeOptionalAfr(s.afr3500);
       const a40 = normalizeOptionalAfr(s.afr4000);
@@ -1151,6 +1199,7 @@
         ...s,
         venue,
         sessionDateIso,
+        sessionIsoDate,
         sessionDate,
         manifoldId: s.manifoldId || 'Macca',
         exhaustId: s.exhaustId || 'Macca',
@@ -1272,7 +1321,7 @@
 
       // Migrate any legacy standalone pumpRuns or historyRuns into unified candidate.sessions
       const findSessionForLegacy = (venue, dateDisp, sessName) => {
-        const vNorm = venue || 'Calder Park Raceway';
+        const vNorm = normalizeVenueName(venue);
         const sNorm = sessName || 'Race 1';
         for (let i = candidate.sessions.length - 1; i >= 0; i--) {
           const s = candidate.sessions[i];
@@ -1440,6 +1489,8 @@
     expandedTyreId: null,
     tyreStockFilter: 'all', // 'all' | 'buffed' | 'wet'
     newTyreSpec: 'buffed',  // 'buffed' | 'wet'
+    logSearchTrack: 'ALL',
+    logSearchYear: 'ALL',
     selectedFleetCarbyId: state.baseline.carbyId || '1 DME',
     selectedFleetManifoldId: state.activeManifoldId || 'Macca',
     selectedFleetExhaustId: state.activeExhaustId || 'Macca',
@@ -1818,17 +1869,6 @@
         sel.value = state.baseline.carbyId;
       }
     });
-
-    const filterSel = $('filterLogCarby');
-    if (filterSel) {
-      const prevFilter = filterSel.value || 'ALL';
-      filterSel.innerHTML = [
-        `<option value="ALL">All Carbies (Fleet)</option>`,
-        ...state.carbies.map((c) => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)} Only</option>`)
-      ].join('');
-      filterSel.value =
-        prevFilter === 'ALL' || state.carbies.some((c) => c.id === prevFilter) ? prevFilter : 'ALL';
-    }
 
     const calcManSel = $('selectCalcManifold');
     if (calcManSel && Array.isArray(state.manifolds)) {
@@ -2261,9 +2301,9 @@
    * or an explicit session id, merging Tune, Fuel/Weight, and 4-Corner Tyre telemetry into ONE unified session card.
    */
   function upsertUnifiedSession(patch) {
-    const venue = (patch.venue || getSelectedTrackVenue() || 'Calder Park Raceway').trim();
+    const venue = normalizeVenueName(patch.venue || getSelectedTrackVenue() || 'Calder Park Raceway');
     const { iso: activeIso, display: activeDisp } = getSelectedSessionDate();
-    const sessionDateIso = patch.sessionDateIso || activeIso;
+    const sessionDateIso = patch.sessionDateIso || patch.sessionIsoDate || activeIso;
     const sessionDate = patch.sessionDate || formatIsoDateDisplay(sessionDateIso) || activeDisp;
     const sessionName = (patch.sessionName || getSelectedSessionName() || 'Race 1').trim();
     const now = new Date();
@@ -2276,9 +2316,9 @@
     if (!existing) {
       for (let i = state.sessions.length - 1; i >= 0; i--) {
         const s = state.sessions[i];
-        const sameVenue = (s.venue || 'Calder Park Raceway') === venue;
+        const sameVenue = normalizeVenueName(s.venue || 'Calder Park Raceway') === venue;
         const sameName = (s.sessionName || '') === sessionName;
-        const sameDate = s.sessionDateIso === sessionDateIso || s.sessionDate === sessionDate;
+        const sameDate = s.sessionDateIso === sessionDateIso || s.sessionIsoDate === sessionDateIso || s.sessionDate === sessionDate;
         if (sameVenue && sameName && sameDate) {
           existing = s;
           break;
@@ -2293,6 +2333,9 @@
           existing[k] = patch[k];
         }
       });
+      existing.venue = normalizeVenueName(existing.venue || venue);
+      existing.sessionDateIso = existing.sessionDateIso || sessionDateIso;
+      existing.sessionIsoDate = existing.sessionDateIso;
       if (!existing.manifoldId) {
         existing.manifoldId = ($('selectCalcManifold') && $('selectCalcManifold').value) || state.activeManifoldId || 'Macca';
       }
@@ -2325,6 +2368,7 @@
       id: patch.id || `run_${Date.now()}`,
       venue,
       sessionDateIso,
+      sessionIsoDate: sessionDateIso,
       sessionDate,
       sessionName,
       timestamp: patch.timestamp || `Pit ${timeLabel}`,
@@ -4584,16 +4628,114 @@
     `;
   }
 
+  function getSessionOrderWeight(s) {
+    const name = String((s && s.sessionName) || '').trim().toLowerCase();
+    const pracMatch = name.match(/^practice\s*(\d+)/i);
+    if (pracMatch) return 10 + Number(pracMatch[1]);
+    if (name.includes('practice')) return 15;
+    if (name.includes('qualifying') || name.includes('quali')) return 20;
+    if (name.includes('warm')) return 30;
+    const raceMatch = name.match(/^race\s*(\d+)/i);
+    if (raceMatch) return 40 + Number(raceMatch[1]);
+    if (name.includes('final') || name.includes('trophy') || name.includes('feature')) return 55;
+    if (name.includes('race')) return 45;
+    return 35;
+  }
+
   function renderSessionLog() {
-    const filterVal = $('filterLogCarby') ? $('filterLogCarby').value : 'ALL';
-    const filtered = state.sessions.filter((s) => filterVal === 'ALL' || s.carbyId === filterVal);
-    $('sessionCountBadge').textContent = `${state.sessions.length} Runs`;
+    const fallbackIso = getLocalTodayIso();
+    const trackCounts = new Map();
+    state.sessions.forEach((s) => {
+      const normVenue = normalizeVenueName(s.venue || 'Calder Park Raceway');
+      s.venue = normVenue;
+      const iso = resolveSessionIsoDate(s, fallbackIso);
+      s.sessionDateIso = iso;
+      s.sessionIsoDate = iso;
+      trackCounts.set(normVenue, (trackCounts.get(normVenue) || 0) + 1);
+    });
+
+    const trackSel = $('searchLogTrack');
+    const yearSel = $('searchLogYear');
+
+    const tracksList = Array.from(trackCounts.keys()).sort((a, b) => a.localeCompare(b));
+    if (ui.logSearchTrack !== 'ALL' && !trackCounts.has(ui.logSearchTrack)) {
+      ui.logSearchTrack = 'ALL';
+    }
+
+    if (trackSel) {
+      trackSel.innerHTML = [
+        `<option value="ALL">All Saved Tracks (${state.sessions.length})</option>`,
+        ...tracksList.map(
+          (trk) => `<option value="${escapeHtml(trk)}">${escapeHtml(trk)} (${trackCounts.get(trk)})</option>`
+        )
+      ].join('');
+      trackSel.value = ui.logSearchTrack || 'ALL';
+    }
+
+    const activeTrack = trackSel ? trackSel.value : ui.logSearchTrack || 'ALL';
+    ui.logSearchTrack = activeTrack;
+
+    // Collect years present for the selected track (or all tracks if ALL)
+    const yearSet = new Set();
+    state.sessions.forEach((s) => {
+      if (activeTrack === 'ALL' || normalizeVenueName(s.venue) === activeTrack) {
+        const yr = extractSessionYear(s);
+        if (yr) yearSet.add(yr);
+      }
+    });
+    const yearsList = Array.from(yearSet).sort((a, b) => b.localeCompare(a));
+    if (ui.logSearchYear !== 'ALL' && !yearSet.has(ui.logSearchYear)) {
+      ui.logSearchYear = 'ALL';
+    }
+
+    if (yearSel) {
+      yearSel.innerHTML = [
+        `<option value="ALL">All Years</option>`,
+        ...yearsList.map((yr) => `<option value="${escapeHtml(yr)}">${escapeHtml(yr)}</option>`)
+      ].join('');
+      yearSel.value = ui.logSearchYear || 'ALL';
+    }
+
+    const activeYear = yearSel ? yearSel.value : ui.logSearchYear || 'ALL';
+    ui.logSearchYear = activeYear;
+
+    const indexedFiltered = state.sessions
+      .map((s, idx) => ({ s, idx }))
+      .filter(({ s }) => {
+        const matchTrack = activeTrack === 'ALL' || normalizeVenueName(s.venue) === activeTrack;
+        const matchYear = activeYear === 'ALL' || extractSessionYear(s) === activeYear;
+        return matchTrack && matchYear;
+      });
+
+    // Strict chronological sort: MOST RECENT DATE FIRST down to OLDEST DATE LAST
+    // Tie-break same-day runs by session progression weight descending (Race 3 -> Race 2 -> Race 1 -> Quali -> Practice), then array index descending
+    indexedFiltered.sort((a, b) => {
+      const isoA = a.s.sessionIsoDate || resolveSessionIsoDate(a.s, fallbackIso);
+      const isoB = b.s.sessionIsoDate || resolveSessionIsoDate(b.s, fallbackIso);
+      if (isoA !== isoB) {
+        return isoB.localeCompare(isoA);
+      }
+      const weightA = getSessionOrderWeight(a.s);
+      const weightB = getSessionOrderWeight(b.s);
+      if (weightA !== weightB) {
+        return weightB - weightA;
+      }
+      return b.idx - a.idx;
+    });
+
+    const ordered = indexedFiltered.map((item) => item.s);
+    const badgeEl = $('sessionCountBadge');
+    if (badgeEl) {
+      badgeEl.textContent = `${ordered.length} ${ordered.length === 1 ? 'RUN' : 'RUNS'}`;
+    }
 
     const listEl = $('sessionLogList');
     if (!listEl) return;
 
-    // Display newest sessions at top while showing sequence index
-    const ordered = [...filtered].reverse();
+    if (ordered.length === 0) {
+      listEl.innerHTML = `<div class="subtext" style="text-align:center; padding: 18px 12px;">No saved sessions match the selected Track &amp; Year filter.</div>`;
+      return;
+    }
 
     listEl.innerHTML = ordered
       .map((s) => {
@@ -4615,7 +4757,7 @@
           ? 'txt-danger'
           : 'txt-emerald';
         const peakRpmVal = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
-        const venueLabel = s.venue || 'Calder Park Raceway';
+        const venueLabel = normalizeVenueName(s.venue || 'Calder Park Raceway');
         const dateLabel = s.sessionDate || formatIsoDateDisplay(s.sessionDateIso || getLocalTodayIso());
         const timePart = s.timestamp ? ` (${s.timestamp})` : '';
         const waterTemp = normalizeOptionalWaterTemp(s.waterTempC);
@@ -6812,10 +6954,11 @@
             sess.sessionName = nameInput.value.trim();
           }
           if (venueInput && venueInput.value.trim()) {
-            sess.venue = venueInput.value.trim();
+            sess.venue = normalizeVenueName(venueInput.value.trim());
           }
           if (dateInput && dateInput.value.trim()) {
             sess.sessionDateIso = dateInput.value.trim();
+            sess.sessionIsoDate = sess.sessionDateIso;
             sess.sessionDate = formatIsoDateDisplay(sess.sessionDateIso);
           }
           if (notesInput) {
@@ -7623,8 +7766,19 @@
       });
     }
 
-    // Session Log toolbar
-    $('filterLogCarby').addEventListener('change', renderSessionLog);
+    // Session Log search & toolbar
+    if ($('searchLogTrack')) {
+      $('searchLogTrack').addEventListener('change', (e) => {
+        ui.logSearchTrack = e.target.value || 'ALL';
+        renderSessionLog();
+      });
+    }
+    if ($('searchLogYear')) {
+      $('searchLogYear').addEventListener('change', (e) => {
+        ui.logSearchYear = e.target.value || 'ALL';
+        renderSessionLog();
+      });
+    }
     $('btnExportSessionsCsv').addEventListener('click', exportSessionsCsv);
     $('btnBackupJson').addEventListener('click', backupJsonState);
     $('inputRestoreJson').addEventListener('change', (e) => {
@@ -7649,6 +7803,8 @@
         tyrePool: createDefaultTyrePool()
       };
       ui.weatherOnly = false;
+      ui.logSearchTrack = 'ALL';
+      ui.logSearchYear = 'ALL';
       if ($('selectCalcCarby')) {
         $('selectCalcCarby').value = state.baseline.carbyId;
       }
