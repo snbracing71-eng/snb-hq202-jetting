@@ -2504,21 +2504,21 @@ textarea:focus-visible {
 }
 
 .tyre-condition-bar {
-  display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-  gap: 8px;
-  align-items: stretch;
+  display: block;
   margin-bottom: 12px;
 }
 
 .tyre-cond-seg {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
   padding: 4px;
-  gap: 6px;
 }
 
 .tyre-cond-seg .seg-btn {
-  min-height: 44px;
-  padding: 6px 8px;
+  width: 100%;
+  min-height: 46px;
+  padding: 8px 10px;
   font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.02em;
@@ -2538,21 +2538,6 @@ textarea:focus-visible {
     0 3px 0 #040507,
     0 0 14px rgba(56, 189, 248, 0.42),
     inset 0 2px 1px rgba(255, 255, 255, 0.45);
-}
-
-.tyre-quick-mount-btn {
-  min-height: 48px;
-  padding: 6px 10px;
-  font-size: 13.5px;
-  font-weight: 900;
-  line-height: 1.18;
-  white-space: nowrap;
-}
-
-@media (max-width: 540px) {
-  .tyre-condition-bar {
-    grid-template-columns: 1fr;
-  }
 }
 
 .wet-severity-bar {

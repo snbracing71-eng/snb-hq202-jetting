@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.5.1" />
+  <link rel="stylesheet" href="./styles.css?v=0.5.2" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -755,12 +755,12 @@
                 <span class="field-hint amber">12.0 L surge min</span>
               </div>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputFuelFloorL" data-step="-0.5" aria-label="Decrease Baseline Surge Point">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputFuelFloorL" data-step="-0.1" aria-label="Decrease Baseline Surge Point">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputFuelFloorL" class="num-input" value="12.0" min="5.0" max="45.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputFuelFloorL" class="num-input" value="12.0" min="5.0" max="45.0" step="0.1" inputmode="decimal" />
                   <span class="num-unit-badge">L</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputFuelFloorL" data-step="0.5" aria-label="Increase Baseline Surge Point">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputFuelFloorL" data-step="0.1" aria-label="Increase Baseline Surge Point">+</button>
               </div>
             </div>
           </div>
@@ -792,12 +792,12 @@
                 <span class="field-hint">Start Litres</span>
               </div>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputPumpBeforeL" data-step="-0.5" aria-label="Decrease Fuel In Before Run">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputPumpBeforeL" data-step="-0.1" aria-label="Decrease Fuel In Before Run">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputPumpBeforeL" class="num-input" value="36.0" min="0.0" max="74.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputPumpBeforeL" class="num-input" value="36.0" min="0.0" max="74.0" step="0.1" inputmode="decimal" />
                   <span class="num-unit-badge">L</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputPumpBeforeL" data-step="0.5" aria-label="Increase Fuel In Before Run">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputPumpBeforeL" data-step="0.1" aria-label="Increase Fuel In Before Run">+</button>
               </div>
             </div>
 
@@ -807,12 +807,12 @@
                 <span class="field-hint">Left in Tank</span>
               </div>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputPumpAfterL" data-step="-0.5" aria-label="Decrease Fuel Pumped Out After Run">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputPumpAfterL" data-step="-0.1" aria-label="Decrease Fuel Pumped Out After Run">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputPumpAfterL" class="num-input" value="23.0" min="0.0" max="74.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputPumpAfterL" class="num-input" value="23.0" min="0.0" max="74.0" step="0.1" inputmode="decimal" />
                   <span class="num-unit-badge">L</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputPumpAfterL" data-step="0.5" aria-label="Increase Fuel Pumped Out After Run">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputPumpAfterL" data-step="0.1" aria-label="Increase Fuel Pumped Out After Run">+</button>
               </div>
             </div>
           </div>
@@ -877,12 +877,12 @@
                 <span class="field-hint emerald" id="scaleFuelMassHint">20.0 kg @ SG</span>
               </div>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputScaleCheckFuelL" data-step="-0.5" aria-label="Decrease Fuel Litres When Weighed">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputScaleCheckFuelL" data-step="-0.1" aria-label="Decrease Fuel Litres When Weighed">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputScaleCheckFuelL" class="num-input" value="27.0" min="0.0" max="74.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputScaleCheckFuelL" class="num-input" value="27.0" min="0.0" max="74.0" step="0.1" inputmode="decimal" />
                   <span class="num-unit-badge">L</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputScaleCheckFuelL" data-step="0.5" aria-label="Increase Fuel Litres When Weighed">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputScaleCheckFuelL" data-step="0.1" aria-label="Increase Fuel Litres When Weighed">+</button>
               </div>
             </div>
           </div>
@@ -929,7 +929,7 @@
           <span class="locked-badge" id="tyreTargetBadge">Target 44.0 PSI</span>
         </div>
 
-        <!-- Compact 2-Button Condition Selector (DRY — BUFFED KB vs DECLARED WET KW) + 1-Tap Quick Set Mount -->
+        <!-- 2 Equal 50/50 Condition Selector Buttons (DRY — BUFFED KB vs DECLARED WET KW) -->
         <div class="tyre-condition-bar">
           <div class="seg-toggle tyre-cond-seg" role="group" aria-label="Track Tyre Condition">
             <button type="button" class="seg-btn active" id="btnTyreCondDry" data-tyre-condition="dry">
@@ -939,9 +939,6 @@
               DECLARED WET (KW)
             </button>
           </div>
-          <button type="button" class="btn btn-amber-outline tyre-quick-mount-btn" id="btnQuickMountSet">
-            Mount Wet Set (KW1&ndash;KW4)
-          </button>
         </div>
 
         <!-- 3-Button Wet Severity Stagger Bar (Shown when DECLARED WET KW is active) -->
@@ -1558,31 +1555,6 @@
           <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddNewCarby">
             + New
           </button>
-          <button
-            type="button"
-            class="btn-icon-delete"
-            id="btnDeleteFleetCarby"
-            title="Remove Custom Carby"
-            aria-label="Remove Custom Carby"
-            style="display: none;"
-          >&#10005;</button>
-        </div>
-
-        <div id="addCarbyInlineWrap" class="fleet-inline-add-box" style="display: none; margin-bottom: 12px;">
-          <div class="field-label-row">
-            <label class="field-label" for="inputNewCarbyName">New 40mm BXUV-3 Carby Name / ID</label>
-            <span class="field-hint amber">Group 3H 40mm</span>
-          </div>
-          <div class="fleet-inline-add-row">
-            <input
-              type="text"
-              id="inputNewCarbyName"
-              class="text-input"
-              placeholder="e.g. 3 DME / Spare BXUV-3"
-              autocomplete="off"
-            />
-            <button type="button" class="btn btn-confirm" id="btnConfirmAddCarby">Add Carby</button>
-          </div>
         </div>
 
         <div id="carbyFleetContainer"></div>
@@ -1595,123 +1567,18 @@
             <div class="section-eyebrow">Group 3H Cast Single-Barrel Log</div>
             <h2 class="section-title">Inlet Manifolds &amp; Port Flow (CFM)</h2>
           </div>
-          <span class="locked-badge" id="manifoldOnCarBadge">MACCA &bull; ON CAR</span>
+          <span class="locked-badge" id="fleetManifoldActiveBadge">Macca &bull; ON CAR</span>
         </div>
 
         <div class="fleet-selector-bar" style="margin-bottom: 12px;">
           <label class="sr-only" for="selectFleetManifold">Select Inlet Manifold</label>
           <select id="selectFleetManifold" class="select-input" aria-label="Select Inlet Manifold"></select>
           <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddManifold">
-            + Add Manifold
-          </button>
-          <button
-            type="button"
-            class="btn-icon-delete"
-            id="btnDeleteManifold"
-            title="Remove Manifold"
-            aria-label="Remove Manifold"
-          >&#10005;</button>
-        </div>
-
-        <div id="addManifoldInlineWrap" class="fleet-inline-add-box" style="display: none; margin-bottom: 12px;">
-          <div class="field-label-row">
-            <label class="field-label" for="inputNewManifoldName">New Inlet Manifold Name / Stamp</label>
-            <span class="field-hint amber">Seeds @ 155 CFM</span>
-          </div>
-          <div class="fleet-inline-add-row">
-            <input
-              type="text"
-              id="inputNewManifoldName"
-              class="text-input"
-              placeholder="e.g. Spare #3 / Dev Log"
-              autocomplete="off"
-            />
-            <button type="button" class="btn btn-confirm" id="btnConfirmAddManifold">Add</button>
-          </div>
-        </div>
-
-        <!-- 3-Port Flow Bench Strip (Front #1/#2, Middle #3/#4, Rear #5/#6) -->
-        <div class="manifold-cfm-strip">
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="inputManifoldCfmFront">Front #1/#2</label>
-              <span class="field-hint">CFM</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="inputManifoldCfmFront" data-step="-1" aria-label="Decrease Front Port CFM">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="inputManifoldCfmFront" class="num-input" value="155" min="80" max="260" step="1" inputmode="decimal" />
-                <span class="num-unit-badge">CFM</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="inputManifoldCfmFront" data-step="1" aria-label="Increase Front Port CFM">+</button>
-            </div>
-          </div>
-
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="inputManifoldCfmMiddle">Middle #3/#4</label>
-              <span class="field-hint">CFM</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="inputManifoldCfmMiddle" data-step="-1" aria-label="Decrease Middle Port CFM">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="inputManifoldCfmMiddle" class="num-input" value="155" min="80" max="260" step="1" inputmode="decimal" />
-                <span class="num-unit-badge">CFM</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="inputManifoldCfmMiddle" data-step="1" aria-label="Increase Middle Port CFM">+</button>
-            </div>
-          </div>
-
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="inputManifoldCfmRear">Rear #5/#6</label>
-              <span class="field-hint">CFM</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="inputManifoldCfmRear" data-step="-1" aria-label="Decrease Rear Port CFM">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="inputManifoldCfmRear" class="num-input" value="155" min="80" max="260" step="1" inputmode="decimal" />
-                <span class="num-unit-badge">CFM</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="inputManifoldCfmRear" data-step="1" aria-label="Increase Rear Port CFM">+</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="physics-summary-grid" style="margin-bottom: 10px;">
-          <div class="telem-cell">
-            <span class="telem-label">Avg Port Flow</span>
-            <span class="telem-val txt-emerald" id="outManifoldAvgCfm">155.0 CFM</span>
-            <span class="telem-sub" id="outManifoldSpreadSub">F 155 &bull; M 155 &bull; R 155 CFM</span>
-          </div>
-          <div class="telem-cell">
-            <span class="telem-label">End-to-Mid Balance %</span>
-            <span class="telem-val txt-emerald" id="outManifoldBalancePct">100.0%</span>
-            <span class="telem-sub" id="outManifoldBalanceSub">Ends (#1/#2 &amp; #5/#6) vs Mid (#3/#4)</span>
-          </div>
-        </div>
-
-        <div class="field-group" style="margin-bottom: 12px;">
-          <div class="field-label-row">
-            <label class="field-label" for="inputManifoldNotes">Manifold Flow &amp; Porting Notes</label>
-            <span class="field-hint" id="manifoldCastingHint">Group 3H Cast Log</span>
-          </div>
-          <input
-            type="text"
-            id="inputManifoldNotes"
-            class="text-input"
-            placeholder="Flow bench notes, runner balance, heat shield details..."
-          />
-        </div>
-
-        <div class="form-grid-2">
-          <button type="button" class="btn btn-emerald-outline" id="btnSetManifoldOnCar">
-            Active on Car
-          </button>
-          <button type="button" class="btn btn-confirm" id="btnSaveManifold">
-            Save Manifold
+            + New
           </button>
         </div>
+
+        <div id="manifoldFleetContainer"></div>
       </div>
 
       <!-- 3) Exhausts & Headers Card -->
@@ -1721,102 +1588,18 @@
             <div class="section-eyebrow">HQ 202 Extractors &amp; System Fleet</div>
             <h2 class="section-title">Exhausts &amp; Headers</h2>
           </div>
-          <span class="locked-badge" id="exhaustOnCarBadge">ON CAR &bull; MAIN #1</span>
+          <span class="locked-badge" id="fleetExhaustActiveBadge">Macca &bull; ON CAR</span>
         </div>
 
         <div class="fleet-selector-bar" style="margin-bottom: 12px;">
           <label class="sr-only" for="selectFleetExhaust">Select Exhaust / Header System</label>
           <select id="selectFleetExhaust" class="select-input" aria-label="Select Exhaust or Header System"></select>
           <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddExhaust">
-            + Add Exhaust
-          </button>
-          <button
-            type="button"
-            class="btn-icon-delete"
-            id="btnDeleteExhaust"
-            title="Remove Exhaust"
-            aria-label="Remove Exhaust"
-          >&#10005;</button>
-        </div>
-
-        <div id="addExhaustInlineWrap" class="fleet-inline-add-box" style="display: none; margin-bottom: 12px;">
-          <div class="field-label-row">
-            <label class="field-label" for="inputNewExhaustName">New Exhaust / Header Name</label>
-            <span class="field-hint amber">Header Fleet</span>
-          </div>
-          <div class="fleet-inline-add-row">
-            <input
-              type="text"
-              id="inputNewExhaustName"
-              class="text-input"
-              placeholder="e.g. Hurricane / Custom Tri-Y"
-              autocomplete="off"
-            />
-            <button type="button" class="btn btn-confirm" id="btnConfirmAddExhaust">Add</button>
-          </div>
-        </div>
-
-        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="inputExhaustFlowCfm">Bench Flow (CFM)</label>
-              <span class="field-hint" id="exhaustFlowStatusHint">Blank = Untested</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="inputExhaustFlowCfm" data-step="-1" aria-label="Decrease Exhaust CFM">&minus;</button>
-              <div class="num-input-wrap">
-                <input
-                  type="number"
-                  id="inputExhaustFlowCfm"
-                  class="num-input"
-                  value=""
-                  placeholder="&mdash;"
-                  min="50"
-                  max="500"
-                  step="1"
-                  inputmode="decimal"
-                />
-                <span class="num-unit-badge">CFM</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="inputExhaustFlowCfm" data-step="1" aria-label="Increase Exhaust CFM">+</button>
-            </div>
-          </div>
-
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="inputExhaustSpec">Pipe / Collector Spec</label>
-              <span class="field-hint">Role / Design</span>
-            </div>
-            <input
-              type="text"
-              id="inputExhaustSpec"
-              class="text-input"
-              placeholder="e.g. Main #1 Race System / Tri-Y"
-            />
-          </div>
-        </div>
-
-        <div class="field-group" style="margin-bottom: 12px;">
-          <div class="field-label-row">
-            <label class="field-label" for="inputExhaustNotes">Test &amp; Dyno Notes</label>
-            <span class="field-hint">Back-to-Back Comparison</span>
-          </div>
-          <input
-            type="text"
-            id="inputExhaustNotes"
-            class="text-input"
-            placeholder="Collector AFR shift, midrange torque, flow bench notes..."
-          />
-        </div>
-
-        <div class="form-grid-2">
-          <button type="button" class="btn btn-emerald-outline" id="btnSetExhaustOnCar">
-            Active on Car
-          </button>
-          <button type="button" class="btn btn-confirm" id="btnSaveExhaust">
-            Save Exhaust
+            + New
           </button>
         </div>
+
+        <div id="exhaustFleetContainer"></div>
       </div>
 
       <!-- Live Inch <-> mm <-> Area (mm^2) Orifice Converter -->
@@ -2322,6 +2105,14 @@
 
       <div class="field-group">
         <div class="field-label-row">
+          <label class="field-label" for="editCarbyName">Carby Name / Stamp</label>
+          <span class="field-hint amber">40mm BXUV-3 Fleet</span>
+        </div>
+        <input type="text" id="editCarbyName" class="text-input" placeholder="e.g. 1 DME / 3 DME" autocomplete="off" />
+      </div>
+
+      <div class="field-group">
+        <div class="field-label-row">
           <label class="field-label" for="editCarbyVenturi">Main Venturi Bore (&le; 30.94 mm Legal)</label>
           <span class="field-hint emerald">Group 3H Max 30.94</span>
         </div>
@@ -2457,6 +2248,160 @@
     </div>
   </div>
 
+  <!-- =========================================================
+       MODAL 3B: EDIT INLET MANIFOLD & PORT FLOW (CFM)
+       ========================================================= -->
+  <div class="modal-backdrop" id="modalEditManifold" role="dialog" aria-modal="true" aria-labelledby="modalEditManifoldTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">Group 3H Cast Single-Barrel Log</div>
+          <h2 class="section-title" id="modalEditManifoldTitle">Edit Inlet Manifold Spec</h2>
+        </div>
+        <button type="button" class="btn btn-danger" data-close-modal="modalEditManifold" aria-label="Close Manifold Spec Modal">
+          Close
+        </button>
+      </div>
+
+      <input type="hidden" id="editManifoldIdHidden" />
+
+      <div class="field-group">
+        <div class="field-label-row">
+          <label class="field-label" for="editManifoldName">Manifold Name / Stamp</label>
+          <span class="field-hint amber">Intake Fleet</span>
+        </div>
+        <input type="text" id="editManifoldName" class="text-input" placeholder="e.g. Macca / SNB" autocomplete="off" />
+      </div>
+
+      <div class="field-group">
+        <div class="field-label-row">
+          <label class="field-label" for="editManifoldCfmFront">Front Port (#1/#2) Flow (CFM)</label>
+          <span class="field-hint emerald">155 CFM std</span>
+        </div>
+        <div class="num-stepper">
+          <button type="button" class="stepper-btn" data-stepper-target="editManifoldCfmFront" data-step="-1" aria-label="Decrease Front Port CFM">&minus;</button>
+          <div class="num-input-wrap">
+            <input type="number" id="editManifoldCfmFront" class="num-input" value="155" min="80" max="280" step="1" inputmode="decimal" />
+            <span class="num-unit-badge">CFM</span>
+          </div>
+          <button type="button" class="stepper-btn" data-stepper-target="editManifoldCfmFront" data-step="1" aria-label="Increase Front Port CFM">+</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label-row">
+          <label class="field-label" for="editManifoldCfmMiddle">Middle Port (#3/#4) Flow (CFM)</label>
+          <span class="field-hint emerald">155 CFM std</span>
+        </div>
+        <div class="num-stepper">
+          <button type="button" class="stepper-btn" data-stepper-target="editManifoldCfmMiddle" data-step="-1" aria-label="Decrease Middle Port CFM">&minus;</button>
+          <div class="num-input-wrap">
+            <input type="number" id="editManifoldCfmMiddle" class="num-input" value="155" min="80" max="280" step="1" inputmode="decimal" />
+            <span class="num-unit-badge">CFM</span>
+          </div>
+          <button type="button" class="stepper-btn" data-stepper-target="editManifoldCfmMiddle" data-step="1" aria-label="Increase Middle Port CFM">+</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label-row">
+          <label class="field-label" for="editManifoldCfmRear">Rear Port (#5/#6) Flow (CFM)</label>
+          <span class="field-hint emerald">155 CFM std</span>
+        </div>
+        <div class="num-stepper">
+          <button type="button" class="stepper-btn" data-stepper-target="editManifoldCfmRear" data-step="-1" aria-label="Decrease Rear Port CFM">&minus;</button>
+          <div class="num-input-wrap">
+            <input type="number" id="editManifoldCfmRear" class="num-input" value="155" min="80" max="280" step="1" inputmode="decimal" />
+            <span class="num-unit-badge">CFM</span>
+          </div>
+          <button type="button" class="stepper-btn" data-stepper-target="editManifoldCfmRear" data-step="1" aria-label="Increase Rear Port CFM">+</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label-row">
+          <label class="field-label" for="editManifoldCasting">Casting / Prep Spec</label>
+          <span class="field-hint">Group 3H Legal</span>
+        </div>
+        <input type="text" id="editManifoldCasting" class="text-input" value="Group 3H Cast Log" placeholder="e.g. Group 3H Cast Log" />
+      </div>
+
+      <div class="field-group" style="margin-bottom: 14px;">
+        <div class="field-label-row">
+          <label class="field-label" for="editManifoldNotes">Porting &amp; Flow Notes</label>
+          <span class="field-hint">Bench Notes</span>
+        </div>
+        <input type="text" id="editManifoldNotes" class="text-input" placeholder="e.g. Primary race manifold currently on car." />
+      </div>
+
+      <button type="button" class="btn btn-confirm btn-full" id="btnSaveManifoldModal">
+        Save Manifold Spec
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 3C: EDIT EXHAUST & HEADER SPEC
+       ========================================================= -->
+  <div class="modal-backdrop" id="modalEditExhaust" role="dialog" aria-modal="true" aria-labelledby="modalEditExhaustTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">HQ 202 Extractors &amp; System Fleet</div>
+          <h2 class="section-title" id="modalEditExhaustTitle">Edit Exhaust Spec</h2>
+        </div>
+        <button type="button" class="btn btn-danger" data-close-modal="modalEditExhaust" aria-label="Close Exhaust Spec Modal">
+          Close
+        </button>
+      </div>
+
+      <input type="hidden" id="editExhaustIdHidden" />
+
+      <div class="field-group">
+        <div class="field-label-row">
+          <label class="field-label" for="editExhaustName">Exhaust Name / ID</label>
+          <span class="field-hint amber">Header Fleet</span>
+        </div>
+        <input type="text" id="editExhaustName" class="text-input" placeholder="e.g. Macca / DME / Pounder / Grunt" autocomplete="off" />
+      </div>
+
+      <div class="field-group">
+        <div class="field-label-row">
+          <label class="field-label" for="editExhaustFlowCfm">Bench Flow (CFM)</label>
+          <span class="field-hint">Leave blank (&mdash;) if untested</span>
+        </div>
+        <div class="num-stepper">
+          <button type="button" class="stepper-btn" data-stepper-target="editExhaustFlowCfm" data-step="-1" aria-label="Decrease Exhaust Bench Flow">&minus;</button>
+          <div class="num-input-wrap">
+            <input type="number" id="editExhaustFlowCfm" class="num-input" value="" placeholder="&mdash;" min="50" max="600" step="1" inputmode="decimal" />
+            <span class="num-unit-badge">CFM</span>
+          </div>
+          <button type="button" class="stepper-btn" data-stepper-target="editExhaustFlowCfm" data-step="1" aria-label="Increase Exhaust Bench Flow">+</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label-row">
+          <label class="field-label" for="editExhaustSpec">Pipe / Collector Spec</label>
+          <span class="field-hint">Header Design</span>
+        </div>
+        <input type="text" id="editExhaustSpec" class="text-input" placeholder="e.g. Main #1 Race System / Tri-Y" />
+      </div>
+
+      <div class="field-group" style="margin-bottom: 14px;">
+        <div class="field-label-row">
+          <label class="field-label" for="editExhaustNotes">Test &amp; Dyno Notes</label>
+          <span class="field-hint">Back-to-Back Comparison</span>
+        </div>
+        <input type="text" id="editExhaustNotes" class="text-input" placeholder="Collector AFR shift, midrange torque, flow bench notes..." />
+      </div>
+
+      <button type="button" class="btn btn-confirm btn-full" id="btnSaveExhaustModal">
+        Save Exhaust Spec
+      </button>
+    </div>
+  </div>
+
   <!-- ===========================================================
        MODAL 4: KENDA KR15 TYRE POOL & CROSS-ROTATION MANAGER
        =========================================================== -->
@@ -2550,6 +2495,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.5.1"></script>
+  <script src="./app.js?v=0.5.2"></script>
 </body>
 </html>

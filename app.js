@@ -2979,7 +2979,6 @@
 
     const btnDry = $('btnTyreCondDry');
     const btnWet = $('btnTyreCondWet');
-    const btnQuick = $('btnQuickMountSet');
     const wetBar = $('wetSeverityBar');
     const dirBadge = $('wetTrackDirBadge');
 
@@ -3014,30 +3013,6 @@
         subEl.textContent = `${stg.FL.toFixed(1)}/${stg.FR.toFixed(1)}F • ${stg.hotTargetPsi.toFixed(1)}H`;
       }
     });
-
-    if (btnQuick) {
-      const mounted = ensureMountedTyresState();
-      const mountedSpecs = ['FL', 'FR', 'RL', 'RR']
-        .map((c) => getTyreById(mounted[c]))
-        .filter(Boolean)
-        .map((t) => t.spec);
-      const allWetMounted = mountedSpecs.length === 4 && mountedSpecs.every((s) => s === 'wet');
-      if (isWet || !allWetMounted) {
-        if (isWet && !allWetMounted) {
-          btnQuick.textContent = 'Mount Wet Set (KW1–KW4)';
-          btnQuick.classList.add('wet-mode');
-        } else if (!isWet && allWetMounted) {
-          btnQuick.textContent = 'Mount Dry Set (KB1–KB4)';
-          btnQuick.classList.remove('wet-mode');
-        } else if (isWet) {
-          btnQuick.textContent = 'Mount Dry Set (KB1–KB4)';
-          btnQuick.classList.remove('wet-mode');
-        } else {
-          btnQuick.textContent = 'Mount Wet Set (KW1–KW4)';
-          btnQuick.classList.add('wet-mode');
-        }
-      }
-    }
   }
 
   function applyWetPreset(presetKey, silentToast = false) {
@@ -5477,18 +5452,13 @@
     }
 
     const c = state.carbies.find((item) => item.id === ui.selectedFleetCarbyId) || state.carbies[0];
-    const delBtn = $('btnDeleteFleetCarby');
-    if (delBtn) {
-      const canDelete = state.carbies.length > 1 && !PROTECTED_CARBY_IDS.includes(c.id);
-      delBtn.style.display = canDelete ? 'inline-flex' : 'none';
-    }
-
     const fittedJet = findJetById(c.fittedJetId);
     const jetText = fittedJet ? `${fittedJet.label} (${fittedJet.mm.toFixed(3)} mm)` : 'Unassigned';
     const venturiLegal = c.venturiMm <= 30.94;
     const exitLegal = c.exitMm <= 40.00;
     const allLegal = venturiLegal && exitLegal && c.studsMm === 75.0;
     const isOnCar = c.id === activeCarbyId;
+    const canDelete = !isOnCar && state.carbies.length > 1;
 
     const a = c.baselineAnchor || {
       jetLabel: jetText,
@@ -5512,11 +5482,18 @@
               ${escapeHtml(c.name)}
               ${isOnCar ? '<span class="locked-badge" style="margin-left: 6px;">★ ON CAR</span>' : ''}
             </div>
-            <div class="session-meta-line">${escapeHtml(c.bodyType)} &bull; ${c.studsMm.toFixed(0)} mm Studs</div>
+            <div class="session-meta-line">${escapeHtml(c.bodyType || 'Stromberg BXUV-3 40mm')} &bull; ${(c.studsMm || 75).toFixed(0)} mm Studs</div>
           </div>
-          <span class="locked-badge" style="${allLegal ? '' : 'color: var(--danger); background: var(--danger-dim);'}">
-            ${allLegal ? 'Grp 3H Legal' : 'Check Bore'}
-          </span>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="locked-badge" style="${allLegal ? '' : 'color: var(--danger); background: var(--danger-dim);'}">
+              ${allLegal ? 'Grp 3H Legal' : 'Check Bore'}
+            </span>
+            ${
+              canDelete
+                ? `<button type="button" class="btn-icon-delete" data-delete-fleet-carby="${escapeHtml(c.id)}" title="Remove ${escapeHtml(c.name)}" aria-label="Remove ${escapeHtml(c.name)}">&#10005;</button>`
+                : ''
+            }
+          </div>
         </div>
 
         <div class="carby-specs-grid">
@@ -5545,8 +5522,8 @@
         ${c.notes ? `<p style="margin: 6px 0 10px; font-size: 0.78rem; color: var(--text-secondary);">${escapeHtml(c.notes)}</p>` : ''}
 
         <div class="form-grid-2">
-          <button type="button" class="btn ${isOnCar ? 'btn-emerald-outline' : 'btn-amber-outline'}" data-load-carby-anchor="${escapeHtml(c.id)}">
-            ${isOnCar ? `${escapeHtml(c.name)} Active on Car` : `Set Active on Car`}
+          <button type="button" class="btn ${isOnCar ? 'btn-confirm' : 'btn-amber-outline'}" data-load-carby-anchor="${escapeHtml(c.id)}">
+            ${isOnCar ? `${escapeHtml(c.name)} Active on Car` : `Set ${escapeHtml(c.name)} on Car`}
           </button>
           <button type="button" class="btn btn-secondary" data-edit-carby="${escapeHtml(c.id)}">
             Edit Selected Carby
@@ -5556,45 +5533,28 @@
     `;
   }
 
-  function updateManifoldLiveStats() {
-    const f = readNum('inputManifoldCfmFront', 155);
-    const m = readNum('inputManifoldCfmMiddle', 155);
-    const r = readNum('inputManifoldCfmRear', 155);
-    const avg = (f + m + r) / 3;
-    const endAvg = (f + r) / 2;
-    const balPct = m > 0 ? (endAvg / m) * 100 : 100;
-    const deltaPct = balPct - 100;
-
-    if ($('manifoldAvgCfmVal')) {
-      $('manifoldAvgCfmVal').textContent = `${avg.toFixed(1)} CFM`;
-    }
-    if ($('manifoldBalancePctVal')) {
-      const sign = deltaPct > 0.05 ? '+' : '';
-      $('manifoldBalancePctVal').textContent = `${balPct.toFixed(1)}% (${sign}${deltaPct.toFixed(1)}%)`;
-      $('manifoldBalancePctVal').className =
-        Math.abs(deltaPct) <= 2.5 ? 'telem-val txt-emerald' : 'telem-val txt-amber';
-    }
-  }
-
   function renderManifoldFleet() {
+    const container = $('manifoldFleetContainer');
     const selectEl = $('selectFleetManifold');
-    if (!selectEl) return;
+    if (!container) return;
 
     if (!Array.isArray(state.manifolds) || state.manifolds.length === 0) {
       state.manifolds = createDefaultManifolds();
     }
-    const activeId = state.activeManifoldId || 'Macca';
+    const activeId = state.activeManifoldId || state.manifolds[0].id || 'Macca';
     if (!ui.selectedFleetManifoldId || !state.manifolds.some((m) => m.id === ui.selectedFleetManifoldId)) {
       ui.selectedFleetManifoldId = activeId;
     }
 
-    selectEl.innerHTML = state.manifolds
-      .map((m) => {
-        const isOnCar = m.id === activeId;
-        return `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name)}${isOnCar ? ' ★ ON CAR' : ''}</option>`;
-      })
-      .join('');
-    selectEl.value = ui.selectedFleetManifoldId;
+    if (selectEl) {
+      selectEl.innerHTML = state.manifolds
+        .map((m) => {
+          const isOnCar = m.id === activeId;
+          return `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name)}${isOnCar ? ' ★ ON CAR' : ''}</option>`;
+        })
+        .join('');
+      selectEl.value = ui.selectedFleetManifoldId;
+    }
 
     const badge = $('fleetManifoldActiveBadge');
     if (badge) {
@@ -5602,46 +5562,110 @@
     }
 
     const m = state.manifolds.find((item) => item.id === ui.selectedFleetManifoldId) || state.manifolds[0];
-    const delBtn = $('btnDeleteManifold');
-    if (delBtn) {
-      const canDelete = state.manifolds.length > 1 && !PROTECTED_MANIFOLD_IDS.includes(m.id);
-      delBtn.style.display = canDelete ? 'inline-flex' : 'none';
-    }
+    const isOnCar = m.id === activeId;
+    const canDelete = !isOnCar && state.manifolds.length > 1;
 
-    if ($('inputManifoldCfmFront')) $('inputManifoldCfmFront').value = Number(m.cfmFront ?? 155).toFixed(0);
-    if ($('inputManifoldCfmMiddle')) $('inputManifoldCfmMiddle').value = Number(m.cfmMiddle ?? 155).toFixed(0);
-    if ($('inputManifoldCfmRear')) $('inputManifoldCfmRear').value = Number(m.cfmRear ?? 155).toFixed(0);
-    if ($('inputManifoldNotes')) $('inputManifoldNotes').value = m.notes || '';
+    const pf = m.portFlowCfm || {};
+    const cfmFront = Number.isFinite(Number(m.cfmFront))
+      ? Number(m.cfmFront)
+      : Number.isFinite(Number(pf.front))
+      ? Number(pf.front)
+      : 155;
+    const cfmMiddle = Number.isFinite(Number(m.cfmMiddle))
+      ? Number(m.cfmMiddle)
+      : Number.isFinite(Number(pf.middle))
+      ? Number(pf.middle)
+      : 155;
+    const cfmRear = Number.isFinite(Number(m.cfmRear))
+      ? Number(m.cfmRear)
+      : Number.isFinite(Number(pf.rear))
+      ? Number(pf.rear)
+      : 155;
+    const avgCfm = (cfmFront + cfmMiddle + cfmRear) / 3;
+    const endAvg = (cfmFront + cfmRear) / 2;
+    const balPct = cfmMiddle > 0 ? (endAvg / cfmMiddle) * 100 : 100;
+    const deltaPct = balPct - 100;
+    const castingSpec = m.casting && m.casting.length <= 24 ? m.casting : 'Group 3H Cast Log';
 
-    const setBtn = $('btnSetManifoldOnCar');
-    if (setBtn) {
-      const isOnCar = m.id === activeId;
-      setBtn.textContent = isOnCar ? `${m.name} ★ ON CAR` : 'Set Active on Car';
-      setBtn.className = `btn ${isOnCar ? 'btn-emerald-outline' : 'btn-amber-outline'}`;
-    }
+    container.innerHTML = `
+      <div class="carby-card" style="margin-bottom: 0;">
+        <div class="session-head" style="margin-bottom: 6px;">
+          <div>
+            <div class="session-title-line">
+              ${escapeHtml(m.name)}
+              ${isOnCar ? '<span class="locked-badge" style="margin-left: 6px;">★ ON CAR</span>' : ''}
+            </div>
+            <div class="session-meta-line">HQ 202 Single-Carb Log Intake &bull; Port Flow Balanced</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="locked-badge">GRP 3H CAST LOG</span>
+            ${
+              canDelete
+                ? `<button type="button" class="btn-icon-delete" data-delete-fleet-manifold="${escapeHtml(m.id)}" title="Remove ${escapeHtml(m.name)}" aria-label="Remove ${escapeHtml(m.name)}">&#10005;</button>`
+                : ''
+            }
+          </div>
+        </div>
 
-    updateManifoldLiveStats();
+        <div class="carby-specs-grid">
+          <div class="telem-cell">
+            <span class="telem-label">FRONT / MID / REAR FLOW</span>
+            <span class="telem-val">${cfmFront.toFixed(0)} &bull; ${cfmMiddle.toFixed(0)} &bull; ${cfmRear.toFixed(0)} CFM</span>
+            <span class="telem-sub">Cyl #1/#2 &bull; #3/#4 &bull; #5/#6</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">AVG PORT FLOW</span>
+            <span class="telem-val txt-emerald">${avgCfm.toFixed(1)} CFM</span>
+            <span class="telem-sub">3-Runner Mean Flow</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">END-TO-MID BALANCE</span>
+            <span class="telem-val ${Math.abs(deltaPct) <= 2.5 ? 'txt-emerald' : 'txt-amber'}">${balPct.toFixed(1)}%</span>
+            <span class="telem-sub">#1/#2 &amp; #5/#6 vs #3/#4</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">CASTING SPEC</span>
+            <span class="telem-val">${escapeHtml(castingSpec)}</span>
+            <span class="telem-sub">${isOnCar ? 'Bolted on Car' : 'Workshop Spare'}</span>
+          </div>
+        </div>
+
+        ${m.notes ? `<p style="margin: 6px 0 10px; font-size: 0.78rem; color: var(--text-secondary);">${escapeHtml(m.notes)}</p>` : ''}
+
+        <div class="form-grid-2">
+          <button type="button" class="btn ${isOnCar ? 'btn-confirm' : 'btn-amber-outline'}" data-set-manifold-on-car="${escapeHtml(m.id)}">
+            ${isOnCar ? `${escapeHtml(m.name)} Active on Car` : `Set ${escapeHtml(m.name)} on Car`}
+          </button>
+          <button type="button" class="btn btn-secondary" data-edit-manifold="${escapeHtml(m.id)}">
+            Edit Selected Manifold
+          </button>
+        </div>
+      </div>
+    `;
   }
 
   function renderExhaustFleet() {
+    const container = $('exhaustFleetContainer');
     const selectEl = $('selectFleetExhaust');
-    if (!selectEl) return;
+    if (!container) return;
 
     if (!Array.isArray(state.exhausts) || state.exhausts.length === 0) {
       state.exhausts = createDefaultExhausts();
     }
-    const activeId = state.activeExhaustId || 'Macca';
+    const activeId = state.activeExhaustId || state.exhausts[0].id || 'Macca';
     if (!ui.selectedFleetExhaustId || !state.exhausts.some((x) => x.id === ui.selectedFleetExhaustId)) {
       ui.selectedFleetExhaustId = activeId;
     }
 
-    selectEl.innerHTML = state.exhausts
-      .map((x) => {
-        const isOnCar = x.id === activeId;
-        return `<option value="${escapeHtml(x.id)}">${escapeHtml(x.name)}${isOnCar ? ' ★ ON CAR' : ''}</option>`;
-      })
-      .join('');
-    selectEl.value = ui.selectedFleetExhaustId;
+    if (selectEl) {
+      selectEl.innerHTML = state.exhausts
+        .map((x) => {
+          const isOnCar = x.id === activeId;
+          return `<option value="${escapeHtml(x.id)}">${escapeHtml(x.name)}${isOnCar ? ' ★ ON CAR' : ''}</option>`;
+        })
+        .join('');
+      selectEl.value = ui.selectedFleetExhaustId;
+    }
 
     const badge = $('fleetExhaustActiveBadge');
     if (badge) {
@@ -5649,132 +5673,100 @@
     }
 
     const x = state.exhausts.find((item) => item.id === ui.selectedFleetExhaustId) || state.exhausts[0];
-    const delBtn = $('btnDeleteExhaust');
-    if (delBtn) {
-      const canDelete = state.exhausts.length > 1 && !PROTECTED_EXHAUST_IDS.includes(x.id);
-      delBtn.style.display = canDelete ? 'inline-flex' : 'none';
-    }
+    const isOnCar = x.id === activeId;
+    const canDelete = !isOnCar && state.exhausts.length > 1;
+    const hasFlow =
+      x.flowCfm !== null && x.flowCfm !== undefined && x.flowCfm !== '' && Number.isFinite(Number(x.flowCfm)) && Number(x.flowCfm) > 0;
+    const pipeSpec = x.primarySpec || x.spec || (x.id === 'Macca' ? 'Main #1 Race System' : 'HQ 202 Race Extractors');
+    const isMainRace = x.id === 'Macca' || /main\s*#?1/i.test(pipeSpec);
+    const headerBadge = isMainRace ? 'MAIN #1' : 'TEST SYSTEM';
+    const fleetRole = isMainRace ? 'Primary Race System' : 'To Flow & Dyno Test';
+    const statusText = isOnCar ? 'Bolted on Car' : 'Workshop Rack';
 
-    if ($('inputExhaustFlowCfm')) {
-      const hasFlow = x.flowCfm !== null && x.flowCfm !== undefined && x.flowCfm !== '' && Number.isFinite(Number(x.flowCfm));
-      $('inputExhaustFlowCfm').value = hasFlow ? Number(x.flowCfm).toFixed(0) : '';
-    }
-    if ($('inputExhaustPrimarySpec')) $('inputExhaustPrimarySpec').value = x.primarySpec || '';
-    if ($('inputExhaustNotes')) $('inputExhaustNotes').value = x.notes || '';
+    container.innerHTML = `
+      <div class="carby-card" style="margin-bottom: 0;">
+        <div class="session-head" style="margin-bottom: 6px;">
+          <div>
+            <div class="session-title-line">
+              ${escapeHtml(x.name)}
+              ${isOnCar ? '<span class="locked-badge" style="margin-left: 6px;">★ ON CAR</span>' : ''}
+            </div>
+            <div class="session-meta-line">HQ 202 Race Extractors &amp; Collector System</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="locked-badge" style="${isMainRace ? '' : 'color: #FCD34D; border-color: rgba(245, 158, 11, 0.45);'}">${escapeHtml(headerBadge)}</span>
+            ${
+              canDelete
+                ? `<button type="button" class="btn-icon-delete" data-delete-fleet-exhaust="${escapeHtml(x.id)}" title="Remove ${escapeHtml(x.name)}" aria-label="Remove ${escapeHtml(x.name)}">&#10005;</button>`
+                : ''
+            }
+          </div>
+        </div>
 
-    const setBtn = $('btnSetExhaustOnCar');
-    if (setBtn) {
-      const isOnCar = x.id === activeId;
-      setBtn.textContent = isOnCar ? `${x.name} ★ ON CAR` : 'Set Active on Car';
-      setBtn.className = `btn ${isOnCar ? 'btn-emerald-outline' : 'btn-amber-outline'}`;
-    }
+        <div class="carby-specs-grid">
+          <div class="telem-cell">
+            <span class="telem-label">BENCH FLOW</span>
+            <span class="telem-val ${hasFlow ? 'txt-emerald' : 'txt-amber'}">${hasFlow ? `${Number(x.flowCfm).toFixed(0)} CFM` : 'Untested'}</span>
+            <span class="telem-sub">${hasFlow ? 'Verified Bench CFM' : 'Awaiting Flow Bench'}</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">PIPE / COLLECTOR SPEC</span>
+            <span class="telem-val">${escapeHtml(pipeSpec)}</span>
+            <span class="telem-sub">Group 3H HQ 202</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">FLEET ROLE</span>
+            <span class="telem-val ${isMainRace ? 'txt-emerald' : 'txt-amber'}">${escapeHtml(fleetRole)}</span>
+            <span class="telem-sub">${isMainRace ? 'Number #1 System' : 'Development &amp; Dyno'}</span>
+          </div>
+          <div class="telem-cell">
+            <span class="telem-label">STATUS</span>
+            <span class="telem-val ${isOnCar ? 'txt-emerald' : ''}">${escapeHtml(statusText)}</span>
+            <span class="telem-sub">${isOnCar ? 'Active on Race Car' : 'Ready to Swap'}</span>
+          </div>
+        </div>
+
+        ${x.notes ? `<p style="margin: 6px 0 10px; font-size: 0.78rem; color: var(--text-secondary);">${escapeHtml(x.notes)}</p>` : ''}
+
+        <div class="form-grid-2">
+          <button type="button" class="btn ${isOnCar ? 'btn-confirm' : 'btn-amber-outline'}" data-set-exhaust-on-car="${escapeHtml(x.id)}">
+            ${isOnCar ? `${escapeHtml(x.name)} Active on Car` : `Set ${escapeHtml(x.name)} on Car`}
+          </button>
+          <button type="button" class="btn btn-secondary" data-edit-exhaust="${escapeHtml(x.id)}">
+            Edit Selected Exhaust
+          </button>
+        </div>
+      </div>
+    `;
   }
 
-  function addNewFleetCarby() {
-    const inp = $('inputNewCarbyName');
-    const name = inp ? inp.value.trim() : '';
-    if (!name) {
-      showToast('Enter a Carby name / ID first');
+  function deleteFleetCarbyById(cid) {
+    const targetId = cid || ui.selectedFleetCarbyId;
+    if (!targetId || state.carbies.length <= 1) return;
+    if (state.baseline && state.baseline.carbyId === targetId) {
+      showToast('Cannot delete the Carby currently Active on Car');
       return;
     }
-    if (state.carbies.some((c) => c.id.toLowerCase() === name.toLowerCase())) {
-      showToast(`${name} is already in Carby Fleet`);
-      return;
-    }
-    const newCarby = {
-      id: name,
-      name,
-      bodyType: 'Stromberg BXUV-3 40mm',
-      studsMm: 75.0,
-      venturiMm: 30.88,
-      exitMm: 39.95,
-      spillMm: 15.0,
-      fittedJetId: 'm1_0800',
-      notes: 'Custom BXUV-3 40mm fleet unit.',
-      baselineAnchor: {
-        jetId: 'm1_0800',
-        jetLabel: 'M1 .0800" (2.032 mm)',
-        jetMm: 2.032,
-        rad: 94.3,
-        fuelSg: 0.740,
-        verifiedAfr: null,
-        sourceLabel: `${name} Untested Anchor`
-      }
-    };
-    state.carbies.push(newCarby);
-    ui.selectedFleetCarbyId = newCarby.id;
-    if (inp) inp.value = '';
-    if ($('addCarbyInlineWrap')) $('addCarbyInlineWrap').style.display = 'none';
-    saveState();
-    populateCarbySelects();
-    renderCarbyFleet();
-    showToast(`Added ${name} to Carby Fleet`);
-  }
-
-  function deleteSelectedFleetCarby() {
-    const cid = ui.selectedFleetCarbyId;
-    if (!cid || PROTECTED_CARBY_IDS.includes(cid) || state.carbies.length <= 1) return;
-    if (typeof window.confirm === 'function' && !window.confirm(`Remove carburettor "${cid}" from fleet?`)) {
-      return;
-    }
-    state.carbies = state.carbies.filter((c) => c.id !== cid);
-    if (state.baseline.carbyId === cid) {
-      state.baseline.carbyId = state.carbies[0].id;
-    }
-    ui.selectedFleetCarbyId = state.baseline.carbyId;
+    state.carbies = state.carbies.filter((c) => c.id !== targetId);
+    ui.selectedFleetCarbyId = state.baseline && state.baseline.carbyId ? state.baseline.carbyId : state.carbies[0].id;
     saveState();
     renderAll();
-    showToast(`Removed ${cid} from Carby Fleet`);
+    showToast(`Removed ${targetId} from Carby Fleet`);
   }
 
-  function addNewFleetManifold() {
-    const inp = $('inputNewManifoldName');
-    const name = inp ? inp.value.trim() : '';
-    if (!name) {
-      showToast('Enter a Manifold name / ID first');
+  function deleteFleetManifoldById(mid) {
+    const targetId = mid || ui.selectedFleetManifoldId;
+    if (!targetId || state.manifolds.length <= 1) return;
+    if (state.activeManifoldId === targetId) {
+      showToast('Cannot delete the Manifold currently Active on Car');
       return;
     }
-    if (state.manifolds.some((m) => m.id.toLowerCase() === name.toLowerCase())) {
-      showToast(`${name} is already in Inlet Manifolds`);
-      return;
-    }
-    const newMan = {
-      id: name,
-      name,
-      cfmFront: 155,
-      cfmMiddle: 155,
-      cfmRear: 155,
-      onCar: false,
-      notes: 'HQ 202 single-carb log intake manifold.'
-    };
-    state.manifolds.push(newMan);
-    ui.selectedFleetManifoldId = newMan.id;
-    if (inp) inp.value = '';
-    if ($('addManifoldInlineWrap')) $('addManifoldInlineWrap').style.display = 'none';
+    state.manifolds = state.manifolds.filter((m) => m.id !== targetId);
+    ui.selectedFleetManifoldId = state.activeManifoldId || state.manifolds[0].id;
     saveState();
     populateCarbySelects();
     renderManifoldFleet();
-    showToast(`Added ${name} Manifold`);
-  }
-
-  function deleteSelectedFleetManifold() {
-    const mid = ui.selectedFleetManifoldId;
-    if (!mid || PROTECTED_MANIFOLD_IDS.includes(mid) || state.manifolds.length <= 1) return;
-    if (typeof window.confirm === 'function' && !window.confirm(`Remove manifold "${mid}" from fleet?`)) {
-      return;
-    }
-    state.manifolds = state.manifolds.filter((m) => m.id !== mid);
-    if (state.activeManifoldId === mid) {
-      state.activeManifoldId = state.manifolds[0].id;
-      state.manifolds.forEach((m) => {
-        m.onCar = m.id === state.activeManifoldId;
-      });
-    }
-    ui.selectedFleetManifoldId = state.activeManifoldId;
-    saveState();
-    populateCarbySelects();
-    renderManifoldFleet();
-    showToast(`Removed ${mid} Manifold`);
+    showToast(`Removed ${targetId} Manifold`);
   }
 
   function setManifoldActiveOnCar(mid) {
@@ -5784,74 +5776,26 @@
     state.manifolds.forEach((m) => {
       m.onCar = m.id === targetId;
     });
+    ui.selectedFleetManifoldId = targetId;
     saveState();
     populateCarbySelects();
     renderManifoldFleet();
     showToast(`${targetId} Manifold set ★ ON CAR`);
   }
 
-  function saveSelectedManifold() {
-    const m = state.manifolds.find((item) => item.id === ui.selectedFleetManifoldId);
-    if (!m) return;
-    m.cfmFront = Math.round(readNum('inputManifoldCfmFront', m.cfmFront ?? 155));
-    m.cfmMiddle = Math.round(readNum('inputManifoldCfmMiddle', m.cfmMiddle ?? 155));
-    m.cfmRear = Math.round(readNum('inputManifoldCfmRear', m.cfmRear ?? 155));
-    if ($('inputManifoldNotes')) {
-      m.notes = $('inputManifoldNotes').value.trim();
-    }
-    saveState();
-    populateCarbySelects();
-    renderManifoldFleet();
-    showToast(`Saved ${m.name} Manifold (${m.cfmFront}/${m.cfmMiddle}/${m.cfmRear} CFM)`);
-  }
-
-  function addNewFleetExhaust() {
-    const inp = $('inputNewExhaustName');
-    const name = inp ? inp.value.trim() : '';
-    if (!name) {
-      showToast('Enter an Exhaust name / ID first');
+  function deleteFleetExhaustById(xid) {
+    const targetId = xid || ui.selectedFleetExhaustId;
+    if (!targetId || state.exhausts.length <= 1) return;
+    if (state.activeExhaustId === targetId) {
+      showToast('Cannot delete the Exhaust currently Active on Car');
       return;
     }
-    if (state.exhausts.some((x) => x.id.toLowerCase() === name.toLowerCase())) {
-      showToast(`${name} is already in Exhaust Fleet`);
-      return;
-    }
-    const newExh = {
-      id: name,
-      name,
-      flowCfm: null,
-      primarySpec: 'Tri-Y / 6-into-2-into-1 HQ 202 headers',
-      onCar: false,
-      notes: ''
-    };
-    state.exhausts.push(newExh);
-    ui.selectedFleetExhaustId = newExh.id;
-    if (inp) inp.value = '';
-    if ($('addExhaustInlineWrap')) $('addExhaustInlineWrap').style.display = 'none';
+    state.exhausts = state.exhausts.filter((x) => x.id !== targetId);
+    ui.selectedFleetExhaustId = state.activeExhaustId || state.exhausts[0].id;
     saveState();
     populateCarbySelects();
     renderExhaustFleet();
-    showToast(`Added ${name} Exhaust`);
-  }
-
-  function deleteSelectedFleetExhaust() {
-    const xid = ui.selectedFleetExhaustId;
-    if (!xid || PROTECTED_EXHAUST_IDS.includes(xid) || state.exhausts.length <= 1) return;
-    if (typeof window.confirm === 'function' && !window.confirm(`Remove exhaust "${xid}" from fleet?`)) {
-      return;
-    }
-    state.exhausts = state.exhausts.filter((x) => x.id !== xid);
-    if (state.activeExhaustId === xid) {
-      state.activeExhaustId = state.exhausts[0].id;
-      state.exhausts.forEach((x) => {
-        x.onCar = x.id === state.activeExhaustId;
-      });
-    }
-    ui.selectedFleetExhaustId = state.activeExhaustId;
-    saveState();
-    populateCarbySelects();
-    renderExhaustFleet();
-    showToast(`Removed ${xid} Exhaust`);
+    showToast(`Removed ${targetId} Exhaust`);
   }
 
   function setExhaustActiveOnCar(xid) {
@@ -5861,28 +5805,11 @@
     state.exhausts.forEach((x) => {
       x.onCar = x.id === targetId;
     });
+    ui.selectedFleetExhaustId = targetId;
     saveState();
     populateCarbySelects();
     renderExhaustFleet();
     showToast(`${targetId} Exhaust set ★ ON CAR`);
-  }
-
-  function saveSelectedExhaust() {
-    const x = state.exhausts.find((item) => item.id === ui.selectedFleetExhaustId);
-    if (!x) return;
-    const rawCfm = $('inputExhaustFlowCfm') ? $('inputExhaustFlowCfm').value.trim() : '';
-    const parsedCfm = parseFloat(rawCfm);
-    x.flowCfm = rawCfm !== '' && Number.isFinite(parsedCfm) && parsedCfm > 0 ? Math.round(parsedCfm) : null;
-    if ($('inputExhaustPrimarySpec')) {
-      x.primarySpec = $('inputExhaustPrimarySpec').value.trim();
-    }
-    if ($('inputExhaustNotes')) {
-      x.notes = $('inputExhaustNotes').value.trim();
-    }
-    saveState();
-    populateCarbySelects();
-    renderExhaustFleet();
-    showToast(`Saved ${x.name} Exhaust specs`);
   }
 
   function renderJetInventory() {
@@ -6385,21 +6312,44 @@
   }
 
   function openEditCarbyModal(carbyId) {
-    const carby = state.carbies.find((c) => c.id === carbyId);
+    const isNew = !carbyId || carbyId === '__NEW__';
+    const carby = isNew
+      ? {
+          id: '__NEW__',
+          name: '',
+          venturiMm: 30.88,
+          exitMm: 39.95,
+          spillMm: 15.0,
+          fittedJetId: 'm1_0800',
+          notes: '',
+          baselineAnchor: {
+            jetMm: 2.032,
+            rad: 94.3,
+            fuelSg: 0.740,
+            verifiedAfr: null,
+            sourceLabel: 'Untested Anchor'
+          }
+        }
+      : state.carbies.find((c) => c.id === carbyId);
     if (!carby) return;
 
-    $('editCarbyIdHidden').value = carby.id;
-    $('modalEditCarbyTitle').textContent = `Edit ${carby.name} (40mm BXUV-3)`;
-    $('editCarbyVenturi').value = carby.venturiMm.toFixed(2);
-    $('editCarbyExit').value = carby.exitMm.toFixed(2);
-    $('editCarbySpill').value = carby.spillMm.toFixed(1);
+    $('editCarbyIdHidden').value = isNew ? '__NEW__' : carby.id;
+    if ($('editCarbyName')) {
+      $('editCarbyName').value = isNew ? '' : carby.name || carby.id;
+    }
+    $('modalEditCarbyTitle').textContent = isNew
+      ? 'Add New Carburettor (40mm BXUV-3)'
+      : `Edit ${carby.name} (40mm BXUV-3)`;
+    $('editCarbyVenturi').value = Number(carby.venturiMm ?? 30.88).toFixed(2);
+    $('editCarbyExit').value = Number(carby.exitMm ?? 39.95).toFixed(2);
+    $('editCarbySpill').value = Number(carby.spillMm ?? 15.0).toFixed(1);
     $('editCarbyNotes').value = carby.notes || '';
 
     const jetSel = $('editCarbyJet');
     jetSel.innerHTML = sortJetsByDiameter(state.jets)
       .map((j) => `<option value="${escapeHtml(j.id)}">${escapeHtml(j.label)} (${j.mm.toFixed(3)} mm)</option>`)
       .join('');
-    jetSel.value = carby.fittedJetId;
+    jetSel.value = carby.fittedJetId || 'm1_0800';
 
     const a = carby.baselineAnchor || {
       jetMm: 2.000,
@@ -6424,7 +6374,35 @@
 
   function saveEditCarbyModal() {
     const id = $('editCarbyIdHidden').value;
-    const carby = state.carbies.find((c) => c.id === id);
+    const isNew = !id || id === '__NEW__';
+    const rawName = ($('editCarbyName') ? $('editCarbyName').value : '').trim();
+
+    let carby = isNew ? null : state.carbies.find((c) => c.id === id);
+    if (isNew) {
+      if (!rawName) {
+        showToast('Enter a Carby Name / ID');
+        return;
+      }
+      if (state.carbies.some((c) => c.id.toLowerCase() === rawName.toLowerCase())) {
+        showToast(`${rawName} is already in Carby Fleet`);
+        return;
+      }
+      carby = {
+        id: rawName,
+        name: rawName,
+        bodyType: 'Stromberg BXUV-3 40mm',
+        studsMm: 75.0,
+        venturiMm: 30.88,
+        exitMm: 39.95,
+        spillMm: 15.0,
+        fittedJetId: 'm1_0800',
+        notes: ''
+      };
+      state.carbies.push(carby);
+      ui.selectedFleetCarbyId = carby.id;
+    } else if (carby && rawName && rawName !== carby.name) {
+      carby.name = rawName;
+    }
     if (!carby) return;
 
     // Enforce Group 3H 40mm late-base Stromberg BXUV-3 maximum limits
@@ -6458,12 +6436,187 @@
     saveState();
     closeModal('modalEditCarby');
     renderAll();
-    showToast(`Saved ${carby.name} specs & baseline anchor`);
+    showToast(`${isNew ? 'Added' : 'Saved'} ${carby.name} specs & baseline anchor`);
+  }
+
+  function openEditManifoldModal(manifoldId) {
+    const isNew = !manifoldId || manifoldId === '__NEW__';
+    const m = isNew
+      ? {
+          id: '__NEW__',
+          name: '',
+          cfmFront: 155,
+          cfmMiddle: 155,
+          cfmRear: 155,
+          casting: 'Group 3H Cast Log',
+          notes: ''
+        }
+      : state.manifolds.find((item) => item.id === manifoldId);
+    if (!m) return;
+
+    const pf = m.portFlowCfm || {};
+    const cfmFront = Number.isFinite(Number(m.cfmFront))
+      ? Number(m.cfmFront)
+      : Number.isFinite(Number(pf.front))
+      ? Number(pf.front)
+      : 155;
+    const cfmMiddle = Number.isFinite(Number(m.cfmMiddle))
+      ? Number(m.cfmMiddle)
+      : Number.isFinite(Number(pf.middle))
+      ? Number(pf.middle)
+      : 155;
+    const cfmRear = Number.isFinite(Number(m.cfmRear))
+      ? Number(m.cfmRear)
+      : Number.isFinite(Number(pf.rear))
+      ? Number(pf.rear)
+      : 155;
+
+    if ($('editManifoldIdHidden')) $('editManifoldIdHidden').value = isNew ? '__NEW__' : m.id;
+    if ($('modalEditManifoldTitle')) {
+      $('modalEditManifoldTitle').textContent = isNew
+        ? 'Add New Inlet Manifold (HQ 202)'
+        : `Edit ${m.name} Manifold (HQ 202)`;
+    }
+    if ($('editManifoldName')) $('editManifoldName').value = isNew ? '' : m.name || m.id;
+    if ($('editManifoldCfmFront')) $('editManifoldCfmFront').value = cfmFront.toFixed(0);
+    if ($('editManifoldCfmMiddle')) $('editManifoldCfmMiddle').value = cfmMiddle.toFixed(0);
+    if ($('editManifoldCfmRear')) $('editManifoldCfmRear').value = cfmRear.toFixed(0);
+    if ($('editManifoldCasting')) {
+      $('editManifoldCasting').value =
+        m.casting && m.casting.length <= 24 ? m.casting : 'Group 3H Cast Log';
+    }
+    if ($('editManifoldNotes')) $('editManifoldNotes').value = m.notes || '';
+
+    openModal('modalEditManifold');
+  }
+
+  function saveEditManifoldModal() {
+    const id = $('editManifoldIdHidden') ? $('editManifoldIdHidden').value : '';
+    const isNew = !id || id === '__NEW__';
+    const rawName = ($('editManifoldName') ? $('editManifoldName').value : '').trim();
+
+    let m = isNew ? null : state.manifolds.find((item) => item.id === id);
+    if (isNew) {
+      if (!rawName) {
+        showToast('Enter a Manifold Name / ID');
+        return;
+      }
+      if (state.manifolds.some((item) => item.id.toLowerCase() === rawName.toLowerCase())) {
+        showToast(`${rawName} is already in Inlet Manifolds`);
+        return;
+      }
+      m = {
+        id: rawName,
+        name: rawName,
+        onCar: false
+      };
+      state.manifolds.push(m);
+      ui.selectedFleetManifoldId = m.id;
+    } else if (m && rawName) {
+      m.name = rawName;
+    }
+    if (!m) return;
+
+    const front = Math.round(readNum('editManifoldCfmFront', 155));
+    const middle = Math.round(readNum('editManifoldCfmMiddle', 155));
+    const rear = Math.round(readNum('editManifoldCfmRear', 155));
+    m.cfmFront = front;
+    m.cfmMiddle = middle;
+    m.cfmRear = rear;
+    m.portFlowCfm = { front, middle, rear };
+    m.casting = ($('editManifoldCasting') ? $('editManifoldCasting').value.trim() : '') || 'Group 3H Cast Log';
+    m.notes = ($('editManifoldNotes') ? $('editManifoldNotes').value.trim() : '');
+
+    saveState();
+    closeModal('modalEditManifold');
+    populateCarbySelects();
+    renderManifoldFleet();
+    showToast(`${isNew ? 'Added' : 'Saved'} ${m.name} Manifold (${front}/${middle}/${rear} CFM)`);
+  }
+
+  function openEditExhaustModal(exhaustId) {
+    const isNew = !exhaustId || exhaustId === '__NEW__';
+    const x = isNew
+      ? {
+          id: '__NEW__',
+          name: '',
+          flowCfm: null,
+          primarySpec: 'Tri-Y / 6-into-2-into-1 HQ 202 headers',
+          notes: ''
+        }
+      : state.exhausts.find((item) => item.id === exhaustId);
+    if (!x) return;
+
+    if ($('editExhaustIdHidden')) $('editExhaustIdHidden').value = isNew ? '__NEW__' : x.id;
+    if ($('modalEditExhaustTitle')) {
+      $('modalEditExhaustTitle').textContent = isNew
+        ? 'Add New Exhaust / Headers (HQ 202)'
+        : `Edit ${x.name} Exhaust (HQ 202)`;
+    }
+    if ($('editExhaustName')) $('editExhaustName').value = isNew ? '' : x.name || x.id;
+    const hasFlow =
+      x.flowCfm !== null && x.flowCfm !== undefined && x.flowCfm !== '' && Number.isFinite(Number(x.flowCfm)) && Number(x.flowCfm) > 0;
+    if ($('editExhaustFlowCfm')) $('editExhaustFlowCfm').value = hasFlow ? Number(x.flowCfm).toFixed(0) : '';
+    if ($('editExhaustSpec')) {
+      $('editExhaustSpec').value = x.primarySpec || x.spec || (x.id === 'Macca' ? 'Main #1 Race System' : 'HQ 202 Race Extractors');
+    }
+    if ($('editExhaustNotes')) $('editExhaustNotes').value = x.notes || '';
+
+    openModal('modalEditExhaust');
+  }
+
+  function saveEditExhaustModal() {
+    const id = $('editExhaustIdHidden') ? $('editExhaustIdHidden').value : '';
+    const isNew = !id || id === '__NEW__';
+    const rawName = ($('editExhaustName') ? $('editExhaustName').value : '').trim();
+
+    let x = isNew ? null : state.exhausts.find((item) => item.id === id);
+    if (isNew) {
+      if (!rawName) {
+        showToast('Enter an Exhaust Name / ID');
+        return;
+      }
+      if (state.exhausts.some((item) => item.id.toLowerCase() === rawName.toLowerCase())) {
+        showToast(`${rawName} is already in Exhaust Fleet`);
+        return;
+      }
+      x = {
+        id: rawName,
+        name: rawName,
+        onCar: false
+      };
+      state.exhausts.push(x);
+      ui.selectedFleetExhaustId = x.id;
+    } else if (x && rawName) {
+      x.name = rawName;
+    }
+    if (!x) return;
+
+    const rawCfm = $('editExhaustFlowCfm') ? $('editExhaustFlowCfm').value.trim() : '';
+    const parsedCfm = parseFloat(rawCfm);
+    x.flowCfm = rawCfm !== '' && Number.isFinite(parsedCfm) && parsedCfm > 0 ? Math.round(parsedCfm) : null;
+    const specStr = ($('editExhaustSpec') ? $('editExhaustSpec').value.trim() : '') || 'HQ 202 Race Extractors';
+    x.primarySpec = specStr;
+    x.spec = specStr;
+    x.notes = ($('editExhaustNotes') ? $('editExhaustNotes').value.trim() : '');
+
+    saveState();
+    closeModal('modalEditExhaust');
+    populateCarbySelects();
+    renderExhaustFleet();
+    showToast(`${isNew ? 'Added' : 'Saved'} ${x.name} Exhaust specs`);
   }
 
   /* ------------------------------------------------------------------------
      10. GLOBAL STEPPER & EVENT DELEGATION
      ------------------------------------------------------------------------ */
+  const FUEL_LITRE_STEPPER_IDS = new Set([
+    'inputFuelFloorL',
+    'inputPumpBeforeL',
+    'inputPumpAfterL',
+    'inputScaleCheckFuelL'
+  ]);
+
   function stepNumericInput(inputEl, delta) {
     if (!inputEl) return;
     const rawStr = String(inputEl.value || '').trim();
@@ -6471,12 +6624,22 @@
     const min = inputEl.min !== '' ? parseFloat(inputEl.min) : -Infinity;
     const max = inputEl.max !== '' ? parseFloat(inputEl.max) : Infinity;
     const stepStr = String(Math.abs(delta));
-    const decimals = stepStr.includes('.') ? stepStr.split('.')[1].length : 0;
-
-    // If an optional AFR, Cold/Hot Tyre PSI, Tyre Temp, or Water Temp field is blank, start at a sensible default when stepping
     const idStr = String(inputEl.id || '');
+    const decimals = FUEL_LITRE_STEPPER_IDS.has(idStr)
+      ? 1
+      : stepStr.includes('.')
+      ? stepStr.split('.')[1].length
+      : 0;
+
+    // If an optional AFR, Cold/Hot Tyre PSI, Tyre Temp, Exhaust CFM, or Water Temp field is blank, start at a sensible default when stepping
     if (idStr === 'inputScaleCheckKg' && (!Number.isFinite(current) || current <= 500)) {
       inputEl.value = delta > 0 ? '1375.0' : '0.0';
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+      inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+    if (idStr === 'editExhaustFlowCfm' && (!Number.isFinite(current) || current <= 0)) {
+      inputEl.value = '220';
       inputEl.dispatchEvent(new Event('input', { bubbles: true }));
       inputEl.dispatchEvent(new Event('change', { bubbles: true }));
       return;
@@ -6796,6 +6959,48 @@
       const editCarbyBtn = e.target.closest('[data-edit-carby]');
       if (editCarbyBtn) {
         openEditCarbyModal(editCarbyBtn.getAttribute('data-edit-carby'));
+        return;
+      }
+
+      const delFleetCarbyBtn = e.target.closest('[data-delete-fleet-carby]');
+      if (delFleetCarbyBtn) {
+        deleteFleetCarbyById(delFleetCarbyBtn.getAttribute('data-delete-fleet-carby'));
+        return;
+      }
+
+      const setManifoldBtn = e.target.closest('[data-set-manifold-on-car]');
+      if (setManifoldBtn) {
+        setManifoldActiveOnCar(setManifoldBtn.getAttribute('data-set-manifold-on-car'));
+        return;
+      }
+
+      const editManifoldBtn = e.target.closest('[data-edit-manifold]');
+      if (editManifoldBtn) {
+        openEditManifoldModal(editManifoldBtn.getAttribute('data-edit-manifold'));
+        return;
+      }
+
+      const delFleetManifoldBtn = e.target.closest('[data-delete-fleet-manifold]');
+      if (delFleetManifoldBtn) {
+        deleteFleetManifoldById(delFleetManifoldBtn.getAttribute('data-delete-fleet-manifold'));
+        return;
+      }
+
+      const setExhaustBtn = e.target.closest('[data-set-exhaust-on-car]');
+      if (setExhaustBtn) {
+        setExhaustActiveOnCar(setExhaustBtn.getAttribute('data-set-exhaust-on-car'));
+        return;
+      }
+
+      const editExhaustBtn = e.target.closest('[data-edit-exhaust]');
+      if (editExhaustBtn) {
+        openEditExhaustModal(editExhaustBtn.getAttribute('data-edit-exhaust'));
+        return;
+      }
+
+      const delFleetExhaustBtn = e.target.closest('[data-delete-fleet-exhaust]');
+      if (delFleetExhaustBtn) {
+        deleteFleetExhaustById(delFleetExhaustBtn.getAttribute('data-delete-fleet-exhaust'));
         return;
       }
 
@@ -7189,7 +7394,7 @@
       });
     }
 
-    // Tab 4 (Carbies, Inlet Manifolds & Exhausts) single-selector & inline form controls
+    // Tab 4 (Carbies, Inlet Manifolds & Exhausts) unified selector + modal controls
     if ($('selectFleetCarby')) {
       $('selectFleetCarby').addEventListener('change', () => {
         ui.selectedFleetCarbyId = $('selectFleetCarby').value;
@@ -7198,18 +7403,8 @@
     }
     if ($('btnAddNewCarby')) {
       $('btnAddNewCarby').addEventListener('click', () => {
-        const wrap = $('addCarbyInlineWrap');
-        if (!wrap) return;
-        const isHidden = wrap.style.display === 'none';
-        wrap.style.display = isHidden ? 'block' : 'none';
-        if (isHidden && $('inputNewCarbyName')) $('inputNewCarbyName').focus();
+        openEditCarbyModal('__NEW__');
       });
-    }
-    if ($('btnConfirmAddCarby')) {
-      $('btnConfirmAddCarby').addEventListener('click', addNewFleetCarby);
-    }
-    if ($('btnDeleteFleetCarby')) {
-      $('btnDeleteFleetCarby').addEventListener('click', deleteSelectedFleetCarby);
     }
 
     if ($('selectFleetManifold')) {
@@ -7220,32 +7415,9 @@
     }
     if ($('btnAddManifold')) {
       $('btnAddManifold').addEventListener('click', () => {
-        const wrap = $('addManifoldInlineWrap');
-        if (!wrap) return;
-        const isHidden = wrap.style.display === 'none';
-        wrap.style.display = isHidden ? 'block' : 'none';
-        if (isHidden && $('inputNewManifoldName')) $('inputNewManifoldName').focus();
+        openEditManifoldModal('__NEW__');
       });
     }
-    if ($('btnConfirmAddManifold')) {
-      $('btnConfirmAddManifold').addEventListener('click', addNewFleetManifold);
-    }
-    if ($('btnDeleteManifold')) {
-      $('btnDeleteManifold').addEventListener('click', deleteSelectedFleetManifold);
-    }
-    if ($('btnSetManifoldOnCar')) {
-      $('btnSetManifoldOnCar').addEventListener('click', () => setManifoldActiveOnCar(ui.selectedFleetManifoldId));
-    }
-    if ($('btnSaveManifold')) {
-      $('btnSaveManifold').addEventListener('click', saveSelectedManifold);
-    }
-    ['inputManifoldCfmFront', 'inputManifoldCfmMiddle', 'inputManifoldCfmRear'].forEach((id) => {
-      const el = $(id);
-      if (el) {
-        el.addEventListener('input', updateManifoldLiveStats);
-        el.addEventListener('change', updateManifoldLiveStats);
-      }
-    });
 
     if ($('selectFleetExhaust')) {
       $('selectFleetExhaust').addEventListener('change', () => {
@@ -7255,27 +7427,11 @@
     }
     if ($('btnAddExhaust')) {
       $('btnAddExhaust').addEventListener('click', () => {
-        const wrap = $('addExhaustInlineWrap');
-        if (!wrap) return;
-        const isHidden = wrap.style.display === 'none';
-        wrap.style.display = isHidden ? 'block' : 'none';
-        if (isHidden && $('inputNewExhaustName')) $('inputNewExhaustName').focus();
+        openEditExhaustModal('__NEW__');
       });
     }
-    if ($('btnConfirmAddExhaust')) {
-      $('btnConfirmAddExhaust').addEventListener('click', addNewFleetExhaust);
-    }
-    if ($('btnDeleteExhaust')) {
-      $('btnDeleteExhaust').addEventListener('click', deleteSelectedFleetExhaust);
-    }
-    if ($('btnSetExhaustOnCar')) {
-      $('btnSetExhaustOnCar').addEventListener('click', () => setExhaustActiveOnCar(ui.selectedFleetExhaustId));
-    }
-    if ($('btnSaveExhaust')) {
-      $('btnSaveExhaust').addEventListener('click', saveSelectedExhaust);
-    }
 
-    // Tab 2 (Fuel & Wt) and Tab 3 (Tyres) unified session save, quick wet/dry mount, & Tyre Stock buttons
+    // Tab 2 (Fuel & Wt) and Tab 3 (Tyres) unified session save & Tyre Stock buttons
     if ($('btnSaveFuelWeightSession')) {
       $('btnSaveFuelWeightSession').addEventListener('click', saveFuelAndWeightToSession);
     }
@@ -7284,16 +7440,6 @@
     }
     if ($('btnClearAllColdPsi')) {
       $('btnClearAllColdPsi').addEventListener('click', toggleClearOrRestoreColdPsi);
-    }
-    if ($('btnQuickMountSet')) {
-      $('btnQuickMountSet').addEventListener('click', () => {
-        const mounted = ensureMountedTyresState();
-        const allWetMounted = ['FL', 'FR', 'RL', 'RR']
-          .map((c) => getTyreById(mounted[c]))
-          .filter(Boolean)
-          .every((t) => t.spec === 'wet');
-        mountTyreSetBySpec(allWetMounted ? 'buffed' : 'wet');
-      });
     }
     if ($('btnCrossSwapTyresX')) {
       $('btnCrossSwapTyresX').addEventListener('click', () => {
@@ -7408,7 +7554,7 @@
       renderStep2Calculator(false);
     });
 
-    // Baseline modals
+    // Baseline & Fleet modals
     $('btnOpenPostRaceAfr').addEventListener('click', openPostRaceAfrModal);
     $('btnSavePostRaceAfr').addEventListener('click', savePostRaceAfrModal);
     $('modalPostWotAfr').addEventListener('input', () => {
@@ -7424,6 +7570,12 @@
     $('btnOpenEditBaseline').addEventListener('click', openEditBaselineModal);
     $('btnSaveEditBaseline').addEventListener('click', saveEditBaselineModal);
     $('btnSaveCarbySpec').addEventListener('click', saveEditCarbyModal);
+    if ($('btnSaveManifoldModal')) {
+      $('btnSaveManifoldModal').addEventListener('click', saveEditManifoldModal);
+    }
+    if ($('btnSaveExhaustModal')) {
+      $('btnSaveExhaustModal').addEventListener('click', saveEditExhaustModal);
+    }
 
     if ($('btnToggleEditBaseWeatherOnly')) {
       $('btnToggleEditBaseWeatherOnly').addEventListener('click', () => {
