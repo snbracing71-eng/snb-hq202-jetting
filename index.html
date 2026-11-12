@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.5.6" />
+  <link rel="stylesheet" href="./styles.css?v=0.5.7" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -88,6 +88,79 @@
   </header>
 
   <main class="app-shell" role="main">
+    <!-- =========================================================
+         PERSISTENT WEEKEND EVENT BAR (+ NEW EVENT / LIVE EVENT + END EVENT)
+         ========================================================= -->
+    <div id="weekendEventBanner" class="weekend-event-banner" role="region" aria-label="Race Weekend Event Control">
+      <!-- State 1: No Active Event -->
+      <div id="eventBarInactiveView" class="event-bar-inactive">
+        <div class="event-bar-inactive-top">
+          <span class="event-bar-eyebrow">No Active Race Weekend</span>
+          <span class="event-bar-hint">All sessions log inside an Event</span>
+        </div>
+        <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnOpenNewEventModal">
+          + NEW EVENT (START RACE WEEKEND)
+        </button>
+      </div>
+
+      <!-- State 2: Live Event Active -->
+      <div id="eventBarLiveView" class="event-bar-live" style="display: none;">
+        <div class="live-event-top-row">
+          <div class="live-event-title-wrap">
+            <div class="live-event-badge-row">
+              <span class="live-event-pill">
+                <span class="live-event-dot"></span>
+                LIVE EVENT
+              </span>
+              <span class="live-event-date-tag tabular" id="liveEventDateLabel">13 Nov 2026</span>
+            </div>
+            <div class="live-event-venue-name" id="liveEventVenueLabel">Calder Park Raceway</div>
+            <div class="live-event-sub-title" id="liveEventTitleLabel">Club Championship Rd 4 &bull; 1 Session Logged</div>
+          </div>
+
+          <button type="button" class="btn btn-danger live-end-event-btn" id="btnOpenEndEventModal" aria-label="End and Lock Event">
+            END EVENT
+          </button>
+        </div>
+
+        <div class="live-event-session-row">
+          <div class="live-event-session-select-wrap">
+            <label class="field-label" for="selectLiveEventSession" style="margin-bottom: 3px; display: block;">Active Session in Event</label>
+            <select id="selectLiveEventSession" class="select-input" aria-label="Active Session in Live Event">
+              <option value="Practice 1">Practice 1</option>
+              <option value="Practice 2">Practice 2</option>
+              <option value="Practice 3">Practice 3</option>
+              <option value="Practice 4">Practice 4</option>
+              <option value="Practice 5">Practice 5</option>
+              <option value="Practice 6">Practice 6</option>
+              <option value="Practice 7">Practice 7</option>
+              <option value="Qualifying">Qualifying</option>
+              <option value="Warm Up">Warm Up</option>
+              <option value="Race 1">Race 1</option>
+              <option value="Race 2">Race 2</option>
+              <option value="Race 3">Race 3</option>
+              <option value="Race 4">Race 4</option>
+              <option value="Final">Final</option>
+              <option value="__CUSTOM__">Custom Session...</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn-secondary live-next-session-btn" id="btnStartNextSession">
+            + Start New Session
+          </button>
+        </div>
+
+        <div id="liveEventCustomSessionWrap" class="field-group" style="display: none; margin-top: 8px; margin-bottom: 0;">
+          <input
+            type="text"
+            id="inputLiveEventCustomSession"
+            class="text-input"
+            placeholder="Enter custom session name (e.g. Trophy Race)"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+    </div>
+
     <!-- =========================================================
          TAB 1: PIT-LANE CALCULATOR (Step 1 -> Next -> Confirm)
          ========================================================= -->
@@ -177,7 +250,7 @@
           </div>
 
           <!-- 1) Circuit / Track + Session Date row -->
-          <div class="form-grid-2 stack-mobile" style="margin-bottom: 14px;">
+          <div id="calcTrackDateRow" class="form-grid-2 stack-mobile" style="margin-bottom: 14px;">
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
                 <label class="field-label" for="selectTrackVenue">Circuit / Track</label>
@@ -615,7 +688,7 @@
         </div>
 
         <!-- Shared Active Session Bar: Circuit / Track + Session Date -->
-        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+        <div id="fuelTrackDateRow" class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
               <label class="field-label" for="selectFuelTrack">Circuit / Track</label>
@@ -964,7 +1037,7 @@
         </div>
 
         <!-- Shared Active Session Bar Row 1: Circuit / Track + Session Date -->
-        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+        <div id="tyreTrackDateRow" class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
               <label class="field-label" for="selectTyreTrack">Circuit / Track</label>
@@ -2540,9 +2613,176 @@
     </div>
   </div>
 
+  <!-- =========================================================
+       MODAL: + NEW EVENT (START RACE WEEKEND)
+       ========================================================= -->
+  <div id="modalNewEvent" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalNewEventTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">Race Weekend Architecture</div>
+          <h3 class="modal-title" id="modalNewEventTitle">Start New Race Event</h3>
+        </div>
+        <button type="button" class="btn btn-danger" id="btnCloseNewEventModal" style="padding: 6px 12px;">Close</button>
+      </div>
+
+      <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0 0 12px 0; line-height: 1.45;">
+        Starting an Event sets the circuit &amp; date across Calculator, Fuel &amp; Wt, and Tyres. Every session you run logs straight into this Event until you tap <strong>END EVENT</strong>.
+      </p>
+
+      <div class="field-group">
+        <div class="field-label-row">
+          <label class="field-label" for="newEventTrack">Circuit / Track</label>
+          <span class="field-hint emerald">Loads Track Fuel &amp; Tyre Memory</span>
+        </div>
+        <select id="newEventTrack" class="select-input" aria-label="Select Event Circuit or Track">
+          <optgroup label="VIC">
+            <option value="Calder Park Raceway" selected>Calder Park Raceway</option>
+            <option value="Sandown Raceway">Sandown Raceway</option>
+            <option value="Winton Motor Raceway">Winton Motor Raceway</option>
+            <option value="Phillip Island Grand Prix Circuit">Phillip Island Grand Prix Circuit</option>
+            <option value="Haunted Hills / Bryant Park">Haunted Hills / Bryant Park</option>
+            <option value="Broadford State Motorcycle Complex">Broadford State Motorcycle Complex</option>
+          </optgroup>
+          <optgroup label="NSW">
+            <option value="Sydney Motorsport Park (SMSP)">Sydney Motorsport Park (SMSP)</option>
+            <option value="Mount Panorama (Bathurst)">Mount Panorama (Bathurst)</option>
+            <option value="Wakefield Park / One Raceway">Wakefield Park / One Raceway</option>
+            <option value="Pheasant Wood Circuit">Pheasant Wood Circuit</option>
+          </optgroup>
+          <optgroup label="QLD">
+            <option value="Queensland Raceway (Willowbank)">Queensland Raceway (Willowbank)</option>
+            <option value="Morgan Park Raceway">Morgan Park Raceway</option>
+            <option value="Lakeside Park">Lakeside Park</option>
+            <option value="Townsville Reid Park">Townsville Reid Park</option>
+          </optgroup>
+          <optgroup label="SA">
+            <option value="The Bend Motorsport Park">The Bend Motorsport Park</option>
+            <option value="Mallala Motorsport Park">Mallala Motorsport Park</option>
+          </optgroup>
+          <optgroup label="WA">
+            <option value="CARCO.com.au Raceway (Wanneroo)">CARCO.com.au Raceway (Wanneroo)</option>
+            <option value="Collie Motorplex">Collie Motorplex</option>
+          </optgroup>
+          <optgroup label="TAS">
+            <option value="Symmons Plains Raceway">Symmons Plains Raceway</option>
+            <option value="Baskerville Raceway">Baskerville Raceway</option>
+          </optgroup>
+          <optgroup label="NT">
+            <option value="Hidden Valley Raceway">Hidden Valley Raceway</option>
+          </optgroup>
+          <optgroup label="Custom">
+            <option value="__CUSTOM_TRACK__">Custom Track...</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div id="newEventCustomTrackWrap" class="field-group" style="display: none;">
+        <div class="field-label-row">
+          <label class="field-label" for="newEventCustomTrack">Custom Track / Venue Name</label>
+          <span class="field-hint amber">Required</span>
+        </div>
+        <input type="text" id="newEventCustomTrack" class="text-input" placeholder="e.g. Wakefield / Test Track" autocomplete="off" />
+      </div>
+
+      <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 12px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="newEventDate">Event Start Date</label>
+            <span class="field-hint">Weekend Start</span>
+          </div>
+          <input type="date" id="newEventDate" class="text-input" aria-label="Event Start Date" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="newEventFirstSession">Starting Session</label>
+            <span class="field-hint emerald">Session #1</span>
+          </div>
+          <select id="newEventFirstSession" class="select-input" aria-label="Starting Session">
+            <option value="Practice 1" selected>Practice 1</option>
+            <option value="Practice 2">Practice 2</option>
+            <option value="Practice 3">Practice 3</option>
+            <option value="Qualifying">Qualifying</option>
+            <option value="Warm Up">Warm Up</option>
+            <option value="Race 1">Race 1</option>
+            <option value="Race 2">Race 2</option>
+            <option value="Race 3">Race 3</option>
+            <option value="Race 4">Race 4</option>
+            <option value="Final">Final</option>
+            <option value="__CUSTOM__">Custom Session...</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="newEventCustomSessionWrap" class="field-group" style="display: none;">
+        <div class="field-label-row">
+          <label class="field-label" for="newEventCustomSession">Custom Starting Session</label>
+          <span class="field-hint amber">Required</span>
+        </div>
+        <input type="text" id="newEventCustomSession" class="text-input" placeholder="e.g. Friday Shakedown" autocomplete="off" />
+      </div>
+
+      <div class="field-group" style="margin-bottom: 16px;">
+        <div class="field-label-row">
+          <label class="field-label" for="newEventTitle">Event / Round Label (Optional)</label>
+          <span class="field-hint">Shown in Session Log</span>
+        </div>
+        <input
+          type="text"
+          id="newEventTitle"
+          class="text-input"
+          placeholder="e.g. State Series Rd 1 / Test Day"
+          autocomplete="off"
+        />
+      </div>
+
+      <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnStartLiveEvent">
+        START LIVE EVENT
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL: END & LOCK EVENT PERMANENTLY
+       ========================================================= -->
+  <div id="modalEndEvent" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalEndEventTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow" style="color: #f87171;">Permanent Weekend Seal</div>
+          <h3 class="modal-title" id="modalEndEventTitle">End &amp; Lock Race Event?</h3>
+        </div>
+        <button type="button" class="btn btn-secondary" id="btnCloseEndEventModal" style="padding: 6px 12px;">Cancel</button>
+      </div>
+
+      <div class="card-elevated" style="margin-bottom: 12px;">
+        <div style="font-size: 1.02rem; font-weight: 900; color: #f8fafc; margin-bottom: 4px;" id="endEventSummaryVenue">
+          Calder Park Raceway
+        </div>
+        <div class="tabular" style="font-size: 0.82rem; font-weight: 700; color: var(--accent-emerald);" id="endEventSummaryMeta">
+          13 Nov 2026 &bull; 4 Sessions Logged
+        </div>
+      </div>
+
+      <div class="end-event-warning-box" style="margin-bottom: 16px;">
+        <strong>READ-ONLY LOCK WARNING:</strong> Ending this event permanently saves and locks all sessions from this weekend. Locked events cannot be edited or deleted later.
+      </div>
+
+      <div class="form-grid-2" style="gap: 10px;">
+        <button type="button" class="btn btn-secondary btn-full" id="btnKeepEventOpen">
+          Keep Event Open
+        </button>
+        <button type="button" class="btn btn-danger btn-full" id="btnConfirmEndEvent">
+          END &amp; LOCK EVENT PERMANENTLY
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.5.6"></script>
+  <script src="./app.js?v=0.5.7"></script>
 </body>
 </html>
