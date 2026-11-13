@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.7.1" />
+  <link rel="stylesheet" href="./styles.css?v=0.7.2" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -915,7 +915,7 @@
             <div class="section-eyebrow">Kenda KR15 (205/65R15) + Pedders GSR Shocks &amp; Springs</div>
             <h2 class="section-title">4-Corner Tyres &amp; Suspension Matrix</h2>
           </div>
-          <span class="locked-badge" id="tyreTargetBadge">Target 44.0 PSI</span>
+          <span class="locked-badge" id="tyreTargetBadge">TARGET: 40.0F / 43.0R PSI</span>
         </div>
 
         <!-- 2 Equal 50/50 Condition Selector Buttons (DRY — BUFFED KB vs DECLARED WET KW) -->
@@ -930,6 +930,28 @@
           </div>
         </div>
 
+        <!-- Compact Quick-Preset Pill Row (Shown in Dry KB Mode) -->
+        <div class="dry-preset-bar" id="dryTargetPresetBar">
+          <div class="dry-preset-pills" role="group" aria-label="Dry Hot Target Quick Presets">
+            <button type="button" class="tyre-preset-pill active" id="btnPresetAiIdeal" data-dry-target-preset="ai_ideal">
+              <span class="preset-pill-main">AI Ideal Anti-Push (40.0F / 43.0R)</span>
+              <span class="preset-pill-sub" id="subPresetAiIdeal">Front Grip + Live-Axle Bite</span>
+            </button>
+            <button type="button" class="tyre-preset-pill" id="btnPresetClassic44" data-dry-target-preset="classic_44">
+              <span class="preset-pill-main">Classic 44.0 Square</span>
+              <span class="preset-pill-sub">44.0F / 44.0R Reference</span>
+            </button>
+          </div>
+          <div class="dry-cold-dropin-row" id="dryColdDropInRow">
+            <span class="dry-cold-dropin-info" id="dryColdDropInLabel">
+              CW (LH Loaded) AI Cold Baseline: <strong>FL 29.5 &bull; FR 30.5 &bull; RL 34.0 &bull; RR 35.0</strong>
+            </span>
+            <button type="button" class="btn btn-amber-outline btn-xs" id="btnDropAiColdBaseline">
+              Drop In AI Cold Start
+            </button>
+          </div>
+        </div>
+
         <!-- 3-Button Wet Severity Stagger Bar (Shown when DECLARED WET KW is active) -->
         <div class="wet-severity-bar" id="wetSeverityBar" style="display: none;">
           <div class="wet-severity-head">
@@ -939,36 +961,54 @@
           <div class="seg-toggle wet-preset-seg" role="group" aria-label="Wet Severity Stagger Preset">
             <button type="button" class="seg-btn" id="btnWetPreset_drying" data-wet-preset="drying">
               <span class="wet-preset-name">Drying Line</span>
-              <span class="wet-preset-sub" id="subWetPreset_drying">36.5F &bull; 44.0 Hot</span>
+              <span class="wet-preset-sub" id="subWetPreset_drying">36.5F &bull; 44.0F/43.0R</span>
             </button>
             <button type="button" class="seg-btn active" id="btnWetPreset_light" data-wet-preset="light">
               <span class="wet-preset-name">Light Rain</span>
-              <span class="wet-preset-sub" id="subWetPreset_light">38.8F &bull; 43.5 Hot</span>
+              <span class="wet-preset-sub" id="subWetPreset_light">38.8F &bull; 43.5F/42.5R</span>
             </button>
             <button type="button" class="seg-btn" id="btnWetPreset_heavy" data-wet-preset="heavy">
               <span class="wet-preset-name">Heavy Rain</span>
-              <span class="wet-preset-sub" id="subWetPreset_heavy">41.0F &bull; 44.5 Hot</span>
+              <span class="wet-preset-sub" id="subWetPreset_heavy">41.0F &bull; 44.5F/43.5R</span>
             </button>
           </div>
         </div>
 
-        <!-- Row 1: Hot Target PSI + Session Laps (Track, Date & Session Locked in Event Header) -->
+        <!-- Row 1: Split Front Hot Target (FL / FR) & Rear Hot Target (RL / RR) (Step 0.1 psi, Turbo Enabled) -->
         <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
-              <label class="field-label" for="inputTyreHotTarget">Hot Target PSI</label>
-              <span class="field-hint emerald">KR15 44.0</span>
+              <label class="field-label" for="inputTyreHotTargetFront">Front Hot Target (FL / FR)</label>
+              <span class="field-hint emerald" id="hintHotTargetFront">Dry Default 40.0</span>
             </div>
             <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="inputTyreHotTarget" data-step="-0.5" aria-label="Decrease Hot Target Tyre Pressure">&minus;</button>
+              <button type="button" class="stepper-btn" data-stepper-target="inputTyreHotTargetFront" data-step="-0.1" aria-label="Decrease Front Hot Target Tyre Pressure">&minus;</button>
               <div class="num-input-wrap">
-                <input type="number" id="inputTyreHotTarget" class="num-input" value="44.0" min="28.0" max="55.0" step="0.5" inputmode="decimal" />
+                <input type="number" id="inputTyreHotTargetFront" class="num-input" value="40.0" min="28.0" max="55.0" step="0.1" inputmode="decimal" />
                 <span class="num-unit-badge">psi</span>
               </div>
-              <button type="button" class="stepper-btn" data-stepper-target="inputTyreHotTarget" data-step="0.5" aria-label="Increase Hot Target Tyre Pressure">+</button>
+              <button type="button" class="stepper-btn" data-stepper-target="inputTyreHotTargetFront" data-step="0.1" aria-label="Increase Front Hot Target Tyre Pressure">+</button>
             </div>
           </div>
 
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="inputTyreHotTargetRear">Rear Hot Target (RL / RR)</label>
+              <span class="field-hint emerald" id="hintHotTargetRear">Dry Default 43.0</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="inputTyreHotTargetRear" data-step="-0.1" aria-label="Decrease Rear Hot Target Tyre Pressure">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="inputTyreHotTargetRear" class="num-input" value="43.0" min="28.0" max="55.0" step="0.1" inputmode="decimal" />
+                <span class="num-unit-badge">psi</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="inputTyreHotTargetRear" data-step="0.1" aria-label="Increase Rear Hot Target Tyre Pressure">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Session Laps + Live Auto-Learned Cold Stagger Summary -->
+        <div class="form-grid-2 compact-pair-grid" style="align-items: stretch; margin-bottom: 10px;">
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
               <label class="field-label" for="inputTyreSessionLaps">Session Laps</label>
@@ -983,13 +1023,12 @@
               <button type="button" class="stepper-btn" data-stepper-target="inputTyreSessionLaps" data-step="1" aria-label="Increase Tyre Session Laps">+</button>
             </div>
           </div>
-        </div>
 
-        <!-- Row 2: Live Auto-Learned Cold Stagger Summary -->
-        <div class="telem-cell" style="justify-content: center; margin-bottom: 10px;">
-          <span class="telem-label" id="outTyreLearnedCardTitle">Track Learned Cold Stagger (Dry)</span>
-          <span class="telem-val txt-emerald" id="outTyreTrackLearnedSummary" style="font-size: 16.5px;">FL 30.2 &bull; FR 29.5 &bull; RL 30.5 &bull; RR 29.8</span>
-          <span class="telem-sub" id="outTyreTrackLearnedSub">Auto-learned from 1 dry run at Calder Park Raceway</span>
+          <div class="telem-cell" style="justify-content: center;">
+            <span class="telem-label" id="outTyreLearnedCardTitle">Track Learned Cold Stagger (Dry)</span>
+            <span class="telem-val txt-emerald" id="outTyreTrackLearnedSummary" style="font-size: 13.5px;">FL 29.5 &bull; FR 30.5 &bull; RL 34.0 &bull; RR 35.0</span>
+            <span class="telem-sub" id="outTyreTrackLearnedSub">Auto-learned from 1 dry run at Calder Park Raceway</span>
+          </div>
         </div>
 
         <div class="car-orientation-bar">
@@ -997,6 +1036,9 @@
             <span>&uarr; FRONT OF RACE CAR &uarr;</span>
           </div>
           <div class="car-orientation-actions">
+            <button type="button" class="btn btn-secondary btn-clear-cold-psi" id="btnToggleAllPyro" aria-expanded="false" title="Show or hide Out / Mid / In pyrometer tread temperature inputs on all 4 corners">
+              &#127777;&#65039; Show Pyrometer O/M/I
+            </button>
             <button type="button" class="btn btn-secondary btn-clear-cold-psi" id="btnUnmountAllTyres" title="Strip all 4 hubs before changing tyre sets">
               Unmount All 4
             </button>
@@ -1045,7 +1087,7 @@
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FL" data-step="-0.5" aria-label="Decrease FL Cold PSI">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputColdPsi_FL" class="num-input" value="30.0" placeholder="&mdash;" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputColdPsi_FL" class="num-input" value="29.5" placeholder="&mdash;" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
                   <span class="num-unit-badge">psi</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FL" data-step="0.5" aria-label="Increase FL Cold PSI">+</button>
@@ -1064,6 +1106,34 @@
               </div>
             </div>
 
+            <!-- Collapsible Pyrometer O / M / I (°C) Strip -->
+            <div class="pyro-corner-wrap">
+              <button type="button" class="btn-pyro-toggle" data-toggle-corner-pyro="FL" id="btnTogglePyro_FL" aria-expanded="false">
+                <span id="lblTogglePyro_FL">+ Pyrometer O / M / I (&deg;C)</span>
+                <span class="pyro-mini-summary" id="outPyroMini_FL">Optional</span>
+              </button>
+              <div class="pyro-corner-strip" id="pyroStrip_FL" style="display: none;">
+                <div class="pyro-inputs-grid">
+                  <div class="pyro-input-col">
+                    <label class="pyro-col-label" for="inputPyroOut_FL">OUT &deg;C</label>
+                    <input type="number" id="inputPyroOut_FL" class="num-input pyro-num-input" value="" placeholder="&mdash;" min="15" max="130" step="1" inputmode="numeric" />
+                  </div>
+                  <div class="pyro-input-col">
+                    <label class="pyro-col-label" for="inputPyroMid_FL">MID &deg;C</label>
+                    <input type="number" id="inputPyroMid_FL" class="num-input pyro-num-input" value="" placeholder="&mdash;" min="15" max="130" step="1" inputmode="numeric" />
+                  </div>
+                  <div class="pyro-input-col">
+                    <label class="pyro-col-label" for="inputPyroIn_FL">IN &deg;C</label>
+                    <input type="number" id="inputPyroIn_FL" class="num-input pyro-num-input" value="" placeholder="&mdash;" min="15" max="130" step="1" inputmode="numeric" />
+                  </div>
+                </div>
+                <div class="pyro-diag-box" id="outPyroDiagWrap_FL" style="display: none;">
+                  <div class="pyro-footprint-badge" id="outPyroFootprint_FL">FLAT PATCH</div>
+                  <div class="pyro-spread-line" id="outPyroSpread_FL">In-Out Spread: +0&deg;C</div>
+                </div>
+              </div>
+            </div>
+
             <div class="tyre-corner-readouts">
               <div class="tyre-telem-line">
                 <span class="telem-label" style="margin: 0;">Gain:</span>
@@ -1071,11 +1141,11 @@
               </div>
               <div class="tyre-telem-line">
                 <span class="telem-label" style="margin: 0;">Next Cold Set:</span>
-                <span class="mono txt-emerald" style="font-weight: 900;" id="outTyreNextCold_FL">30.0 psi</span>
+                <span class="mono txt-emerald" style="font-weight: 900;" id="outTyreNextCold_FL">29.5 psi</span>
               </div>
               <div class="tyre-telem-line tyre-learned-line">
                 <span class="telem-label" style="margin: 0;">Learned Cold:</span>
-                <span class="mono txt-amber" id="outTyreLearnedCold_FL">30.2 psi (1 run)</span>
+                <span class="mono txt-amber" id="outTyreLearnedCold_FL">29.5 psi (1 run)</span>
               </div>
             </div>
           </div>
@@ -1117,7 +1187,7 @@
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FR" data-step="-0.5" aria-label="Decrease FR Cold PSI">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputColdPsi_FR" class="num-input" value="30.0" placeholder="&mdash;" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputColdPsi_FR" class="num-input" value="30.5" placeholder="&mdash;" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
                   <span class="num-unit-badge">psi</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FR" data-step="0.5" aria-label="Increase FR Cold PSI">+</button>
@@ -1136,6 +1206,34 @@
               </div>
             </div>
 
+            <!-- Collapsible Pyrometer O / M / I (°C) Strip -->
+            <div class="pyro-corner-wrap">
+              <button type="button" class="btn-pyro-toggle" data-toggle-corner-pyro="FR" id="btnTogglePyro_FR" aria-expanded="false">
+                <span id="lblTogglePyro_FR">+ Pyrometer O / M / I (&deg;C)</span>
+                <span class="pyro-mini-summary" id="outPyroMini_FR">Optional</span>
+              </button>
+              <div class="pyro-corner-strip" id="pyroStrip_FR" style="display: none;">
+                <div class="pyro-inputs-grid">
+                  <div class="pyro-input-col">
+                    <label class="pyro-col-label" for="inputPyroOut_FR">OUT &deg;C</label>
+                    <input type="number" id="inputPyroOut_FR" class="num-input pyro-num-input" value="" placeholder="&mdash;" min="15" max="130" step="1" inputmode="numeric" />
+                  </div>
+                  <div class="pyro-input-col">
+                    <label class="pyro-col-label" for="inputPyroMid_FR">MID &deg;C</label>
+                    <input type="number" id="inputPyroMid_FR" class="num-input pyro-num-input" value="" placeholder="&mdash;" min="15" max="130" step="1" inputmode="numeric" />
+                  </div>
+                  <div class="pyro-input-col">
+                    <label class="pyro-col-label" for="inputPyroIn_FR">IN &deg;C</label>
+                    <input type="number" id="inputPyroIn_FR" class="num-input pyro-num-input" value="" placeholder="&mdash;" min="15" max="130" step="1" inputmode="numeric" />
+                  </div>
+                </div>
+                <div class="pyro-diag-box" id="outPyroDiagWrap_FR" style="display: none;">
+                  <div class="pyro-footprint-badge" id="outPyroFootprint_FR">FLAT PATCH</div>
+                  <div class="pyro-spread-line" id="outPyroSpread_FR">In-Out Spread: +0&deg;C</div>
+                </div>
+              </div>
+            </div>
+
             <div class="tyre-corner-readouts">
               <div class="tyre-telem-line">
                 <span class="telem-label" style="margin: 0;">Gain:</span>
@@ -1143,11 +1241,11 @@
               </div>
               <div class="tyre-telem-line">
                 <span class="telem-label" style="margin: 0;">Next Cold Set:</span>
-                <span class="mono txt-emerald" style="font-weight: 900;" id="outTyreNextCold_FR">30.0 psi</span>
+                <span class="mono txt-emerald" style="font-weight: 900;" id="outTyreNextCold_FR">30.5 psi</span>
               </div>
               <div class="tyre-telem-line tyre-learned-line">
                 <span class="telem-label" style="margin: 0;">Learned Cold:</span>
-                <span class="mono txt-amber" id="outTyreLearnedCold_FR">29.5 psi (1 run)</span>
+                <span class="mono txt-amber" id="outTyreLearnedCold_FR">30.5 psi (1 run)</span>
               </div>
             </div>
           </div>
@@ -1189,7 +1287,7 @@
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RL" data-step="-0.5" aria-label="Decrease RL Cold PSI">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputColdPsi_RL" class="num-input" value="30.0" placeholder="&mdash;" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputColdPsi_RL" class="num-input" value="34.0" placeholder="&mdash;" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
                   <span class="num-unit-badge">psi</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RL" data-step="0.5" aria-label="Increase RL Cold PSI">+</button>
@@ -1208,6 +1306,34 @@
               </div>
             </div>
 
+            <!-- Collapsible Pyrometer O / M / I (°C) Strip -->
+            <div class="pyro-corner-wrap">
+              <button type="button" class="btn-pyro-toggle" data-toggle-corner-pyro="RL" id="btnTogglePyro_RL" aria-expanded="false">
+                <span id="lblTogglePyro_RL">+ Pyrometer O / M / I (&deg;C)</span>
+                <span class="pyro-mini-summary" id="outPyroMini_RL">Optional</span>
+              </button>
+              <div class="pyro-corner-strip" id="pyroStrip_RL" style="display: none;">
+                <div class="pyro-inputs-grid">
+                  <div class="pyro-input-col">
+                    <label class="pyro-col-label" for="inputPyroOut_RL">OUT &deg;C</label>
+                    <input type="number" id="inputPyroOut_RL" class="num-input pyro-num-input" value="" placeholder="&mdash;" min="15" max="130" step="1" inputmode="numeric" />
+                  </div>
+                  <div class="pyro-input-col">
+                    <label class="pyro-col-label" for="inputPyroMid_RL">MID &deg;C</label>
+                    <input type="number" id="inputPyroMid_RL" class="num-input pyro-num-input" value="" placeholder="&mdash;" min="15" max="130" step="1" inputmode="numeric" />
+                  </div>
+                  <div class="pyro-input-col">
+                    <label class="pyro-col-label" for="inputPyroIn_RL">IN &deg;C</label>
+                    <input type="number" id="inputPyroIn_RL" class="num-input pyro-num-input" value="" placeholder="&mdash;" min="15" max="130" step="1" inputmode="numeric" />
+                  </div>
+                </div>
+                <div class="pyro-diag-box" id="outPyroDiagWrap_RL" style="display: none;">
+                  <div class="pyro-footprint-badge" id="outPyroFootprint_RL">FLAT PATCH</div>
+                  <div class="pyro-spread-line" id="outPyroSpread_RL">In-Out Spread: +0&deg;C</div>
+                </div>
+              </div>
+            </div>
+
             <div class="tyre-corner-readouts">
               <div class="tyre-telem-line">
                 <span class="telem-label" style="margin: 0;">Gain:</span>
@@ -1215,11 +1341,11 @@
               </div>
               <div class="tyre-telem-line">
                 <span class="telem-label" style="margin: 0;">Next Cold Set:</span>
-                <span class="mono txt-emerald" style="font-weight: 900;" id="outTyreNextCold_RL">30.0 psi</span>
+                <span class="mono txt-emerald" style="font-weight: 900;" id="outTyreNextCold_RL">34.0 psi</span>
               </div>
               <div class="tyre-telem-line tyre-learned-line">
                 <span class="telem-label" style="margin: 0;">Learned Cold:</span>
-                <span class="mono txt-amber" id="outTyreLearnedCold_RL">30.5 psi (1 run)</span>
+                <span class="mono txt-amber" id="outTyreLearnedCold_RL">34.0 psi (1 run)</span>
               </div>
             </div>
           </div>
@@ -1261,7 +1387,7 @@
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RR" data-step="-0.5" aria-label="Decrease RR Cold PSI">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputColdPsi_RR" class="num-input" value="30.0" placeholder="&mdash;" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputColdPsi_RR" class="num-input" value="35.0" placeholder="&mdash;" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
                   <span class="num-unit-badge">psi</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RR" data-step="0.5" aria-label="Increase RR Cold PSI">+</button>
@@ -1280,6 +1406,34 @@
               </div>
             </div>
 
+            <!-- Collapsible Pyrometer O / M / I (°C) Strip -->
+            <div class="pyro-corner-wrap">
+              <button type="button" class="btn-pyro-toggle" data-toggle-corner-pyro="RR" id="btnTogglePyro_RR" aria-expanded="false">
+                <span id="lblTogglePyro_RR">+ Pyrometer O / M / I (&deg;C)</span>
+                <span class="pyro-mini-summary" id="outPyroMini_RR">Optional</span>
+              </button>
+              <div class="pyro-corner-strip" id="pyroStrip_RR" style="display: none;">
+                <div class="pyro-inputs-grid">
+                  <div class="pyro-input-col">
+                    <label class="pyro-col-label" for="inputPyroOut_RR">OUT &deg;C</label>
+                    <input type="number" id="inputPyroOut_RR" class="num-input pyro-num-input" value="" placeholder="&mdash;" min="15" max="130" step="1" inputmode="numeric" />
+                  </div>
+                  <div class="pyro-input-col">
+                    <label class="pyro-col-label" for="inputPyroMid_RR">MID &deg;C</label>
+                    <input type="number" id="inputPyroMid_RR" class="num-input pyro-num-input" value="" placeholder="&mdash;" min="15" max="130" step="1" inputmode="numeric" />
+                  </div>
+                  <div class="pyro-input-col">
+                    <label class="pyro-col-label" for="inputPyroIn_RR">IN &deg;C</label>
+                    <input type="number" id="inputPyroIn_RR" class="num-input pyro-num-input" value="" placeholder="&mdash;" min="15" max="130" step="1" inputmode="numeric" />
+                  </div>
+                </div>
+                <div class="pyro-diag-box" id="outPyroDiagWrap_RR" style="display: none;">
+                  <div class="pyro-footprint-badge" id="outPyroFootprint_RR">FLAT PATCH</div>
+                  <div class="pyro-spread-line" id="outPyroSpread_RR">In-Out Spread: +0&deg;C</div>
+                </div>
+              </div>
+            </div>
+
             <div class="tyre-corner-readouts">
               <div class="tyre-telem-line">
                 <span class="telem-label" style="margin: 0;">Gain:</span>
@@ -1287,11 +1441,11 @@
               </div>
               <div class="tyre-telem-line">
                 <span class="telem-label" style="margin: 0;">Next Cold Set:</span>
-                <span class="mono txt-emerald" style="font-weight: 900;" id="outTyreNextCold_RR">30.0 psi</span>
+                <span class="mono txt-emerald" style="font-weight: 900;" id="outTyreNextCold_RR">35.0 psi</span>
               </div>
               <div class="tyre-telem-line tyre-learned-line">
                 <span class="telem-label" style="margin: 0;">Learned Cold:</span>
-                <span class="mono txt-amber" id="outTyreLearnedCold_RR">29.8 psi (1 run)</span>
+                <span class="mono txt-amber" id="outTyreLearnedCold_RR">35.0 psi (1 run)</span>
               </div>
             </div>
           </div>
@@ -2083,7 +2237,7 @@
       <div class="card-elevated post-race-section-card" style="margin-bottom: 12px;">
         <div class="field-label-row" style="margin-bottom: 8px;">
           <span class="section-eyebrow">3 &bull; Post-Race Hot Tyre PSIs (FL / FR / RL / RR)</span>
-          <span class="field-hint emerald" id="modalPostHotTargetLabel">Target 44.0 PSI</span>
+          <span class="field-hint emerald" id="modalPostHotTargetLabel">TARGET: 40.0F / 43.0R PSI</span>
         </div>
 
         <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 8px;">
@@ -3380,6 +3534,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.7.1"></script>
+  <script src="./app.js?v=0.7.2"></script>
 </body>
 </html>
