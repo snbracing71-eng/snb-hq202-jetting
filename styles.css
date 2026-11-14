@@ -5460,4 +5460,264 @@ button:disabled.btn-stage-locked,
   border: 1px solid #3B4B64;
 }
 
+/* ==========================================================================
+   FLEET & KIT 1-LINE COLLAPSIBLE ACCORDION BARS (A-TO-Z)
+   Matches Session Log 1-line 3D Brushed-Metal Event Square Look
+   ========================================================================== */
+.fleet-acc-card {
+  padding: 0 !important;
+  overflow: hidden;
+  border: 1px solid #2A3548;
+  border-top-color: #41516B;
+  border-bottom-color: #0D121A;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #1A222E 0%, #11161F 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 5px 14px rgba(0, 0, 0, 0.55);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
 
+.fleet-acc-card.is-open {
+  border-color: rgba(245, 158, 11, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 0 0 1px rgba(245, 158, 11, 0.18),
+    0 8px 20px rgba(0, 0, 0, 0.65);
+}
+
+.fleet-acc-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, #212B3A 0%, #141B26 52%, #0E131B 100%);
+  border: none;
+  border-bottom: 1px solid transparent;
+  color: #F8FAFC;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.fleet-acc-header:hover {
+  background: linear-gradient(180deg, #273345 0%, #18202D 52%, #111722 100%);
+}
+
+.fleet-acc-card.is-open > .fleet-acc-header {
+  border-bottom-color: #2A364B;
+  background: linear-gradient(180deg, #293548 0%, #18212F 55%, #111823 100%);
+}
+
+.fleet-acc-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.fleet-acc-title {
+  font-size: 0.96rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  color: #F8FAFC;
+  text-transform: uppercase;
+  line-height: 1.15;
+}
+
+.fleet-acc-sub {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94A3B8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fleet-acc-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.fleet-acc-status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  border: 1px solid #3A4A63;
+  background: linear-gradient(180deg, #1E2736 0%, #121822 100%);
+  color: #E2E8F0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.fleet-acc-status-pill.emerald {
+  border-color: rgba(16, 185, 129, 0.55);
+  background: linear-gradient(180deg, rgba(6, 95, 70, 0.65) 0%, rgba(6, 78, 59, 0.85) 100%);
+  color: #6EE7B7;
+}
+
+.fleet-acc-status-pill.amber {
+  border-color: rgba(245, 158, 11, 0.55);
+  background: linear-gradient(180deg, rgba(120, 53, 15, 0.65) 0%, rgba(69, 26, 3, 0.85) 100%);
+  color: #FCD34D;
+}
+
+.fleet-acc-status-pill.steel {
+  border-color: rgba(56, 189, 248, 0.45);
+  background: linear-gradient(180deg, rgba(12, 74, 110, 0.55) 0%, rgba(8, 47, 73, 0.8) 100%);
+  color: #BAE6FD;
+}
+
+.fleet-acc-count-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: #CBD5E1;
+  background: #0D121A;
+  border: 1px solid #2B3648;
+  white-space: nowrap;
+}
+
+.fleet-acc-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 0.76rem;
+  font-weight: 900;
+  color: #F59E0B;
+  transition: transform 0.16s ease;
+}
+
+.fleet-acc-body {
+  padding: 12px;
+  background: linear-gradient(180deg, #121721 0%, #0C1017 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Corner Weights Drawer Extras */
+.cw-conditions-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.cw-cond-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #94A3B8;
+  background: linear-gradient(180deg, #1B2330 0%, #10161F 100%);
+  border: 1px solid #2D394B;
+  cursor: pointer;
+  transition: all 0.14s ease;
+}
+
+.cw-cond-pill.active {
+  color: #6EE7B7;
+  border-color: rgba(16, 185, 129, 0.55);
+  background: linear-gradient(180deg, rgba(6, 95, 70, 0.55) 0%, rgba(6, 78, 59, 0.8) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.cw-updated-badge {
+  margin-left: auto;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #94A3B8;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: #0B0F16;
+  border: 1px solid #242F40;
+}
+
+.cw-ride-height-box {
+  padding: 9px 10px;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #151C27 0%, #0D1219 100%);
+  border: 1px solid #2C384B;
+}
+
+.cw-ride-height-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.cw-rh-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cw-rh-cell label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #94A3B8;
+}
+
+.cw-rh-input {
+  padding: 6px 6px !important;
+  font-size: 0.78rem !important;
+  text-align: center;
+}
+
+.cw-history-list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cw-history-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #171F2C 0%, #0E131B 100%);
+  border: 1px solid #2C384B;
+  font-size: 0.73rem;
+}
+
+@media (max-width: 480px) {
+  .fleet-acc-header {
+    padding: 10px 11px;
+    gap: 6px;
+  }
+  .fleet-acc-title {
+    font-size: 0.88rem;
+  }
+  .fleet-acc-sub {
+    font-size: 0.67rem;
+  }
+  .fleet-acc-status-pill {
+    font-size: 0.63rem;
+    padding: 2px 6px;
+  }
+  .fleet-acc-count-pill {
+    display: none;
+  }
+}

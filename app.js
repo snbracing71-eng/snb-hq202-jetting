@@ -1434,13 +1434,21 @@
 
   function createDefaultCornerWeightBaseline() {
     return {
-      FL: null,
-      FR: null,
-      RL: null,
-      RR: null,
-      baseFuelL: 20.0,
+      FL: 382.0,
+      FR: 368.0,
+      RL: 312.0,
+      RR: 308.0,
+      fuelLitresAtScale: 25.0,
+      baseFuelL: 25.0,
+      driverInCar: true,
+      barDisconnected: true,
       rlSpacerMm: 0,
-      rrSpacerMm: 20
+      rrSpacerMm: 20,
+      rideHeightMm: { FL: null, FR: null, RL: null, RR: null },
+      notes: 'Baseline workshop pad setup (swaybar unhooked, driver in)',
+      updatedAt: '2026-11-15',
+      history: [],
+      seededDefaultPadsV1: true
     };
   }
 
@@ -1452,21 +1460,91 @@
       const n = Number(v);
       return Number.isFinite(n) && n > 0 && n <= 1200 ? Number(n.toFixed(1)) : null;
     };
-    const rawFuel = raw.baseFuelL;
+    const pickRideHtMm = (v) => {
+      if (v === null || v === undefined || v === '') return null;
+      const n = Number(v);
+      return Number.isFinite(n) && n > 0 && n <= 900 ? Number(n.toFixed(1)) : null;
+    };
+    let fl = pickCornerKg(raw.FL);
+    let fr = pickCornerKg(raw.FR);
+    let rl = pickCornerKg(raw.RL);
+    let rr = pickCornerKg(raw.RR);
+    const shouldSeedDefaultPads =
+      !raw.seededDefaultPadsV1 && fl === null && fr === null && rl === null && rr === null;
+    if (shouldSeedDefaultPads) {
+      fl = def.FL;
+      fr = def.FR;
+      rl = def.RL;
+      rr = def.RR;
+    }
+
+    const rawFuel =
+      raw.fuelLitresAtScale !== undefined && raw.fuelLitresAtScale !== null && raw.fuelLitresAtScale !== ''
+        ? raw.fuelLitresAtScale
+        : raw.baseFuelL;
     const baseFuelL =
       rawFuel !== null && rawFuel !== undefined && rawFuel !== '' && Number.isFinite(Number(rawFuel)) && Number(rawFuel) >= 0
         ? Number(clamp(Number(rawFuel), 0, 74).toFixed(1))
-        : 20.0;
+        : shouldSeedDefaultPads
+        ? 25.0
+        : 25.0;
     const rlRaw = raw.rlSpacerMm !== undefined ? raw.rlSpacerMm : raw.scaleSpacers && raw.scaleSpacers.RL;
     const rrRaw = raw.rrSpacerMm !== undefined ? raw.rrSpacerMm : raw.scaleSpacers && raw.scaleSpacers.RR;
+    const rhRaw = raw.rideHeightMm && typeof raw.rideHeightMm === 'object' ? raw.rideHeightMm : {};
+    const historyArr = Array.isArray(raw.history)
+      ? raw.history
+          .filter((h) => h && typeof h === 'object')
+          .map((h) => ({
+            id: String(h.id || `cw_${Date.now()}`),
+            updatedAt: String(h.updatedAt || '2026-11-15'),
+            FL: pickCornerKg(h.FL) ?? 382.0,
+            FR: pickCornerKg(h.FR) ?? 368.0,
+            RL: pickCornerKg(h.RL) ?? 312.0,
+            RR: pickCornerKg(h.RR) ?? 308.0,
+            fuelLitresAtScale: Number.isFinite(Number(h.fuelLitresAtScale ?? h.baseFuelL))
+              ? Number(Number(h.fuelLitresAtScale ?? h.baseFuelL).toFixed(1))
+              : 25.0,
+            baseFuelL: Number.isFinite(Number(h.baseFuelL ?? h.fuelLitresAtScale))
+              ? Number(Number(h.baseFuelL ?? h.fuelLitresAtScale).toFixed(1))
+              : 25.0,
+            driverInCar: h.driverInCar !== undefined ? Boolean(h.driverInCar) : true,
+            barDisconnected: h.barDisconnected !== undefined ? Boolean(h.barDisconnected) : true,
+            rlSpacerMm: snapSpacerMm(h.rlSpacerMm, 0),
+            rrSpacerMm: snapSpacerMm(h.rrSpacerMm, 20),
+            rideHeightMm: {
+              FL: pickRideHtMm(h.rideHeightMm && h.rideHeightMm.FL),
+              FR: pickRideHtMm(h.rideHeightMm && h.rideHeightMm.FR),
+              RL: pickRideHtMm(h.rideHeightMm && h.rideHeightMm.RL),
+              RR: pickRideHtMm(h.rideHeightMm && h.rideHeightMm.RR)
+            },
+            notes: String(h.notes || '')
+          }))
+      : [];
+
     return {
-      FL: pickCornerKg(raw.FL),
-      FR: pickCornerKg(raw.FR),
-      RL: pickCornerKg(raw.RL),
-      RR: pickCornerKg(raw.RR),
+      FL: fl,
+      FR: fr,
+      RL: rl,
+      RR: rr,
+      fuelLitresAtScale: baseFuelL,
       baseFuelL,
+      driverInCar: raw.driverInCar !== undefined ? Boolean(raw.driverInCar) : true,
+      barDisconnected: raw.barDisconnected !== undefined ? Boolean(raw.barDisconnected) : true,
       rlSpacerMm: snapSpacerMm(rlRaw, 0),
-      rrSpacerMm: snapSpacerMm(rrRaw, 20)
+      rrSpacerMm: snapSpacerMm(rrRaw, 20),
+      rideHeightMm: {
+        FL: pickRideHtMm(rhRaw.FL),
+        FR: pickRideHtMm(rhRaw.FR),
+        RL: pickRideHtMm(rhRaw.RL),
+        RR: pickRideHtMm(rhRaw.RR)
+      },
+      notes:
+        raw.notes !== undefined && raw.notes !== null && String(raw.notes).trim() !== ''
+          ? String(raw.notes)
+          : def.notes,
+      updatedAt: String(raw.updatedAt || def.updatedAt),
+      history: historyArr,
+      seededDefaultPadsV1: true
     };
   }
 
@@ -2565,6 +2643,7 @@
     expandedEventId: null,
     expandedSessionId: null,
     expandedEventIds: new Set(),
+    openFleetSectionId: null,
     pendingActionAfterNewEvent: null,
     tyreStockFilter: 'all', // 'all' | 'buffed' | 'wet'
     shockFleetFilter: 'all', // 'all' | 'F' | 'R' | 'mounted'
@@ -7330,18 +7409,54 @@
     };
   }
 
+  function toggleFleetAccordion(sectionId) {
+    if (!sectionId) return;
+    ui.openFleetSectionId = ui.openFleetSectionId === sectionId ? null : sectionId;
+    syncFleetAccordionUi();
+  }
+
+  function syncFleetAccordionUi() {
+    const openId = ui.openFleetSectionId || null;
+    document.querySelectorAll('#tab-fleet .fleet-acc-card').forEach((card) => {
+      const headerBtn = card.querySelector('[data-fleet-acc]');
+      const secId = headerBtn ? headerBtn.getAttribute('data-fleet-acc') : null;
+      const isOpen = Boolean(secId && secId === openId);
+      card.classList.toggle('is-open', isOpen);
+      if (headerBtn) {
+        headerBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      }
+      const bodyEl = secId ? $(`fleetAccBody_${secId}`) : card.querySelector('.fleet-acc-body');
+      if (bodyEl) {
+        bodyEl.style.display = isOpen ? 'block' : 'none';
+      }
+      const chevEl = secId ? card.querySelector(`[data-fleet-acc-chevron="${secId}"]`) : card.querySelector('.fleet-acc-chevron');
+      if (chevEl) {
+        chevEl.innerHTML = isOpen ? '&#9660;' : '&#9654;';
+      }
+    });
+  }
+
   function hydrateCornerWeightInputs() {
     const cw = ensureCornerWeightBaselineState();
     const baseFuelInp = $('inputCwBaseFuelL');
     if (baseFuelInp && document.activeElement !== baseFuelInp) {
-      baseFuelInp.value = Number(cw.baseFuelL ?? 20.0).toFixed(1);
+      baseFuelInp.value = Number(cw.baseFuelL ?? cw.fuelLitresAtScale ?? 25.0).toFixed(1);
     }
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const inp = $(`inputCornerWt_${c}`);
       if (inp && document.activeElement !== inp) {
         inp.value = cw[c] !== null && Number.isFinite(Number(cw[c])) && Number(cw[c]) > 0 ? Number(cw[c]).toFixed(1) : '';
       }
+      const rhInp = $(`inputCwRideHeight_${c}`);
+      const rhVal = cw.rideHeightMm && cw.rideHeightMm[c];
+      if (rhInp && document.activeElement !== rhInp) {
+        rhInp.value = rhVal !== null && rhVal !== undefined && Number.isFinite(Number(rhVal)) && Number(rhVal) > 0 ? Number(rhVal).toFixed(1) : '';
+      }
     });
+    const notesInp = $('inputCwNotes');
+    if (notesInp && document.activeElement !== notesInp) {
+      notesInp.value = cw.notes || '';
+    }
     renderCornerWeights();
   }
 
@@ -7354,6 +7469,32 @@
     const baseFuelInp = $('inputCwBaseFuelL');
     if (baseFuelInp && document.activeElement !== baseFuelInp) {
       baseFuelInp.value = telem.baseFuelL.toFixed(1);
+    }
+
+    // Sync condition pills & updated badge
+    const btnDriver = $('btnCwDriverInCar');
+    if (btnDriver) {
+      const dActive = cw.driverInCar !== false;
+      btnDriver.classList.toggle('active', dActive);
+      btnDriver.setAttribute('aria-pressed', dActive ? 'true' : 'false');
+      btnDriver.textContent = dActive ? '✓ Driver In Car' : 'Driver Out';
+    }
+    const btnBar = $('btnCwBarDisconnected');
+    if (btnBar) {
+      const bActive = cw.barDisconnected !== false;
+      btnBar.classList.toggle('active', bActive);
+      btnBar.setAttribute('aria-pressed', bActive ? 'true' : 'false');
+      btnBar.textContent = bActive ? '✓ Swaybar Disconnected' : 'Swaybar Connected';
+    }
+    const updEl = $('outCwUpdatedAt');
+    if (updEl) {
+      updEl.textContent = `Updated: ${cw.updatedAt || '2026-11-15'}`;
+    }
+
+    const histCountBadge = $('fleetCornerWtCountBadge');
+    if (histCountBadge) {
+      const hLen = Array.isArray(cw.history) ? cw.history.length : 0;
+      histCountBadge.textContent = hLen > 0 ? `${hLen} SAVED` : 'SAVED';
     }
 
     // Sync scale baseline spacer pills
@@ -7370,6 +7511,36 @@
         btn.setAttribute('aria-pressed', active ? 'true' : 'false');
       });
     });
+
+    // Render snapshot history list if any
+    const histListEl = $('cwHistoryList');
+    if (histListEl) {
+      const hist = Array.isArray(cw.history) ? cw.history : [];
+      if (hist.length === 0) {
+        histListEl.innerHTML = '';
+      } else {
+        histListEl.innerHTML = hist
+          .map((h, idx) => {
+            const hTot = Number((Number(h.FL || 0) + Number(h.FR || 0) + Number(h.RL || 0) + Number(h.RR || 0)).toFixed(1));
+            const hCross = hTot > 0 ? (((Number(h.FL || 0) + Number(h.RR || 0)) / hTot) * 100).toFixed(1) : '—';
+            return `
+              <div class="cw-history-row">
+                <div>
+                  <strong class="mono txt-emerald">${hTot.toFixed(1)} kg &bull; ${hCross}% Cross</strong>
+                  <div class="mono" style="font-size: 0.67rem; color: var(--text-muted);">
+                    ${escapeHtml(h.updatedAt || '')} &bull; FL:${Number(h.FL).toFixed(1)} FR:${Number(h.FR).toFixed(1)} RL:${Number(h.RL).toFixed(1)} RR:${Number(h.RR).toFixed(1)} (${Number(h.baseFuelL || 25).toFixed(0)}L)
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <button type="button" class="btn btn-secondary btn-xs" data-load-cw-hist="${idx}">Load</button>
+                  <button type="button" class="btn-icon-delete" data-del-cw-hist="${idx}" title="Delete Snapshot" aria-label="Delete Snapshot">&#10005;</button>
+                </div>
+              </div>
+            `;
+          })
+          .join('');
+      }
+    }
 
     const badgeEl = $('cornerWtStatusBadge');
     const baseFuelHintEl = $('outCwBaseFuelHint');
@@ -7389,8 +7560,8 @@
 
     if (!telem.hasAllFour) {
       if (badgeEl) {
-        badgeEl.textContent = 'Enter 4 Corners When Scaled';
-        badgeEl.className = 'afr-status-badge estimated';
+        badgeEl.textContent = 'Enter 4 Corners';
+        badgeEl.className = 'fleet-acc-status-pill amber';
       }
       if (baseFuelHintEl) {
         baseFuelHintEl.textContent = `~${telem.baseFuelMassKg.toFixed(1)} kg @ ${telem.activeFuelSg.toFixed(3)} SG • Dry Car+Driver: — kg`;
@@ -7431,8 +7602,8 @@
     const rearDiffWarn = Math.abs(telem.liveRlVsRrKg) > 18.0;
 
     if (badgeEl) {
-      badgeEl.textContent = '✓ 4-Corner Baseline Active';
-      badgeEl.className = 'afr-status-badge verified';
+      badgeEl.textContent = `${telem.totalKg.toFixed(1)} kg • ${telem.baseCrossPct.toFixed(1)}% CROSS`;
+      badgeEl.className = `fleet-acc-status-pill ${isSweetCross ? 'emerald' : 'amber'}`;
     }
     if (baseFuelHintEl) {
       baseFuelHintEl.textContent = `~${telem.baseFuelMassKg.toFixed(1)} kg @ ${telem.activeFuelSg.toFixed(3)} SG • Dry Car+Driver: ${telem.dryCarDriverKg.toFixed(1)} kg`;
@@ -7479,26 +7650,133 @@
       if (rawFuel !== '') {
         const parsedFuel = parseFloat(rawFuel);
         if (Number.isFinite(parsedFuel) && parsedFuel >= 0) {
-          cw.baseFuelL = Number(clamp(parsedFuel, 0, 74.0).toFixed(1));
+          const clampedFuel = Number(clamp(parsedFuel, 0, 74.0).toFixed(1));
+          cw.baseFuelL = clampedFuel;
+          cw.fuelLitresAtScale = clampedFuel;
         }
       }
     }
+    if (!cw.rideHeightMm || typeof cw.rideHeightMm !== 'object') {
+      cw.rideHeightMm = { FL: null, FR: null, RL: null, RR: null };
+    }
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const el = $(`inputCornerWt_${c}`);
-      if (!el) return;
-      const raw = String(el.value || '').trim();
-      if (raw === '') {
-        cw[c] = null;
-      } else {
-        const num = parseFloat(raw);
-        cw[c] = Number.isFinite(num) && num > 0 && num <= 800 ? Number(num.toFixed(1)) : null;
+      if (el) {
+        const raw = String(el.value || '').trim();
+        if (raw === '') {
+          cw[c] = null;
+        } else {
+          const num = parseFloat(raw);
+          cw[c] = Number.isFinite(num) && num > 0 && num <= 1200 ? Number(num.toFixed(1)) : null;
+        }
+      }
+      const rhEl = $(`inputCwRideHeight_${c}`);
+      if (rhEl) {
+        const rawRh = String(rhEl.value || '').trim();
+        if (rawRh === '') {
+          cw.rideHeightMm[c] = null;
+        } else {
+          const numRh = parseFloat(rawRh);
+          cw.rideHeightMm[c] = Number.isFinite(numRh) && numRh > 0 && numRh <= 900 ? Number(numRh.toFixed(1)) : null;
+        }
       }
     });
+    const notesEl = $('inputCwNotes');
+    if (notesEl) {
+      cw.notes = String(notesEl.value || '');
+    }
+    cw.updatedAt = getLocalTodayIso();
     state.cornerWeights = cw;
     state.cornerWeightBaseline = cw;
     saveState();
     renderCornerWeights();
     recalcTyres();
+  }
+
+  function toggleCornerWeightCondition(condKey) {
+    const cw = ensureCornerWeightBaselineState();
+    if (condKey === 'driverInCar') {
+      cw.driverInCar = !cw.driverInCar;
+    } else if (condKey === 'barDisconnected') {
+      cw.barDisconnected = !cw.barDisconnected;
+    }
+    cw.updatedAt = getLocalTodayIso();
+    state.cornerWeights = cw;
+    state.cornerWeightBaseline = cw;
+    saveState();
+    renderCornerWeights();
+  }
+
+  function saveCornerWeightSnapshot() {
+    const telem = computeCornerWeightAndWedgeTelemetry();
+    if (!telem.hasAllFour) {
+      showToast('Enter all 4 corner weights (> 0 kg) before saving a snapshot');
+      return;
+    }
+    const cw = ensureCornerWeightBaselineState();
+    if (!Array.isArray(cw.history)) cw.history = [];
+    const todayIso = getLocalTodayIso();
+    cw.updatedAt = todayIso;
+    cw.history.unshift({
+      id: `cw_${Date.now()}`,
+      updatedAt: todayIso,
+      FL: telem.FL,
+      FR: telem.FR,
+      RL: telem.RL,
+      RR: telem.RR,
+      fuelLitresAtScale: telem.baseFuelL,
+      baseFuelL: telem.baseFuelL,
+      driverInCar: cw.driverInCar !== false,
+      barDisconnected: cw.barDisconnected !== false,
+      rlSpacerMm: cw.rlSpacerMm,
+      rrSpacerMm: cw.rrSpacerMm,
+      rideHeightMm: { ...(cw.rideHeightMm || { FL: null, FR: null, RL: null, RR: null }) },
+      notes: cw.notes || ''
+    });
+    if (cw.history.length > 12) {
+      cw.history = cw.history.slice(0, 12);
+    }
+    state.cornerWeights = cw;
+    state.cornerWeightBaseline = cw;
+    saveState();
+    renderCornerWeights();
+    showToast(`Saved Scale Sheet Snapshot (${telem.totalKg.toFixed(1)} kg • ${telem.baseCrossPct.toFixed(1)}% Cross)`);
+  }
+
+  function loadCornerWeightSnapshot(idx) {
+    const cw = ensureCornerWeightBaselineState();
+    if (!Array.isArray(cw.history) || !cw.history[idx]) return;
+    const snap = cw.history[idx];
+    cw.FL = snap.FL;
+    cw.FR = snap.FR;
+    cw.RL = snap.RL;
+    cw.RR = snap.RR;
+    cw.baseFuelL = Number(snap.baseFuelL ?? snap.fuelLitresAtScale ?? 25.0);
+    cw.fuelLitresAtScale = cw.baseFuelL;
+    cw.driverInCar = snap.driverInCar !== false;
+    cw.barDisconnected = snap.barDisconnected !== false;
+    cw.rlSpacerMm = snap.SpacerMm !== undefined ? snapSpacerMm(snap.rlSpacerMm, 0) : snapSpacerMm(snap.rlSpacerMm, 0);
+    cw.rrSpacerMm = snapSpacerMm(snap.rrSpacerMm, 20);
+    cw.rideHeightMm = { ...(snap.rideHeightMm || { FL: null, FR: null, RL: null, RR: null }) };
+    cw.notes = snap.notes || '';
+    cw.updatedAt = snap.updatedAt || getLocalTodayIso();
+    state.cornerWeights = cw;
+    state.cornerWeightBaseline = cw;
+    saveState();
+    hydrateCornerWeightInputs();
+    recalcTyres();
+    showToast(`Loaded Scale Snapshot from ${cw.updatedAt}`);
+  }
+
+  function deleteCornerWeightSnapshot(idx) {
+    const cw = ensureCornerWeightBaselineState();
+    if (!Array.isArray(cw.history) || !cw.history[idx]) return;
+    cw.history.splice(idx, 1);
+    state.cornerWeights = cw;
+    state.cornerWeightBaseline = cw;
+    saveState();
+    renderCornerWeights();
+    showToast('Removed Scale Sheet Snapshot');
   }
 
   function handleScaleBaselineSpacerSelect(corner, rawMm) {
@@ -7510,6 +7788,7 @@
     } else {
       cw.rrSpacerMm = mm;
     }
+    cw.updatedAt = getLocalTodayIso();
     state.cornerWeights = cw;
     state.cornerWeightBaseline = cw;
     saveState();
@@ -10275,7 +10554,7 @@
     }
     const payload = JSON.stringify(
       {
-        app: 'SNB Racing — HQ 202 Jetting & AFR (v0.8.4 4-Corner Scale Pad, Base Fuel & Wedge Edition)',
+        app: 'SNB Racing — HQ 202 Jetting & AFR (v0.8.5 A-Z Fleet Accordions & Corner Weights Drawer Edition)',
         exportedAt: new Date().toISOString(),
         state
       },
@@ -10739,6 +11018,16 @@
   const PROTECTED_MANIFOLD_IDS = ['Macca', 'SNB'];
   const PROTECTED_EXHAUST_IDS = ['Macca', 'DME', 'Pounder', 'Grunt'];
 
+  function sortByNameOrCodeAZ(arr) {
+    return [...(arr || [])].sort((a, b) =>
+      String((a && (a.name || a.code || a.id)) || '').localeCompare(
+        String((b && (b.name || b.code || b.id)) || ''),
+        undefined,
+        { numeric: true, sensitivity: 'base' }
+      )
+    );
+  }
+
   function renderCarbyFleet() {
     const container = $('carbyFleetContainer');
     const selectEl = $('selectFleetCarby');
@@ -10747,6 +11036,7 @@
     if (!Array.isArray(state.carbies) || state.carbies.length === 0) {
       state.carbies = createDefaultCarbies();
     }
+    state.carbies = sortByNameOrCodeAZ(state.carbies);
 
     const activeCarbyId = state.baseline && state.baseline.carbyId ? state.baseline.carbyId : state.carbies[0].id;
     if (!ui.selectedFleetCarbyId || !state.carbies.some((c) => c.id === ui.selectedFleetCarbyId)) {
@@ -10766,6 +11056,10 @@
     const activeBadge = $('fleetCarbyActiveBadge');
     if (activeBadge) {
       activeBadge.textContent = `${activeCarbyId} ★ ON CAR`;
+    }
+    const countBadge = $('fleetCarbyCountBadge');
+    if (countBadge) {
+      countBadge.textContent = `${state.carbies.length} UNIT${state.carbies.length === 1 ? '' : 'S'}`;
     }
 
     const c = state.carbies.find((item) => item.id === ui.selectedFleetCarbyId) || state.carbies[0];
@@ -10858,6 +11152,7 @@
     if (!Array.isArray(state.manifolds) || state.manifolds.length === 0) {
       state.manifolds = createDefaultManifolds();
     }
+    state.manifolds = sortByNameOrCodeAZ(state.manifolds);
     const activeId = state.activeManifoldId || state.manifolds[0].id || 'Macca';
     if (!ui.selectedFleetManifoldId || !state.manifolds.some((m) => m.id === ui.selectedFleetManifoldId)) {
       ui.selectedFleetManifoldId = activeId;
@@ -10876,6 +11171,10 @@
     const badge = $('fleetManifoldActiveBadge');
     if (badge) {
       badge.textContent = `${activeId} ★ ON CAR`;
+    }
+    const countBadge = $('fleetManifoldCountBadge');
+    if (countBadge) {
+      countBadge.textContent = `${state.manifolds.length} UNIT${state.manifolds.length === 1 ? '' : 'S'}`;
     }
 
     const m = state.manifolds.find((item) => item.id === ui.selectedFleetManifoldId) || state.manifolds[0];
@@ -10969,6 +11268,7 @@
     if (!Array.isArray(state.exhausts) || state.exhausts.length === 0) {
       state.exhausts = createDefaultExhausts();
     }
+    state.exhausts = sortByNameOrCodeAZ(state.exhausts);
     const activeId = state.activeExhaustId || state.exhausts[0].id || 'Macca';
     if (!ui.selectedFleetExhaustId || !state.exhausts.some((x) => x.id === ui.selectedFleetExhaustId)) {
       ui.selectedFleetExhaustId = activeId;
@@ -10987,6 +11287,10 @@
     const badge = $('fleetExhaustActiveBadge');
     if (badge) {
       badge.textContent = `${activeId} ★ ON CAR`;
+    }
+    const countBadge = $('fleetExhaustCountBadge');
+    if (countBadge) {
+      countBadge.textContent = `${state.exhausts.length} UNIT${state.exhausts.length === 1 ? '' : 'S'}`;
     }
 
     const x = state.exhausts.find((item) => item.id === ui.selectedFleetExhaustId) || state.exhausts[0];
@@ -11154,6 +11458,7 @@
     if (!Array.isArray(state.shocks) || state.shocks.length === 0) {
       state.shocks = createDefaultShocks();
     }
+    state.shocks = sortByNameOrCodeAZ(state.shocks);
     const mounted = ensureMountedShocksState();
 
     // Update filter counts
@@ -11165,6 +11470,7 @@
     if ($('countFilterShocksFront')) $('countFilterShocksFront').textContent = String(frontCount);
     if ($('countFilterShocksRear')) $('countFilterShocksRear').textContent = String(rearCount);
     if ($('countFilterShocksMounted')) $('countFilterShocksMounted').textContent = String(mountedCount);
+    if ($('fleetShockCountBadge')) $('fleetShockCountBadge').textContent = `${allCount} UNITS`;
 
     // Normalize filter value ('all' | 'F' | 'R' | 'oncar')
     let filterMode = ui.shockFleetFilter || 'all';
@@ -11181,15 +11487,17 @@
       btn.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
 
-    const filteredList = state.shocks.filter((sh) => {
-      if (!sh) return false;
-      const normEnd = getNormShockEnd(sh);
-      const isMounted = Object.values(mounted).includes(sh.id);
-      if (filterMode === 'F') return normEnd === 'F';
-      if (filterMode === 'R') return normEnd === 'R';
-      if (filterMode === 'oncar') return isMounted;
-      return true;
-    });
+    const filteredList = sortByNameOrCodeAZ(
+      state.shocks.filter((sh) => {
+        if (!sh) return false;
+        const normEnd = getNormShockEnd(sh);
+        const isMounted = Object.values(mounted).includes(sh.id);
+        if (filterMode === 'F') return normEnd === 'F';
+        if (filterMode === 'R') return normEnd === 'R';
+        if (filterMode === 'oncar') return isMounted;
+        return true;
+      })
+    );
 
     const poolForSelect = filteredList.length > 0 ? filteredList : state.shocks;
     if (!ui.selectedFleetShockId || !poolForSelect.some((sh) => sh.id === ui.selectedFleetShockId)) {
@@ -11437,6 +11745,7 @@
     if (!Array.isArray(state.springs) || state.springs.length === 0) {
       state.springs = createDefaultSprings();
     }
+    state.springs = sortByNameOrCodeAZ(state.springs);
     const mounted = ensureMountedSpringsState();
 
     // Update filter counts
@@ -11448,6 +11757,7 @@
     if ($('countFilterSpringsFront')) $('countFilterSpringsFront').textContent = String(frontCount);
     if ($('countFilterSpringsRear')) $('countFilterSpringsRear').textContent = String(rearCount);
     if ($('countFilterSpringsMounted')) $('countFilterSpringsMounted').textContent = String(mountedCount);
+    if ($('fleetSpringCountBadge')) $('fleetSpringCountBadge').textContent = `${allCount} UNITS`;
 
     // Normalize filter value ('all' | 'F' | 'R' | 'oncar')
     let filterMode = ui.springFleetFilter || 'all';
@@ -11463,15 +11773,17 @@
       btn.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
 
-    const filteredList = state.springs.filter((sp) => {
-      if (!sp) return false;
-      const normEnd = getNormSpringEnd(sp);
-      const isMounted = Object.values(mounted).includes(sp.id);
-      if (filterMode === 'F') return normEnd === 'F';
-      if (filterMode === 'R') return normEnd === 'R';
-      if (filterMode === 'oncar') return isMounted;
-      return true;
-    });
+    const filteredList = sortByNameOrCodeAZ(
+      state.springs.filter((sp) => {
+        if (!sp) return false;
+        const normEnd = getNormSpringEnd(sp);
+        const isMounted = Object.values(mounted).includes(sp.id);
+        if (filterMode === 'F') return normEnd === 'F';
+        if (filterMode === 'R') return normEnd === 'R';
+        if (filterMode === 'oncar') return isMounted;
+        return true;
+      })
+    );
 
     const poolForSelect = filteredList.length > 0 ? filteredList : state.springs;
     if (!ui.selectedFleetSpringId || !poolForSelect.some((sp) => sp.id === ui.selectedFleetSpringId)) {
@@ -11802,7 +12114,7 @@
 
     const lines = [];
     lines.push('====================================================================');
-    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.8.4)');
+    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.8.5)');
     lines.push(`Exported: ${new Date().toISOString()}`);
     lines.push('====================================================================');
     lines.push('');
@@ -12037,7 +12349,10 @@
 
     const sorted = sortJetsByDiameter(state.jets);
     const inBoxCount = sorted.filter((j) => j.inToolbox).length;
-    $('toolboxSummaryBadge').textContent = `${inBoxCount} / ${sorted.length} In Box`;
+    const tbBadge = $('toolboxSummaryBadge');
+    if (tbBadge) tbBadge.textContent = `${inBoxCount} / ${sorted.length} In Box`;
+    const jetsCountBadge = $('fleetJetsCountBadge');
+    if (jetsCountBadge) jetsCountBadge.textContent = `${sorted.length} JETS`;
 
     listEl.innerHTML = sorted
       .map((j) => {
@@ -13728,6 +14043,7 @@
       renderCornerWeightBaselineCard();
       renderJetInventory();
       updateOrificeConverter('mm');
+      syncFleetAccordionUi();
     });
     safeRun('syncPreRacePostRaceLocksUi', () => syncPreRacePostRaceLocksUi());
   }
@@ -14329,6 +14645,36 @@
         return;
       }
 
+      const fleetAccHeader = e.target.closest('[data-fleet-acc]');
+      if (fleetAccHeader) {
+        toggleFleetAccordion(fleetAccHeader.getAttribute('data-fleet-acc'));
+        return;
+      }
+
+      const cwToggleBtn = e.target.closest('[data-cw-toggle]');
+      if (cwToggleBtn) {
+        toggleCornerWeightCondition(cwToggleBtn.getAttribute('data-cw-toggle'));
+        return;
+      }
+
+      const saveCwSnapBtn = e.target.closest('#btnSaveCwSnapshot');
+      if (saveCwSnapBtn) {
+        saveCornerWeightSnapshot();
+        return;
+      }
+
+      const loadCwHistBtn = e.target.closest('[data-load-cw-hist]');
+      if (loadCwHistBtn) {
+        loadCornerWeightSnapshot(loadCwHistBtn.getAttribute('data-load-cw-hist'));
+        return;
+      }
+
+      const delCwHistBtn = e.target.closest('[data-del-cw-hist]');
+      if (delCwHistBtn) {
+        deleteCornerWeightSnapshot(delCwHistBtn.getAttribute('data-del-cw-hist'));
+        return;
+      }
+
       const toggleAllPyroBtn = e.target.closest('#btnToggleAllPyro');
       if (toggleAllPyroBtn) {
         toggleCornerPyro('ALL');
@@ -14410,8 +14756,11 @@
 
       const cornerWtAttr =
         (target.getAttribute && target.getAttribute('data-corner-wt-input')) ||
+        (target.getAttribute && target.getAttribute('data-cw-rh-input')) ||
         target.id === 'inputCwBaseFuelL' ||
-        (target.id && target.id.startsWith('inputCornerWt_'));
+        target.id === 'inputCwNotes' ||
+        (target.id && target.id.startsWith('inputCornerWt_')) ||
+        (target.id && target.id.startsWith('inputCwRideHeight_'));
       if (cornerWtAttr) {
         handleCornerWeightBaselineInput();
         return;

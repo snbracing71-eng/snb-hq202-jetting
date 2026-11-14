@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.8.4" />
+  <link rel="stylesheet" href="./styles.css?v=0.8.5" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -1979,400 +1979,548 @@
     </section>
 
     <!-- =========================================================
-         TAB 5: 40MM CARBY FLEET, MANIFOLDS, EXHAUSTS, SHOCKS, SPRINGS & M1 JET KIT
+         TAB 5: FLEET & KIT (A–Z 1-LINE COLLAPSIBLE ACCORDION BARS)
+         1) Carburettors | 2) Corner Weights | 3) Exhausts | 4) Jets | 5) Manifolds | 6) Shocks | 7) Springs
          ========================================================= -->
     <section id="tab-fleet" class="tab-panel" aria-labelledby="navTabFleet">
-      <!-- 1) Compact Carburettors (40mm BXUV-3) Card -->
-      <div class="card">
-        <div class="section-head">
-          <div>
-            <div class="section-eyebrow">HQRA Group 3H Homologation Lock</div>
-            <h2 class="section-title">Carburettors (40mm BXUV-3)</h2>
+      <!-- 1) CARBURETTORS (data-fleet-acc="carburettors") -->
+      <article class="fleet-acc-card" id="carbyFleetCard" data-fleet-acc-card="carburettors">
+        <button
+          type="button"
+          class="fleet-acc-header"
+          data-fleet-acc="carburettors"
+          aria-expanded="false"
+        >
+          <div class="fleet-acc-left">
+            <div class="fleet-acc-title">Carburettors</div>
+            <div class="fleet-acc-sub">40mm Late-Base Stromberg BXUV-3 &bull; Homologation Locked</div>
           </div>
-          <span class="locked-badge" id="fleetCarbyActiveBadge">1 DME &bull; ON CAR</span>
-        </div>
-
-        <div class="homologation-banner" style="margin-bottom: 12px;">
-          <div style="font-size: 0.75rem; font-weight: 800; color: var(--amber); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px;">
-            Late-Base 40.00 mm Stromberg BXUV-3 Spec
+          <div class="fleet-acc-right">
+            <span class="fleet-acc-status-pill emerald" id="fleetCarbyActiveBadge">1 DME &#9733; ON CAR</span>
+            <span class="fleet-acc-count-pill" id="fleetCarbyCountBadge">3 UNITS</span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="carburettors" aria-hidden="true">&#9654;</span>
           </div>
-          <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">
-            Studs: <strong>75.0 mm</strong> &bull; Venturi: <strong>&le; 30.94 mm</strong> &bull; Throttle Bore: <strong>&le; 40.00 mm</strong> &bull; Spill: <strong>15.0 mm</strong>
-          </div>
-        </div>
+        </button>
 
-        <div class="fleet-selector-bar" style="margin-bottom: 12px;">
-          <label class="sr-only" for="selectFleetCarby">Select Carburettor</label>
-          <select id="selectFleetCarby" class="select-input" aria-label="Select Carburettor from Fleet"></select>
-          <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddNewCarby">
-            + New
-          </button>
-        </div>
-
-        <div id="carbyFleetContainer"></div>
-      </div>
-
-      <!-- 2) Inlet Manifolds & Port Flow (CFM) Card -->
-      <div class="card" id="manifoldFleetCard">
-        <div class="section-head">
-          <div>
-            <div class="section-eyebrow">Group 3H Cast Single-Barrel Log</div>
-            <h2 class="section-title">Inlet Manifolds &amp; Port Flow (CFM)</h2>
-          </div>
-          <span class="locked-badge" id="fleetManifoldActiveBadge">Macca &bull; ON CAR</span>
-        </div>
-
-        <div class="fleet-selector-bar" style="margin-bottom: 12px;">
-          <label class="sr-only" for="selectFleetManifold">Select Inlet Manifold</label>
-          <select id="selectFleetManifold" class="select-input" aria-label="Select Inlet Manifold"></select>
-          <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddManifold">
-            + New
-          </button>
-        </div>
-
-        <div id="manifoldFleetContainer"></div>
-      </div>
-
-      <!-- 3) Exhausts & Headers Card -->
-      <div class="card" id="exhaustFleetCard">
-        <div class="section-head">
-          <div>
-            <div class="section-eyebrow">HQ 202 Extractors &amp; System Fleet</div>
-            <h2 class="section-title">Exhausts &amp; Headers</h2>
-          </div>
-          <span class="locked-badge" id="fleetExhaustActiveBadge">Macca &bull; ON CAR</span>
-        </div>
-
-        <div class="fleet-selector-bar" style="margin-bottom: 12px;">
-          <label class="sr-only" for="selectFleetExhaust">Select Exhaust / Header System</label>
-          <select id="selectFleetExhaust" class="select-input" aria-label="Select Exhaust or Header System"></select>
-          <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddExhaust">
-            + New
-          </button>
-        </div>
-
-        <div id="exhaustFleetContainer"></div>
-      </div>
-
-      <!-- 4) Shocks Fleet (Pedders GSR 9033 Front / 9067 Rear) Card -->
-      <div class="card" id="shockFleetCard">
-        <div class="section-head">
-          <div>
-            <div class="section-eyebrow">PEDDERS GSR 9033 (FRONT) &bull; GSR 9067 (REAR) &bull; @ 200 MM/S</div>
-            <h2 class="section-title">Shocks Fleet (#77 &amp; Spares)</h2>
-          </div>
-          <span class="locked-badge" id="fleetShockActiveBadge">FL:F29 FR:F27 &bull; RL:R26 RR:R25</span>
-        </div>
-
-        <div class="tyre-stock-filter-bar" role="group" aria-label="Filter Shocks Fleet" style="margin-bottom: 10px;">
-          <button type="button" class="tyre-filter-pill active" data-shock-fleet-filter="all" id="btnFilterShocksAll">
-            All (<span id="countFilterShocksAll">28</span>)
-          </button>
-          <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="F" id="btnFilterShocksFront">
-            Front (<span id="countFilterShocksFront">14</span>)
-          </button>
-          <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="R" id="btnFilterShocksRear">
-            Rear (<span id="countFilterShocksRear">14</span>)
-          </button>
-          <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="oncar" id="btnFilterShocksMounted">
-            On Car #77 (<span id="countFilterShocksMounted">4</span>)
-          </button>
-        </div>
-
-        <div class="fleet-selector-bar" style="margin-bottom: 12px;">
-          <label class="sr-only" for="selectFleetShock">Select Shock from Fleet</label>
-          <select id="selectFleetShock" class="select-input" aria-label="Select Shock from Fleet"></select>
-          <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddShock">
-            + Add Shock
-          </button>
-        </div>
-
-        <div id="shockFleetContainer"></div>
-      </div>
-
-      <!-- 5) Springs Fleet (Pedders 5608 Front / 5609 Rear) Card -->
-      <div class="card" id="springFleetCard">
-        <div class="section-head">
-          <div>
-            <div class="section-eyebrow">PEDDERS 5608 (FRONT) &bull; 5609 (REAR) &bull; RATE &amp; HEIGHT</div>
-            <h2 class="section-title">Springs Fleet (#77 &amp; Spares)</h2>
-          </div>
-          <span class="locked-badge" id="fleetSpringActiveBadge">FL:F11 FR:F12 &bull; RL:R6 RR:R5</span>
-        </div>
-
-        <div class="tyre-stock-filter-bar" role="group" aria-label="Filter Springs Fleet" style="margin-bottom: 10px;">
-          <button type="button" class="tyre-filter-pill active" data-spring-fleet-filter="all" id="btnFilterSpringsAll">
-            All (<span id="countFilterSpringsAll">16</span>)
-          </button>
-          <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="F" id="btnFilterSpringsFront">
-            Front (<span id="countFilterSpringsFront">8</span>)
-          </button>
-          <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="R" id="btnFilterSpringsRear">
-            Rear (<span id="countFilterSpringsRear">8</span>)
-          </button>
-          <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="oncar" id="btnFilterSpringsMounted">
-            On Car #77 (<span id="countFilterSpringsMounted">4</span>)
-          </button>
-        </div>
-
-        <div class="fleet-selector-bar" style="margin-bottom: 12px;">
-          <label class="sr-only" for="selectFleetSpring">Select Spring from Fleet</label>
-          <select id="selectFleetSpring" class="select-input" aria-label="Select Spring from Fleet"></select>
-          <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddSpring">
-            + Add Spring
-          </button>
-        </div>
-
-        <div id="springFleetContainer"></div>
-      </div>
-
-      <!-- 6) 4-Corner Scale Weight & Cross-Weight Baseline Card (With Driver) -->
-      <div class="card" id="cornerWeightBaselineCard">
-        <div class="section-head">
-          <div>
-            <div class="section-eyebrow">WORKSHOP 4-PAD SCALES &bull; GROUP 3H RULE 6C (&le;20MM REAR SPACER)</div>
-            <h2 class="section-title">CORNER WEIGHT &amp; WEDGE BASELINE (WITH DRIVER)</h2>
-          </div>
-          <span class="afr-status-badge estimated" id="cornerWtStatusBadge">Enter 4 Corners When Scaled</span>
-        </div>
-
-        <div class="card-elevated corner-wt-recessed-box">
-          <!-- Base Fuel When Scaled (L) Stepper Row -->
-          <div class="field-group cw-base-fuel-group" style="margin-bottom: 12px;">
-            <div class="field-label-row">
-              <label class="field-label" for="inputCwBaseFuelL">Base Fuel When Scaled (L)</label>
-              <span class="field-hint mono emerald" id="outCwBaseFuelHint">~14.8 kg @ 0.740 SG &bull; Dry Car+Driver: &ndash; kg</span>
+        <div class="fleet-acc-body" id="fleetAccBody_carburettors" style="display: none;">
+          <div class="homologation-banner" style="margin-bottom: 12px;">
+            <div style="font-size: 0.75rem; font-weight: 800; color: var(--amber); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px;">
+              Late-Base 40.00 mm Stromberg BXUV-3 Spec
             </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="inputCwBaseFuelL" data-step="-0.5" aria-label="Decrease Base Fuel When Scaled">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="inputCwBaseFuelL" class="num-input" data-corner-wt-input="baseFuelL" value="20.0" min="0.0" max="74.0" step="0.5" inputmode="decimal" />
-                <span class="num-unit-badge">L</span>
+            <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">
+              Studs: <strong>75.0 mm</strong> &bull; Venturi: <strong>&le; 30.94 mm</strong> &bull; Throttle Bore: <strong>&le; 40.00 mm</strong> &bull; Spill: <strong>15.0 mm</strong>
+            </div>
+          </div>
+
+          <div class="fleet-selector-bar" style="margin-bottom: 12px;">
+            <label class="sr-only" for="selectFleetCarby">Select Carburettor</label>
+            <select id="selectFleetCarby" class="select-input" aria-label="Select Carburettor from Fleet"></select>
+            <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddNewCarby">
+              + New
+            </button>
+          </div>
+
+          <div id="carbyFleetContainer"></div>
+        </div>
+      </article>
+
+      <!-- 2) CORNER WEIGHTS (data-fleet-acc="corner_weights") -->
+      <article class="fleet-acc-card" id="cornerWeightBaselineCard" data-fleet-acc-card="corner_weights">
+        <button
+          type="button"
+          class="fleet-acc-header"
+          data-fleet-acc="corner_weights"
+          aria-expanded="false"
+        >
+          <div class="fleet-acc-left">
+            <div class="fleet-acc-title">Corner Weights</div>
+            <div class="fleet-acc-sub">4-Corner Scale Pad Sheet &bull; Cross % &amp; L/R F/R Balance</div>
+          </div>
+          <div class="fleet-acc-right">
+            <span class="fleet-acc-status-pill emerald" id="cornerWtStatusBadge">1370.0 kg &bull; 50.4% CROSS</span>
+            <span class="fleet-acc-count-pill" id="fleetCornerWtCountBadge">SAVED</span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="corner_weights" aria-hidden="true">&#9654;</span>
+          </div>
+        </button>
+
+        <div class="fleet-acc-body" id="fleetAccBody_corner_weights" style="display: none;">
+          <div class="card-elevated corner-wt-recessed-box">
+            <!-- Scale Conditions Bar: Driver In Car | Swaybar Disconnected | Updated Date -->
+            <div class="cw-conditions-bar" style="margin-bottom: 10px;">
+              <div class="cw-condition-pills" role="group" aria-label="Scale Pad Setup Conditions">
+                <button
+                  type="button"
+                  class="cw-cond-pill active"
+                  id="btnCwDriverInCar"
+                  data-cw-toggle="driverInCar"
+                  aria-pressed="true"
+                >
+                  &#10003; Driver In Car
+                </button>
+                <button
+                  type="button"
+                  class="cw-cond-pill active"
+                  id="btnCwBarDisconnected"
+                  data-cw-toggle="barDisconnected"
+                  aria-pressed="true"
+                >
+                  &#10003; Swaybar Unhooked
+                </button>
               </div>
-              <button type="button" class="stepper-btn" data-stepper-target="inputCwBaseFuelL" data-step="0.5" aria-label="Increase Base Fuel When Scaled">+</button>
+              <span class="cw-updated-badge mono" id="outCwUpdatedAt">Updated: 2026-11-15</span>
             </div>
-          </div>
 
-          <!-- TOP MIDDLE: Overall Front Axle Box -->
-          <div class="cw-axle-box cw-axle-box-front" id="cwAxleBoxFront">
-            <div class="cw-axle-eyebrow">OVERALL FRONT</div>
-            <div class="cw-axle-main-row">
-              <span class="cw-axle-kg mono" id="outCwFrontKg">&ndash; kg</span>
-              <span class="cw-axle-dot">&bull;</span>
-              <span class="cw-axle-pct-pill mono" id="outCwFrontPct">&ndash;%</span>
-            </div>
-          </div>
-
-          <!-- FRONT CORNERS ROW (2-col): FL (kg) | FR (kg) -->
-          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
-            <div class="field-group" style="margin-bottom: 0;">
+            <!-- Base Fuel When Scaled (L) Stepper Row -->
+            <div class="field-group cw-base-fuel-group" style="margin-bottom: 12px;">
               <div class="field-label-row">
-                <label class="field-label" for="inputCornerWt_FL">FL (kg)</label>
-                <span class="field-hint">Front Left</span>
+                <label class="field-label" for="inputCwBaseFuelL">Base Fuel When Scaled (L)</label>
+                <span class="field-hint mono emerald" id="outCwBaseFuelHint">~18.5 kg @ 0.740 SG &bull; Dry Car+Driver: 1351.5 kg</span>
               </div>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FL" data-step="-0.5" aria-label="Decrease FL Corner Weight">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputCwBaseFuelL" data-step="-0.5" aria-label="Decrease Base Fuel When Scaled">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputCornerWt_FL" class="num-input" data-corner-wt-input="FL" value="" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
-                  <span class="num-unit-badge">kg</span>
+                  <input type="number" id="inputCwBaseFuelL" class="num-input" data-corner-wt-input="baseFuelL" value="25.0" min="0.0" max="74.0" step="0.5" inputmode="decimal" />
+                  <span class="num-unit-badge">L</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FL" data-step="0.5" aria-label="Increase FL Corner Weight">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputCwBaseFuelL" data-step="0.5" aria-label="Increase Base Fuel When Scaled">+</button>
               </div>
             </div>
 
-            <div class="field-group" style="margin-bottom: 0;">
-              <div class="field-label-row">
-                <label class="field-label" for="inputCornerWt_FR">FR (kg)</label>
-                <span class="field-hint">Front Right</span>
+            <!-- TOP MIDDLE: Overall Front Axle Box -->
+            <div class="cw-axle-box cw-axle-box-front" id="cwAxleBoxFront">
+              <div class="cw-axle-eyebrow">OVERALL FRONT</div>
+              <div class="cw-axle-main-row">
+                <span class="cw-axle-kg mono" id="outCwFrontKg">750.0 kg</span>
+                <span class="cw-axle-dot">&bull;</span>
+                <span class="cw-axle-pct-pill mono" id="outCwFrontPct">54.7%</span>
               </div>
-              <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FR" data-step="-0.5" aria-label="Decrease FR Corner Weight">&minus;</button>
-                <div class="num-input-wrap">
-                  <input type="number" id="inputCornerWt_FR" class="num-input" data-corner-wt-input="FR" value="" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
-                  <span class="num-unit-badge">kg</span>
+            </div>
+
+            <!-- FRONT CORNERS ROW (2-col): FL (kg) | FR (kg) -->
+            <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+              <div class="field-group" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <label class="field-label" for="inputCornerWt_FL">FL (kg)</label>
+                  <span class="field-hint">Front Left</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FR" data-step="0.5" aria-label="Increase FR Corner Weight">+</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- CENTER CROSS-WEIGHT HUB (Between FL/FR and RL/RR) -->
-          <div class="cw-center-hub" id="cwCenterHub">
-            <div class="cw-hub-col">
-              <span class="cw-hub-label">TOTAL WT</span>
-              <span class="cw-hub-val mono" id="outCwTotalKg">&ndash; kg</span>
-              <span class="cw-hub-sub mono" id="outCwDryCarSub">Dry: &ndash; kg</span>
-            </div>
-            <div class="cw-hub-col cw-hub-col-cross" id="cwHubColCross">
-              <span class="cw-hub-label">CROSS WT (FL+RR)</span>
-              <span class="cw-hub-val-cross mono" id="outCwCrossPct">&ndash;%</span>
-              <span class="cw-hub-sub mono" id="outCwCrossKg">(&ndash; kg)</span>
-            </div>
-            <div class="cw-hub-col">
-              <span class="cw-hub-label">LEFT SIDE</span>
-              <span class="cw-hub-val mono" id="outCwLeftPct">&ndash;%</span>
-              <span class="cw-hub-sub mono" id="outCwLeftKg">(&ndash; kg)</span>
-            </div>
-          </div>
-
-          <!-- REAR CORNERS ROW (2-col): RL (kg) | RR (kg) -->
-          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
-            <div class="field-group" style="margin-bottom: 0;">
-              <div class="field-label-row">
-                <label class="field-label" for="inputCornerWt_RL">RL (kg)</label>
-                <span class="field-hint">Rear Left</span>
-              </div>
-              <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RL" data-step="-0.5" aria-label="Decrease RL Corner Weight">&minus;</button>
-                <div class="num-input-wrap">
-                  <input type="number" id="inputCornerWt_RL" class="num-input" data-corner-wt-input="RL" value="" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
-                  <span class="num-unit-badge">kg</span>
+                <div class="num-stepper">
+                  <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FL" data-step="-0.5" aria-label="Decrease FL Corner Weight">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input type="number" id="inputCornerWt_FL" class="num-input" data-corner-wt-input="FL" value="382.0" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
+                    <span class="num-unit-badge">kg</span>
+                  </div>
+                  <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FL" data-step="0.5" aria-label="Increase FL Corner Weight">+</button>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RL" data-step="0.5" aria-label="Increase RL Corner Weight">+</button>
               </div>
-            </div>
 
-            <div class="field-group" style="margin-bottom: 0;">
-              <div class="field-label-row">
-                <label class="field-label" for="inputCornerWt_RR">RR (kg)</label>
-                <span class="field-hint">Rear Right</span>
-              </div>
-              <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RR" data-step="-0.5" aria-label="Decrease RR Corner Weight">&minus;</button>
-                <div class="num-input-wrap">
-                  <input type="number" id="inputCornerWt_RR" class="num-input" data-corner-wt-input="RR" value="" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
-                  <span class="num-unit-badge">kg</span>
+              <div class="field-group" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <label class="field-label" for="inputCornerWt_FR">FR (kg)</label>
+                  <span class="field-hint">Front Right</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RR" data-step="0.5" aria-label="Increase RR Corner Weight">+</button>
+                <div class="num-stepper">
+                  <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FR" data-step="-0.5" aria-label="Decrease FR Corner Weight">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input type="number" id="inputCornerWt_FR" class="num-input" data-corner-wt-input="FR" value="368.0" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
+                    <span class="num-unit-badge">kg</span>
+                  </div>
+                  <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FR" data-step="0.5" aria-label="Increase FR Corner Weight">+</button>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- BOTTOM MIDDLE: Overall Rear Axle Box -->
-          <div class="cw-axle-box cw-axle-box-rear" id="cwAxleBoxRear">
-            <div class="cw-axle-eyebrow">OVERALL REAR</div>
-            <div class="cw-axle-main-row">
-              <span class="cw-axle-kg mono" id="outCwRearKg">&ndash; kg</span>
-              <span class="cw-axle-dot">&bull;</span>
-              <span class="cw-axle-pct-pill mono" id="outCwRearPct">&ndash;%</span>
+            <!-- CENTER CROSS-WEIGHT HUB (Between FL/FR and RL/RR) -->
+            <div class="cw-center-hub" id="cwCenterHub">
+              <div class="cw-hub-col">
+                <span class="cw-hub-label">TOTAL WT</span>
+                <span class="cw-hub-val mono" id="outCwTotalKg">1370.0 kg</span>
+                <span class="cw-hub-sub mono" id="outCwDryCarSub">Dry: 1351.5 kg</span>
+              </div>
+              <div class="cw-hub-col cw-hub-col-cross" id="cwHubColCross">
+                <span class="cw-hub-label">CROSS WT (FL+RR)</span>
+                <span class="cw-hub-val-cross mono" id="outCwCrossPct">50.4%</span>
+                <span class="cw-hub-sub mono" id="outCwCrossKg">690.0 kg</span>
+              </div>
+              <div class="cw-hub-col">
+                <span class="cw-hub-label">LEFT SIDE</span>
+                <span class="cw-hub-val mono" id="outCwLeftPct">50.7%</span>
+                <span class="cw-hub-sub mono" id="outCwLeftKg">694.0 kg</span>
+              </div>
             </div>
-            <div class="cw-axle-sub mono" id="outCwStaticRearDelta">Static RL vs RR: &ndash; kg</div>
-          </div>
 
-          <!-- Spacers Installed When Scaled (RL & RR: 0 / 10 / 20mm) -->
-          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
-            <div class="field-group" style="margin-bottom: 0;">
+            <!-- REAR CORNERS ROW (2-col): RL (kg) | RR (kg) -->
+            <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+              <div class="field-group" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <label class="field-label" for="inputCornerWt_RL">RL (kg)</label>
+                  <span class="field-hint">Rear Left</span>
+                </div>
+                <div class="num-stepper">
+                  <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RL" data-step="-0.5" aria-label="Decrease RL Corner Weight">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input type="number" id="inputCornerWt_RL" class="num-input" data-corner-wt-input="RL" value="312.0" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
+                    <span class="num-unit-badge">kg</span>
+                  </div>
+                  <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RL" data-step="0.5" aria-label="Increase RL Corner Weight">+</button>
+                </div>
+              </div>
+
+              <div class="field-group" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <label class="field-label" for="inputCornerWt_RR">RR (kg)</label>
+                  <span class="field-hint">Rear Right</span>
+                </div>
+                <div class="num-stepper">
+                  <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RR" data-step="-0.5" aria-label="Decrease RR Corner Weight">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input type="number" id="inputCornerWt_RR" class="num-input" data-corner-wt-input="RR" value="308.0" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
+                    <span class="num-unit-badge">kg</span>
+                  </div>
+                  <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RR" data-step="0.5" aria-label="Increase RR Corner Weight">+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- BOTTOM MIDDLE: Overall Rear Axle Box -->
+            <div class="cw-axle-box cw-axle-box-rear" id="cwAxleBoxRear">
+              <div class="cw-axle-eyebrow">OVERALL REAR</div>
+              <div class="cw-axle-main-row">
+                <span class="cw-axle-kg mono" id="outCwRearKg">620.0 kg</span>
+                <span class="cw-axle-dot">&bull;</span>
+                <span class="cw-axle-pct-pill mono" id="outCwRearPct">45.3%</span>
+              </div>
+              <div class="cw-axle-sub mono" id="outCwStaticRearDelta">Static RL vs RR: +4.0 kg (RL heavier)</div>
+            </div>
+
+            <!-- Spacers Installed When Scaled (RL & RR: 0 / 10 / 20mm) -->
+            <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+              <div class="field-group" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <span class="field-label">RL Spacer (When Scaled)</span>
+                  <span class="field-hint mono" id="outScaleBaseSpacerLbl_RL">0 mm</span>
+                </div>
+                <div class="rear-spacer-seg" role="group" aria-label="RL Spacer Installed When Scaled">
+                  <button type="button" class="rear-spacer-pill active" data-scale-spacer-corner="RL" data-scale-spacer-mm="0">0mm</button>
+                  <button type="button" class="rear-spacer-pill" data-scale-spacer-corner="RL" data-scale-spacer-mm="10">10mm</button>
+                  <button type="button" class="rear-spacer-pill" data-scale-spacer-corner="RL" data-scale-spacer-mm="20">20mm</button>
+                </div>
+              </div>
+
+              <div class="field-group" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <span class="field-label">RR Spacer (When Scaled)</span>
+                  <span class="field-hint mono" id="outScaleBaseSpacerLbl_RR">20 mm</span>
+                </div>
+                <div class="rear-spacer-seg" role="group" aria-label="RR Spacer Installed When Scaled">
+                  <button type="button" class="rear-spacer-pill" data-scale-spacer-corner="RR" data-scale-spacer-mm="0">0mm</button>
+                  <button type="button" class="rear-spacer-pill" data-scale-spacer-corner="RR" data-scale-spacer-mm="10">10mm</button>
+                  <button type="button" class="rear-spacer-pill active" data-scale-spacer-corner="RR" data-scale-spacer-mm="20">20mm</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Optional 4-Corner Ride Heights (mm) & Scale Pad Notes -->
+            <div class="cw-ride-height-box" style="margin-bottom: 10px;">
+              <div class="field-label-row" style="margin-bottom: 6px;">
+                <span class="field-label">Ride Heights at Scale Pad (mm &bull; Optional)</span>
+                <span class="field-hint">Sill / Guard Datum</span>
+              </div>
+              <div class="cw-ride-height-grid">
+                <div class="cw-rh-cell">
+                  <label class="cw-rh-lbl" for="inputCwRideHeight_FL">FL (mm)</label>
+                  <input type="number" id="inputCwRideHeight_FL" class="num-input cw-rh-input" data-corner-wt-input="rh_FL" placeholder="&mdash;" min="50" max="600" step="1" inputmode="decimal" />
+                </div>
+                <div class="cw-rh-cell">
+                  <label class="cw-rh-lbl" for="inputCwRideHeight_FR">FR (mm)</label>
+                  <input type="number" id="inputCwRideHeight_FR" class="num-input cw-rh-input" data-corner-wt-input="rh_FR" placeholder="&mdash;" min="50" max="600" step="1" inputmode="decimal" />
+                </div>
+                <div class="cw-rh-cell">
+                  <label class="cw-rh-lbl" for="inputCwRideHeight_RL">RL (mm)</label>
+                  <input type="number" id="inputCwRideHeight_RL" class="num-input cw-rh-input" data-corner-wt-input="rh_RL" placeholder="&mdash;" min="50" max="600" step="1" inputmode="decimal" />
+                </div>
+                <div class="cw-rh-cell">
+                  <label class="cw-rh-lbl" for="inputCwRideHeight_RR">RR (mm)</label>
+                  <input type="number" id="inputCwRideHeight_RR" class="num-input cw-rh-input" data-corner-wt-input="rh_RR" placeholder="&mdash;" min="50" max="600" step="1" inputmode="decimal" />
+                </div>
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 10px;">
               <div class="field-label-row">
-                <span class="field-label">RL Spacer (When Scaled)</span>
-                <span class="field-hint mono" id="outScaleBaseSpacerLbl_RL">0mm</span>
+                <label class="field-label" for="inputCwNotes">Scale Sheet Notes</label>
+                <span class="field-hint">Saved Automatically</span>
               </div>
-              <div class="rear-spacer-seg" role="group" aria-label="RL Spacer Installed When Scaled">
-                <button type="button" class="rear-spacer-pill active" data-scale-spacer-corner="RL" data-scale-spacer-mm="0">0mm</button>
-                <button type="button" class="rear-spacer-pill" data-scale-spacer-corner="RL" data-scale-spacer-mm="10">10mm</button>
-                <button type="button" class="rear-spacer-pill" data-scale-spacer-corner="RL" data-scale-spacer-mm="20">20mm</button>
-              </div>
+              <input
+                type="text"
+                id="inputCwNotes"
+                class="text-input"
+                data-corner-wt-input="notes"
+                value="Baseline workshop pad setup (swaybar unhooked, driver in)"
+                placeholder="e.g. Baseline workshop pad setup (swaybar unhooked, driver in)"
+              />
             </div>
 
-            <div class="field-group" style="margin-bottom: 0;">
-              <div class="field-label-row">
-                <span class="field-label">RR Spacer (When Scaled)</span>
-                <span class="field-hint mono" id="outScaleBaseSpacerLbl_RR">20mm</span>
-              </div>
-              <div class="rear-spacer-seg" role="group" aria-label="RR Spacer Installed When Scaled">
-                <button type="button" class="rear-spacer-pill" data-scale-spacer-corner="RR" data-scale-spacer-mm="0">0mm</button>
-                <button type="button" class="rear-spacer-pill" data-scale-spacer-corner="RR" data-scale-spacer-mm="10">10mm</button>
-                <button type="button" class="rear-spacer-pill active" data-scale-spacer-corner="RR" data-scale-spacer-mm="20">20mm</button>
-              </div>
+            <!-- Live Wedge Shift Estimator for 0 / 10 / 20mm Rear Spacers -->
+            <div class="corner-wt-wedge-est" id="outCornerWtWedgeShiftBox">
+              <strong>Live Rear Spacer Wedge Shift (~9.5 kg diagonal / ~0.7% Cross Wt per 10mm step on Pedders 5609 ~140 N/mm):</strong>
+              Enter 4-corner weights above to preview exact cross-weight &amp; RL/RR static load across <code>0mm / 10mm / 20mm</code> spacers.
             </div>
-          </div>
 
-          <!-- Live Wedge Shift Estimator for 0 / 10 / 20mm Rear Spacers -->
-          <div class="corner-wt-wedge-est" id="outCornerWtWedgeShiftBox">
-            <strong>Live Rear Spacer Wedge Shift (~9.5 kg diagonal / ~0.7% Cross Wt per 10mm step on Pedders 5609 ~140 N/mm):</strong>
-            Enter 4-corner weights above to preview exact cross-weight &amp; RL/RR static load across <code>0mm / 10mm / 20mm</code> spacers.
-          </div>
-        </div>
-      </div>
-
-      <!-- Live Inch <-> mm <-> Area (mm^2) Orifice Converter -->
-      <div class="card">
-        <div class="section-head">
-          <div>
-            <div class="section-eyebrow">Precision Drill &amp; Orifice Math</div>
-            <h2 class="section-title">Live Inch &harr; mm &amp; Area (mm&sup2;) Converter</h2>
-          </div>
-        </div>
-
-        <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="convInchInput">Imperial (.001&quot; M1)</label>
-              <span class="field-hint">e.g. .078 = #78</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="convInchInput" data-step="-0.001" aria-label="Decrease Orifice Inch">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="convInchInput" class="num-input" value="0.0780" min="0.050" max="0.100" step="0.0005" inputmode="decimal" />
-                <span class="num-unit-badge">in</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="convInchInput" data-step="0.001" aria-label="Increase Orifice Inch">+</button>
-            </div>
-          </div>
-
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="convMmInput">Metric Drill (mm)</label>
-              <span class="field-hint">1 in = 25.400 mm</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="convMmInput" data-step="-0.010" aria-label="Decrease Orifice mm">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="convMmInput" class="num-input" value="1.981" min="1.270" max="2.540" step="0.005" inputmode="decimal" />
-                <span class="num-unit-badge">mm</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="convMmInput" data-step="0.010" aria-label="Increase Orifice mm">+</button>
+            <!-- Save Scale Sheet Snapshot to History -->
+            <div style="margin-top: 10px;">
+              <button type="button" class="btn btn-amber-outline btn-full" id="btnSaveCwSnapshot">
+                + Save Current 4-Corner Sheet to History
+              </button>
+              <div id="cwHistoryList" class="cw-history-list"></div>
             </div>
           </div>
         </div>
+      </article>
 
-        <div class="physics-summary-grid" style="margin-bottom: 10px;">
-          <div class="telem-cell">
-            <span class="telem-label">Orifice Flow Area</span>
-            <span class="telem-val txt-emerald" id="convAreaOut">3.083 mm&sup2;</span>
-            <span class="telem-sub" id="convVsBaseOut">-1.87% area vs 2.000 mm</span>
+      <!-- 3) EXHAUSTS (data-fleet-acc="exhausts") -->
+      <article class="fleet-acc-card" id="exhaustFleetCard" data-fleet-acc-card="exhausts">
+        <button
+          type="button"
+          class="fleet-acc-header"
+          data-fleet-acc="exhausts"
+          aria-expanded="false"
+        >
+          <div class="fleet-acc-left">
+            <div class="fleet-acc-title">Exhausts</div>
+            <div class="fleet-acc-sub">Headers &amp; Collector Systems &bull; Bench &amp; Dyno Spec</div>
           </div>
-          <div class="telem-cell">
-            <span class="telem-label">Nearest Kit Jet</span>
-            <span class="telem-val txt-amber" id="convNearestJetOut">#78 (1.981 mm)</span>
-            <span class="telem-sub" id="convStampHint">M1 .0780&quot;</span>
+          <div class="fleet-acc-right">
+            <span class="fleet-acc-status-pill emerald" id="fleetExhaustActiveBadge">Macca &#9733; ON CAR</span>
+            <span class="fleet-acc-count-pill" id="fleetExhaustCountBadge">4 UNITS</span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="exhausts" aria-hidden="true">&#9654;</span>
           </div>
-        </div>
+        </button>
 
-        <div class="form-grid-2 stack-mobile">
-          <input
-            type="text"
-            id="customJetLabelInput"
-            class="text-input"
-            placeholder="Custom stamp (e.g. #77 / 1.97mm Drill)"
-          />
-          <button type="button" class="btn btn-amber-outline" id="btnAddCustomJet">
-            + Add Custom Drill to Kit
-          </button>
-        </div>
-      </div>
-
-      <!-- M1 (.001" Increment) Main Jet Inventory -->
-      <div class="card">
-        <div class="section-head">
-          <div>
-            <div class="section-eyebrow">M1 (.001&quot; Increment) + Metric Drills</div>
-            <h2 class="section-title">Main Jet Toolbox Inventory (#68&ndash;#80+)</h2>
+        <div class="fleet-acc-body" id="fleetAccBody_exhausts" style="display: none;">
+          <div class="fleet-selector-bar" style="margin-bottom: 12px;">
+            <label class="sr-only" for="selectFleetExhaust">Select Exhaust / Header System</label>
+            <select id="selectFleetExhaust" class="select-input" aria-label="Select Exhaust or Header System"></select>
+            <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddExhaust">
+              + New
+            </button>
           </div>
-          <span class="locked-badge" id="toolboxSummaryBadge">15 / 15 In Box</span>
-        </div>
 
-        <div class="jet-inventory-list" id="jetInventoryList"></div>
-      </div>
+          <div id="exhaustFleetContainer"></div>
+        </div>
+      </article>
+
+      <!-- 4) JETS (data-fleet-acc="jets") -->
+      <article class="fleet-acc-card" id="jetsFleetCard" data-fleet-acc-card="jets">
+        <button
+          type="button"
+          class="fleet-acc-header"
+          data-fleet-acc="jets"
+          aria-expanded="false"
+        >
+          <div class="fleet-acc-left">
+            <div class="fleet-acc-title">Jets</div>
+            <div class="fleet-acc-sub">M1 (.001&quot;) &amp; Metric Orifice Converter + Toolbox Inventory</div>
+          </div>
+          <div class="fleet-acc-right">
+            <span class="fleet-acc-status-pill emerald" id="toolboxSummaryBadge">15 / 15 IN BOX</span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="jets" aria-hidden="true">&#9654;</span>
+          </div>
+        </button>
+
+        <div class="fleet-acc-body" id="fleetAccBody_jets" style="display: none;">
+          <!-- Live Inch <-> mm <-> Area (mm^2) Orifice Converter -->
+          <div class="card-elevated" style="margin-bottom: 12px;">
+            <div class="section-eyebrow" style="margin-bottom: 8px;">Live Inch &harr; mm &amp; Area (mm&sup2;) Orifice Converter</div>
+
+            <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+              <div class="field-group" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <label class="field-label" for="convInchInput">Imperial (.001&quot; M1)</label>
+                  <span class="field-hint">e.g. .078 = #78</span>
+                </div>
+                <div class="num-stepper">
+                  <button type="button" class="stepper-btn" data-stepper-target="convInchInput" data-step="-0.001" aria-label="Decrease Orifice Inch">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input type="number" id="convInchInput" class="num-input" value="0.0780" min="0.050" max="0.100" step="0.0005" inputmode="decimal" />
+                    <span class="num-unit-badge">in</span>
+                  </div>
+                  <button type="button" class="stepper-btn" data-stepper-target="convInchInput" data-step="0.001" aria-label="Increase Orifice Inch">+</button>
+                </div>
+              </div>
+
+              <div class="field-group" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <label class="field-label" for="convMmInput">Metric Drill (mm)</label>
+                  <span class="field-hint">1 in = 25.400 mm</span>
+                </div>
+                <div class="num-stepper">
+                  <button type="button" class="stepper-btn" data-stepper-target="convMmInput" data-step="-0.010" aria-label="Decrease Orifice mm">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input type="number" id="convMmInput" class="num-input" value="1.981" min="1.270" max="2.540" step="0.005" inputmode="decimal" />
+                    <span class="num-unit-badge">mm</span>
+                  </div>
+                  <button type="button" class="stepper-btn" data-stepper-target="convMmInput" data-step="0.010" aria-label="Increase Orifice mm">+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="physics-summary-grid" style="margin-bottom: 10px;">
+              <div class="telem-cell">
+                <span class="telem-label">Orifice Flow Area</span>
+                <span class="telem-val txt-emerald" id="convAreaOut">3.083 mm&sup2;</span>
+                <span class="telem-sub" id="convVsBaseOut">-1.87% area vs 2.000 mm</span>
+              </div>
+              <div class="telem-cell">
+                <span class="telem-label">Nearest Kit Jet</span>
+                <span class="telem-val txt-amber" id="convNearestJetOut">#78 (1.981 mm)</span>
+                <span class="telem-sub" id="convStampHint">M1 .0780&quot;</span>
+              </div>
+            </div>
+
+            <div class="form-grid-2 stack-mobile">
+              <input
+                type="text"
+                id="customJetLabelInput"
+                class="text-input"
+                placeholder="Custom stamp (e.g. #77 / 1.97mm Drill)"
+              />
+              <button type="button" class="btn btn-amber-outline" id="btnAddCustomJet">
+                + Add Custom Drill to Kit
+              </button>
+            </div>
+          </div>
+
+          <!-- M1 (.001" Increment) Main Jet Toolbox Inventory -->
+          <div class="section-eyebrow" style="margin-bottom: 8px;">Main Jet Toolbox Inventory (#68&ndash;#80+)</div>
+          <div class="jet-inventory-list" id="jetInventoryList"></div>
+        </div>
+      </article>
+
+      <!-- 5) MANIFOLDS (data-fleet-acc="manifolds") -->
+      <article class="fleet-acc-card" id="manifoldFleetCard" data-fleet-acc-card="manifolds">
+        <button
+          type="button"
+          class="fleet-acc-header"
+          data-fleet-acc="manifolds"
+          aria-expanded="false"
+        >
+          <div class="fleet-acc-left">
+            <div class="fleet-acc-title">Manifolds</div>
+            <div class="fleet-acc-sub">Group 3H Cast Single-Barrel Logs &bull; 3-Port CFM Bench</div>
+          </div>
+          <div class="fleet-acc-right">
+            <span class="fleet-acc-status-pill emerald" id="fleetManifoldActiveBadge">Macca &#9733; ON CAR</span>
+            <span class="fleet-acc-count-pill" id="fleetManifoldCountBadge">2 UNITS</span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="manifolds" aria-hidden="true">&#9654;</span>
+          </div>
+        </button>
+
+        <div class="fleet-acc-body" id="fleetAccBody_manifolds" style="display: none;">
+          <div class="fleet-selector-bar" style="margin-bottom: 12px;">
+            <label class="sr-only" for="selectFleetManifold">Select Inlet Manifold</label>
+            <select id="selectFleetManifold" class="select-input" aria-label="Select Inlet Manifold"></select>
+            <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddManifold">
+              + New
+            </button>
+          </div>
+
+          <div id="manifoldFleetContainer"></div>
+        </div>
+      </article>
+
+      <!-- 6) SHOCKS (data-fleet-acc="shocks") -->
+      <article class="fleet-acc-card" id="shockFleetCard" data-fleet-acc-card="shocks">
+        <button
+          type="button"
+          class="fleet-acc-header"
+          data-fleet-acc="shocks"
+          aria-expanded="false"
+        >
+          <div class="fleet-acc-left">
+            <div class="fleet-acc-title">Shocks</div>
+            <div class="fleet-acc-sub">Pedders GSR 9033 (Front) &amp; 9067 (Rear) &bull; @ 200 mm/s</div>
+          </div>
+          <div class="fleet-acc-right">
+            <span class="fleet-acc-status-pill emerald" id="fleetShockActiveBadge">FL:F29 FR:F27 &bull; RL:R26 RR:R25</span>
+            <span class="fleet-acc-count-pill" id="fleetShockCountBadge">28 UNITS</span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="shocks" aria-hidden="true">&#9654;</span>
+          </div>
+        </button>
+
+        <div class="fleet-acc-body" id="fleetAccBody_shocks" style="display: none;">
+          <div class="tyre-stock-filter-bar" role="group" aria-label="Filter Shocks Fleet" style="margin-bottom: 10px;">
+            <button type="button" class="tyre-filter-pill active" data-shock-fleet-filter="all" id="btnFilterShocksAll">
+              All (<span id="countFilterShocksAll">28</span>)
+            </button>
+            <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="F" id="btnFilterShocksFront">
+              Front (<span id="countFilterShocksFront">14</span>)
+            </button>
+            <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="R" id="btnFilterShocksRear">
+              Rear (<span id="countFilterShocksRear">14</span>)
+            </button>
+            <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="oncar" id="btnFilterShocksMounted">
+              On Car #77 (<span id="countFilterShocksMounted">4</span>)
+            </button>
+          </div>
+
+          <div class="fleet-selector-bar" style="margin-bottom: 12px;">
+            <label class="sr-only" for="selectFleetShock">Select Shock from Fleet</label>
+            <select id="selectFleetShock" class="select-input" aria-label="Select Shock from Fleet"></select>
+            <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddShock">
+              + Add Shock
+            </button>
+          </div>
+
+          <div id="shockFleetContainer"></div>
+        </div>
+      </article>
+
+      <!-- 7) SPRINGS (data-fleet-acc="springs") -->
+      <article class="fleet-acc-card" id="springFleetCard" data-fleet-acc-card="springs">
+        <button
+          type="button"
+          class="fleet-acc-header"
+          data-fleet-acc="springs"
+          aria-expanded="false"
+        >
+          <div class="fleet-acc-left">
+            <div class="fleet-acc-title">Springs</div>
+            <div class="fleet-acc-sub">Pedders 5608 (Front) &amp; 5609 (Rear) &bull; Rate &amp; Height</div>
+          </div>
+          <div class="fleet-acc-right">
+            <span class="fleet-acc-status-pill emerald" id="fleetSpringActiveBadge">FL:F11 FR:F12 &bull; RL:R6 RR:R5</span>
+            <span class="fleet-acc-count-pill" id="fleetSpringCountBadge">16 UNITS</span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="springs" aria-hidden="true">&#9654;</span>
+          </div>
+        </button>
+
+        <div class="fleet-acc-body" id="fleetAccBody_springs" style="display: none;">
+          <div class="tyre-stock-filter-bar" role="group" aria-label="Filter Springs Fleet" style="margin-bottom: 10px;">
+            <button type="button" class="tyre-filter-pill active" data-spring-fleet-filter="all" id="btnFilterSpringsAll">
+              All (<span id="countFilterSpringsAll">16</span>)
+            </button>
+            <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="F" id="btnFilterSpringsFront">
+              Front (<span id="countFilterSpringsFront">8</span>)
+            </button>
+            <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="R" id="btnFilterSpringsRear">
+              Rear (<span id="countFilterSpringsRear">8</span>)
+            </button>
+            <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="oncar" id="btnFilterSpringsMounted">
+              On Car #77 (<span id="countFilterSpringsMounted">4</span>)
+            </button>
+          </div>
+
+          <div class="fleet-selector-bar" style="margin-bottom: 12px;">
+            <label class="sr-only" for="selectFleetSpring">Select Spring from Fleet</label>
+            <select id="selectFleetSpring" class="select-input" aria-label="Select Spring from Fleet"></select>
+            <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddSpring">
+              + Add Spring
+            </button>
+          </div>
+
+          <div id="springFleetContainer"></div>
+        </div>
+      </article>
     </section>
   </main>
 
@@ -3967,6 +4115,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.8.4"></script>
+  <script src="./app.js?v=0.8.5"></script>
 </body>
 </html>
