@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.7.3" />
+  <link rel="stylesheet" href="./styles.css?v=0.7.4" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -233,6 +233,12 @@
             END EVENT
           </button>
         </div>
+
+        <!-- Guided Session Workflow State Machine Banner -->
+        <div id="sessionWorkflowBanner" class="workflow-guide-banner state-pre-pending" role="status" aria-live="polite">
+          <span class="wf-banner-dot" id="sessionWorkflowBannerDot"></span>
+          <span class="wf-banner-text" id="sessionWorkflowBannerText">PRE-RACE SETUP: Lock both Pre-Race Tune &amp; Pre-Race Tyres to arm Post-Session telemetry.</span>
+        </div>
       </div>
     </div>
 
@@ -302,7 +308,7 @@
         </button>
       </div>
 
-      <!-- Standalone Full-Width 3D Post-Race Session Completion Button (Locked Grey until Pre-Race Jet is Locked) -->
+      <!-- Standalone Full-Width 3D Post-Race Session Completion Button (Locked Grey until BOTH Pre-Tune & Pre-Tyres are Locked) -->
       <button
         type="button"
         class="btn btn-locked-grey btn-stage-locked btn-full btn-cta-lg"
@@ -310,7 +316,7 @@
         style="margin-bottom: 14px;"
         disabled
       >
-        LOCK PRE-RACE JET FIRST (POST-RACE LOCKED)
+        LOCK PRE-TUNE &amp; PRE-TYRES FIRST
       </button>
 
       <!-- Step Progress Navigation -->
@@ -657,6 +663,15 @@
               CONFIRM JET &amp; LOCK TO SESSION
             </button>
           </div>
+          <button
+            type="button"
+            class="btn btn-locked-grey btn-stage-locked btn-full btn-cta-lg"
+            id="btnOpenPostRaceAfrStep2"
+            style="margin-top: 8px;"
+            disabled
+          >
+            LOCK PRE-TUNE &amp; PRE-TYRES FIRST
+          </button>
         </div>
       </div>
       </div>
@@ -898,7 +913,7 @@
           SAVE PRE-RACE FUEL &amp; WEIGHT TO SESSION
         </button>
         <button type="button" class="btn btn-locked-grey btn-stage-locked btn-full btn-cta-lg" id="btnCompleteSessionFromFuel" style="margin-top: 8px;" disabled>
-          LOCK PRE-RACE FUEL FIRST (POST-RACE LOCKED)
+          LOCK PRE-TUNE &amp; PRE-TYRES FIRST
         </button>
       </div>
       </div>
@@ -1028,6 +1043,14 @@
             <span class="telem-label" id="outTyreLearnedCardTitle">Track Learned Cold Stagger (Dry)</span>
             <span class="telem-val txt-emerald" id="outTyreTrackLearnedSummary" style="font-size: 13.5px;">FL 29.5 &bull; FR 30.5 &bull; RL 34.0 &bull; RR 35.0</span>
             <span class="telem-sub" id="outTyreTrackLearnedSub">Auto-learned from 1 dry run at Calder Park Raceway</span>
+          </div>
+        </div>
+
+        <!-- Post-Session Step 2 of 2 Callout Banner (Shown when tunePostLocked === true && !tyresPostLocked) -->
+        <div id="postTyresStep2Banner" class="post-step2-highlight-card" style="display: none;" role="region" aria-live="polite">
+          <div class="post-step2-eyebrow">POST-SESSION STEP 2 OF 2 &bull; HOT TYRE PRESSURES &amp; PYROMETER</div>
+          <div class="post-step2-title" id="postTyresStep2Title">
+            STEP 2 OF 2: Enter Post-Session Hot Tyre PSIs below, then tap LOCK POST TYRES &amp; COMPLETE SESSION
           </div>
         </div>
 
@@ -1476,7 +1499,7 @@
           SAVE PRE-RACE TYRES &amp; SUSPENSION TO SESSION
         </button>
         <button type="button" class="btn btn-locked-grey btn-stage-locked btn-full btn-cta-lg" id="btnCompleteSessionFromTyres" style="margin-top: 8px;" disabled>
-          LOCK PRE-RACE TYRES FIRST (POST-RACE LOCKED)
+          LOCK PRE-TUNE &amp; PRE-TYRES FIRST
         </button>
       </div>
 
@@ -1989,8 +2012,8 @@
     <div class="modal-sheet">
       <div class="modal-head">
         <div>
-          <div class="section-eyebrow">Post-Race Telemetry &amp; Baseline Roll-Forward</div>
-          <h2 class="section-title" id="modalPostRaceTitle">Complete &amp; Close Session</h2>
+          <div class="section-eyebrow">POST-SESSION STEP 1 OF 2 &bull; ENGINE TUNE &amp; FUEL</div>
+          <h2 class="section-title" id="modalPostRaceTitle">1. Enter Post-Session Tune &amp; Fuel</h2>
         </div>
         <button type="button" class="btn btn-danger" data-close-modal="modalPostRaceAfr" aria-label="Close Post-Race Modal">
           Close
@@ -1998,7 +2021,7 @@
       </div>
 
       <p style="margin: 0 0 12px; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45;">
-        Enter post-race data for <strong id="postRaceModalSessionLabel" class="txt-emerald">Practice 1 (1 DME)</strong>. Completing this session locks the run and rolls its Tune, Fuel L/lap, and Next Cold Tyre PSIs into your Baseline for the next session.
+        Step 1 of 2 for <strong id="postRaceModalSessionLabel" class="txt-emerald">Practice 1 (1 DME)</strong>: Enter post-session engine tune, wideband AFR &amp; optional fuel pump-out below, then lock to jump straight to Step 2 (Post-Session Hot Tyres).
       </p>
 
       <!-- SECTION 1: POST-RACE TUNE & GAUGES -->
@@ -2233,87 +2256,11 @@
         </div>
       </div>
 
-      <!-- SECTION 3: POST-RACE HOT TYRE PSIs (4-CORNER FL / FR / RL / RR) -->
-      <div class="card-elevated post-race-section-card" style="margin-bottom: 12px;">
-        <div class="field-label-row" style="margin-bottom: 8px;">
-          <span class="section-eyebrow">3 &bull; Post-Race Hot Tyre PSIs (FL / FR / RL / RR)</span>
-          <span class="field-hint emerald" id="modalPostHotTargetLabel">TARGET: 40.0F / 43.0R PSI</span>
-        </div>
-
-        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 8px;">
-          <!-- FL -->
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="modalPostHotPsi_FL">FL Hot PSI</label>
-              <span class="field-hint emerald" id="modalPostNextCold_FL">Next: 30.0</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="modalPostHotPsi_FL" data-step="-0.2" aria-label="Decrease FL Hot PSI">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="modalPostHotPsi_FL" class="num-input" value="" placeholder="&mdash;" min="20.0" max="60.0" step="0.2" inputmode="decimal" />
-                <span class="num-unit-badge">psi</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="modalPostHotPsi_FL" data-step="0.2" aria-label="Increase FL Hot PSI">+</button>
-            </div>
-          </div>
-
-          <!-- FR -->
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="modalPostHotPsi_FR">FR Hot PSI</label>
-              <span class="field-hint emerald" id="modalPostNextCold_FR">Next: 30.0</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="modalPostHotPsi_FR" data-step="-0.2" aria-label="Decrease FR Hot PSI">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="modalPostHotPsi_FR" class="num-input" value="" placeholder="&mdash;" min="20.0" max="60.0" step="0.2" inputmode="decimal" />
-                <span class="num-unit-badge">psi</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="modalPostHotPsi_FR" data-step="0.2" aria-label="Increase FR Hot PSI">+</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-grid-2 compact-pair-grid">
-          <!-- RL -->
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="modalPostHotPsi_RL">RL Hot PSI</label>
-              <span class="field-hint emerald" id="modalPostNextCold_RL">Next: 30.0</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="modalPostHotPsi_RL" data-step="-0.2" aria-label="Decrease RL Hot PSI">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="modalPostHotPsi_RL" class="num-input" value="" placeholder="&mdash;" min="20.0" max="60.0" step="0.2" inputmode="decimal" />
-                <span class="num-unit-badge">psi</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="modalPostHotPsi_RL" data-step="0.2" aria-label="Increase RL Hot PSI">+</button>
-            </div>
-          </div>
-
-          <!-- RR -->
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="modalPostHotPsi_RR">RR Hot PSI</label>
-              <span class="field-hint emerald" id="modalPostNextCold_RR">Next: 30.0</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="modalPostHotPsi_RR" data-step="-0.2" aria-label="Decrease RR Hot PSI">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="modalPostHotPsi_RR" class="num-input" value="" placeholder="&mdash;" min="20.0" max="60.0" step="0.2" inputmode="decimal" />
-                <span class="num-unit-badge">psi</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="modalPostHotPsi_RR" data-step="0.2" aria-label="Increase RR Hot PSI">+</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SECTION 4: POST-RACE NOTES -->
+      <!-- SECTION 3: POST-SESSION TUNE NOTES -->
       <div class="field-group" style="margin-bottom: 14px;">
         <div class="field-label-row">
-          <label class="field-label" for="modalPostNotes">Post-Race Notes</label>
-          <span class="field-hint emerald">Saved to Session Log</span>
+          <label class="field-label" for="modalPostNotes">Post-Session Tune Notes</label>
+          <span class="field-hint emerald">Saved Live to Session Log</span>
         </div>
         <input
           type="text"
@@ -2325,7 +2272,7 @@
       </div>
 
       <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSavePostRaceAfr">
-        SAVE POST-RACE &amp; COMPLETE SESSION
+        LOCK POST-SESSION TUNE &amp; GO TO POST TYRES &rarr;
       </button>
     </div>
   </div>
@@ -3122,13 +3069,16 @@
           COMMENCE SELECTED SESSION
         </button>
         <div class="form-grid-2" style="gap: 8px; margin-top: 8px;">
+          <button type="button" class="btn btn-secondary btn-full" id="btnViewInSessionLogFromPrompt">
+            View in Session Log
+          </button>
           <button type="button" class="btn btn-secondary btn-full" id="btnDeferNextSession">
             Select Later
           </button>
-          <button type="button" class="btn btn-danger btn-full" id="btnEndEventFromPrompt">
-            END EVENT
-          </button>
         </div>
+        <button type="button" class="btn btn-danger btn-full" id="btnEndEventFromPrompt" style="margin-top: 8px;">
+          END EVENT
+        </button>
       </div>
     </div>
   </div>
@@ -3534,6 +3484,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.7.3"></script>
+  <script src="./app.js?v=0.7.4"></script>
 </body>
 </html>

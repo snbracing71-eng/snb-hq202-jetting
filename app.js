@@ -1756,9 +1756,11 @@
         tyres,
         shocks,
         springs,
-        fuelPreLocked: Boolean(s.fuelPreLocked),
-        tyresPreLocked: Boolean(s.tyresPreLocked),
-        tunePreLocked: Boolean(s.tunePreLocked),
+        fuelPreLocked: s.fuelPreLocked !== undefined ? Boolean(s.fuelPreLocked) : (s.status || 'completed') === 'completed',
+        tyresPreLocked: s.tyresPreLocked !== undefined ? Boolean(s.tyresPreLocked) : (s.status || 'completed') === 'completed',
+        tunePreLocked: s.tunePreLocked !== undefined ? Boolean(s.tunePreLocked) : (s.status || 'completed') === 'completed',
+        tunePostLocked: s.tunePostLocked !== undefined ? Boolean(s.tunePostLocked) : (s.status || 'completed') === 'completed',
+        tyresPostLocked: s.tyresPostLocked !== undefined ? Boolean(s.tyresPostLocked) : (s.status || 'completed') === 'completed',
         preRaceNotes,
         postRaceNotes,
         notes: combinedNotes
@@ -3271,11 +3273,85 @@
     });
   }
 
+  function isAllPreLocked(sess) {
+    return Boolean(sess && sess.tunePreLocked && sess.tyresPreLocked);
+  }
+
+  function autoSnapshotPreRaceFuelToSession(sess) {
+    if (!sess) return;
+    const fuelSnap = recalcFuelAndWeight();
+    sess.litresToPourL = Number(fuelSnap.litresToPourL.toFixed(1));
+    sess.startingFuelReqL = Number(fuelSnap.startingFuelReqL.toFixed(1));
+    sess.expectedBurnL = Number(fuelSnap.expectedBurnL.toFixed(1));
+    sess.fuelFloorL = Number(fuelSnap.safeFloorL.toFixed(1));
+    if (!sess.racedLaps || sess.racedLaps <= 0) {
+      sess.racedLaps = fuelSnap.raceLaps;
+    }
+    if (!sess.measuredBurnLPerLap || sess.measuredBurnLPerLap <= 0) {
+      sess.measuredBurnLPerLap = Number(fuelSnap.burnLPerLap.toFixed(2));
+    }
+    if (fuelSnap.scaleCheckKg > 500) {
+      sess.scaleWeightKg = Number(fuelSnap.scaleCheckKg.toFixed(1));
+    }
+    if (fuelSnap.predictedPostRaceKg > 500) {
+      sess.postRaceEstKg = Number(fuelSnap.predictedPostRaceKg.toFixed(1));
+    }
+    sess.fuelPreLocked = true;
+  }
+
   function syncPreRacePostRaceLocksUi() {
     const activeSess = getActiveSession();
+    const tuneLocked = Boolean(activeSess && activeSess.tunePreLocked);
+    const tyresLocked = Boolean(activeSess && activeSess.tyresPreLocked);
+    const fuelLocked = Boolean(activeSess && activeSess.fuelPreLocked);
+    const allPreLocked = isAllPreLocked(activeSess);
+    const tunePostLocked = Boolean(activeSess && activeSess.tunePostLocked);
+    const tyresPostLocked = Boolean(activeSess && activeSess.tyresPostLocked);
+
+    const lockedPostLabel = !tuneLocked && !tyresLocked
+      ? 'LOCK PRE-TUNE & PRE-TYRES FIRST'
+      : tuneLocked && !tyresLocked
+      ? 'LOCK PRE-TYRES FIRST (PRE-TUNE ✓)'
+      : 'LOCK PRE-TUNE FIRST (PRE-TYRES ✓)';
+
+    // Guided Workflow Banner inside #eventBarLiveView
+    const wfBanner = $('sessionWorkflowBanner');
+    const wfBannerText = $('sessionWorkflowBannerText');
+    if (wfBanner && wfBannerText && activeSess) {
+      if (allPreLocked && tunePostLocked && !tyresPostLocked) {
+        wfBanner.className = 'workflow-guide-banner state-post-step2';
+        wfBannerText.textContent =
+          'STEP 2 OF 2: Enter Post-Session Hot Tyre PSIs below, then tap LOCK POST TYRES & COMPLETE SESSION';
+      } else if (allPreLocked && !tunePostLocked) {
+        wfBanner.className = 'workflow-guide-banner state-ready';
+        wfBannerText.textContent =
+          '🟢 ALL PRE-RACE SETUP LOCKED — CAR READY FOR TRACK (Tap 1. ENTER POST-SESSION TUNE → after run)';
+      } else if (tuneLocked && !tyresLocked) {
+        wfBanner.className = 'workflow-guide-banner state-handoff';
+        wfBannerText.textContent = `✓ Pre-Race Tune Locked (${activeSess.jetLabel || 'Jet'}) — Now check & lock Pre-Race Tyres & Springs below to complete Pre-Race setup!`;
+      } else if (!tuneLocked && tyresLocked) {
+        wfBanner.className = 'workflow-guide-banner state-handoff';
+        wfBannerText.textContent =
+          '✓ Pre-Race Tyres Locked — Now check weather, pick jet & lock Pre-Race Tune to complete Pre-Race setup!';
+      } else {
+        wfBanner.className = 'workflow-guide-banner state-pre-pending';
+        wfBannerText.textContent =
+          'PRE-RACE SETUP: Lock both Pre-Race Tune & Pre-Race Tyres to arm Post-Session telemetry.';
+      }
+    }
+
+    // Highlight Step 2 Post-Tyres Callout Banner on #tab-tyres
+    const step2Banner = $('postTyresStep2Banner');
+    const tyresContentWrap = $('tyresActiveSessionContent');
+    const isStep2PostTyres = Boolean(allPreLocked && tunePostLocked && !tyresPostLocked);
+    if (step2Banner) {
+      step2Banner.style.display = isStep2PostTyres ? 'block' : 'none';
+    }
+    if (tyresContentWrap) {
+      tyresContentWrap.classList.toggle('tyres-post-step2-active', isStep2PostTyres);
+    }
 
     // 1. FUEL & WT TAB (#tab-fuel)
-    const fuelLocked = Boolean(activeSess && activeSess.fuelPreLocked);
     const btnSaveFuel = $('btnSaveFuelWeightSession') || $('btnSaveFuelSession');
     const btnPostFuel = $('btnCompleteSessionFromFuel') || $('btnCompleteFromFuel');
     const unlockFuelRow = $('unlockFuelPreRaceRow');
@@ -3287,8 +3363,12 @@
     );
     applyStageButtonState(
       btnPostFuel,
-      fuelLocked,
-      fuelLocked ? 'ENTER POST-RACE DATA & COMPLETE SESSION' : 'LOCK PRE-RACE FUEL FIRST (POST-RACE LOCKED)'
+      allPreLocked,
+      !allPreLocked
+        ? lockedPostLabel
+        : !tunePostLocked
+        ? '1. ENTER POST-SESSION TUNE →'
+        : 'GO TO POST-SESSION TYRES TO FINISH →'
     );
     if (unlockFuelRow) {
       unlockFuelRow.style.display = fuelLocked ? 'flex' : 'none';
@@ -3300,7 +3380,6 @@
     );
 
     // 2. TYRES / SPRINGS TAB (#tab-tyres)
-    const tyresLocked = Boolean(activeSess && activeSess.tyresPreLocked);
     const btnSaveTyres = $('btnSaveTyresSession');
     const btnPostTyres = $('btnCompleteSessionFromTyres') || $('btnCompleteFromTyres');
     const unlockTyresRow = $('unlockTyresPreRaceRow');
@@ -3312,20 +3391,30 @@
     );
     applyStageButtonState(
       btnPostTyres,
-      tyresLocked,
-      tyresLocked ? 'ENTER POST-RACE DATA & COMPLETE SESSION' : 'LOCK PRE-RACE TYRES FIRST (POST-RACE LOCKED)'
+      allPreLocked && !tyresPostLocked,
+      !allPreLocked
+        ? lockedPostLabel
+        : !tunePostLocked
+        ? '1. ENTER POST-SESSION TUNE →'
+        : !tyresPostLocked
+        ? '2. LOCK POST-SESSION TYRES & COMPLETE SESSION →'
+        : '✓ POST-SESSION TYRES LOCKED'
     );
     if (unlockTyresRow) {
-      unlockTyresRow.style.display = tyresLocked ? 'flex' : 'none';
+      unlockTyresRow.style.display = tyresLocked && !tunePostLocked ? 'flex' : 'none';
     }
     setPreRaceControlsLocked(
       [
         'btnTyreCondDry',
         'btnTyreCondWet',
+        'btnPresetAiIdeal',
+        'btnPresetClassic44',
         'btnDropAiColdBaseline',
         'btnWetPreset_drying',
         'btnWetPreset_light',
         'btnWetPreset_heavy',
+        'inputTyreHotTargetFront',
+        'inputTyreHotTargetRear',
         'inputTyreSessionLaps',
         'btnUnmountAllTyres',
         'btnClearAllColdPsi',
@@ -3351,27 +3440,31 @@
     );
 
     // 3. CALCULATOR TAB (#tab-calc)
-    const tuneLocked = Boolean(activeSess && activeSess.tunePreLocked);
     const btnConfirmJet = $('btnConfirmLockJet');
     const btnPostCalc = $('btnOpenPostRaceAfr');
+    const btnPostCalcStep2 = $('btnOpenPostRaceAfrStep2');
     const unlockTuneTop = $('unlockTunePreRaceRowTop');
     const unlockTuneStep2 = $('unlockTunePreRaceRowStep2');
 
     applyStageButtonState(
       btnConfirmJet,
       !tuneLocked,
-      tuneLocked ? '✓ PRE-RACE JET & TUNE LOCKED' : 'CONFIRM JET & LOCK TO SESSION'
+      tuneLocked ? '✓ PRE-RACE TUNE LOCKED' : 'CONFIRM JET & LOCK TO SESSION'
     );
-    applyStageButtonState(
-      btnPostCalc,
-      tuneLocked,
-      tuneLocked ? 'ENTER POST-RACE DATA & COMPLETE SESSION' : 'LOCK PRE-RACE JET FIRST (POST-RACE LOCKED)'
-    );
+    const calcPostActive = allPreLocked && !tunePostLocked;
+    const calcPostLabel = !allPreLocked
+      ? lockedPostLabel
+      : !tunePostLocked
+      ? '1. ENTER POST-SESSION TUNE →'
+      : '✓ POST-SESSION TUNE LOCKED (FINISH ON TYRES TAB)';
+    applyStageButtonState(btnPostCalc, calcPostActive, calcPostLabel);
+    applyStageButtonState(btnPostCalcStep2, calcPostActive, calcPostLabel);
+
     if (unlockTuneTop) {
-      unlockTuneTop.style.display = tuneLocked ? 'flex' : 'none';
+      unlockTuneTop.style.display = tuneLocked && !tunePostLocked ? 'flex' : 'none';
     }
     if (unlockTuneStep2) {
-      unlockTuneStep2.style.display = tuneLocked ? 'flex' : 'none';
+      unlockTuneStep2.style.display = tuneLocked && !tunePostLocked ? 'flex' : 'none';
     }
     setPreRaceControlsLocked(
       [
@@ -3407,19 +3500,29 @@
     if (!activeSess) return;
     if (sectionKey === 'fuel') {
       activeSess.fuelPreLocked = false;
+      syncFlatSessionsFromEvents(state);
       saveState();
+      renderSessionLog();
       syncPreRacePostRaceLocksUi();
-      showToast('Unlocked Pre-Race Fuel & Weight — Save again to re-enable Post-Race');
+      showToast('Unlocked Pre-Race Fuel & Weight');
     } else if (sectionKey === 'tyres') {
       activeSess.tyresPreLocked = false;
+      activeSess.tunePostLocked = false;
+      activeSess.tyresPostLocked = false;
+      syncFlatSessionsFromEvents(state);
       saveState();
+      renderSessionLog();
       syncPreRacePostRaceLocksUi();
-      showToast('Unlocked Pre-Race Tyres & Suspension — Save again to re-enable Post-Race');
+      showToast('Unlocked Pre-Race Tyres & Suspension — Lock again to arm Post-Session');
     } else if (sectionKey === 'tune') {
       activeSess.tunePreLocked = false;
+      activeSess.tunePostLocked = false;
+      activeSess.tyresPostLocked = false;
+      syncFlatSessionsFromEvents(state);
       saveState();
+      renderSessionLog();
       syncPreRacePostRaceLocksUi();
-      showToast('Unlocked Pre-Race Tune — Confirm Jet again to re-enable Post-Race');
+      showToast('Unlocked Pre-Race Tune — Confirm Jet again to arm Post-Session');
     }
   }
 
@@ -3611,6 +3714,8 @@
       fuelPreLocked: false,
       tyresPreLocked: false,
       tunePreLocked: false,
+      tunePostLocked: false,
+      tyresPostLocked: false,
       preRaceNotes: preNotes,
       postRaceNotes: '',
       notes: preNotes
@@ -3767,14 +3872,19 @@
     }
 
     const lastSess =
-      completedSess ||
+      (completedSess && typeof completedSess === 'object' ? completedSess : null) ||
       (Array.isArray(liveEvt.sessions) && liveEvt.sessions.length > 0
         ? liveEvt.sessions[liveEvt.sessions.length - 1]
         : null);
 
-    const completedName = lastSess ? lastSess.sessionName : 'Previous Session';
+    const completedName =
+      typeof completedSess === 'string' && completedSess.trim()
+        ? completedSess.trim()
+        : lastSess && lastSess.sessionName
+        ? lastSess.sessionName
+        : 'Previous Session';
     if ($('promptNextSessionTitle')) {
-      $('promptNextSessionTitle').textContent = `${completedName} Saved & Locked — Select Next Session`;
+      $('promptNextSessionTitle').textContent = `✓ ${completedName} Logged & Promoted to New Baseline`;
     }
 
     const summary = buildCarriedForwardBaselineSummaryParts(liveEvt.venue);
@@ -4477,15 +4587,32 @@
       ui.weatherOnly = false;
     }
 
+    unifiedSession.tunePreLocked = true;
+    activeSess.tunePreLocked = true;
+    if (isAllPreLocked(unifiedSession)) {
+      autoSnapshotPreRaceFuelToSession(unifiedSession);
+    }
+    syncFlatSessionsFromEvents(state);
     saveState();
 
     $('inputRadPct').value = unifiedSession.rad.toFixed(1);
     syncPreRaceNotesInputs(unifiedSession.preRaceNotes || '');
 
-    renderAll();
     setCalculatorStep(1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    showToast(`Locked ${chosenJet.label} to ${sessionName} — Post-Race Completion Ready`);
+    renderAll();
+
+    if (!unifiedSession.tyresPreLocked) {
+      // Case A: Pre-Tune locked first -> auto-switch straight to #tab-tyres
+      switchTab('tab-tyres');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast(
+        `✓ Pre-Race Tune Locked (${chosenJet.label}) — Now check & lock Pre-Race Tyres & Springs!`
+      );
+    } else {
+      // Case C: Both Pre-Tune and Pre-Tyres are now locked -> Car ready for track!
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('🟢 ALL PRE-RACE SETUP LOCKED — CAR READY FOR TRACK');
+    }
   }
 
   /* ------------------------------------------------------------------------
@@ -6978,13 +7105,25 @@
       $('inputRunNotes').value = unified.preRaceNotes || '';
     }
 
+    if (isAllPreLocked(unified)) {
+      autoSnapshotPreRaceFuelToSession(unified);
+    }
+    syncFlatSessionsFromEvents(state);
     saveState();
-    renderWeekendEventBanner();
-    recalcTyres();
-    renderTyreStockList();
-    renderSessionLog();
-    syncPreRacePostRaceLocksUi();
-    showToast(`✓ Pre-Race Tyres & Suspension Locked (${unified.sessionName}) — Post-Race Ready`);
+    renderAll();
+
+    if (!unified.tunePreLocked) {
+      // Case B: Pre-Tyres locked first -> auto-switch straight to #tab-calc
+      switchTab('tab-calc');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast(
+        '✓ Pre-Race Tyres Locked — Now check weather, pick jet & lock Pre-Race Tune!'
+      );
+    } else {
+      // Case C: Both Pre-Tune and Pre-Tyres are now locked -> Car ready for track!
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('🟢 ALL PRE-RACE SETUP LOCKED — CAR READY FOR TRACK');
+    }
   }
 
   function exportTyresCsv() {
@@ -7329,6 +7468,28 @@
         </div>
       `;
 
+    let wfStatusBadgeClass = 'verified';
+    let wfStatusBadgeText = 'VERIFIED & COMPLETE';
+    if (s.status === 'completed' || (s.tunePostLocked && s.tyresPostLocked) || !isEstimated) {
+      wfStatusBadgeClass = 'verified';
+      wfStatusBadgeText = 'VERIFIED & COMPLETE';
+    } else if (s.tunePostLocked && !s.tyresPostLocked) {
+      wfStatusBadgeClass = 'cyan';
+      wfStatusBadgeText = 'POST-TUNE SAVED';
+    } else if (s.tunePreLocked && s.tyresPreLocked) {
+      wfStatusBadgeClass = 'verified';
+      wfStatusBadgeText = 'READY ON TRACK';
+    } else if (s.tunePreLocked && !s.tyresPreLocked) {
+      wfStatusBadgeClass = 'estimated';
+      wfStatusBadgeText = 'PRE-TUNE SET';
+    } else if (!s.tunePreLocked && s.tyresPreLocked) {
+      wfStatusBadgeClass = 'estimated';
+      wfStatusBadgeText = 'PRE-TYRES SET';
+    } else {
+      wfStatusBadgeClass = 'estimated';
+      wfStatusBadgeText = 'PRE-RACE DRAFT';
+    }
+
     return `
       <article class="session-card ${isBaseline ? 'is-baseline' : ''}" data-session-id="${escapeHtml(s.id)}">
         <div class="session-head">
@@ -7351,8 +7512,8 @@
                 : `<span class="mono ${endCylClass}" style="font-size: 0.75rem; font-weight: 800;">#1/#6: ${prot.endCylAfr.toFixed(2)}</span>`
             }
             <div style="margin-top: 4px;">
-              <span class="afr-status-badge ${isEstimated ? 'estimated' : 'verified'}">
-                ${isEstimated ? 'ESTIMATED' : 'VERIFIED'}
+              <span class="afr-status-badge ${wfStatusBadgeClass}">
+                ${wfStatusBadgeText}
               </span>
             </div>
           </div>
@@ -9881,18 +10042,29 @@
       return;
     }
 
-    // Hard JS safety guard: enforce Pre-Race -> Post-Race lock on the active tab before opening Post-Race completion
-    const activeTabId = ui.activeTab || 'tab-calc';
-    if (activeTabId === 'tab-fuel' && !linked.fuelPreLocked) {
-      showToast('Save & lock Pre-Race setup first');
+    // Critical Rule: BOTH Pre-Tune AND Pre-Tyres must be locked before ANY Post-Session step opens
+    if (!isAllPreLocked(linked)) {
+      if (!linked.tunePreLocked && !linked.tyresPreLocked) {
+        showToast('Lock both Pre-Race Tune & Pre-Race Tyres first');
+      } else if (linked.tunePreLocked && !linked.tyresPreLocked) {
+        switchTab('tab-tyres');
+        showToast('Lock Pre-Race Tyres & Suspension first to unlock Post-Session');
+      } else {
+        switchTab('tab-calc');
+        showToast('Lock Pre-Race Tune first to unlock Post-Session');
+      }
       return;
     }
-    if (activeTabId === 'tab-tyres' && !linked.tyresPreLocked) {
-      showToast('Save & lock Pre-Race setup first');
-      return;
-    }
-    if (activeTabId === 'tab-calc' && !linked.tunePreLocked) {
-      showToast('Save & lock Pre-Race setup first');
+
+    // If Post-Session Tune (Step 1) is already locked, route directly to Step 2 (Post-Session Tyres)
+    if (linked.tunePostLocked && !linked.tyresPostLocked) {
+      if (ui.activeTab === 'tab-tyres') {
+        completeSessionPostTyres();
+      } else {
+        switchTab('tab-tyres');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showToast('STEP 2 OF 2: Enter Post-Session Hot Tyre PSIs & tap Lock Post Tyres to finish!');
+      }
       return;
     }
 
@@ -9971,19 +10143,6 @@
     if ($('modalPostRacedLaps')) $('modalPostRacedLaps').value = String(defaultRacedLaps);
     if ($('modalPostScaleKg')) $('modalPostScaleKg').value = '';
 
-    // Section 3: Pre-populate Post-Race 4-Corner Hot PSIs from Tab 3 inputs or session
-    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-      const hotModalEl = $(`modalPostHotPsi_${c}`);
-      if (!hotModalEl) return;
-      const tabHot = readOptionalPsi(`inputHotPsi_${c}`);
-      const sessHot =
-        linked.tyres && linked.tyres[c] && linked.tyres[c].hot !== null && linked.tyres[c].hot !== undefined && Number.isFinite(Number(linked.tyres[c].hot))
-          ? Number(linked.tyres[c].hot)
-          : null;
-      const val = tabHot !== null ? tabHot : sessHot;
-      hotModalEl.value = val !== null ? val.toFixed(1) : '';
-    });
-
     syncModalPostFuelAndTyresPreview();
 
     if ($('modalPostNotes')) {
@@ -10020,6 +10179,11 @@
     openModal('modalPostRaceAfr');
   }
 
+  /**
+   * POST-SESSION STEP 1 OF 2:
+   * Saves Post-Session Tune & Fuel telemetry, locks tunePostLocked = true,
+   * closes #modalPostRaceAfr, and automatically switches straight to #tab-tyres for Step 2.
+   */
   function savePostRaceAfrModal() {
     const liveEvt = getActiveEvent();
     const liveSessions = liveEvt && Array.isArray(liveEvt.sessions) ? liveEvt.sessions : [];
@@ -10030,14 +10194,7 @@
       liveSessions[liveSessions.length - 1] ||
       null;
 
-    if (!linked && liveEvt) {
-      linked = upsertUnifiedSession({
-        venue: liveEvt.venue,
-        sessionDateIso: liveEvt.eventDate,
-        sessionDate: formatIsoDateDisplay(liveEvt.eventDate),
-        sessionName: getSelectedSessionName()
-      });
-    }
+    if (!linked) return;
 
     const fallbackAfr =
       linked && Number.isFinite(Number(linked.afrWot))
@@ -10077,6 +10234,8 @@
       if ($('inputPumpLaps')) $('inputPumpLaps').value = String(modalRacedLaps);
       if ($('inputRaceLaps')) $('inputRaceLaps').value = String(modalRacedLaps);
       if ($('inputTyreSessionLaps')) $('inputTyreSessionLaps').value = String(modalRacedLaps);
+    } else if (modalRacedLaps > 0 && $('inputTyreSessionLaps')) {
+      $('inputTyreSessionLaps').value = String(modalRacedLaps);
     }
 
     if (hasPostScaleFact) {
@@ -10093,70 +10252,13 @@
       if ($('inputScaleCheckFuelL')) $('inputScaleCheckFuelL').value = postFuelRemL.toFixed(1);
     }
 
-    // Read Post-Race Hot Tyre PSIs & compute Next Cold Set by axle target for roll-forward
-    const frontTarget =
-      linked && Number.isFinite(Number(linked.hotTargetFront))
-        ? Number(linked.hotTargetFront)
-        : readNum('inputTyreHotTargetFront', 40.0);
-    const rearTarget =
-      linked && Number.isFinite(Number(linked.hotTargetRear))
-        ? Number(linked.hotTargetRear)
-        : readNum('inputTyreHotTargetRear', 43.0);
-    const mounted = ensureMountedTyresState();
-    const nextColdRollForward = {};
-
-    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-      const axleTarget = c.startsWith('F') ? frontTarget : rearTarget;
-      const hotRaw = $(`modalPostHotPsi_${c}`) ? String($(`modalPostHotPsi_${c}`).value || '').trim() : '';
-      const parsedHot = hotRaw !== '' ? parseFloat(hotRaw) : NaN;
-      const hotPsi = Number.isFinite(parsedHot) && parsedHot > 0 ? Number(parsedHot.toFixed(1)) : null;
-
-      const coldPsi =
-        linked && linked.tyres && linked.tyres[c] && Number.isFinite(Number(linked.tyres[c].cold)) && Number(linked.tyres[c].cold) > 0
-          ? Number(linked.tyres[c].cold)
-          : readOptionalPsi(`inputColdPsi_${c}`);
-
-      let nextColdPsi = null;
-      if (coldPsi !== null && hotPsi !== null) {
-        nextColdPsi = Number((((axleTarget + 14.7) * (coldPsi + 14.7)) / (hotPsi + 14.7) - 14.7).toFixed(1));
-      } else if (coldPsi !== null) {
-        nextColdPsi = Number(coldPsi.toFixed(1));
-      }
-
-      const livePyro = state.chassis && state.chassis.pyroTyres && state.chassis.pyroTyres[c] ? normalizeSinglePyroObj(state.chassis.pyroTyres[c]) : null;
-
-      if (linked) {
-        linked.hotTargetFront = Number(frontTarget.toFixed(1));
-        linked.hotTargetRear = Number(rearTarget.toFixed(1));
-        linked.tyreHotTarget = Number(frontTarget.toFixed(1));
-        if (!linked.tyres || typeof linked.tyres !== 'object') linked.tyres = {};
-        const prevCorner = linked.tyres[c] || {};
-        const mergedPyro = livePyro || normalizeSinglePyroObj(prevCorner.pyro) || null;
-        linked.tyres[c] = {
-          ...prevCorner,
-          tyreId: prevCorner.tyreId || mounted[c] || DEFAULT_CORNER_TYRE_IDS[c],
-          cold: coldPsi,
-          hot: hotPsi,
-          build: coldPsi !== null && hotPsi !== null ? Number((hotPsi - coldPsi).toFixed(1)) : null,
-          diff: hotPsi !== null ? Number((hotPsi - axleTarget).toFixed(1)) : null,
-          nextCold: nextColdPsi,
-          pyro: mergedPyro
-        };
-      }
-      if (nextColdPsi !== null) {
-        nextColdRollForward[c] = nextColdPsi;
-      }
-    });
-
-    const completedSessionName = linked ? linked.sessionName : state.baseline.sessionName;
-
-    if (linked && !isSessionLocked(linked.id)) {
-      linked.status = 'completed';
+    if (!isSessionLocked(linked.id)) {
       linked.afr3500 = a35;
       linked.afr4000 = a40;
       linked.afr4500 = a45;
       linked.afr5000 = a50;
       linked.afr5500 = a55;
+      linked.skipPostAfr = skipAfr;
       if (!skipAfr) {
         linked.afrWot = wot;
         linked.afrStatus = 'verified';
@@ -10181,47 +10283,190 @@
         linked.postRaceNotes = postNotesVal;
         linked.notes = postNotesVal;
       }
-
-      // Promote this completed session into Locked Baseline for the next session
-      const iso = linked.sessionDateIso || state.baseline.sessionDateIso || getLocalTodayIso();
-      state.baseline = {
-        venue: linked.venue || state.baseline.venue || 'Calder Park Raceway',
-        sessionDateIso: iso,
-        sessionDate: linked.sessionDate || formatIsoDateDisplay(iso),
-        sessionName: linked.sessionName,
-        carbyId: linked.carbyId,
-        manifoldId: linked.manifoldId || state.activeManifoldId || 'Macca',
-        exhaustId: linked.exhaustId || state.activeExhaustId || 'Macca',
-        jetId: linked.jetId,
-        jetLabel: linked.jetLabel,
-        jetMm: linked.jetMm,
-        rad: linked.rad,
-        fuelSg: linked.fuelSg,
-        wotAfr: skipAfr && state.baseline.afrStatus === 'untested' ? null : linked.afrWot,
-        peakRpm: linked.peakRpm,
-        afrStatus: skipAfr && state.baseline.afrStatus === 'untested' ? 'untested' : 'verified',
-        weatherOnly: Boolean(skipAfr && state.baseline.afrStatus === 'untested'),
-        timing: linked.timing,
-        fuelPsi: linked.fuelPsi,
-        waterTempC: linked.waterTempC,
-        linkedSessionId: linked.id
-      };
-      ui.weatherOnly = state.baseline.weatherOnly;
+      linked.tunePostLocked = true;
     }
 
-    // Roll-forward Fuel L/lap and Tyre Next Cold Set PSIs into live chassis baseline & clear Hot PSIs & Pyros
     const venueForLearn = (liveEvt && liveEvt.venue) || (linked && linked.venue) || state.baseline.venue || 'Calder Park Raceway';
     syncFlatSessionsFromEvents(state);
     if (hasValidPump) {
       recalculateTrackAverageBurn(venueForLearn);
       const learnedFuel = getTrackLearnedFuelStats(venueForLearn);
-      if ($('inputBurnLPerLap')) {
-        $('inputBurnLPerLap').value = learnedFuel.avg.toFixed(2);
+      if ($('inputTrackBurnLPerLap')) {
+        $('inputTrackBurnLPerLap').value = learnedFuel.avg.toFixed(2);
       }
       if (state.chassis) {
         state.chassis.burnLPerLap = learnedFuel.avg;
       }
     }
+
+    saveState();
+    closeModal('modalPostRaceAfr');
+    renderAll();
+
+    // Auto-switch straight to #tab-tyres for Post-Session Step 2 of 2
+    switchTab('tab-tyres');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const firstHotEl = $('inputHotPsi_FL');
+    if (firstHotEl && !firstHotEl.value) {
+      setTimeout(() => {
+        try {
+          firstHotEl.focus({ preventScroll: true });
+        } catch (_err) {
+          // ignore focus error
+        }
+      }, 220);
+    }
+
+    showToast(
+      `✓ Post-Session Tune Locked (${wot.toFixed(2)} AFR @ ${peakRpm} RPM) — Step 2: Enter Hot Tyre PSIs & Complete Session!`
+    );
+  }
+
+  /**
+   * POST-SESSION STEP 2 OF 2:
+   * Saves 4-corner Post-Session Hot Tyre PSIs, bleed/add deltas, Next Cold Set PSIs, and pyrometer temps,
+   * marks the session completed, increments tyre laps, promotes Tune + Tyre + Fuel baselines for the next run,
+   * and opens the Next Session Selector modal.
+   */
+  function completeSessionPostTyres() {
+    const liveEvt = getActiveEvent();
+    if (!liveEvt) {
+      openNewEventModal();
+      return;
+    }
+    const linked = getActiveSession();
+    if (!linked) {
+      openPromptNextSessionModal();
+      return;
+    }
+    if (!isAllPreLocked(linked)) {
+      showToast('Lock both Pre-Race Tune & Pre-Race Tyres first');
+      return;
+    }
+    if (!linked.tunePostLocked) {
+      openPostRaceAfrModal();
+      return;
+    }
+
+    const tyreSnap = recalcTyres();
+    const frontTarget = Number(tyreSnap.hotTargetFront.toFixed(1));
+    const rearTarget = Number(tyreSnap.hotTargetRear.toFixed(1));
+    const mounted = ensureMountedTyresState();
+    const nextColdRollForward = {};
+
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const axleTarget = c.startsWith('F') ? frontTarget : rearTarget;
+      const snapCorner = (tyreSnap.corners && tyreSnap.corners[c]) || {};
+      const hotPsi = snapCorner.hot !== undefined && snapCorner.hot !== null ? Number(snapCorner.hot) : null;
+      const coldPsi =
+        snapCorner.cold !== undefined && snapCorner.cold !== null
+          ? Number(snapCorner.cold)
+          : linked.tyres && linked.tyres[c] && Number.isFinite(Number(linked.tyres[c].cold)) && Number(linked.tyres[c].cold) > 0
+          ? Number(linked.tyres[c].cold)
+          : null;
+
+      let nextColdPsi = null;
+      if (coldPsi !== null && hotPsi !== null) {
+        nextColdPsi = Number((((axleTarget + 14.7) * (coldPsi + 14.7)) / (hotPsi + 14.7) - 14.7).toFixed(1));
+      } else if (coldPsi !== null) {
+        nextColdPsi = Number(coldPsi.toFixed(1));
+      }
+
+      const prevCorner = (linked.tyres && linked.tyres[c]) || {};
+      const mergedPyro =
+        snapCorner.pyro ||
+        normalizeSinglePyroObj(prevCorner.pyro) ||
+        null;
+
+      if (!linked.tyres || typeof linked.tyres !== 'object') linked.tyres = {};
+      linked.tyres[c] = {
+        ...prevCorner,
+        tyreId: snapCorner.tyreId || prevCorner.tyreId || mounted[c] || DEFAULT_CORNER_TYRE_IDS[c],
+        cold: coldPsi,
+        hot: hotPsi,
+        build: coldPsi !== null && hotPsi !== null ? Number((hotPsi - coldPsi).toFixed(1)) : null,
+        diff: hotPsi !== null ? Number((hotPsi - axleTarget).toFixed(1)) : null,
+        nextCold: nextColdPsi,
+        pyro: mergedPyro
+      };
+
+      if (nextColdPsi !== null) {
+        nextColdRollForward[c] = nextColdPsi;
+      }
+    });
+
+    linked.hotTargetFront = frontTarget;
+    linked.hotTargetRear = rearTarget;
+    linked.tyreHotTarget = frontTarget;
+    linked.tyreCondition = tyreSnap.tyreCondition || linked.tyreCondition || 'dry';
+    linked.shocks = { ...tyreSnap.shocks };
+    linked.springs = { ...tyreSnap.springs };
+    if (!linked.racedLaps || linked.racedLaps <= 0) {
+      linked.racedLaps = tyreSnap.tyreSessionLaps || 10;
+    }
+
+    const extraTyreNote = (($('inputTyreRunNotes') && $('inputTyreRunNotes').value) || '').trim();
+    if (extraTyreNote) {
+      linked.postRaceNotes = linked.postRaceNotes
+        ? `${linked.postRaceNotes} • ${extraTyreNote}`
+        : extraTyreNote;
+      linked.notes = linked.postRaceNotes;
+      if ($('inputTyreRunNotes')) $('inputTyreRunNotes').value = '';
+    }
+
+    linked.tyresPostLocked = true;
+    linked.status = 'completed';
+    linked.afrStatus = 'verified';
+
+    const completedSessionName = linked.sessionName || state.baseline.sessionName || 'Session';
+    const skipAfr = Boolean(linked.skipPostAfr);
+
+    // Promote this completed session into Locked Baseline for the next session
+    const iso = linked.sessionDateIso || state.baseline.sessionDateIso || getLocalTodayIso();
+    state.baseline = {
+      venue: linked.venue || state.baseline.venue || 'Calder Park Raceway',
+      sessionDateIso: iso,
+      sessionDate: linked.sessionDate || formatIsoDateDisplay(iso),
+      sessionName: linked.sessionName,
+      carbyId: linked.carbyId,
+      manifoldId: linked.manifoldId || state.activeManifoldId || 'Macca',
+      exhaustId: linked.exhaustId || state.activeExhaustId || 'Macca',
+      jetId: linked.jetId,
+      jetLabel: linked.jetLabel,
+      jetMm: linked.jetMm,
+      rad: linked.rad,
+      fuelSg: linked.fuelSg,
+      wotAfr: skipAfr && state.baseline.afrStatus === 'untested' ? null : linked.afrWot,
+      peakRpm: linked.peakRpm,
+      afrStatus: skipAfr && state.baseline.afrStatus === 'untested' ? 'untested' : 'verified',
+      weatherOnly: Boolean(skipAfr && state.baseline.afrStatus === 'untested'),
+      timing: linked.timing,
+      fuelPsi: linked.fuelPsi,
+      waterTempC: linked.waterTempC,
+      linkedSessionId: linked.id
+    };
+    ui.weatherOnly = state.baseline.weatherOnly;
+
+    // Update the matching carby's saved baseline anchor with the newly verified track reading
+    const carby = state.carbies.find((c) => c.id === state.baseline.carbyId);
+    if (carby && carby.baselineAnchor) {
+      carby.baselineAnchor.jetId = state.baseline.jetId;
+      carby.baselineAnchor.jetLabel = state.baseline.jetLabel;
+      carby.baselineAnchor.jetMm = state.baseline.jetMm;
+      carby.baselineAnchor.rad = state.baseline.rad;
+      carby.baselineAnchor.fuelSg = state.baseline.fuelSg;
+      if (!skipAfr && state.baseline.wotAfr !== null) {
+        carby.baselineAnchor.verifiedAfr = state.baseline.wotAfr;
+      }
+      carby.baselineAnchor.fuelPsi = state.baseline.fuelPsi;
+      carby.baselineAnchor.waterTempC = state.baseline.waterTempC;
+      carby.baselineAnchor.sourceLabel = state.baseline.sessionName;
+    }
+
+    // Roll-forward Tyre Next Cold Set PSIs into live chassis baseline & clear Hot PSIs & Pyros for next run
+    const venueForLearn = (liveEvt && liveEvt.venue) || linked.venue || state.baseline.venue || 'Calder Park Raceway';
+    syncFlatSessionsFromEvents(state);
+    recalculateTrackAverageBurn(venueForLearn);
 
     const prof = ensureTrackProfile(venueForLearn);
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
@@ -10262,22 +10507,6 @@
     state.awaitingPostRaceId = null;
     ui.postRaceTargetSessionId = null;
 
-    // Update the matching carby's saved baseline anchor with the newly verified track reading
-    const carby = state.carbies.find((c) => c.id === state.baseline.carbyId);
-    if (carby && carby.baselineAnchor) {
-      carby.baselineAnchor.jetId = state.baseline.jetId;
-      carby.baselineAnchor.jetLabel = state.baseline.jetLabel;
-      carby.baselineAnchor.jetMm = state.baseline.jetMm;
-      carby.baselineAnchor.rad = state.baseline.rad;
-      carby.baselineAnchor.fuelSg = state.baseline.fuelSg;
-      if (!skipAfr && state.baseline.wotAfr !== null) {
-        carby.baselineAnchor.verifiedAfr = state.baseline.wotAfr;
-      }
-      carby.baselineAnchor.fuelPsi = state.baseline.fuelPsi;
-      carby.baselineAnchor.waterTempC = state.baseline.waterTempC;
-      carby.baselineAnchor.sourceLabel = state.baseline.sessionName;
-    }
-
     if ($('selectCalcCarby')) {
       $('selectCalcCarby').value = state.baseline.carbyId;
     }
@@ -10286,17 +10515,11 @@
     }
 
     saveState();
-    closeModal('modalPostRaceAfr');
     renderAll();
 
     // Immediately prompt for the next session in sequence
     openPromptNextSessionModal(completedSessionName);
-
-    const waterMsg = waterTempC !== null ? ` • ${waterTempC}°C` : '';
-    const scaleMsg = hasPostScaleFact ? ` • Scale Fact ${parsedPostScale.toFixed(1)}kg Anchored` : '';
-    showToast(
-      `Completed ${completedSessionName}: ${wot.toFixed(2)} AFR @ ${peakRpm} RPM${waterMsg}${scaleMsg}`
-    );
+    showToast(`✓ ${completedSessionName} Logged & Promoted to New Baseline!`);
   }
 
   function openDeleteSessionModal(sid) {
@@ -11829,6 +12052,15 @@
     if ($('btnDeferNextSession')) {
       $('btnDeferNextSession').addEventListener('click', deferNextSessionToGateB);
     }
+    if ($('btnViewInSessionLogFromPrompt')) {
+      $('btnViewInSessionLogFromPrompt').addEventListener('click', () => {
+        closeModal('modalPromptNextSession');
+        renderEventBannerAndGatekeeper();
+        renderSessionLog();
+        switchTab('tab-log');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
 
     // Rename Active Session ("Change" button next to IN SESSION pill)
     if ($('btnChangeActiveSessionName')) {
@@ -12238,6 +12470,9 @@
 
     // Baseline, Post-Race Completion & Fleet modals
     $('btnOpenPostRaceAfr').addEventListener('click', openPostRaceAfrModal);
+    if ($('btnOpenPostRaceAfrStep2')) {
+      $('btnOpenPostRaceAfrStep2').addEventListener('click', openPostRaceAfrModal);
+    }
     $('btnSavePostRaceAfr').addEventListener('click', savePostRaceAfrModal);
     $('modalPostWotAfr').addEventListener('input', () => {
       syncPostRaceSkipAfrUi();
