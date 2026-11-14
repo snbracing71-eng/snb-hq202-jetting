@@ -2784,7 +2784,9 @@
         }
       });
 
-      const cornerSeed = condition === 'wet' ? wetStagger[c] : dryAiStagger[c];
+      const baseAxleHot = c.startsWith('F') ? 40.0 : 43.0;
+      const dryScaledSeed = Number((dryAiStagger[c] + (axleTargetHot - baseAxleHot)).toFixed(1));
+      const cornerSeed = condition === 'wet' ? wetStagger[c] : dryScaledSeed;
       if (ideals.length > 0) {
         const avg = Number((ideals.reduce((a, b) => a + b, 0) / ideals.length).toFixed(1));
         const min = Number(Math.min(...ideals).toFixed(1));
@@ -3320,14 +3322,10 @@
       [
         'btnTyreCondDry',
         'btnTyreCondWet',
-        'btnPresetAiIdeal',
-        'btnPresetClassic44',
         'btnDropAiColdBaseline',
         'btnWetPreset_drying',
         'btnWetPreset_light',
         'btnWetPreset_heavy',
-        'inputTyreHotTargetFront',
-        'inputTyreHotTargetRear',
         'inputTyreSessionLaps',
         'btnUnmountAllTyres',
         'btnClearAllColdPsi',
@@ -4723,13 +4721,42 @@
     if (dryDropInLabel) {
       const dryStg = computeDryAiColdStagger(direction);
       const loadDesc = direction === 'CCW' ? 'CCW (RH Loaded)' : 'CW (LH Loaded)';
-      dryDropInLabel.textContent = `${loadDesc} AI Cold Baseline: FL ${dryStg.FL.toFixed(1)} • FR ${dryStg.FR.toFixed(1)} • RL ${dryStg.RL.toFixed(1)} • RR ${dryStg.RR.toFixed(1)}`;
+      dryDropInLabel.innerHTML = `${escapeHtml(loadDesc)} AI Cold Baseline: <strong>FL ${dryStg.FL.toFixed(1)} &bull; FR ${dryStg.FR.toFixed(1)} &bull; RL ${dryStg.RL.toFixed(1)} &bull; RR ${dryStg.RR.toFixed(1)}</strong>`;
     }
 
     const frontTarget = Number(ch.hotTargetFront ?? 40.0);
     const rearTarget = Number(ch.hotTargetRear ?? 43.0);
     const isAiIdeal = !isWet && Math.abs(frontTarget - 40.0) < 0.06 && Math.abs(rearTarget - 43.0) < 0.06;
     const isClassic44 = !isWet && Math.abs(frontTarget - 44.0) < 0.06 && Math.abs(rearTarget - 44.0) < 0.06;
+
+    const hintF = $('hintHotTargetFront');
+    const hintR = $('hintHotTargetRear');
+    if (hintF) {
+      if (isWet) {
+        const wStg = computeWetColdStagger(presetKey, direction);
+        hintF.textContent = `Wet (${WET_PRESET_PROFILES[presetKey].label}) ${wStg.hotTargetFront.toFixed(1)}`;
+        hintF.className = 'field-hint cyan';
+      } else if (isClassic44) {
+        hintF.textContent = 'Classic Square 44.0';
+        hintF.className = 'field-hint amber';
+      } else {
+        hintF.textContent = 'Dry Default 40.0';
+        hintF.className = 'field-hint emerald';
+      }
+    }
+    if (hintR) {
+      if (isWet) {
+        const wStg = computeWetColdStagger(presetKey, direction);
+        hintR.textContent = `Wet Rear (−1.0) ${wStg.hotTargetRear.toFixed(1)}`;
+        hintR.className = 'field-hint cyan';
+      } else if (isClassic44) {
+        hintR.textContent = 'Classic Square 44.0';
+        hintR.className = 'field-hint amber';
+      } else {
+        hintR.textContent = 'Dry Default 43.0';
+        hintR.className = 'field-hint emerald';
+      }
+    }
 
     const btnAiIdeal = $('btnPresetAiIdeal');
     if (btnAiIdeal) {
@@ -4762,10 +4789,10 @@
     const ch = state.chassis;
     ch.tyreCondition = 'dry';
 
-    const isClassic = presetKey === 'classic44';
+    const isClassic = presetKey === 'classic44' || presetKey === 'classic_44';
     const frontTarget = isClassic ? 44.0 : 40.0;
     const rearTarget = isClassic ? 44.0 : 43.0;
-    ch.dryTargetPreset = isClassic ? 'classic44' : 'ai_ideal';
+    ch.dryTargetPreset = isClassic ? 'classic_44' : 'ai_ideal';
     ch.hotTargetFront = frontTarget;
     ch.hotTargetRear = rearTarget;
     ch.savedDryHotTargetFront = frontTarget;
@@ -4782,9 +4809,11 @@
     const venue = getSelectedTyreTrackVenue();
     const direction = getTrackDirection(venue);
     const learnedStats = getTrackLearnedColdTyres(venue, frontTarget, rearTarget, 'dry');
+    const activeSess = getActiveSession();
+    const isPreLocked = Boolean(activeSess && activeSess.tyresPreLocked);
     let droppedInCold = false;
 
-    if (!isClassic && learnedStats.totalRuns === 0) {
+    if (!isPreLocked && !isClassic && learnedStats.totalRuns === 0) {
       const dryStg = computeDryAiColdStagger(direction);
       const prof = ensureTrackProfile(venue);
       if (!ch.coldTyres || typeof ch.coldTyres !== 'object') {
@@ -4813,7 +4842,7 @@
           `AI Ideal Anti-Push (40.0F / 43.0R) + ${direction} Cold Baseline: FL ${dryStg.FL.toFixed(1)} • FR ${dryStg.FR.toFixed(1)} • RL ${dryStg.RL.toFixed(1)} • RR ${dryStg.RR.toFixed(1)}`
         );
       } else {
-        showToast('AI Ideal Anti-Push Targets set (40.0F / 43.0R PSI) — Tap Drop In Cold Start if resetting Cold PSI');
+        showToast('AI Ideal Anti-Push Targets set (40.0F / 43.0R PSI) — Tap Drop In AI Cold Start if resetting Cold PSI');
       }
     }
   }
@@ -4864,6 +4893,7 @@
     corners.forEach((c) => {
       const strip = $(`pyroStrip_${c}`);
       const btn = $(`btnTogglePyro_${c}`);
+      const lbl = $(`lblTogglePyro_${c}`);
       const isOpen = Boolean(
         ui.pyroExpanded ||
           (ui.pyroCornerOpen && ui.pyroCornerOpen[c]) ||
@@ -4880,6 +4910,9 @@
         if (iconSpan) {
           iconSpan.textContent = isOpen ? '− Pyrometer O / M / I (°C)' : '+ Pyrometer O / M / I (°C)';
         }
+      }
+      if (lbl) {
+        lbl.textContent = isOpen ? '− Pyrometer O / M / I (°C)' : '+ Pyrometer O / M / I (°C)';
       }
     });
     const masterBtn = $('btnToggleAllPyro');
@@ -6663,6 +6696,23 @@
       const diagWrap = $(`outPyroDiagWrap_${c}`);
       const footprintEl = $(`outPyroFootprint_${c}`);
       const spreadEl = $(`outPyroSpread_${c}`);
+      const miniPyroEl = $(`outPyroMini_${c}`);
+
+      if (miniPyroEl) {
+        if (hasFullPyro) {
+          miniPyroEl.textContent = `O:${Math.round(outC)} M:${Math.round(midC)} I:${Math.round(inC)}°C`;
+          miniPyroEl.className = 'pyro-mini-summary txt-emerald';
+        } else if (hasAnyPyro) {
+          const oStr = outC !== null ? Math.round(outC) : '—';
+          const mStr = midC !== null ? Math.round(midC) : '—';
+          const iStr = inC !== null ? Math.round(inC) : '—';
+          miniPyroEl.textContent = `O:${oStr} M:${mStr} I:${iStr}°C`;
+          miniPyroEl.className = 'pyro-mini-summary txt-amber';
+        } else {
+          miniPyroEl.textContent = 'Optional';
+          miniPyroEl.className = 'pyro-mini-summary';
+        }
+      }
 
       if (diagWrap && footprintEl && spreadEl) {
         if (hasFullPyro) {
@@ -11488,11 +11538,6 @@
 
       const dryPresetBtn = e.target.closest('[data-dry-target-preset]');
       if (dryPresetBtn) {
-        const activeSess = getActiveSession();
-        if (activeSess && activeSess.tyresPreLocked) {
-          showToast('Pre-Race Tyres are locked — click "Unlock Pre-Race Tyres" to change');
-          return;
-        }
         const pKey = dryPresetBtn.getAttribute('data-dry-target-preset');
         applyDryTargetPreset(pKey, false);
         return;
