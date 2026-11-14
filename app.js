@@ -1798,11 +1798,28 @@
         tyres,
         shocks,
         springs,
+        tunePreLocked: s.tunePreLocked !== undefined ? Boolean(s.tunePreLocked) : (s.status || 'completed') === 'completed',
         fuelPreLocked: s.fuelPreLocked !== undefined ? Boolean(s.fuelPreLocked) : (s.status || 'completed') === 'completed',
         tyresPreLocked: s.tyresPreLocked !== undefined ? Boolean(s.tyresPreLocked) : (s.status || 'completed') === 'completed',
-        tunePreLocked: s.tunePreLocked !== undefined ? Boolean(s.tunePreLocked) : (s.status || 'completed') === 'completed',
         tunePostLocked: s.tunePostLocked !== undefined ? Boolean(s.tunePostLocked) : (s.status || 'completed') === 'completed',
+        fuelPostLocked: s.fuelPostLocked !== undefined ? Boolean(s.fuelPostLocked) : (s.status || 'completed') === 'completed',
         tyresPostLocked: s.tyresPostLocked !== undefined ? Boolean(s.tyresPostLocked) : (s.status || 'completed') === 'completed',
+        workflowStep:
+          (s.status || 'completed') === 'completed' || s.workflowStep === 'done'
+            ? 'done'
+            : !s.tunePreLocked
+            ? 1
+            : !s.fuelPreLocked
+            ? 2
+            : !s.tyresPreLocked
+            ? 3
+            : !s.tunePostLocked
+            ? 4
+            : !s.fuelPostLocked
+            ? 5
+            : !s.tyresPostLocked
+            ? 6
+            : 'done',
         preRaceNotes,
         postRaceNotes,
         notes: combinedNotes
@@ -3334,7 +3351,64 @@
   }
 
   function isAllPreLocked(sess) {
-    return Boolean(sess && sess.tunePreLocked && sess.tyresPreLocked);
+    return Boolean(sess && sess.tunePreLocked && sess.fuelPreLocked && sess.tyresPreLocked);
+  }
+
+  const WORKFLOW_STEP_META = {
+    1: { step: 1, shortLabel: '1. Tune', fullLabel: '1. Pre-Session Tune', tabId: 'tab-calc' },
+    2: { step: 2, shortLabel: '2. Fuel', fullLabel: '2. Pre-Session Fuel & Weight', tabId: 'tab-fuel' },
+    3: { step: 3, shortLabel: '3. Tyres', fullLabel: '3. Pre-Session Tyres & Springs', tabId: 'tab-tyres' },
+    4: { step: 4, shortLabel: '4. Tune', fullLabel: '4. Post-Session Tune', tabId: 'tab-calc' },
+    5: { step: 5, shortLabel: '5. Fuel', fullLabel: '5. Post-Session Fuel & Weight', tabId: 'tab-fuel' },
+    6: { step: 6, shortLabel: '6. Tyres', fullLabel: '6. Post-Session Tyres', tabId: 'tab-tyres' }
+  };
+
+  function getSessionWorkflowStep(sess) {
+    if (!sess) return 1;
+    if (sess.status === 'completed' || sess.tyresPostLocked || sess.workflowStep === 'done') {
+      sess.workflowStep = 'done';
+      return 'done';
+    }
+    if (!sess.tunePreLocked) {
+      sess.workflowStep = 1;
+      return 1;
+    }
+    if (!sess.fuelPreLocked) {
+      sess.workflowStep = 2;
+      return 2;
+    }
+    if (!sess.tyresPreLocked) {
+      sess.workflowStep = 3;
+      return 3;
+    }
+    if (!sess.tunePostLocked) {
+      sess.workflowStep = 4;
+      return 4;
+    }
+    if (!sess.fuelPostLocked) {
+      sess.workflowStep = 5;
+      return 5;
+    }
+    sess.workflowStep = 6;
+    return 6;
+  }
+
+  function goToCurrentWorkflowStep(targetStepOpt) {
+    const activeSess = getActiveSession();
+    if (!activeSess) return;
+    const curStep = getSessionWorkflowStep(activeSess);
+    const stepNum = Number.isFinite(Number(targetStepOpt)) ? Number(targetStepOpt) : curStep;
+    const meta = WORKFLOW_STEP_META[stepNum] || WORKFLOW_STEP_META[curStep];
+    if (!meta) return;
+    if (ui.activeTab !== meta.tabId) {
+      switchTab(meta.tabId);
+    } else {
+      syncPreRacePostRaceLocksUi();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    if (stepNum === 4 && curStep === 4 && targetStepOpt === 4) {
+      openPostRaceAfrModal();
+    }
   }
 
   function autoSnapshotPreRaceFuelToSession(sess) {
@@ -3361,105 +3435,319 @@
 
   function syncPreRacePostRaceLocksUi() {
     const activeSess = getActiveSession();
+    const curStep = getSessionWorkflowStep(activeSess);
+    const activeMeta = WORKFLOW_STEP_META[curStep] || WORKFLOW_STEP_META[1];
+
     const tuneLocked = Boolean(activeSess && activeSess.tunePreLocked);
-    const tyresLocked = Boolean(activeSess && activeSess.tyresPreLocked);
     const fuelLocked = Boolean(activeSess && activeSess.fuelPreLocked);
+    const tyresLocked = Boolean(activeSess && activeSess.tyresPreLocked);
     const allPreLocked = isAllPreLocked(activeSess);
     const tunePostLocked = Boolean(activeSess && activeSess.tunePostLocked);
+    const fuelPostLocked = Boolean(activeSess && activeSess.fuelPostLocked);
     const tyresPostLocked = Boolean(activeSess && activeSess.tyresPostLocked);
 
-    const lockedPostLabel = !tuneLocked && !tyresLocked
-      ? 'LOCK PRE-TUNE & PRE-TYRES FIRST'
-      : tuneLocked && !tyresLocked
-      ? 'LOCK PRE-TYRES FIRST (PRE-TUNE ✓)'
-      : 'LOCK PRE-TUNE FIRST (PRE-TYRES ✓)';
-
-    // Guided Workflow Banner inside #eventBarLiveView
-    const wfBanner = $('sessionWorkflowBanner');
-    const wfBannerText = $('sessionWorkflowBannerText');
-    if (wfBanner && wfBannerText && activeSess) {
-      if (allPreLocked && tunePostLocked && !tyresPostLocked) {
-        wfBanner.className = 'workflow-guide-banner state-post-step2';
-        wfBannerText.textContent =
-          'STEP 2 OF 2: Enter Post-Session Hot Tyre PSIs below, then tap LOCK POST TYRES & COMPLETE SESSION';
-      } else if (allPreLocked && !tunePostLocked) {
-        wfBanner.className = 'workflow-guide-banner state-ready';
-        wfBannerText.textContent =
-          '🟢 ALL PRE-RACE SETUP LOCKED — CAR READY FOR TRACK (Tap 1. ENTER POST-SESSION TUNE → after run)';
-      } else if (tuneLocked && !tyresLocked) {
-        wfBanner.className = 'workflow-guide-banner state-handoff';
-        wfBannerText.textContent = `✓ Pre-Race Tune Locked (${activeSess.jetLabel || 'Jet'}) — Now check & lock Pre-Race Tyres & Springs below to complete Pre-Race setup!`;
-      } else if (!tuneLocked && tyresLocked) {
-        wfBanner.className = 'workflow-guide-banner state-handoff';
-        wfBannerText.textContent =
-          '✓ Pre-Race Tyres Locked — Now check weather, pick jet & lock Pre-Race Tune to complete Pre-Race setup!';
+    // 0A. Update 6-Pill Workflow Tracker (#wfPill_1..#wfPill_6) inside #eventBarLiveView
+    for (let i = 1; i <= 6; i++) {
+      const pillEl = $(`wfPill_${i}`);
+      if (!pillEl) continue;
+      const meta = WORKFLOW_STEP_META[i];
+      const isDone = curStep === 'done' || (typeof curStep === 'number' && i < curStep);
+      const isActive = typeof curStep === 'number' && i === curStep;
+      pillEl.classList.remove('is-done', 'is-active', 'is-upcoming');
+      if (isDone) {
+        pillEl.classList.add('is-done');
+        pillEl.textContent = `✓ ${meta.shortLabel}`;
+      } else if (isActive) {
+        pillEl.classList.add('is-active');
+        pillEl.textContent = `● ${meta.shortLabel}`;
       } else {
-        wfBanner.className = 'workflow-guide-banner state-pre-pending';
-        wfBannerText.textContent =
-          'PRE-RACE SETUP: Lock both Pre-Race Tune & Pre-Race Tyres to arm Post-Session telemetry.';
+        pillEl.classList.add('is-upcoming');
+        pillEl.textContent = meta.shortLabel;
       }
     }
 
-    // Highlight Step 2 Post-Tyres Callout Banner on #tab-tyres
-    const step2Banner = $('postTyresStep2Banner');
-    const tyresContentWrap = $('tyresActiveSessionContent');
-    const isStep2PostTyres = Boolean(allPreLocked && tunePostLocked && !tyresPostLocked);
-    if (step2Banner) {
-      step2Banner.style.display = isStep2PostTyres ? 'block' : 'none';
-    }
-    if (tyresContentWrap) {
-      tyresContentWrap.classList.toggle('tyres-post-step2-active', isStep2PostTyres);
+    // 0B. Guided Workflow Banner inside #eventBarLiveView
+    const wfBanner = $('sessionWorkflowBanner');
+    const wfBannerText = $('sessionWorkflowBannerText');
+    if (wfBanner && wfBannerText && activeSess) {
+      if (curStep === 1) {
+        wfBanner.className = 'workflow-guide-banner state-pre-pending';
+        wfBannerText.textContent =
+          'STEP 1 OF 6 (PRE-TUNE): Check weather / RAD%, pick main jet, then tap 1. LOCK PRE-SESSION TUNE & GO TO FUEL →';
+      } else if (curStep === 2) {
+        wfBanner.className = 'workflow-guide-banner state-handoff';
+        wfBannerText.textContent = `STEP 2 OF 6 (PRE-FUEL): ✓ 1. Tune Locked (${activeSess.jetLabel || 'Jet'}) — Check Raced Laps, Track Scales & Litres to Pour, then tap 2. LOCK PRE-SESSION FUEL & GO TO TYRES →`;
+      } else if (curStep === 3) {
+        wfBanner.className = 'workflow-guide-banner state-handoff';
+        wfBannerText.textContent =
+          'STEP 3 OF 6 (PRE-TYRES): ✓ 1. Tune & 2. Fuel Locked — Check Mounted Tyres, Shocks/Springs & Cold PSIs, then tap 3. LOCK PRE-SESSION TYRES — READY TO RACE →';
+      } else if (curStep === 4) {
+        wfBanner.className = 'workflow-guide-banner state-ready';
+        wfBannerText.textContent =
+          '🟢 CAR READY TO RACE (STEPS 1–3 LOCKED) — After run, tap 4. ENTER POST-SESSION TUNE → right at the top of Tune';
+      } else if (curStep === 5) {
+        wfBanner.className = 'workflow-guide-banner state-handoff';
+        wfBannerText.textContent =
+          'STEP 5 OF 6 (POST-FUEL): ✓ 4. Post-Tune Locked — Enter Pump-Out (or Skip) & Official Scale Wt at top of Fuel & Wt, then tap 5. LOCK POST-SESSION FUEL & GO TO POST TYRES →';
+      } else if (curStep === 6) {
+        wfBanner.className = 'workflow-guide-banner state-post-step2';
+        wfBannerText.textContent =
+          'STEP 6 OF 6 (POST-TYRES): Enter Hot Off-Track PSIs (and optional Pyros) in the 4 corners below, then tap 6. LOCK POST-SESSION TYRES & COMPLETE SESSION ✓';
+      } else {
+        wfBanner.className = 'workflow-guide-banner state-ready';
+        wfBannerText.textContent = '✓ SESSION VERIFIED & COMPLETED — Select Next Session to Commence';
+      }
     }
 
-    // 1. FUEL & WT TAB (#tab-fuel)
-    const btnSaveFuel = $('btnSaveFuelWeightSession') || $('btnSaveFuelSession');
-    const btnPostFuel = $('btnCompleteSessionFromFuel') || $('btnCompleteFromFuel');
-    const unlockFuelRow = $('unlockFuelPreRaceRow');
+    // 0C. Out-of-Turn Redirect Button (#workflowRedirectWrap / #btnWorkflowGoToActiveStep)
+    const redirectWrap = $('workflowRedirectWrap');
+    const redirectBtn = $('btnWorkflowGoToActiveStep');
+    const isSetupTab =
+      ui.activeTab === 'tab-calc' || ui.activeTab === 'tab-fuel' || ui.activeTab === 'tab-tyres';
+    const isOutOfTurnTab = Boolean(
+      activeSess &&
+        typeof curStep === 'number' &&
+        isSetupTab &&
+        activeMeta &&
+        ui.activeTab !== activeMeta.tabId
+    );
+    if (redirectWrap && redirectBtn) {
+      if (isOutOfTurnTab) {
+        redirectWrap.style.display = 'block';
+        redirectBtn.textContent = `Current Step is ${activeMeta.fullLabel} — Tap to Go Straight There →`;
+      } else {
+        redirectWrap.style.display = 'none';
+      }
+    }
 
-    applyStageButtonState(
-      btnSaveFuel,
-      !fuelLocked,
-      fuelLocked ? '✓ PRE-RACE FUEL & WEIGHT LOCKED' : 'SAVE PRE-RACE FUEL & WEIGHT TO SESSION'
-    );
-    applyStageButtonState(
-      btnPostFuel,
-      allPreLocked,
-      !allPreLocked
-        ? lockedPostLabel
-        : !tunePostLocked
-        ? '1. ENTER POST-SESSION TUNE →'
-        : 'GO TO POST-SESSION TYRES TO FINISH →'
-    );
-    if (unlockFuelRow) {
-      unlockFuelRow.style.display = fuelLocked ? 'flex' : 'none';
+    // 1. TUNE TAB (#tab-calc — Steps 1 & 4)
+    const tuneTopStepTag = $('tuneTopStepTag');
+    const btnConfirmJetTop = $('btnConfirmLockJetTop');
+    const btnConfirmJet = $('btnConfirmLockJet');
+    const btnPostCalc = $('btnOpenPostRaceAfr');
+    const btnPostCalcStep2 = $('btnOpenPostRaceAfrStep2');
+    const unlockTuneTop = $('unlockTunePreRaceRowTop');
+    const unlockTuneStep2 = $('unlockTunePreRaceRowStep2');
+
+    if (tuneTopStepTag) {
+      if (curStep === 1) {
+        tuneTopStepTag.textContent = 'STEP 1 OF 6 • ACTIVE';
+      } else if (curStep === 4) {
+        tuneTopStepTag.textContent = 'STEP 4 OF 6 • POST-TUNE ARMED';
+      } else if (tunePostLocked) {
+        tuneTopStepTag.textContent = '✓ STEPS 1 & 4 TUNE LOCKED';
+      } else {
+        tuneTopStepTag.textContent = `✓ STEP 1 LOCKED • AT STEP ${curStep}`;
+      }
+    }
+
+    const canLockStep1 = Boolean(activeSess && curStep === 1 && !tuneLocked);
+    const step1BtnLabel = tuneLocked
+      ? '✓ 1. PRE-TUNE LOCKED'
+      : '1. LOCK PRE-SESSION TUNE & GO TO FUEL →';
+    applyStageButtonState(btnConfirmJetTop, canLockStep1, step1BtnLabel);
+    applyStageButtonState(btnConfirmJet, canLockStep1, step1BtnLabel);
+
+    const canOpenStep4 = Boolean(activeSess && curStep === 4 && allPreLocked && !tunePostLocked);
+    const step4BtnLabel = tunePostLocked
+      ? '✓ 4. POST-TUNE LOCKED'
+      : !allPreLocked
+      ? curStep === 1
+        ? '4. ENTER POST-SESSION TUNE (LOCK STEP 1 TUNE FIRST)'
+        : curStep === 2
+        ? '4. ENTER POST-SESSION TUNE (LOCK STEP 2 FUEL FIRST)'
+        : '4. ENTER POST-SESSION TUNE (LOCK STEP 3 TYRES FIRST)'
+      : '4. ENTER POST-SESSION TUNE →';
+    applyStageButtonState(btnPostCalc, canOpenStep4, step4BtnLabel);
+    if (btnPostCalcStep2) {
+      applyStageButtonState(btnPostCalcStep2, canOpenStep4, step4BtnLabel);
+    }
+
+    if (unlockTuneTop) {
+      unlockTuneTop.style.display = tuneLocked && !tunePostLocked ? 'flex' : 'none';
+    }
+    if (unlockTuneStep2) {
+      unlockTuneStep2.style.display = tuneLocked && !tunePostLocked ? 'flex' : 'none';
     }
     setPreRaceControlsLocked(
-      ['inputTrackBurnLPerLap', 'inputRaceLaps', 'inputFuelFloorL'],
+      [
+        'selectCalcCarby',
+        'selectCalcManifold',
+        'selectCalcExhaust',
+        'inputPreRaceNotes',
+        'btnModeRad',
+        'btnModeRaw',
+        'inputRadPct',
+        'inputTempC',
+        'inputPressure',
+        'btnTogglePressUnit',
+        'inputRhPct',
+        'inputFuelSg',
+        'inputFuelTempC',
+        'inputTotalTiming',
+        'inputTargetAfr',
+        'selectFullJetKit',
+        'inputRunNotes'
+      ],
+      [],
+      tuneLocked
+    );
+    document.querySelectorAll('[data-pick-jet]').forEach((jetBtn) => {
+      jetBtn.disabled = tuneLocked;
+      jetBtn.classList.toggle('prerace-locked-group', tuneLocked);
+    });
+
+    // 2. FUEL & WT TAB (#tab-fuel — Steps 2 & 5)
+    const fuelTopPreCard = $('fuelTopPreActionCard');
+    const fuelTopStepTag = $('fuelTopPreStepTag');
+    const btnSaveFuelTop = $('btnSaveFuelWeightSessionTop');
+    const btnSaveFuel = $('btnSaveFuelWeightSession') || $('btnSaveFuelSession');
+    const unlockFuelTop = $('unlockFuelPreRaceRowTop');
+    const unlockFuelRow = $('unlockFuelPreRaceRow');
+    const postFuelStep5Card = $('postFuelStep5Card');
+    const postFuelStep5Badge = $('postFuelStep5Badge');
+    const btnLockPostFuelStep5 = $('btnLockPostFuelStep5');
+    const btnSkipPostFuelStep5 = $('btnSkipPostFuelStep5');
+    const unlockFuelPostRow = $('unlockFuelPostRaceRow');
+
+    const showPostFuelCard = Boolean(activeSess && (curStep === 5 || curStep === 6 || fuelPostLocked));
+    if (postFuelStep5Card) {
+      postFuelStep5Card.style.display = showPostFuelCard ? 'block' : 'none';
+    }
+    if (fuelTopPreCard) {
+      fuelTopPreCard.style.display = showPostFuelCard ? 'none' : 'block';
+    }
+
+    if (fuelTopStepTag) {
+      if (curStep === 2) {
+        fuelTopStepTag.textContent = 'STEP 2 OF 6 • ACTIVE';
+      } else if (fuelLocked) {
+        fuelTopStepTag.textContent = `✓ STEP 2 LOCKED • AT STEP ${curStep}`;
+      } else {
+        fuelTopStepTag.textContent = 'LOCK STEP 1 TUNE FIRST';
+      }
+    }
+
+    const canLockStep2 = Boolean(activeSess && curStep === 2 && !fuelLocked);
+    const step2BtnLabel = fuelLocked
+      ? '✓ 2. PRE-FUEL LOCKED'
+      : curStep === 1
+      ? 'LOCK 1. PRE-SESSION TUNE FIRST'
+      : '2. LOCK PRE-SESSION FUEL & GO TO TYRES →';
+    applyStageButtonState(btnSaveFuelTop, canLockStep2, step2BtnLabel);
+    applyStageButtonState(btnSaveFuel, canLockStep2, step2BtnLabel);
+
+    if (unlockFuelTop) {
+      unlockFuelTop.style.display = fuelLocked && !tunePostLocked ? 'flex' : 'none';
+    }
+    if (unlockFuelRow) {
+      unlockFuelRow.style.display = fuelLocked && !tunePostLocked ? 'flex' : 'none';
+    }
+
+    setPreRaceControlsLocked(
+      [
+        'inputTrackBurnLPerLap',
+        'inputRaceLaps',
+        'inputFuelFloorL',
+        'inputScaleCheckKg',
+        'inputScaleCheckFuelL',
+        'btnUpdateScaleFact'
+      ],
       ['fuelPreRaceTrackBurnGroup', 'fuelPreRacePlannerGroup'],
       fuelLocked
     );
 
-    // 2. TYRES / SPRINGS TAB (#tab-tyres)
-    const btnSaveTyres = $('btnSaveTyresSession');
-    const btnPostTyres = $('btnCompleteSessionFromTyres') || $('btnCompleteFromTyres');
-    const unlockTyresRow = $('unlockTyresPreRaceRow');
+    if (showPostFuelCard) {
+      const canLockStep5 = Boolean(activeSess && curStep === 5 && !fuelPostLocked);
+      if (postFuelStep5Badge) {
+        postFuelStep5Badge.textContent = fuelPostLocked ? '✓ 5. POST-FUEL LOCKED' : 'STEP 5 OF 6 • ACTIVE';
+        postFuelStep5Badge.className = fuelPostLocked ? 'badge verified' : 'badge emerald';
+      }
+      applyStageButtonState(
+        btnLockPostFuelStep5,
+        canLockStep5,
+        fuelPostLocked
+          ? '✓ 5. POST-FUEL LOCKED'
+          : '5. LOCK POST-SESSION FUEL & GO TO POST TYRES →'
+      );
+      if (btnSkipPostFuelStep5) {
+        btnSkipPostFuelStep5.style.display = canLockStep5 ? 'inline-flex' : 'none';
+        btnSkipPostFuelStep5.disabled = !canLockStep5;
+      }
+      if (unlockFuelPostRow) {
+        unlockFuelPostRow.style.display = fuelPostLocked && !tyresPostLocked ? 'flex' : 'none';
+      }
+      setPreRaceControlsLocked(
+        ['inputPumpBeforeL', 'inputPumpAfterL', 'inputPumpLaps', 'inputPostScaleWeightKg'],
+        [],
+        fuelPostLocked
+      );
+    }
 
-    applyStageButtonState(
-      btnSaveTyres,
-      !tyresLocked,
-      tyresLocked ? '✓ PRE-RACE TYRES & SUSPENSION LOCKED' : 'SAVE PRE-RACE TYRES & SUSPENSION TO SESSION'
-    );
-    applyStageButtonState(
-      btnPostTyres,
-      allPreLocked && !tyresPostLocked,
-      !allPreLocked
-        ? lockedPostLabel
-        : !tunePostLocked
-        ? '1. ENTER POST-SESSION TUNE →'
-        : !tyresPostLocked
-        ? '2. LOCK POST-SESSION TYRES & COMPLETE SESSION →'
-        : '✓ POST-SESSION TYRES LOCKED'
-    );
+    // 3. TYRES / SPRINGS TAB (#tab-tyres — Steps 3 & 6)
+    const tyresTopPreCard = $('tyresTopPreActionCard');
+    const tyresTopStepTag = $('tyresTopPreStepTag');
+    const btnSaveTyresTop = $('btnSaveTyresSessionTop');
+    const btnSaveTyres = $('btnSaveTyresSession');
+    const unlockTyresTop = $('unlockTyresPreRaceRowTop');
+    const unlockTyresRow = $('unlockTyresPreRaceRow');
+    const postTyresStep6TopCard = $('postTyresStep6TopCard');
+    const btnLockPostTyresTop = $('btnLockPostTyresTop');
+    const btnPostTyres = $('btnCompleteSessionFromTyres') || $('btnCompleteFromTyres');
+    const step2Banner = $('postTyresStep2Banner');
+    const tyresContentWrap = $('tyresActiveSessionContent');
+
+    const isStep6PostTyres = Boolean(activeSess && curStep === 6 && !tyresPostLocked);
+    if (postTyresStep6TopCard) {
+      postTyresStep6TopCard.style.display = isStep6PostTyres ? 'block' : 'none';
+    }
+    if (tyresTopPreCard) {
+      tyresTopPreCard.style.display = isStep6PostTyres ? 'none' : 'block';
+    }
+    if (step2Banner) {
+      step2Banner.style.display = isStep6PostTyres ? 'block' : 'none';
+    }
+    if (tyresContentWrap) {
+      tyresContentWrap.classList.toggle('tyres-post-step2-active', isStep6PostTyres);
+    }
+
+    if (tyresTopStepTag) {
+      if (curStep === 3) {
+        tyresTopStepTag.textContent = 'STEP 3 OF 6 • ACTIVE';
+      } else if (tyresLocked) {
+        tyresTopStepTag.textContent = `✓ STEP 3 LOCKED • AT STEP ${curStep}`;
+      } else {
+        tyresTopStepTag.textContent =
+          curStep === 1 ? 'LOCK STEP 1 TUNE FIRST' : 'LOCK STEP 2 FUEL FIRST';
+      }
+    }
+
+    const canLockStep3 = Boolean(activeSess && curStep === 3 && !tyresLocked);
+    const step3BtnLabel = tyresLocked
+      ? '✓ 3. PRE-TYRES LOCKED'
+      : curStep === 1
+      ? 'LOCK 1. PRE-SESSION TUNE FIRST'
+      : curStep === 2
+      ? 'LOCK 2. PRE-SESSION FUEL FIRST'
+      : '3. LOCK PRE-SESSION TYRES — READY TO RACE →';
+    applyStageButtonState(btnSaveTyresTop, canLockStep3, step3BtnLabel);
+    applyStageButtonState(btnSaveTyres, canLockStep3, step3BtnLabel);
+
+    const step6BtnLabel = tyresPostLocked
+      ? '✓ 6. POST-SESSION TYRES LOCKED'
+      : isStep6PostTyres
+      ? '6. LOCK POST-SESSION TYRES & COMPLETE SESSION ✓'
+      : curStep === 4
+      ? 'LOCK 4. POST-SESSION TUNE FIRST'
+      : curStep === 5
+      ? 'LOCK 5. POST-SESSION FUEL FIRST'
+      : 'LOCK PRE-SESSION STEPS 1–3 FIRST';
+    applyStageButtonState(btnLockPostTyresTop, isStep6PostTyres, step6BtnLabel);
+    applyStageButtonState(btnPostTyres, isStep6PostTyres, step6BtnLabel);
+
+    if (unlockTyresTop) {
+      unlockTyresTop.style.display = tyresLocked && !tunePostLocked ? 'flex' : 'none';
+    }
     if (unlockTyresRow) {
       unlockTyresRow.style.display = tyresLocked && !tunePostLocked ? 'flex' : 'none';
     }
@@ -3498,91 +3786,53 @@
       [],
       tyresLocked
     );
-
-    // 3. CALCULATOR TAB (#tab-calc)
-    const btnConfirmJet = $('btnConfirmLockJet');
-    const btnPostCalc = $('btnOpenPostRaceAfr');
-    const btnPostCalcStep2 = $('btnOpenPostRaceAfrStep2');
-    const unlockTuneTop = $('unlockTunePreRaceRowTop');
-    const unlockTuneStep2 = $('unlockTunePreRaceRowStep2');
-
-    applyStageButtonState(
-      btnConfirmJet,
-      !tuneLocked,
-      tuneLocked ? '✓ PRE-RACE TUNE LOCKED' : 'CONFIRM JET & LOCK TO SESSION'
-    );
-    const calcPostActive = allPreLocked && !tunePostLocked;
-    const calcPostLabel = !allPreLocked
-      ? lockedPostLabel
-      : !tunePostLocked
-      ? '1. ENTER POST-SESSION TUNE →'
-      : '✓ POST-SESSION TUNE LOCKED (FINISH ON TYRES TAB)';
-    applyStageButtonState(btnPostCalc, calcPostActive, calcPostLabel);
-    applyStageButtonState(btnPostCalcStep2, calcPostActive, calcPostLabel);
-
-    if (unlockTuneTop) {
-      unlockTuneTop.style.display = tuneLocked && !tunePostLocked ? 'flex' : 'none';
-    }
-    if (unlockTuneStep2) {
-      unlockTuneStep2.style.display = tuneLocked && !tunePostLocked ? 'flex' : 'none';
-    }
-    setPreRaceControlsLocked(
-      [
-        'selectCalcCarby',
-        'selectCalcManifold',
-        'selectCalcExhaust',
-        'inputPreRaceNotes',
-        'btnModeRad',
-        'btnModeRaw',
-        'inputRadPct',
-        'inputTempC',
-        'inputPressure',
-        'btnTogglePressUnit',
-        'inputRhPct',
-        'inputFuelSg',
-        'inputFuelTempC',
-        'inputTotalTiming',
-        'inputTargetAfr',
-        'selectFullJetKit',
-        'inputRunNotes'
-      ],
-      [],
-      tuneLocked
-    );
-    document.querySelectorAll('[data-pick-jet]').forEach((jetBtn) => {
-      jetBtn.disabled = tuneLocked;
-      jetBtn.classList.toggle('prerace-locked-group', tuneLocked);
-    });
   }
 
   function unlockPreRaceSection(sectionKey) {
     const activeSess = getActiveSession();
     if (!activeSess) return;
-    if (sectionKey === 'fuel') {
-      activeSess.fuelPreLocked = false;
+    if (sectionKey === 'tune') {
+      activeSess.tunePreLocked = false;
+      activeSess.tunePostLocked = false;
+      activeSess.fuelPostLocked = false;
+      activeSess.tyresPostLocked = false;
+      activeSess.workflowStep = 1;
       syncFlatSessionsFromEvents(state);
       saveState();
       renderSessionLog();
       syncPreRacePostRaceLocksUi();
-      showToast('Unlocked Pre-Race Fuel & Weight');
+      showToast('Unlocked Step 1 Pre-Session Tune — Confirm Jet again to continue');
+    } else if (sectionKey === 'fuel') {
+      activeSess.fuelPreLocked = false;
+      activeSess.tunePostLocked = false;
+      activeSess.fuelPostLocked = false;
+      activeSess.tyresPostLocked = false;
+      activeSess.workflowStep = activeSess.tunePreLocked ? 2 : 1;
+      syncFlatSessionsFromEvents(state);
+      saveState();
+      renderSessionLog();
+      syncPreRacePostRaceLocksUi();
+      showToast('Unlocked Step 2 Pre-Session Fuel & Weight');
     } else if (sectionKey === 'tyres') {
       activeSess.tyresPreLocked = false;
       activeSess.tunePostLocked = false;
+      activeSess.fuelPostLocked = false;
       activeSess.tyresPostLocked = false;
+      activeSess.workflowStep = activeSess.tunePreLocked && activeSess.fuelPreLocked ? 3 : 1;
       syncFlatSessionsFromEvents(state);
       saveState();
       renderSessionLog();
       syncPreRacePostRaceLocksUi();
-      showToast('Unlocked Pre-Race Tyres & Suspension — Lock again to arm Post-Session');
-    } else if (sectionKey === 'tune') {
-      activeSess.tunePreLocked = false;
-      activeSess.tunePostLocked = false;
+      showToast('Unlocked Step 3 Pre-Session Tyres & Springs');
+    } else if (sectionKey === 'post_fuel') {
+      activeSess.fuelPostLocked = false;
       activeSess.tyresPostLocked = false;
+      activeSess.workflowStep = 5;
       syncFlatSessionsFromEvents(state);
       saveState();
       renderSessionLog();
       syncPreRacePostRaceLocksUi();
-      showToast('Unlocked Pre-Race Tune — Confirm Jet again to arm Post-Session');
+      showToast('Unlocked Step 5 Post-Session Fuel & Weight');
     }
   }
 
@@ -3771,11 +4021,13 @@
       tyres: initialCorners,
       shocks: { ...mountedShocks },
       springs: { ...mountedSprings },
+      tunePreLocked: false,
       fuelPreLocked: false,
       tyresPreLocked: false,
-      tunePreLocked: false,
       tunePostLocked: false,
+      fuelPostLocked: false,
       tyresPostLocked: false,
+      workflowStep: 1,
       preRaceNotes: preNotes,
       postRaceNotes: '',
       notes: preNotes
@@ -3936,7 +4188,9 @@
     saveState();
     setCalculatorStep(1);
     renderAll();
-    showToast(`IN SESSION: ${created.sessionName} (${liveEvt.venue})`);
+    switchTab('tab-calc');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast(`IN SESSION: ${created.sessionName} (${liveEvt.venue}) — Step 1: Lock Pre-Session Tune`);
   }
 
   function openPromptNextSessionModal(completedSess) {
@@ -4022,10 +4276,9 @@
     saveState();
     setCalculatorStep(1);
     renderAll();
-    if (ui.activeTab === 'tab-log' || ui.activeTab === 'tab-fleet') {
-      switchTab('tab-calc');
-    }
-    showToast(`IN SESSION: ${created.sessionName} (${liveEvt.venue})`);
+    switchTab('tab-calc');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast(`IN SESSION: ${created.sessionName} (${liveEvt.venue}) — Step 1: Lock Pre-Session Tune`);
   }
 
   function deferNextSessionToGateB() {
@@ -4567,12 +4820,15 @@
       return;
     }
     if (activeSess.tunePreLocked) {
-      showToast('Pre-Race Jet & Tune already locked — tap Unlock Pre-Race Tune if changing on grid');
+      showToast('Step 1 Pre-Session Tune already locked — tap Unlock Pre-Race Tune if changing on grid');
       return;
     }
 
     const phys = getActiveCalcPhysics();
-    const chosenJet = findJetById(ui.selectedJetId);
+    if (ui.calcStep === 1 || !ui.selectedJetId || !findJetById(ui.selectedJetId)) {
+      renderStep2Calculator(true);
+    }
+    const chosenJet = findJetById(ui.selectedJetId) || state.jets[0];
     if (!chosenJet) return;
 
     const venue = normalizeVenueName(liveEvt.venue);
@@ -4631,7 +4887,7 @@
     }
 
     // If Baseline was untested, update Baseline to this pre-race setup;
-    // otherwise keep Locked Baseline on the last verified post-race setup until Save Post-Race & Complete Session promotes it!
+    // otherwise keep Locked Baseline on the last verified post-race setup until Complete Session promotes it!
     const wasUntested =
       state.baseline.afrStatus === 'untested' ||
       state.baseline.wotAfr === null ||
@@ -4664,9 +4920,7 @@
 
     unifiedSession.tunePreLocked = true;
     activeSess.tunePreLocked = true;
-    if (isAllPreLocked(unifiedSession)) {
-      autoSnapshotPreRaceFuelToSession(unifiedSession);
-    }
+    const nextStep = getSessionWorkflowStep(unifiedSession);
     syncFlatSessionsFromEvents(state);
     saveState();
 
@@ -4676,17 +4930,20 @@
     setCalculatorStep(1);
     renderAll();
 
-    if (!unifiedSession.tyresPreLocked) {
-      // Case A: Pre-Tune locked first -> auto-switch straight to #tab-tyres
-      switchTab('tab-tyres');
+    if (nextStep === 2) {
+      // Strictly advance Step 1 (Pre-Tune) -> Step 2 (Pre-Fuel)
+      switchTab('tab-fuel');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       showToast(
-        `✓ Pre-Race Tune Locked (${chosenJet.label}) — Now check & lock Pre-Race Tyres & Springs!`
+        `✓ 1. Pre-Session Tune Locked (${chosenJet.label}) — Step 2: Check & Lock Pre-Session Fuel & Weight!`
       );
-    } else {
-      // Case C: Both Pre-Tune and Pre-Tyres are now locked -> Car ready for track!
+    } else if (nextStep === 3) {
+      switchTab('tab-tyres');
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      showToast('🟢 ALL PRE-RACE SETUP LOCKED — CAR READY FOR TRACK');
+      showToast(`✓ 1. Pre-Session Tune Locked — Step 3: Check & Lock Pre-Session Tyres & Springs!`);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('🟢 STEPS 1–3 PRE-SESSION SETUP LOCKED — CAR READY TO RACE!');
     }
   }
 
@@ -6626,13 +6883,16 @@
     const predictedPostRaceKg = hasValidScales ? dryCarDriverKg + endFuelKg : 0;
     const marginKg = hasValidScales ? predictedPostRaceKg - LEGAL_MIN_KG : 0;
 
-    // Pump-Out L/Lap Refiner
+    // Pump-Out L/Lap Refiner (supports blankable Pumped Out input in Step 5)
     const pumpBeforeL = Math.max(0, readNum('inputPumpBeforeL', ch.pumpBeforeL ?? 36.0));
-    const pumpAfterL = Math.max(0, readNum('inputPumpAfterL', ch.pumpAfterL ?? 23.0));
-    const pumpLaps = Math.max(1, Math.round(readNum('inputPumpLaps', ch.pumpLaps || 10)));
-    const pumpUsedL = Math.max(0, pumpBeforeL - pumpAfterL);
+    const rawPumpAfterStr = $('inputPumpAfterL') ? String($('inputPumpAfterL').value || '').trim() : '';
+    const hasPumpAfterInput = rawPumpAfterStr !== '' && Number.isFinite(parseFloat(rawPumpAfterStr)) && parseFloat(rawPumpAfterStr) >= 0;
+    const pumpAfterL = hasPumpAfterInput ? Math.max(0, parseFloat(rawPumpAfterStr)) : 0;
+    const pumpLaps = Math.max(1, Math.round(readNum('inputPumpLaps', ch.pumpLaps || racedLaps || 10)));
+    const hasValidPumpCalc = hasPumpAfterInput && pumpBeforeL > pumpAfterL && pumpLaps > 0;
+    const pumpUsedL = hasValidPumpCalc ? Math.max(0, pumpBeforeL - pumpAfterL) : 0;
     const pumpUsedKg = pumpUsedL * activeFuelSg;
-    const pumpMeasuredBurn = pumpLaps > 0 ? pumpUsedL / pumpLaps : 0;
+    const pumpMeasuredBurn = hasValidPumpCalc ? pumpUsedL / pumpLaps : trackBurnLPerLap;
 
     // Persist Fuel & Weight state
     prof.burnLPerLap = Number(trackBurnLPerLap.toFixed(2));
@@ -6640,7 +6900,9 @@
     ch.fuelFloorL = Number(surgeFloorL.toFixed(1));
     ch.currentTankL = 0.0;
     ch.pumpBeforeL = Number(pumpBeforeL.toFixed(1));
-    ch.pumpAfterL = Number(pumpAfterL.toFixed(1));
+    if (hasPumpAfterInput) {
+      ch.pumpAfterL = Number(pumpAfterL.toFixed(1));
+    }
     ch.pumpLaps = pumpLaps;
     ch.minLegalKg = LEGAL_MIN_KG;
     ch.scaleCheckKg = Number(scaleCheckKg.toFixed(1));
@@ -6723,12 +6985,16 @@
       }
     }
 
-    // Sub-Section B: Post-Session Pump-Out L/Lap Refiner
+    // Step 5: Post-Session Pump-Out L/Lap Refiner readout
     if ($('outPumpMeasuredBurn')) {
-      $('outPumpMeasuredBurn').textContent = `${pumpMeasuredBurn.toFixed(2)} L/lap`;
+      $('outPumpMeasuredBurn').textContent = hasValidPumpCalc
+        ? `${pumpMeasuredBurn.toFixed(2)} L/lap`
+        : `${trackBurnLPerLap.toFixed(2)} L/lap (Est)`;
     }
     if ($('outPumpUsedL')) {
-      $('outPumpUsedL').textContent = `Used: ${pumpUsedL.toFixed(2)} L (${pumpUsedKg.toFixed(1)} kg)`;
+      $('outPumpUsedL').textContent = hasValidPumpCalc
+        ? `Used: ${pumpUsedL.toFixed(2)} L (${pumpUsedKg.toFixed(1)} kg)`
+        : `Not Pumped Out • Enter Pumped Out (L) or Skip`;
     }
 
     // Card 2: Weekend Track Scales & 1365 kg Check (Fixed 1365.0 kg Min / 1370.0 kg Target)
@@ -6830,10 +7096,11 @@
       litresToPourL,
       startFuelMassKg,
       pumpBeforeL,
-      pumpAfterL,
+      pumpAfterL: hasPumpAfterInput ? pumpAfterL : null,
       pumpLaps,
       pumpUsedL,
       pumpMeasuredBurn,
+      hasValidPumpCalc,
       minLegalKg: LEGAL_MIN_KG,
       targetPostRaceKg: TARGET_POST_RACE_KG,
       hasValidScales,
@@ -7133,10 +7400,18 @@
       openPromptNextSessionModal();
       return;
     }
+    if (!activeSess.tunePreLocked) {
+      switchTab('tab-calc');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('Step 1: Lock Pre-Session Tune first');
+      return;
+    }
+    if (activeSess.fuelPreLocked) {
+      showToast('Step 2 Pre-Session Fuel & Weight already locked — tap Unlock if changing');
+      return;
+    }
 
     const fuelSnap = recalcFuelAndWeight();
-    const hasValidPump = fuelSnap.pumpUsedL > 0 && fuelSnap.pumpLaps > 0;
-    const measured = hasValidPump ? Number(fuelSnap.pumpMeasuredBurn.toFixed(2)) : null;
 
     if (fuelSnap.hasValidScales) {
       state.chassis.scaleFactSource = `Anchored to ${activeSess.sessionName} Scale Check (${fuelSnap.scaleCheckKg.toFixed(1)} kg @ ${fuelSnap.scaleCheckFuelL.toFixed(1)} L = ${fuelSnap.dryCarDriverKg.toFixed(1)} kg Dry)`;
@@ -7153,32 +7428,46 @@
       startingFuelReqL: Number(fuelSnap.startingFuelReqL.toFixed(1)),
       expectedBurnL: Number(fuelSnap.expectedBurnL.toFixed(1)),
       fuelFloorL: Number(fuelSnap.safeFloorL.toFixed(1)),
-      fuelInL: hasValidPump ? Number(fuelSnap.pumpBeforeL.toFixed(1)) : activeSess.fuelInL,
-      fuelOutL: hasValidPump ? Number(fuelSnap.pumpAfterL.toFixed(1)) : activeSess.fuelOutL,
-      fuelUsedL: hasValidPump ? Number(fuelSnap.pumpUsedL.toFixed(2)) : activeSess.fuelUsedL,
-      racedLaps: hasValidPump ? fuelSnap.pumpLaps : fuelSnap.raceLaps,
-      measuredBurnLPerLap: measured !== null ? measured : Number(fuelSnap.burnLPerLap.toFixed(2)),
-      scaleWeightKg: Number(fuelSnap.scaleCheckKg.toFixed(1)),
-      postRaceEstKg: Number(fuelSnap.predictedPostRaceKg.toFixed(1)),
+      racedLaps: fuelSnap.raceLaps,
+      measuredBurnLPerLap: Number(fuelSnap.burnLPerLap.toFixed(2)),
+      scaleWeightKg: fuelSnap.hasValidScales ? Number(fuelSnap.scaleCheckKg.toFixed(1)) : activeSess.scaleWeightKg,
+      postRaceEstKg: fuelSnap.hasValidScales ? Number(fuelSnap.predictedPostRaceKg.toFixed(1)) : activeSess.postRaceEstKg,
       fuelPreLocked: true
     });
     if (!unified) return;
     activeSess.fuelPreLocked = true;
     unified.fuelPreLocked = true;
 
-    if (hasValidPump) {
-      recalculateTrackAverageBurn(activeEvt.venue);
+    // Pre-populate Step 5 Post-Session Fuel & Weight inputs from Step 2 Pre-Fuel values
+    if ($('inputPumpBeforeL')) {
+      $('inputPumpBeforeL').value = Number(fuelSnap.litresToPourL).toFixed(1);
+    }
+    if ($('inputPumpAfterL')) {
+      $('inputPumpAfterL').value = '';
+    }
+    if ($('inputPumpLaps')) {
+      $('inputPumpLaps').value = String(fuelSnap.raceLaps);
+    }
+    if ($('inputPostScaleWeightKg')) {
+      $('inputPostScaleWeightKg').value = '';
     }
 
+    const nextStep = getSessionWorkflowStep(unified);
+    syncFlatSessionsFromEvents(state);
     saveState();
-    renderWeekendEventBanner();
-    recalcFuelAndWeight();
-    recalcTyres();
-    renderTyreStockList();
-    renderSessionLog();
-    syncPreRacePostRaceLocksUi();
+    renderAll();
 
-    showToast(`✓ Pre-Race Fuel & Scale Wt Locked (${unified.sessionName}) — Post-Race Ready`);
+    if (nextStep === 3) {
+      // Strictly advance Step 2 (Pre-Fuel) -> Step 3 (Pre-Tyres)
+      switchTab('tab-tyres');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast(
+        `✓ 2. Pre-Session Fuel & Weight Locked (${fuelSnap.litresToPourL.toFixed(1)} L to pour) — Step 3: Check & Lock Pre-Session Tyres!`
+      );
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('🟢 STEPS 1–3 PRE-SESSION SETUP LOCKED — CAR READY TO RACE!');
+    }
   }
 
   function saveTyresToSession() {
@@ -7192,6 +7481,23 @@
       openPromptNextSessionModal();
       return;
     }
+    if (!activeSess.tunePreLocked) {
+      switchTab('tab-calc');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('Step 1: Lock Pre-Session Tune first');
+      return;
+    }
+    if (!activeSess.fuelPreLocked) {
+      switchTab('tab-fuel');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('Step 2: Lock Pre-Session Fuel & Weight first');
+      return;
+    }
+    if (activeSess.tyresPreLocked) {
+      showToast('Step 3 Pre-Session Tyres already locked — tap Unlock if changing');
+      return;
+    }
+
     const tyreSnap = recalcTyres();
 
     // Save Session Guard: verify zero mixed specs across FL..RR before writing to state.sessions
@@ -7252,25 +7558,17 @@
       $('inputRunNotes').value = unified.preRaceNotes || '';
     }
 
-    if (isAllPreLocked(unified)) {
-      autoSnapshotPreRaceFuelToSession(unified);
-    }
+    getSessionWorkflowStep(unified);
     syncFlatSessionsFromEvents(state);
     saveState();
     renderAll();
 
-    if (!unified.tunePreLocked) {
-      // Case B: Pre-Tyres locked first -> auto-switch straight to #tab-calc
-      switchTab('tab-calc');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      showToast(
-        '✓ Pre-Race Tyres Locked — Now check weather, pick jet & lock Pre-Race Tune!'
-      );
-    } else {
-      // Case C: Both Pre-Tune and Pre-Tyres are now locked -> Car ready for track!
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      showToast('🟢 ALL PRE-RACE SETUP LOCKED — CAR READY FOR TRACK');
-    }
+    // Strictly advance Step 3 (Pre-Tyres) -> Step 4 (Post-Tune armed at the very top of Tune #tab-calc)
+    switchTab('tab-calc');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast(
+      '🟢 3. Pre-Session Tyres Locked — CAR READY TO RACE! (Step 4 Post-Session Tune armed at top of Tune)'
+    );
   }
 
   function exportTyresCsv() {
@@ -7620,18 +7918,21 @@
     if (s.status === 'completed' || (s.tunePostLocked && s.tyresPostLocked) || !isEstimated) {
       wfStatusBadgeClass = 'verified';
       wfStatusBadgeText = 'VERIFIED & COMPLETE';
-    } else if (s.tunePostLocked && !s.tyresPostLocked) {
+    } else if (s.fuelPostLocked && !s.tyresPostLocked) {
       wfStatusBadgeClass = 'cyan';
-      wfStatusBadgeText = 'POST-TUNE SAVED';
-    } else if (s.tunePreLocked && s.tyresPreLocked) {
+      wfStatusBadgeText = '5. POST-FUEL LOCKED';
+    } else if (s.tunePostLocked && !s.fuelPostLocked) {
+      wfStatusBadgeClass = 'cyan';
+      wfStatusBadgeText = '4. POST-TUNE LOCKED';
+    } else if (s.tunePreLocked && s.fuelPreLocked && s.tyresPreLocked) {
       wfStatusBadgeClass = 'verified';
-      wfStatusBadgeText = 'READY ON TRACK';
-    } else if (s.tunePreLocked && !s.tyresPreLocked) {
+      wfStatusBadgeText = 'ON TRACK / PRE-LOCKED';
+    } else if (s.tunePreLocked && s.fuelPreLocked && !s.tyresPreLocked) {
       wfStatusBadgeClass = 'estimated';
-      wfStatusBadgeText = 'PRE-TUNE SET';
-    } else if (!s.tunePreLocked && s.tyresPreLocked) {
+      wfStatusBadgeText = '2. PRE-FUEL LOCKED';
+    } else if (s.tunePreLocked && !s.fuelPreLocked) {
       wfStatusBadgeClass = 'estimated';
-      wfStatusBadgeText = 'PRE-TYRES SET';
+      wfStatusBadgeText = '1. PRE-TUNE LOCKED';
     } else {
       wfStatusBadgeClass = 'estimated';
       wfStatusBadgeText = 'PRE-RACE DRAFT';
@@ -10189,28 +10490,38 @@
       return;
     }
 
-    // Critical Rule: BOTH Pre-Tune AND Pre-Tyres must be locked before ANY Post-Session step opens
+    // Critical Rule: Steps 1, 2, and 3 (Pre-Tune, Pre-Fuel, Pre-Tyres) must be locked before Step 4 opens
     if (!isAllPreLocked(linked)) {
-      if (!linked.tunePreLocked && !linked.tyresPreLocked) {
-        showToast('Lock both Pre-Race Tune & Pre-Race Tyres first');
-      } else if (linked.tunePreLocked && !linked.tyresPreLocked) {
-        switchTab('tab-tyres');
-        showToast('Lock Pre-Race Tyres & Suspension first to unlock Post-Session');
-      } else {
+      if (!linked.tunePreLocked) {
         switchTab('tab-calc');
-        showToast('Lock Pre-Race Tune first to unlock Post-Session');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showToast('Step 1: Lock Pre-Session Tune first');
+      } else if (!linked.fuelPreLocked) {
+        switchTab('tab-fuel');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showToast('Step 2: Lock Pre-Session Fuel & Weight first');
+      } else {
+        switchTab('tab-tyres');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showToast('Step 3: Lock Pre-Session Tyres & Springs first');
       }
       return;
     }
 
-    // If Post-Session Tune (Step 1) is already locked, route directly to Step 2 (Post-Session Tyres)
-    if (linked.tunePostLocked && !linked.tyresPostLocked) {
+    // If Step 4 (Post-Tune) is already locked, route to Step 5 (Post-Fuel) or Step 6 (Post-Tyres)
+    if (linked.tunePostLocked && !linked.fuelPostLocked) {
+      switchTab('tab-fuel');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('STEP 5 OF 6: Lock Post-Session Fuel & Weight at the top of Fuel & Wt!');
+      return;
+    }
+    if (linked.tunePostLocked && linked.fuelPostLocked && !linked.tyresPostLocked) {
       if (ui.activeTab === 'tab-tyres') {
         completeSessionPostTyres();
       } else {
         switchTab('tab-tyres');
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        showToast('STEP 2 OF 2: Enter Post-Session Hot Tyre PSIs & tap Lock Post Tyres to finish!');
+        showToast('STEP 6 OF 6: Enter Hot Tyre PSIs & tap 6. Lock Post-Session Tyres & Complete Session!');
       }
       return;
     }
@@ -10269,29 +10580,6 @@
     }
     syncPostRaceWaterHintUi();
 
-    // Section 2: Pre-populate Post-Race Fuel Pump-Out from session or Tab 2 inputs
-    const defaultFuelIn =
-      linked.fuelInL !== null && linked.fuelInL !== undefined && Number.isFinite(Number(linked.fuelInL))
-        ? Number(linked.fuelInL)
-        : linked.startingFuelReqL !== null && linked.startingFuelReqL !== undefined && Number.isFinite(Number(linked.startingFuelReqL))
-        ? Number(linked.startingFuelReqL)
-        : readNum('inputPumpBeforeL', 29.0);
-    const defaultFuelOut =
-      linked.fuelOutL !== null && linked.fuelOutL !== undefined && Number.isFinite(Number(linked.fuelOutL))
-        ? Number(linked.fuelOutL)
-        : readNum('inputPumpAfterL', 12.0);
-    const defaultRacedLaps =
-      linked.racedLaps !== null && linked.racedLaps !== undefined && Number.isFinite(Number(linked.racedLaps)) && Number(linked.racedLaps) > 0
-        ? Math.round(Number(linked.racedLaps))
-        : Math.max(1, Math.round(readNum('inputRaceLaps', 10)));
-
-    if ($('modalPostFuelInL')) $('modalPostFuelInL').value = defaultFuelIn.toFixed(1);
-    if ($('modalPostFuelOutL')) $('modalPostFuelOutL').value = defaultFuelOut.toFixed(1);
-    if ($('modalPostRacedLaps')) $('modalPostRacedLaps').value = String(defaultRacedLaps);
-    if ($('modalPostScaleKg')) $('modalPostScaleKg').value = '';
-
-    syncModalPostFuelAndTyresPreview();
-
     if ($('modalPostNotes')) {
       $('modalPostNotes').value = linked.postRaceNotes || '';
     }
@@ -10327,9 +10615,9 @@
   }
 
   /**
-   * POST-SESSION STEP 1 OF 2:
-   * Saves Post-Session Tune & Fuel telemetry, locks tunePostLocked = true,
-   * closes #modalPostRaceAfr, and automatically switches straight to #tab-tyres for Step 2.
+   * STEP 4 OF 6 — POST-SESSION TUNE:
+   * Saves Post-Session Tune gauges & notes to activeSession, locks tunePostLocked = true,
+   * sets workflowStep = 5, closes #modalPostRaceAfr, and switches straight to #tab-fuel scrolled to top.
    */
   function savePostRaceAfrModal() {
     const liveEvt = getActiveEvent();
@@ -10363,42 +10651,6 @@
     const a50 = readOptionalAfr('modalPost5000');
     const a55 = readOptionalAfr('modalPost5500');
 
-    // Read Post-Race Fuel Pump-Out & Optional Post-Race Official Scale Wt
-    const modalFuelInL = readNum('modalPostFuelInL', 0);
-    const modalFuelOutL = readNum('modalPostFuelOutL', 0);
-    const modalRacedLaps = Math.max(1, Math.round(readNum('modalPostRacedLaps', 10)));
-    const hasValidPump = modalFuelInL > 0 && modalFuelOutL >= 0 && modalFuelInL > modalFuelOutL && modalRacedLaps > 0;
-    const modalFuelUsedL = hasValidPump ? Number((modalFuelInL - modalFuelOutL).toFixed(2)) : null;
-    const modalMeasuredBurn = hasValidPump ? Number((modalFuelUsedL / modalRacedLaps).toFixed(2)) : null;
-
-    const rawPostScale = $('modalPostScaleKg') ? String($('modalPostScaleKg').value || '').trim() : '';
-    const parsedPostScale = rawPostScale !== '' ? parseFloat(rawPostScale) : NaN;
-    const hasPostScaleFact = Number.isFinite(parsedPostScale) && parsedPostScale > 500 && modalFuelOutL >= 0;
-
-    if (hasValidPump) {
-      if ($('inputPumpBeforeL')) $('inputPumpBeforeL').value = modalFuelInL.toFixed(1);
-      if ($('inputPumpAfterL')) $('inputPumpAfterL').value = modalFuelOutL.toFixed(1);
-      if ($('inputPumpLaps')) $('inputPumpLaps').value = String(modalRacedLaps);
-      if ($('inputRaceLaps')) $('inputRaceLaps').value = String(modalRacedLaps);
-      if ($('inputTyreSessionLaps')) $('inputTyreSessionLaps').value = String(modalRacedLaps);
-    } else if (modalRacedLaps > 0 && $('inputTyreSessionLaps')) {
-      $('inputTyreSessionLaps').value = String(modalRacedLaps);
-    }
-
-    if (hasPostScaleFact) {
-      const postScaleKg = Number(parsedPostScale.toFixed(1));
-      const postFuelRemL = Number(modalFuelOutL.toFixed(1));
-      const activeSg = Math.max(0.65, (linked && Number(linked.fuelSg)) || readNum('inputFuelSg', 0.740));
-      const dryKg = postScaleKg - postFuelRemL * activeSg;
-      const sessLbl = (linked && linked.sessionName) || 'Session';
-      if (!state.chassis) state.chassis = createDefaultChassisState();
-      state.chassis.scaleCheckKg = postScaleKg;
-      state.chassis.scaleCheckFuelL = postFuelRemL;
-      state.chassis.scaleFactSource = `Scale Fact Updated from ${sessLbl} Post-Race Weigh + Pump-Out (${postScaleKg.toFixed(1)} kg @ ${postFuelRemL.toFixed(1)} L = ${dryKg.toFixed(1)} kg Dry)`;
-      if ($('inputScaleCheckKg')) $('inputScaleCheckKg').value = postScaleKg.toFixed(1);
-      if ($('inputScaleCheckFuelL')) $('inputScaleCheckFuelL').value = postFuelRemL.toFixed(1);
-    }
-
     if (!isSessionLocked(linked.id)) {
       linked.afr3500 = a35;
       linked.afr4000 = a40;
@@ -10415,27 +10667,152 @@
       linked.peakRpm = peakRpm;
       linked.fuelPsi = fuelPsi;
       linked.waterTempC = waterTempC;
-      linked.racedLaps = modalRacedLaps;
-      if (hasValidPump) {
-        linked.fuelInL = Number(modalFuelInL.toFixed(1));
-        linked.fuelOutL = Number(modalFuelOutL.toFixed(1));
-        linked.fuelUsedL = modalFuelUsedL;
-        linked.measuredBurnLPerLap = modalMeasuredBurn;
-      }
-      if (hasPostScaleFact) {
-        linked.scaleWeightKg = Number(parsedPostScale.toFixed(1));
-        linked.postRaceEstKg = Number(parsedPostScale.toFixed(1));
-      }
       if (postNotesVal) {
         linked.postRaceNotes = postNotesVal;
         linked.notes = postNotesVal;
       }
       linked.tunePostLocked = true;
+      linked.workflowStep = 5;
     }
 
-    const venueForLearn = (liveEvt && liveEvt.venue) || (linked && linked.venue) || state.baseline.venue || 'Calder Park Raceway';
+    // Pre-populate Step 5 Post-Session Fuel & Weight card at the top of #tab-fuel from Step 2 Pre-Fuel values
+    const prePourL =
+      linked.litresToPourL !== null && linked.litresToPourL !== undefined && Number.isFinite(Number(linked.litresToPourL))
+        ? Number(linked.litresToPourL)
+        : linked.startingFuelReqL !== null && linked.startingFuelReqL !== undefined && Number.isFinite(Number(linked.startingFuelReqL))
+        ? Number(linked.startingFuelReqL)
+        : readNum('inputPumpBeforeL', 29.0);
+    const preLaps =
+      linked.racedLaps !== null && linked.racedLaps !== undefined && Number.isFinite(Number(linked.racedLaps)) && Number(linked.racedLaps) > 0
+        ? Math.round(Number(linked.racedLaps))
+        : Math.max(1, Math.round(readNum('inputRaceLaps', 10)));
+
+    if ($('inputPumpBeforeL')) $('inputPumpBeforeL').value = prePourL.toFixed(1);
+    if ($('inputPumpLaps')) $('inputPumpLaps').value = String(preLaps);
+    if ($('inputPumpAfterL')) {
+      $('inputPumpAfterL').value =
+        linked.fuelOutL !== null && linked.fuelOutL !== undefined && Number.isFinite(Number(linked.fuelOutL))
+          ? Number(linked.fuelOutL).toFixed(1)
+          : '';
+    }
+    if ($('inputPostScaleWeightKg')) {
+      $('inputPostScaleWeightKg').value = '';
+    }
+
     syncFlatSessionsFromEvents(state);
-    if (hasValidPump) {
+    saveState();
+    closeModal('modalPostRaceAfr');
+    renderAll();
+
+    // Auto-switch straight to #tab-fuel for Step 5 of 6 (Post-Session Fuel & Weight)
+    switchTab('tab-fuel');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const pumpOutEl = $('inputPumpAfterL');
+    if (pumpOutEl && !pumpOutEl.value) {
+      setTimeout(() => {
+        try {
+          pumpOutEl.focus({ preventScroll: true });
+        } catch (_err) {
+          // ignore focus error
+        }
+      }, 220);
+    }
+
+    showToast(
+      `✓ 4. Post-Session Tune Locked (${wot.toFixed(2)} AFR @ ${peakRpm} RPM) — Step 5: Lock Post-Session Fuel & Weight!`
+    );
+  }
+
+  /**
+   * STEP 5 OF 6 — POST-SESSION FUEL & WEIGHT:
+   * Saves Post-Session Fuel Pump-Out (or keeps estimated burn if skipped/blank) & optional Post-Race Scale Wt,
+   * sets fuelPostLocked = true, workflowStep = 6, and switches straight to #tab-tyres scrolled to top.
+   */
+  function savePostSessionFuelAndWeight(skipPumpOut = false) {
+    const liveEvt = getActiveEvent();
+    if (!liveEvt) {
+      openNewEventModal();
+      return;
+    }
+    const linked = getActiveSession();
+    if (!linked) {
+      openPromptNextSessionModal();
+      return;
+    }
+    if (!isAllPreLocked(linked)) {
+      goToCurrentWorkflowStep();
+      return;
+    }
+    if (!linked.tunePostLocked) {
+      switchTab('tab-calc');
+      openPostRaceAfrModal();
+      return;
+    }
+
+    if (skipPumpOut && $('inputPumpAfterL')) {
+      $('inputPumpAfterL').value = '';
+    }
+
+    const fuelSnap = recalcFuelAndWeight();
+    const pumpBeforeL = Math.max(0, readNum('inputPumpBeforeL', linked.litresToPourL || 29.0));
+    const rawPumpAfter = $('inputPumpAfterL') ? String($('inputPumpAfterL').value || '').trim() : '';
+    const parsedPumpAfter = rawPumpAfter !== '' ? parseFloat(rawPumpAfter) : NaN;
+    const hasPumpOut =
+      !skipPumpOut &&
+      Number.isFinite(parsedPumpAfter) &&
+      parsedPumpAfter >= 0 &&
+      pumpBeforeL > parsedPumpAfter;
+    const pumpLaps = Math.max(1, Math.round(readNum('inputPumpLaps', linked.racedLaps || 10)));
+
+    const rawPostScale = $('inputPostScaleWeightKg')
+      ? String($('inputPostScaleWeightKg').value || '').trim()
+      : '';
+    const parsedPostScale = rawPostScale !== '' ? parseFloat(rawPostScale) : NaN;
+    const hasPostScale = Number.isFinite(parsedPostScale) && parsedPostScale > 500;
+
+    linked.racedLaps = pumpLaps;
+    if ($('inputRaceLaps')) $('inputRaceLaps').value = String(pumpLaps);
+    if ($('inputTyreSessionLaps')) $('inputTyreSessionLaps').value = String(pumpLaps);
+
+    if (hasPumpOut) {
+      const usedL = Number((pumpBeforeL - parsedPumpAfter).toFixed(2));
+      const measuredBurn = Number((usedL / pumpLaps).toFixed(2));
+      linked.fuelInL = Number(pumpBeforeL.toFixed(1));
+      linked.fuelOutL = Number(parsedPumpAfter.toFixed(1));
+      linked.fuelUsedL = usedL;
+      linked.measuredBurnLPerLap = measuredBurn;
+    } else {
+      linked.fuelInL = Number(pumpBeforeL.toFixed(1));
+      linked.fuelOutL = null;
+      linked.fuelUsedL = null;
+      if (!linked.measuredBurnLPerLap || linked.measuredBurnLPerLap <= 0) {
+        linked.measuredBurnLPerLap = Number(fuelSnap.burnLPerLap.toFixed(2));
+      }
+    }
+
+    if (hasPostScale) {
+      const postScaleKg = Number(parsedPostScale.toFixed(1));
+      const activeSg = Math.max(0.65, Number(linked.fuelSg) || readNum('inputFuelSg', 0.740));
+      const estRemFuelL = hasPumpOut
+        ? Number(parsedPumpAfter.toFixed(1))
+        : Math.max(0, pumpBeforeL - pumpLaps * Number(linked.measuredBurnLPerLap || fuelSnap.burnLPerLap));
+      const dryKg = postScaleKg - estRemFuelL * activeSg;
+      if (!state.chassis) state.chassis = createDefaultChassisState();
+      state.chassis.scaleCheckKg = postScaleKg;
+      state.chassis.scaleCheckFuelL = Number(estRemFuelL.toFixed(1));
+      state.chassis.scaleFactSource = `Scale Fact Updated from ${linked.sessionName} Post-Race Weigh (${postScaleKg.toFixed(1)} kg @ ${estRemFuelL.toFixed(1)} L = ${dryKg.toFixed(1)} kg Dry)`;
+      if ($('inputScaleCheckKg')) $('inputScaleCheckKg').value = postScaleKg.toFixed(1);
+      if ($('inputScaleCheckFuelL')) $('inputScaleCheckFuelL').value = estRemFuelL.toFixed(1);
+      linked.scaleWeightKg = postScaleKg;
+      linked.postRaceEstKg = postScaleKg;
+    }
+
+    linked.fuelPostLocked = true;
+    linked.workflowStep = 6;
+
+    const venueForLearn = liveEvt.venue || linked.venue || state.baseline.venue || 'Calder Park Raceway';
+    syncFlatSessionsFromEvents(state);
+    if (hasPumpOut) {
       recalculateTrackAverageBurn(venueForLearn);
       const learnedFuel = getTrackLearnedFuelStats(venueForLearn);
       if ($('inputTrackBurnLPerLap')) {
@@ -10447,10 +10824,9 @@
     }
 
     saveState();
-    closeModal('modalPostRaceAfr');
     renderAll();
 
-    // Auto-switch straight to #tab-tyres for Post-Session Step 2 of 2
+    // Auto-switch straight to #tab-tyres for Step 6 of 6 (Post-Session Tyres)
     switchTab('tab-tyres');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     const firstHotEl = $('inputHotPsi_FL');
@@ -10465,15 +10841,17 @@
     }
 
     showToast(
-      `✓ Post-Session Tune Locked (${wot.toFixed(2)} AFR @ ${peakRpm} RPM) — Step 2: Enter Hot Tyre PSIs & Complete Session!`
+      hasPumpOut
+        ? `✓ 5. Post-Session Fuel Locked (${linked.measuredBurnLPerLap.toFixed(2)} L/lap) — Step 6: Enter Hot Tyre PSIs & Complete Session!`
+        : `✓ 5. Post-Session Fuel Locked (Est Burn Kept) — Step 6: Enter Hot Tyre PSIs & Complete Session!`
     );
   }
 
   /**
-   * POST-SESSION STEP 2 OF 2:
+   * STEP 6 OF 6 — POST-SESSION TYRES & SESSION COMPLETION:
    * Saves 4-corner Post-Session Hot Tyre PSIs, bleed/add deltas, Next Cold Set PSIs, and pyrometer temps,
-   * marks the session completed, increments tyre laps, promotes Tune + Tyre + Fuel baselines for the next run,
-   * and opens the Next Session Selector modal.
+   * marks the session VERIFIED & COMPLETED, increments tyre laps once, promotes Tune + Fuel + Tyre baselines,
+   * clears state.activeSessionId = null, and transitions immediately to the Gate B Select Next Session card!
    */
   function completeSessionPostTyres() {
     const liveEvt = getActiveEvent();
@@ -10487,11 +10865,18 @@
       return;
     }
     if (!isAllPreLocked(linked)) {
-      showToast('Lock both Pre-Race Tune & Pre-Race Tyres first');
+      goToCurrentWorkflowStep();
       return;
     }
     if (!linked.tunePostLocked) {
+      switchTab('tab-calc');
       openPostRaceAfrModal();
+      return;
+    }
+    if (!linked.fuelPostLocked) {
+      switchTab('tab-fuel');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('Step 5: Lock Post-Session Fuel & Weight first');
       return;
     }
 
@@ -10562,6 +10947,7 @@
     }
 
     linked.tyresPostLocked = true;
+    linked.workflowStep = 'done';
     linked.status = 'completed';
     linked.afrStatus = 'verified';
 
@@ -10649,7 +11035,7 @@
       });
     }
 
-    // Transition out of the completed session into Gate B / Prompt for Next Session
+    // Clear activeSessionId and immediately transition to Gate B (full-screen Select Next Session to Commence card)
     state.activeSessionId = null;
     state.awaitingPostRaceId = null;
     ui.postRaceTargetSessionId = null;
@@ -10661,12 +11047,24 @@
       $('inputRadPct').value = state.baseline.rad.toFixed(1);
     }
 
+    if ($('gateBCommenceSessionSelect')) {
+      populateCommenceSessionSelect($('gateBCommenceSessionSelect'), liveEvt, { preserveValue: false });
+    }
+    if ($('gateBCustomSessionInput')) $('gateBCustomSessionInput').value = '';
+    if ($('gateBCustomSessionWrap')) $('gateBCustomSessionWrap').style.display = 'none';
+    if ($('gateBPreRaceNotesInput')) $('gateBPreRaceNotesInput').value = '';
+    syncCommenceButtonState(
+      'gateBCommenceSessionSelect',
+      'gateBCustomSessionWrap',
+      'gateBCustomSessionInput',
+      'btnCommenceSelectedSessionGateB'
+    );
+
+    closeModal('modalPromptNextSession');
     saveState();
     renderAll();
-
-    // Immediately prompt for the next session in sequence
-    openPromptNextSessionModal(completedSessionName);
-    showToast(`✓ ${completedSessionName} Logged & Promoted to New Baseline!`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast(`✓ ${completedSessionName} Verified & Completed — Select Next Session to Commence!`);
   }
 
   function openDeleteSessionModal(sid) {
@@ -11322,6 +11720,10 @@
         ? 22
         : idStr.startsWith('inputHotTemp_')
         ? 68
+        : idStr === 'inputPostScaleWeightKg'
+        ? state.fuelAndWeight && Number.isFinite(state.fuelAndWeight.scaleWeightKg)
+          ? state.fuelAndWeight.scaleWeightKg
+          : 1384.0
         : min >= 10 && max <= 16.5
         ? 12.80
         : min >= 18 && max <= 65
@@ -11530,6 +11932,30 @@
       const tabBtn = e.target.closest('.tab-btn[data-tab]');
       if (tabBtn) {
         switchTab(tabBtn.getAttribute('data-tab'));
+        return;
+      }
+
+      const wfStepPill = e.target.closest('.wf-step-pill[data-wf-step]');
+      if (wfStepPill) {
+        const stepNum = parseInt(wfStepPill.getAttribute('data-wf-step'), 10);
+        const sess = getActiveSession();
+        const curStep = getSessionWorkflowStep(sess);
+        if (stepNum === 1 || stepNum === 4) {
+          switchTab('tab-calc');
+          if (stepNum === 4 && sess && isAllPreLocked(sess)) {
+            openPostRaceAfrModal();
+          }
+        } else if (stepNum === 2 || stepNum === 5) {
+          switchTab('tab-fuel');
+          if (stepNum === 5 && curStep >= 5) {
+            setTimeout(() => {
+              const postBox = $('fuelPostRaceStep5Box');
+              if (postBox) postBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 60);
+          }
+        } else if (stepNum === 3 || stepNum === 6) {
+          switchTab('tab-tyres');
+        }
         return;
       }
 
@@ -12343,6 +12769,12 @@
     });
     $('btnBackToStep1Top').addEventListener('click', returnToStep1);
     $('btnBackToStep1Bottom').addEventListener('click', returnToStep1);
+    if ($('btnWorkflowGoToActiveStep')) {
+      $('btnWorkflowGoToActiveStep').addEventListener('click', goToCurrentWorkflowStep);
+    }
+    if ($('btnConfirmLockJetTop')) {
+      $('btnConfirmLockJetTop').addEventListener('click', confirmJetAndLockForNextRace);
+    }
     $('btnConfirmLockJet').addEventListener('click', confirmJetAndLockForNextRace);
 
     $('selectCalcCarby').addEventListener('change', updateCarbySwapHint);
@@ -12485,20 +12917,44 @@
     if ($('btnUpdateScaleFact')) {
       $('btnUpdateScaleFact').addEventListener('click', updateScaleFactFromCard2);
     }
+    if ($('btnSaveFuelWeightSessionTop')) {
+      $('btnSaveFuelWeightSessionTop').addEventListener('click', saveFuelAndWeightToSession);
+    }
     if ($('btnSaveFuelWeightSession')) {
       $('btnSaveFuelWeightSession').addEventListener('click', saveFuelAndWeightToSession);
     }
     if ($('btnCompleteSessionFromFuel')) {
-      $('btnCompleteSessionFromFuel').addEventListener('click', openPostRaceAfrModal);
+      $('btnCompleteSessionFromFuel').addEventListener('click', () => savePostSessionFuelAndWeight(false));
+    }
+    if ($('btnLockPostFuelStep5')) {
+      $('btnLockPostFuelStep5').addEventListener('click', () => savePostSessionFuelAndWeight(false));
+    }
+    if ($('btnSkipPostFuelStep5')) {
+      $('btnSkipPostFuelStep5').addEventListener('click', () => savePostSessionFuelAndWeight(true));
+    }
+    if ($('btnUnlockFuelPreRaceTop')) {
+      $('btnUnlockFuelPreRaceTop').addEventListener('click', () => unlockPreRaceSection('fuel'));
     }
     if ($('btnUnlockFuelPreRace')) {
       $('btnUnlockFuelPreRace').addEventListener('click', () => unlockPreRaceSection('fuel'));
     }
+    if ($('btnUnlockFuelPostRace')) {
+      $('btnUnlockFuelPostRace').addEventListener('click', () => unlockPreRaceSection('fuelPost'));
+    }
+    if ($('btnSaveTyresSessionTop')) {
+      $('btnSaveTyresSessionTop').addEventListener('click', saveTyresToSession);
+    }
     if ($('btnSaveTyresSession')) {
       $('btnSaveTyresSession').addEventListener('click', saveTyresToSession);
     }
+    if ($('btnLockPostTyresTop')) {
+      $('btnLockPostTyresTop').addEventListener('click', completeSessionPostTyres);
+    }
     if ($('btnCompleteSessionFromTyres')) {
-      $('btnCompleteSessionFromTyres').addEventListener('click', openPostRaceAfrModal);
+      $('btnCompleteSessionFromTyres').addEventListener('click', completeSessionPostTyres);
+    }
+    if ($('btnUnlockTyresPreRaceTop')) {
+      $('btnUnlockTyresPreRaceTop').addEventListener('click', () => unlockPreRaceSection('tyres'));
     }
     if ($('btnUnlockTyresPreRace')) {
       $('btnUnlockTyresPreRace').addEventListener('click', () => unlockPreRaceSection('tyres'));
