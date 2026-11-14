@@ -4802,3 +4802,9 @@ button:disabled.btn-stage-locked,
     flex-direction: column;
   }
 }
+
+#calcActiveSessionContent,
+#fuelActiveSessionContent,
+#tyresActiveSessionContent {
+  display: none;
+}

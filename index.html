@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.8.0" />
+  <link rel="stylesheet" href="./styles.css?v=0.8.1" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -240,7 +240,7 @@
          TAB 1: TUNE (Step 1 -> Next -> Confirm)
          ========================================================= -->
     <section id="tab-calc" class="tab-panel active" aria-labelledby="navTabCalc">
-      <div id="calcActiveSessionContent">
+      <div id="calcActiveSessionContent" style="display: none;">
       <!-- TOP WORKFLOW ACTION BAR FOR TUNE (PRE-RACE TUNE -> POST-SESSION TUNE -> POST-SESSION FUEL & WEIGHT) -->
       <div class="top-workflow-action-card" id="tuneTopWorkflowCard">
         <div class="top-wf-header-row">
@@ -691,7 +691,7 @@
          TAB 2: FUEL & WT (Pre-Race Step 2 & Post-Race Step 2)
          ========================================================= -->
     <section id="tab-fuel" class="tab-panel" aria-labelledby="navTabFuel">
-      <div id="fuelActiveSessionContent">
+      <div id="fuelActiveSessionContent" style="display: none;">
       <!-- TOP WORKFLOW ACTION BAR FOR FUEL & WEIGHT -->
       <div class="top-workflow-action-card" id="fuelTopPreActionCard">
         <div class="top-wf-header-row">
@@ -1008,7 +1008,7 @@
          TAB 3: TYRES / SPRINGS (Visual Car Chassis 2x2 Matrix: FL | FR over RL | RR)
          ========================================================= -->
     <section id="tab-tyres" class="tab-panel" aria-labelledby="navTabTyres">
-      <div id="tyresActiveSessionContent">
+      <div id="tyresActiveSessionContent" style="display: none;">
       <!-- TOP WORKFLOW ACTION BAR FOR PRE-SESSION TYRES (STEP 3) -->
       <div class="top-workflow-action-card" id="tyresTopPreActionCard">
         <div class="top-wf-header-row">
@@ -3744,6 +3744,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.8.0"></script>
+  <script src="./app.js?v=0.8.1"></script>
 </body>
 </html>

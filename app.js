@@ -14,6 +14,10 @@
   const MM_PER_INCH = 25.4;
   const END_CYL_LEAN_OFFSET = 0.27; // #1 & #6 siamesed cast log manifold lean bias
 
+  function clamp(val, min, max) {
+    return Math.min(max, Math.max(min, val));
+  }
+
   /* ------------------------------------------------------------------------
      1. FACTORY SEED DATA (Group 3H HQ Holden 202 — Calder Park & BXUV-3 Kit)
      ------------------------------------------------------------------------ */
@@ -1845,6 +1849,17 @@
       const waterTempC = normalizeOptionalWaterTemp(s.waterTempC);
       const fuelTempC = Number.isFinite(Number(s.fuelTempC)) ? Number(Number(s.fuelTempC).toFixed(1)) : 20.0;
 
+      let litresToPourL = pickOptNum(s.litresToPourL ?? s.pourJugsL);
+      let startingFuelReqL = pickOptNum(s.startingFuelReqL ?? s.startFuelReqL);
+      let expectedBurnL = pickOptNum(s.expectedBurnL);
+      let fuelFloorL = pickOptNum(s.fuelFloorL);
+      let fuelInL = pickOptNum(s.fuelInL ?? s.beforeL);
+      let fuelOutL = pickOptNum(s.fuelOutL ?? s.afterL);
+      let fuelUsedL = pickOptNum(s.fuelUsedL ?? s.usedL);
+      let racedLaps = pickOptNum(s.racedLaps ?? s.laps);
+      let measuredBurnLPerLap = pickOptNum(s.measuredBurnLPerLap ?? s.burnLPerLap);
+      let scaleWeightKg = pickOptNum(s.scaleWeightKg);
+      let postRaceEstKg = pickOptNum(s.postRaceEstKg ?? s.predPostRaceKg);
       let hotTargetFront = pickOptNum(s.hotTargetFront);
       let hotTargetRear = pickOptNum(s.hotTargetRear);
       let tyreHotTarget = pickOptNum(s.tyreHotTarget);
@@ -5590,6 +5605,11 @@
     });
 
     return {
+      FL: corners.FL,
+      FR: corners.FR,
+      RL: corners.RL,
+      RR: corners.RR,
+      offsets: dyn,
       venue,
       condition,
       laps,
@@ -12703,29 +12723,44 @@
   }
 
   function renderAll() {
-    renderWeekendEventBanner();
-    renderLockedBaselineBar();
-    populateCarbySelects();
-    renderStep1LiveHints();
-    if (ui.calcStep === 2) {
-      renderStep2Calculator(false);
-    }
-    recalcFuelAndWeight();
-    recalcTyres();
-    renderTyreStockList();
-    renderSessionLog();
-    renderDynoPullList();
-    if (ui.activeTab === 'tab-dyno') {
-      renderDynoCanvas();
-    }
-    renderCarbyFleet();
-    renderManifoldFleet();
-    renderExhaustFleet();
-    renderShockFleet();
-    renderSpringFleet();
-    renderJetInventory();
-    updateOrificeConverter('mm');
-    syncPreRacePostRaceLocksUi();
+    const safeRun = (label, fn) => {
+      try {
+        fn();
+      } catch (err) {
+        console.error(`[renderAll:${label}]`, err);
+      }
+    };
+    safeRun('renderGatekeeper', () => renderWeekendEventBanner());
+    safeRun('renderCalc', () => {
+      renderLockedBaselineBar();
+      populateCarbySelects();
+      renderStep1LiveHints();
+      if (ui.calcStep === 2) {
+        renderStep2Calculator(false);
+      }
+    });
+    safeRun('renderFuel', () => recalcFuelAndWeight());
+    safeRun('renderTyres', () => {
+      recalcTyres();
+      renderTyreStockList();
+    });
+    safeRun('renderSessionLog', () => renderSessionLog());
+    safeRun('renderDyno', () => {
+      renderDynoPullList();
+      if (ui.activeTab === 'tab-dyno') {
+        renderDynoCanvas();
+      }
+    });
+    safeRun('renderFleet', () => {
+      renderCarbyFleet();
+      renderManifoldFleet();
+      renderExhaustFleet();
+      renderShockFleet();
+      renderSpringFleet();
+      renderJetInventory();
+      updateOrificeConverter('mm');
+    });
+    safeRun('syncPreRacePostRaceLocksUi', () => syncPreRacePostRaceLocksUi());
   }
 
   /* ------------------------------------------------------------------------
@@ -13577,7 +13612,7 @@
     if ($('btnViewInSessionLogFromPrompt')) {
       $('btnViewInSessionLogFromPrompt').addEventListener('click', () => {
         closeModal('modalPromptNextSession');
-        renderEventBannerAndGatekeeper();
+        renderWeekendEventBanner();
         renderSessionLog();
         switchTab('tab-log');
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -13697,23 +13732,37 @@
       setCalculatorStep(1);
       scrollToStepNav();
     };
-    $('btnStep1Nav').addEventListener('click', () => setCalculatorStep(1));
-    $('btnStep2Nav').addEventListener('click', () => setCalculatorStep(2, true));
-    $('btnNextCalculateJet').addEventListener('click', () => {
-      setCalculatorStep(2, true);
-      scrollToStepNav();
-    });
-    $('btnBackToStep1Top').addEventListener('click', returnToStep1);
-    $('btnBackToStep1Bottom').addEventListener('click', returnToStep1);
+    if ($('btnStep1Nav')) {
+      $('btnStep1Nav').addEventListener('click', () => setCalculatorStep(1));
+    }
+    if ($('btnStep2Nav')) {
+      $('btnStep2Nav').addEventListener('click', () => setCalculatorStep(2, true));
+    }
+    if ($('btnNextCalculateJet')) {
+      $('btnNextCalculateJet').addEventListener('click', () => {
+        setCalculatorStep(2, true);
+        scrollToStepNav();
+      });
+    }
+    if ($('btnBackToStep1Top')) {
+      $('btnBackToStep1Top').addEventListener('click', returnToStep1);
+    }
+    if ($('btnBackToStep1Bottom')) {
+      $('btnBackToStep1Bottom').addEventListener('click', returnToStep1);
+    }
     if ($('btnWorkflowGoToActiveStep')) {
       $('btnWorkflowGoToActiveStep').addEventListener('click', goToCurrentWorkflowStep);
     }
     if ($('btnConfirmLockJetTop')) {
       $('btnConfirmLockJetTop').addEventListener('click', confirmJetAndLockForNextRace);
     }
-    $('btnConfirmLockJet').addEventListener('click', confirmJetAndLockForNextRace);
+    if ($('btnConfirmLockJet')) {
+      $('btnConfirmLockJet').addEventListener('click', confirmJetAndLockForNextRace);
+    }
 
-    $('selectCalcCarby').addEventListener('change', updateCarbySwapHint);
+    if ($('selectCalcCarby')) {
+      $('selectCalcCarby').addEventListener('change', updateCarbySwapHint);
+    }
 
     if ($('selectCalcManifold')) {
       $('selectCalcManifold').addEventListener('change', () => {
@@ -14009,27 +14058,33 @@
     }
 
     // Station pressure unit toggle (hPa <-> psi)
-    $('btnTogglePressUnit').addEventListener('click', () => {
-      const curVal = readNum('inputPressure', 997.0);
-      if (ui.pressUnit === 'hPa') {
-        ui.pressUnit = 'psi';
-        const psi = curVal / HPA_PER_PSI;
-        $('inputPressure').step = '0.05';
-        $('inputPressure').value = psi.toFixed(2);
-        $('btnPressMinus').setAttribute('data-step', '-0.05');
-        $('btnPressPlus').setAttribute('data-step', '0.05');
-      } else {
-        ui.pressUnit = 'hPa';
-        const hpa = curVal * HPA_PER_PSI;
-        $('inputPressure').step = '1';
-        $('inputPressure').value = hpa.toFixed(1);
-        $('btnPressMinus').setAttribute('data-step', '-1');
-        $('btnPressPlus').setAttribute('data-step', '1');
-      }
-      $('pressUnitBtnLabel').textContent = ui.pressUnit;
-      $('pressUnitBadge').textContent = ui.pressUnit;
-      renderStep1LiveHints();
-    });
+    if ($('btnTogglePressUnit')) {
+      $('btnTogglePressUnit').addEventListener('click', () => {
+        const curVal = readNum('inputPressure', 997.0);
+        if (ui.pressUnit === 'hPa') {
+          ui.pressUnit = 'psi';
+          const psi = curVal / HPA_PER_PSI;
+          if ($('inputPressure')) {
+            $('inputPressure').step = '0.05';
+            $('inputPressure').value = psi.toFixed(2);
+          }
+          if ($('btnPressMinus')) $('btnPressMinus').setAttribute('data-step', '-0.05');
+          if ($('btnPressPlus')) $('btnPressPlus').setAttribute('data-step', '0.05');
+        } else {
+          ui.pressUnit = 'hPa';
+          const hpa = curVal * HPA_PER_PSI;
+          if ($('inputPressure')) {
+            $('inputPressure').step = '1';
+            $('inputPressure').value = hpa.toFixed(1);
+          }
+          if ($('btnPressMinus')) $('btnPressMinus').setAttribute('data-step', '-1');
+          if ($('btnPressPlus')) $('btnPressPlus').setAttribute('data-step', '1');
+        }
+        if ($('pressUnitBtnLabel')) $('pressUnitBtnLabel').textContent = ui.pressUnit;
+        if ($('pressUnitBadge')) $('pressUnitBadge').textContent = ui.pressUnit;
+        renderStep1LiveHints();
+      });
+    }
 
     // Live input listeners for Step 1 & Converter
     ['inputRadPct', 'inputTempC', 'inputPressure', 'inputRhPct', 'inputFuelSg', 'inputFuelTempC', 'inputTargetAfr', 'inputTotalTiming'].forEach((id) => {
@@ -14049,10 +14104,12 @@
       }
     });
 
-    $('selectFullJetKit').addEventListener('change', (e) => {
-      ui.selectedJetId = e.target.value;
-      renderStep2Calculator(false);
-    });
+    if ($('selectFullJetKit')) {
+      $('selectFullJetKit').addEventListener('change', (e) => {
+        ui.selectedJetId = e.target.value;
+        renderStep2Calculator(false);
+      });
+    }
 
     // Baseline, Post-Race Completion & Fleet modals
     if ($('btnOpenPostRaceAfr')) {
@@ -14088,9 +14145,15 @@
       }
     });
 
-    $('btnOpenEditBaseline').addEventListener('click', openEditBaselineModal);
-    $('btnSaveEditBaseline').addEventListener('click', saveEditBaselineModal);
-    $('btnSaveCarbySpec').addEventListener('click', saveEditCarbyModal);
+    if ($('btnOpenEditBaseline')) {
+      $('btnOpenEditBaseline').addEventListener('click', openEditBaselineModal);
+    }
+    if ($('btnSaveEditBaseline')) {
+      $('btnSaveEditBaseline').addEventListener('click', saveEditBaselineModal);
+    }
+    if ($('btnSaveCarbySpec')) {
+      $('btnSaveCarbySpec').addEventListener('click', saveEditCarbyModal);
+    }
     if ($('btnSaveManifoldModal')) {
       $('btnSaveManifoldModal').addEventListener('click', saveEditManifoldModal);
     }
@@ -14118,19 +14181,19 @@
         const carby = state.carbies.find((c) => c.id === carbyId);
         if (!carby || !carby.baselineAnchor) return;
         const a = carby.baselineAnchor;
-        $('editBaseSession').value = a.sourceLabel || `${carby.name} Anchor`;
-        if (state.jets.some((j) => j.id === a.jetId)) {
+        if ($('editBaseSession')) $('editBaseSession').value = a.sourceLabel || `${carby.name} Anchor`;
+        if (state.jets.some((j) => j.id === a.jetId) && $('editBaseJet')) {
           $('editBaseJet').value = a.jetId;
         }
         if ($('editBaseJetMm')) {
           $('editBaseJetMm').value = Number(a.jetMm).toFixed(3);
         }
-        $('editBaseRad').value = Number(a.rad).toFixed(1);
-        $('editBaseSg').value = Number(a.fuelSg).toFixed(3);
+        if ($('editBaseRad')) $('editBaseRad').value = Number(a.rad).toFixed(1);
+        if ($('editBaseSg')) $('editBaseSg').value = Number(a.fuelSg).toFixed(3);
         const hasVer =
           a.verifiedAfr !== null && a.verifiedAfr !== undefined && Number.isFinite(Number(a.verifiedAfr));
         ui.editBaseWeatherOnly = !hasVer;
-        if (hasVer) {
+        if (hasVer && $('editBaseWotAfr')) {
           $('editBaseWotAfr').value = Number(a.verifiedAfr).toFixed(2);
         }
         syncEditBaselineModalWeatherOnlyUi();
@@ -14186,61 +14249,69 @@
     if ($('btnCopyAiDataDump')) {
       $('btnCopyAiDataDump').addEventListener('click', copyAiDataDumpToClipboard);
     }
-    $('btnExportSessionsCsv').addEventListener('click', exportSessionsCsv);
-    $('btnBackupJson').addEventListener('click', backupJsonState);
-    $('inputRestoreJson').addEventListener('change', (e) => {
-      if (e.target.files && e.target.files[0]) {
-        restoreJsonState(e.target.files[0]);
-        e.target.value = '';
-      }
-    });
-    $('btnResetDemoData').addEventListener('click', () => {
-      const defaultEvents = createDefaultEvents();
-      state = {
-        seedInitializedV1: true,
-        eventArchitectureV1: true,
-        suspensionSeededV1: true,
-        suspensionSeededV2: true,
-        activeEventId: null,
-        activeSessionId: null,
-        targetAfr: 12.75,
-        events: defaultEvents,
-        baseline: createDefaultBaseline(),
-        awaitingPostRaceId: null,
-        jets: createDefaultJets(),
-        carbies: createDefaultCarbies(),
-        manifolds: createDefaultManifolds(),
-        exhausts: createDefaultExhausts(),
-        shocks: createDefaultShocks(),
-        springs: createDefaultSprings(),
-        mountedShocks: { ...DEFAULT_MOUNTED_SHOCKS },
-        mountedSprings: { ...DEFAULT_MOUNTED_SPRINGS },
-        activeManifoldId: 'Macca',
-        activeExhaustId: 'Macca',
-        sessions: flattenEventsToSessions(defaultEvents),
-        dynoPulls: createDefaultDynoPulls(),
-        chassis: createDefaultChassisState(),
-        tyrePool: createDefaultTyrePool()
-      };
-      if ($('inputTargetAfr')) {
-        $('inputTargetAfr').value = '12.75';
-      }
-      ui.weatherOnly = false;
-      ui.logSearchTrack = 'ALL';
-      ui.logSearchYear = 'ALL';
-      ui.logSearchQuery = '';
-      ui.expandedEventIds = new Set(['evt_calder_nov26']);
-      if ($('searchLogQuery')) $('searchLogQuery').value = '';
-      if ($('btnClearLogQuery')) $('btnClearLogQuery').hidden = true;
-      if ($('selectCalcCarby')) {
-        $('selectCalcCarby').value = state.baseline.carbyId;
-      }
-      saveState();
-      syncSessionSelectFromBaseline();
-      hydrateFuelAndTyreInputs();
-      renderAll();
-      showToast('Restored Calder Park & Winton Seed Events');
-    });
+    if ($('btnExportSessionsCsv')) {
+      $('btnExportSessionsCsv').addEventListener('click', exportSessionsCsv);
+    }
+    if ($('btnBackupJson')) {
+      $('btnBackupJson').addEventListener('click', backupJsonState);
+    }
+    if ($('inputRestoreJson')) {
+      $('inputRestoreJson').addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          restoreJsonState(e.target.files[0]);
+          e.target.value = '';
+        }
+      });
+    }
+    if ($('btnResetDemoData')) {
+      $('btnResetDemoData').addEventListener('click', () => {
+        const defaultEvents = createDefaultEvents();
+        state = {
+          seedInitializedV1: true,
+          eventArchitectureV1: true,
+          suspensionSeededV1: true,
+          suspensionSeededV2: true,
+          activeEventId: null,
+          activeSessionId: null,
+          targetAfr: 12.75,
+          events: defaultEvents,
+          baseline: createDefaultBaseline(),
+          awaitingPostRaceId: null,
+          jets: createDefaultJets(),
+          carbies: createDefaultCarbies(),
+          manifolds: createDefaultManifolds(),
+          exhausts: createDefaultExhausts(),
+          shocks: createDefaultShocks(),
+          springs: createDefaultSprings(),
+          mountedShocks: { ...DEFAULT_MOUNTED_SHOCKS },
+          mountedSprings: { ...DEFAULT_MOUNTED_SPRINGS },
+          activeManifoldId: 'Macca',
+          activeExhaustId: 'Macca',
+          sessions: flattenEventsToSessions(defaultEvents),
+          dynoPulls: createDefaultDynoPulls(),
+          chassis: createDefaultChassisState(),
+          tyrePool: createDefaultTyrePool()
+        };
+        if ($('inputTargetAfr')) {
+          $('inputTargetAfr').value = '12.75';
+        }
+        ui.weatherOnly = false;
+        ui.logSearchTrack = 'ALL';
+        ui.logSearchYear = 'ALL';
+        ui.logSearchQuery = '';
+        ui.expandedEventIds = new Set(['evt_calder_nov26']);
+        if ($('searchLogQuery')) $('searchLogQuery').value = '';
+        if ($('btnClearLogQuery')) $('btnClearLogQuery').hidden = true;
+        if ($('selectCalcCarby')) {
+          $('selectCalcCarby').value = state.baseline.carbyId;
+        }
+        saveState();
+        syncSessionSelectFromBaseline();
+        hydrateFuelAndTyreInputs();
+        renderAll();
+        showToast('Restored Calder Park & Winton Seed Events');
+      });
+    }
 
     // Dyno Lab interactions (guarded when #tab-dyno is not in active DOM)
     if ($('btnToggleDynoForm')) {
@@ -14259,8 +14330,8 @@
           tq: readNum(`dynoTq_${rpm}`, 155),
           afr: readNum(`dynoAfr_${rpm}`, 12.85)
         }));
-        const name = ($('dynoPullName').value || '').trim() || `Pull ${state.dynoPulls.length + 1}`;
-        const carbyId = $('dynoPullCarby').value || '1 DME';
+        const name = (($('dynoPullName') && $('dynoPullName').value) || '').trim() || `Pull ${state.dynoPulls.length + 1}`;
+        const carbyId = ($('dynoPullCarby') && $('dynoPullCarby').value) || '1 DME';
         const color = DYNO_COLORS[state.dynoPulls.length % DYNO_COLORS.length];
 
         state.dynoPulls.push({
@@ -14330,28 +14401,34 @@
     }
 
     // Tab 5 Orifice Converter & Custom Jet Builder
-    $('convInchInput').addEventListener('input', () => updateOrificeConverter('inch'));
-    $('convMmInput').addEventListener('input', () => updateOrificeConverter('mm'));
+    if ($('convInchInput')) {
+      $('convInchInput').addEventListener('input', () => updateOrificeConverter('inch'));
+    }
+    if ($('convMmInput')) {
+      $('convMmInput').addEventListener('input', () => updateOrificeConverter('mm'));
+    }
 
-    $('btnAddCustomJet').addEventListener('click', () => {
-      const mmVal = Number(readNum('convMmInput', 1.970).toFixed(4));
-      const customLabel =
-        ($('customJetLabelInput').value || '').trim() ||
-        `Custom ${mmVal.toFixed(3)} mm Drill`;
-      const newJet = {
-        id: `custom_${Date.now()}`,
-        label: customLabel,
-        stamp: `Custom ${mmVal.toFixed(3)} mm (${mmToInch(mmVal).toFixed(4)}")`,
-        mm: mmVal,
-        custom: true,
-        inToolbox: true
-      };
-      state.jets = sortJetsByDiameter([...state.jets, newJet]);
-      $('customJetLabelInput').value = '';
-      saveState();
-      renderAll();
-      showToast(`Added ${customLabel} to Active Toolbox`);
-    });
+    if ($('btnAddCustomJet')) {
+      $('btnAddCustomJet').addEventListener('click', () => {
+        const mmVal = Number(readNum('convMmInput', 1.970).toFixed(4));
+        const customLabel =
+          (($('customJetLabelInput') && $('customJetLabelInput').value) || '').trim() ||
+          `Custom ${mmVal.toFixed(3)} mm Drill`;
+        const newJet = {
+          id: `custom_${Date.now()}`,
+          label: customLabel,
+          stamp: `Custom ${mmVal.toFixed(3)} mm (${mmToInch(mmVal).toFixed(4)}")`,
+          mm: mmVal,
+          custom: true,
+          inToolbox: true
+        };
+        state.jets = sortJetsByDiameter([...state.jets, newJet]);
+        if ($('customJetLabelInput')) $('customJetLabelInput').value = '';
+        saveState();
+        renderAll();
+        showToast(`Added ${customLabel} to Active Toolbox`);
+      });
+    }
 
     // Close modal on backdrop click
     document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
@@ -14364,6 +14441,7 @@
     const updateNetBadge = () => {
       const badge = $('netStatusBadge');
       const txt = $('netStatusText');
+      if (!badge || !txt) return;
       if (!navigator.onLine) {
         badge.classList.add('offline');
         txt.textContent = 'Pit Offline';
@@ -14380,15 +14458,17 @@
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      $('btnInstallPwa').style.display = 'inline-flex';
+      if ($('btnInstallPwa')) $('btnInstallPwa').style.display = 'inline-flex';
     });
-    $('btnInstallPwa').addEventListener('click', async () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      $('btnInstallPwa').style.display = 'none';
-    });
+    if ($('btnInstallPwa')) {
+      $('btnInstallPwa').addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        if ($('btnInstallPwa')) $('btnInstallPwa').style.display = 'none';
+      });
+    }
   }
 
   function registerServiceWorker() {
@@ -14413,18 +14493,26 @@
     }
   }
 
-  // Boot app
-  if ($('inputTargetAfr')) {
-    const bootTarget =
-      state && Number.isFinite(Number(state.targetAfr)) && Number(state.targetAfr) < 12.90
-        ? Number(state.targetAfr)
-        : 12.75;
-    $('inputTargetAfr').value = bootTarget.toFixed(2);
+  // Boot app: bind events first inside try/catch, then hydrate inputs & render
+  try {
+    bindEvents();
+  } catch (err) {
+    console.error('[boot:bindEvents]', err);
   }
-  renderDynoRpmFormInputs();
-  syncSessionSelectFromBaseline();
-  hydrateFuelAndTyreInputs();
-  bindEvents();
+  try {
+    if ($('inputTargetAfr')) {
+      const bootTarget =
+        state && Number.isFinite(Number(state.targetAfr)) && Number(state.targetAfr) < 12.90
+          ? Number(state.targetAfr)
+          : 12.75;
+      $('inputTargetAfr').value = bootTarget.toFixed(2);
+    }
+    renderDynoRpmFormInputs();
+    syncSessionSelectFromBaseline();
+    hydrateFuelAndTyreInputs();
+  } catch (err) {
+    console.error('[boot:hydrateInputs]', err);
+  }
   renderAll();
   registerServiceWorker();
 })();
