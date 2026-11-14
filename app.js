@@ -310,16 +310,20 @@
             scaleWeightKg: 1378.0,
             postRaceEstKg: 1370.3,
             tyreHotTarget: 44.0,
+            hotTargetFront: 44.0,
+            hotTargetRear: 44.0,
+            trackTempC: 22,
+            isStoneColdSession: true,
             tyreCondition: 'dry',
             tyres: {
-              FL: { tyreId: 'KB1', cold: 30.0, hot: 44.2, build: 14.2, nextCold: 29.8 },
-              FR: { tyreId: 'KB2', cold: 30.0, hot: 44.8, build: 14.8, nextCold: 29.4 },
-              RL: { tyreId: 'KB3', cold: 30.0, hot: 43.6, build: 13.6, nextCold: 30.3 },
-              RR: { tyreId: 'KB4', cold: 30.0, hot: 44.0, build: 14.0, nextCold: 30.0 }
+              FL: { tyreId: 'KB1', targetHot: 44.0, cold: 30.0, hot: 44.2, build: 14.2, nextCold: 29.8 },
+              FR: { tyreId: 'KB2', targetHot: 44.0, cold: 30.0, hot: 44.8, build: 14.8, nextCold: 29.4 },
+              RL: { tyreId: 'KB3', targetHot: 44.0, cold: 30.0, hot: 43.6, build: 13.6, nextCold: 30.3 },
+              RR: { tyreId: 'KB4', targetHot: 44.0, cold: 30.0, hot: 44.0, build: 14.0, nextCold: 30.0 }
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
-            preRaceNotes: 'Mounted KB1-KB4 @ 30.0 psi cold square, #78 jet in 1 DME for morning shakedown.',
+            preRaceNotes: 'Mounted KB1-KB4 @ 30.0 psi cold square (22°C track), #78 jet in 1 DME for morning shakedown.',
             postRaceNotes: 'Crisp morning air at Calder; 1 DME + Macca manifold/exhaust baseline shakedown.',
             notes: 'Crisp morning air at Calder; 1 DME + Macca manifold/exhaust baseline shakedown.'
           },
@@ -365,18 +369,22 @@
             scaleWeightKg: 1377.5,
             postRaceEstKg: 1369.9,
             tyreHotTarget: 44.0,
+            hotTargetFront: 44.0,
+            hotTargetRear: 44.0,
+            trackTempC: 26,
+            isStoneColdSession: false,
             tyreCondition: 'dry',
             tyres: {
-              FL: { tyreId: 'KB1', cold: 29.8, hot: 44.0, build: 14.2, nextCold: 29.8 },
-              FR: { tyreId: 'KB2', cold: 29.4, hot: 44.1, build: 14.7, nextCold: 29.3 },
-              RL: { tyreId: 'KB3', cold: 30.3, hot: 43.9, build: 13.6, nextCold: 30.4 },
-              RR: { tyreId: 'KB4', cold: 30.0, hot: 44.0, build: 14.0, nextCold: 30.0 }
+              FL: { tyreId: 'KB1', targetHot: 44.0, cold: null, hot: 44.0, build: null, nextCold: null },
+              FR: { tyreId: 'KB2', targetHot: 44.0, cold: null, hot: 44.1, build: null, nextCold: null },
+              RL: { tyreId: 'KB3', targetHot: 44.0, cold: null, hot: 43.9, build: null, nextCold: null },
+              RR: { tyreId: 'KB4', targetHot: 44.0, cold: null, hot: 44.0, build: null, nextCold: null }
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
-            preRaceNotes: 'Applied Practice 1 Next Cold PSIs (FL 29.8, FR 29.4, RL 30.3, RR 30.0), +0.5° timing.',
-            postRaceNotes: 'Qualified P2; stagger dialed to 44.0 psi hot across all 4 corners.',
-            notes: 'Qualified P2; stagger dialed to 44.0 psi hot across all 4 corners.'
+            preRaceNotes: 'Hot-cycled paddock set targeting 44.0 psi square (26°C track), +0.5° timing.',
+            postRaceNotes: 'Qualified P2; hot targets held 44.0 psi square across all 4 corners.',
+            notes: 'Qualified P2; hot targets held 44.0 psi square across all 4 corners.'
           },
           {
             id: 'calder_r1',
@@ -420,12 +428,16 @@
             scaleWeightKg: 1377.0,
             postRaceEstKg: 1370.0,
             tyreHotTarget: 44.0,
+            hotTargetFront: 44.0,
+            hotTargetRear: 44.0,
+            trackTempC: 28,
+            isStoneColdSession: false,
             tyreCondition: 'dry',
             tyres: {
-              FL: { tyreId: 'KB1', cold: 30.0, hot: 43.8, build: 13.8, nextCold: 30.2 },
-              FR: { tyreId: 'KB2', cold: 30.0, hot: 44.6, build: 14.6, nextCold: 29.5 },
-              RL: { tyreId: 'KB3', cold: 30.0, hot: 43.4, build: 13.4, nextCold: 30.5 },
-              RR: { tyreId: 'KB4', cold: 30.0, hot: 44.2, build: 14.2, nextCold: 29.8 }
+              FL: { tyreId: 'KB1', targetHot: 44.0, cold: null, hot: 43.8, build: null, nextCold: null },
+              FR: { tyreId: 'KB2', targetHot: 44.0, cold: null, hot: 44.6, build: null, nextCold: null },
+              RL: { tyreId: 'KB3', targetHot: 44.0, cold: null, hot: 43.4, build: null, nextCold: null },
+              RR: { tyreId: 'KB4', targetHot: 44.0, cold: null, hot: 44.2, build: null, nextCold: null }
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
@@ -475,16 +487,20 @@
             scaleWeightKg: 1377.0,
             postRaceEstKg: 1370.1,
             tyreHotTarget: 44.0,
+            hotTargetFront: 44.0,
+            hotTargetRear: 44.0,
+            trackTempC: 32,
+            isStoneColdSession: false,
             tyreCondition: 'dry',
             tyres: {
-              FL: { tyreId: 'KB1', cold: 30.2, hot: 44.0, build: 13.8, nextCold: 30.2 },
-              FR: { tyreId: 'KB2', cold: 29.5, hot: 44.1, build: 14.6, nextCold: 29.4 },
-              RL: { tyreId: 'KB3', cold: 30.5, hot: 43.9, build: 13.4, nextCold: 30.6 },
-              RR: { tyreId: 'KB4', cold: 29.8, hot: 44.0, build: 14.2, nextCold: 29.8 }
+              FL: { tyreId: 'KB1', targetHot: 44.0, cold: null, hot: 44.0, build: null, nextCold: null },
+              FR: { tyreId: 'KB2', targetHot: 44.0, cold: null, hot: 44.1, build: null, nextCold: null },
+              RL: { tyreId: 'KB3', targetHot: 44.0, cold: null, hot: 43.9, build: null, nextCold: null },
+              RR: { tyreId: 'KB4', targetHot: 44.0, cold: null, hot: 44.0, build: null, nextCold: null }
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
-            preRaceNotes: 'Dropped to #78 jet for 93.9% RAD; loaded Race 1 Next Cold PSIs across all 4 corners.',
+            preRaceNotes: 'Dropped to #78 jet for 93.9% RAD; hot-bled paddock set targeting 44.0 psi square (32°C track).',
             postRaceNotes: 'Stepped leaner to #78 — dead in 12.8-12.9 HQ 202 sweet spot, P1 finish.',
             notes: 'Stepped leaner to #78 — dead in 12.8-12.9 HQ 202 sweet spot, P1 finish.'
           }
@@ -540,16 +556,20 @@
             scaleWeightKg: 1377.0,
             postRaceEstKg: 1370.4,
             tyreHotTarget: 44.0,
+            hotTargetFront: 44.0,
+            hotTargetRear: 44.0,
+            trackTempC: 19,
+            isStoneColdSession: true,
             tyreCondition: 'dry',
             tyres: {
-              FL: { tyreId: 'KB1', cold: 29.6, hot: 44.1, build: 14.5, nextCold: 29.5 },
-              FR: { tyreId: 'KB2', cold: 30.2, hot: 43.9, build: 13.7, nextCold: 30.3 },
-              RL: { tyreId: 'KB3', cold: 29.8, hot: 44.0, build: 14.2, nextCold: 29.8 },
-              RR: { tyreId: 'KB4', cold: 30.2, hot: 43.8, build: 13.6, nextCold: 30.4 }
+              FL: { tyreId: 'KB1', targetHot: 44.0, cold: 29.6, hot: 44.1, build: 14.5, nextCold: 29.5 },
+              FR: { tyreId: 'KB2', targetHot: 44.0, cold: 30.2, hot: 43.9, build: 13.7, nextCold: 30.3 },
+              RL: { tyreId: 'KB3', targetHot: 44.0, cold: 29.8, hot: 44.0, build: 14.2, nextCold: 29.8 },
+              RR: { tyreId: 'KB4', targetHot: 44.0, cold: 30.2, hot: 43.8, build: 13.6, nextCold: 30.4 }
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
-            preRaceNotes: 'Bolted on SNB Carby (#78 jet) + Winton CW cold stagger (FL 29.6, RL 29.8).',
+            preRaceNotes: 'Bolted on SNB Carby (#78 jet) + Winton CW cold stagger (FL 29.6, RL 29.8 @ 19°C track).',
             postRaceNotes: 'Cold Winton morning; SNB Carby crisp off the sweeper.',
             notes: 'Cold Winton morning; SNB Carby crisp off the sweeper.'
           },
@@ -595,16 +615,20 @@
             scaleWeightKg: 1377.0,
             postRaceEstKg: 1370.5,
             tyreHotTarget: 44.0,
+            hotTargetFront: 44.0,
+            hotTargetRear: 44.0,
+            trackTempC: 24,
+            isStoneColdSession: false,
             tyreCondition: 'dry',
             tyres: {
-              FL: { tyreId: 'KB1', cold: 29.5, hot: 44.0, build: 14.5, nextCold: 29.5 },
-              FR: { tyreId: 'KB2', cold: 30.3, hot: 44.0, build: 13.7, nextCold: 30.3 },
-              RL: { tyreId: 'KB3', cold: 29.8, hot: 44.0, build: 14.2, nextCold: 29.8 },
-              RR: { tyreId: 'KB4', cold: 30.4, hot: 44.0, build: 13.6, nextCold: 30.4 }
+              FL: { tyreId: 'KB1', targetHot: 44.0, cold: null, hot: 44.0, build: null, nextCold: null },
+              FR: { tyreId: 'KB2', targetHot: 44.0, cold: null, hot: 44.0, build: null, nextCold: null },
+              RL: { tyreId: 'KB3', targetHot: 44.0, cold: null, hot: 44.0, build: null, nextCold: null },
+              RR: { tyreId: 'KB4', targetHot: 44.0, cold: null, hot: 44.0, build: null, nextCold: null }
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
-            preRaceNotes: 'Set Next Cold PSIs from Practice 1; kept #78 jet & bumped timing to 33.5°.',
+            preRaceNotes: 'Hot-cycled paddock tyres from Practice 1 targeting 44.0 psi square; kept #78 jet & bumped timing to 33.5°.',
             postRaceNotes: 'Front-row qualifying lap; 1.44 L/lap verified on pump-out.',
             notes: 'Front-row qualifying lap; 1.44 L/lap verified on pump-out.'
           },
@@ -650,16 +674,20 @@
             scaleWeightKg: 1377.0,
             postRaceEstKg: 1370.1,
             tyreHotTarget: 44.0,
+            hotTargetFront: 44.0,
+            hotTargetRear: 44.0,
+            trackTempC: 29,
+            isStoneColdSession: false,
             tyreCondition: 'dry',
             tyres: {
-              FL: { tyreId: 'KB1', cold: null, hot: 44.0, build: null, nextCold: null },
-              FR: { tyreId: 'KB2', cold: null, hot: 44.1, build: null, nextCold: null },
-              RL: { tyreId: 'KB3', cold: null, hot: 43.9, build: null, nextCold: null },
-              RR: { tyreId: 'KB4', cold: null, hot: 44.0, build: null, nextCold: null }
+              FL: { tyreId: 'KB1', targetHot: 44.0, cold: null, hot: 44.0, build: null, nextCold: null },
+              FR: { tyreId: 'KB2', targetHot: 44.0, cold: null, hot: 44.1, build: null, nextCold: null },
+              RL: { tyreId: 'KB3', targetHot: 44.0, cold: null, hot: 43.9, build: null, nextCold: null },
+              RR: { tyreId: 'KB4', targetHot: 44.0, cold: null, hot: 44.0, build: null, nextCold: null }
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
-            preRaceNotes: 'Cleared Cold PSI (already bled hot in Qualifying); poured 35.0 L for 12 laps.',
+            preRaceNotes: 'Hot-bled paddock tyres targeting 44.0 psi square (29°C track); poured 35.0 L for 12 laps.',
             postRaceNotes: 'Left tyres at hot-set from Qualifying; 12-lap race win with +5.1 kg scale margin.',
             notes: 'Left tyres at hot-set from Qualifying; 12-lap race win with +5.1 kg scale margin.'
           }
@@ -790,58 +818,190 @@
     'Hidden Valley Raceway': 1.60
   };
 
-  const TRACK_DIRECTION_MAP = {
-    // Clockwise ('CW' -> Left side FL / RL is loaded outside)
-    'Calder Park': 'CW',
-    'Calder Park Raceway': 'CW',
-    'Winton': 'CW',
-    'Winton Motor Raceway': 'CW',
-    'Symmons Plains': 'CW',
-    'Symmons Plains Raceway': 'CW',
-    'Mallala': 'CW',
-    'Mallala Motorsport Park': 'CW',
-    'Morgan Park': 'CW',
-    'Morgan Park Raceway': 'CW',
-    'CARCO.com.au Raceway': 'CW',
-    'CARCO.com.au Raceway (Wanneroo)': 'CW',
-    'Wanneroo': 'CW',
-    'Barbagallo': 'CW',
-    'Collie Motorplex': 'CW',
-    'Hidden Valley': 'CW',
-    'Hidden Valley Raceway': 'CW',
-    'Baskerville': 'CW',
-    'Baskerville Raceway': 'CW',
-    'Lakeside': 'CW',
-    'Lakeside Park': 'CW',
-    'Haunted Hills': 'CW',
-    'Haunted Hills / Bryant Park': 'CW',
-    'Bryant Park': 'CW',
-    'Broadford': 'CW',
-    'Broadford State Motorcycle Complex': 'CW',
-    // Anti-Clockwise ('CCW' -> Right side FR / RR is loaded outside)
-    'Sandown': 'CCW',
-    'Sandown Raceway': 'CCW',
-    'Sandown International Raceway': 'CCW',
-    'Phillip Island': 'CCW',
-    'Phillip Island Grand Prix Circuit': 'CCW',
-    'Sydney Motorsport Park': 'CCW',
-    'Sydney Motorsport Park (SMSP)': 'CCW',
-    'Mount Panorama': 'CCW',
-    'Mount Panorama (Bathurst)': 'CCW',
-    'Bathurst': 'CCW',
-    'Wakefield Park': 'CCW',
-    'Wakefield Park / One Raceway': 'CCW',
-    'One Raceway': 'CCW',
-    'Pheasant Wood': 'CCW',
-    'Pheasant Wood Circuit': 'CCW',
-    'Queensland Raceway': 'CCW',
-    'Queensland Raceway (Willowbank)': 'CCW',
-    'Willowbank': 'CCW',
-    'The Bend': 'CCW',
-    'The Bend Motorsport Park': 'CCW',
-    'Townsville': 'CCW',
-    'Townsville Reid Park': 'CCW'
+  const CIRCUIT_TYRE_PROFILES = {
+    'Baskerville Raceway':                 { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' },
+    'Baskerville':                         { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' },
+    'Symmons Plains Raceway':              { dir: 'CW',  estLapSec: 66,  brakeLoad: 'heavy' },
+    'Symmons Plains':                      { dir: 'CW',  estLapSec: 66,  brakeLoad: 'heavy' },
+    'Mallala Motorsport Park':             { dir: 'CW',  estLapSec: 85,  brakeLoad: 'heavy' },
+    'Mallala':                             { dir: 'CW',  estLapSec: 85,  brakeLoad: 'heavy' },
+    'Calder Park Raceway':                 { dir: 'CW',  estLapSec: 77,  brakeLoad: 'balanced' },
+    'Calder Park':                         { dir: 'CW',  estLapSec: 77,  brakeLoad: 'balanced' },
+    'Morgan Park Raceway':                 { dir: 'CW',  estLapSec: 88,  brakeLoad: 'balanced' },
+    'Morgan Park':                         { dir: 'CW',  estLapSec: 88,  brakeLoad: 'balanced' },
+    'CARCO.com.au Raceway (Wanneroo)':     { dir: 'CW',  estLapSec: 70,  brakeLoad: 'heavy' },
+    'CARCO.com.au Raceway':                { dir: 'CW',  estLapSec: 70,  brakeLoad: 'heavy' },
+    'Barbagallo':                          { dir: 'CW',  estLapSec: 70,  brakeLoad: 'heavy' },
+    'Wanneroo':                            { dir: 'CW',  estLapSec: 70,  brakeLoad: 'heavy' },
+    'Collie Motorplex':                    { dir: 'CW',  estLapSec: 78,  brakeLoad: 'balanced' },
+    'Collie':                              { dir: 'CW',  estLapSec: 78,  brakeLoad: 'balanced' },
+    'Wakefield Park / One Raceway':        { dir: 'CCW', estLapSec: 72,  brakeLoad: 'balanced' },
+    'Wakefield Park':                      { dir: 'CCW', estLapSec: 72,  brakeLoad: 'balanced' },
+    'One Raceway':                         { dir: 'CCW', estLapSec: 72,  brakeLoad: 'balanced' },
+    'Pheasant Wood Circuit':               { dir: 'CCW', estLapSec: 63,  brakeLoad: 'balanced' },
+    'Pheasant Wood':                       { dir: 'CCW', estLapSec: 63,  brakeLoad: 'balanced' },
+    'Broadford State Motorcycle Complex':  { dir: 'CW',  estLapSec: 68,  brakeLoad: 'balanced' },
+    'Broadford':                           { dir: 'CW',  estLapSec: 68,  brakeLoad: 'balanced' },
+    'Lakeside Park':                       { dir: 'CW',  estLapSec: 64,  brakeLoad: 'flowing' },
+    'Lakeside':                            { dir: 'CW',  estLapSec: 64,  brakeLoad: 'flowing' },
+    'Sandown Raceway':                     { dir: 'CCW', estLapSec: 88,  brakeLoad: 'heavy' },
+    'Sandown International Raceway':       { dir: 'CCW', estLapSec: 88,  brakeLoad: 'heavy' },
+    'Sandown':                             { dir: 'CCW', estLapSec: 88,  brakeLoad: 'heavy' },
+    'Winton Motor Raceway':                { dir: 'CW',  estLapSec: 103, brakeLoad: 'balanced' },
+    'Winton':                              { dir: 'CW',  estLapSec: 103, brakeLoad: 'balanced' },
+    'Queensland Raceway (Willowbank)':     { dir: 'CCW', estLapSec: 86,  brakeLoad: 'balanced' },
+    'Queensland Raceway':                  { dir: 'CCW', estLapSec: 86,  brakeLoad: 'balanced' },
+    'Willowbank':                          { dir: 'CCW', estLapSec: 86,  brakeLoad: 'balanced' },
+    'Hidden Valley Raceway':               { dir: 'CW',  estLapSec: 82,  brakeLoad: 'balanced' },
+    'Hidden Valley':                       { dir: 'CW',  estLapSec: 82,  brakeLoad: 'balanced' },
+    'Phillip Island Grand Prix Circuit':   { dir: 'CCW', estLapSec: 118, brakeLoad: 'flowing' },
+    'Phillip Island':                      { dir: 'CCW', estLapSec: 118, brakeLoad: 'flowing' },
+    'Sydney Motorsport Park (SMSP)':       { dir: 'CCW', estLapSec: 116, brakeLoad: 'flowing' },
+    'Sydney Motorsport Park':              { dir: 'CCW', estLapSec: 116, brakeLoad: 'flowing' },
+    'SMSP':                                { dir: 'CCW', estLapSec: 116, brakeLoad: 'flowing' },
+    'Townsville Reid Park':                { dir: 'CCW', estLapSec: 88,  brakeLoad: 'heavy' },
+    'Townsville':                          { dir: 'CCW', estLapSec: 88,  brakeLoad: 'heavy' },
+    'Mount Panorama (Bathurst)':           { dir: 'CCW', estLapSec: 168, brakeLoad: 'heavy' },
+    'Mount Panorama':                      { dir: 'CCW', estLapSec: 168, brakeLoad: 'heavy' },
+    'Bathurst':                            { dir: 'CCW', estLapSec: 168, brakeLoad: 'heavy' },
+    'The Bend Motorsport Park':            { dir: 'CCW', estLapSec: 145, brakeLoad: 'flowing' },
+    'The Bend':                            { dir: 'CCW', estLapSec: 145, brakeLoad: 'flowing' },
+    'Haunted Hills / Bryant Park':         { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' },
+    'Haunted Hills':                       { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' },
+    'Bryant Park':                         { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' }
   };
+
+  const TRACK_DIRECTION_MAP = Object.fromEntries(
+    Object.entries(CIRCUIT_TYRE_PROFILES).map(([k, v]) => [k, v.dir])
+  );
+
+  function getCircuitTyreProfile(venueName = '') {
+    const clean = String(venueName || '').trim();
+    if (CIRCUIT_TYRE_PROFILES[clean]) {
+      return { ...CIRCUIT_TYRE_PROFILES[clean] };
+    }
+    const lower = clean.toLowerCase();
+    const matchKey = Object.keys(CIRCUIT_TYRE_PROFILES).find((k) =>
+      lower.includes(k.toLowerCase()) || k.toLowerCase().includes(lower)
+    );
+    if (matchKey && clean.length > 0) {
+      return { ...CIRCUIT_TYRE_PROFILES[matchKey] };
+    }
+    let fallbackDir = 'CW';
+    try {
+      if (
+        typeof state !== 'undefined' &&
+        state &&
+        state.chassis &&
+        state.chassis.trackDirections &&
+        (state.chassis.trackDirections[clean] === 'CW' || state.chassis.trackDirections[clean] === 'CCW')
+      ) {
+        fallbackDir = state.chassis.trackDirections[clean];
+      }
+    } catch (_) {}
+    return { dir: fallbackDir, estLapSec: 85, brakeLoad: 'balanced' };
+  }
+
+  /**
+   * Computes dynamic Session 1 (stone-cold start) pressure offsets off the circuit's normalized Base Cold Stagger
+   * (standard equilibrium = 11.5 min run at 26°C track temp for Dry KB, or 18°C for Wet KW):
+   *  - estRunMin = (laps * profile.estLapSec) / 60
+   *  - Duration offset: < 8.5 min -> +0.3 to +0.8 psi; 8.5–13.0 min -> 0.0 psi; > 13.0 min -> -0.3 to -0.9 psi.
+   *  - Circuit trim (Dry KB): 'heavy' brake track w/ estRunMin >= 11.0 -> -0.3 psi Fronts (FL/FR);
+   *    'flowing' track w/ estRunMin >= 10.0 -> -0.3 psi Loaded Outside pair.
+   *  - Track Temp offset:
+   *    Dry KB: clamp((26 - trackTempC) * 0.08, -1.2, +1.2) (plus -0.2 psi Loaded Outside if trackTempC >= 35°C)
+   *    Wet KW: clamp((18 - trackTempC) * 0.03, -0.4, +0.4) (or 0.0 if left blank "")
+   */
+  function computeDynamicColdOffsets({ venue = 'Calder Park Raceway', laps = 10, trackTempC = null, tyreMode = 'dry' } = {}) {
+    const profile = getCircuitTyreProfile(venue);
+    const safeLaps = Math.max(1, Math.round(Number(laps) || 10));
+    const estRunMin = Number(((safeLaps * profile.estLapSec) / 60).toFixed(1));
+    const isWet = tyreMode === 'wet' || tyreMode === 'KW';
+
+    // 1. Duration offset (equilibrium = 11.5 min)
+    let durOffset = 0.0;
+    if (estRunMin < 8.5) {
+      const rawShort = 0.3 + ((8.5 - estRunMin) / 4.0) * 0.5;
+      durOffset = Number(Math.max(0.3, Math.min(0.8, rawShort)).toFixed(1));
+    } else if (estRunMin > 13.0) {
+      const rawLong = -0.3 - ((estRunMin - 13.0) / 9.0) * 0.6;
+      durOffset = Number(Math.max(-0.9, Math.min(-0.3, rawLong)).toFixed(1));
+    }
+    if (isWet) {
+      durOffset = Number((durOffset * 0.5).toFixed(1));
+    }
+
+    // 2. Track Temp offset (blank "" -> neutral 26°C / 0.0 psi offset)
+    const rawStr = trackTempC === null || trackTempC === undefined ? '' : String(trackTempC).trim();
+    const parsedTemp = rawStr === '' ? NaN : parseFloat(rawStr);
+    const hasExplicitTemp = Number.isFinite(parsedTemp) && parsedTemp > 0;
+    const effTempC = hasExplicitTemp ? Math.max(5, Math.min(65, Math.round(parsedTemp))) : 26;
+
+    let tempOffset = 0.0;
+    if (hasExplicitTemp) {
+      if (isWet) {
+        const rawWet = (18 - effTempC) * 0.03;
+        tempOffset = Number(Math.max(-0.4, Math.min(0.4, rawWet)).toFixed(1));
+      } else {
+        const rawDry = (26 - effTempC) * 0.08;
+        tempOffset = Number(Math.max(-1.2, Math.min(1.2, rawDry)).toFixed(1));
+      }
+    }
+
+    // 3. Circuit & High-Temp Loaded-Outside Trims (Dry KB)
+    const loadedCorners = profile.dir === 'CCW' ? ['FR', 'RR'] : ['FL', 'RL'];
+    const frontBrakeTrim = !isWet && profile.brakeLoad === 'heavy' && estRunMin >= 11.0 ? -0.3 : 0.0;
+    const outsideFlowTrim = !isWet && profile.brakeLoad === 'flowing' && estRunMin >= 10.0 ? -0.3 : 0.0;
+    const hotTrackOutsideTrim = !isWet && hasExplicitTemp && effTempC >= 35 ? -0.2 : 0.0;
+
+    const corners = {};
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      let cOff = durOffset + tempOffset;
+      if (c === 'FL' || c === 'FR') {
+        cOff += frontBrakeTrim;
+      }
+      if (loadedCorners.includes(c)) {
+        cOff += outsideFlowTrim + hotTrackOutsideTrim;
+      }
+      corners[c] = Number(cOff.toFixed(1));
+    });
+
+    const fmtSigned = (v) => `${v >= 0 ? '+' : ''}${v.toFixed(1)}`;
+    const reasonParts = [];
+    if (Math.abs(durOffset) >= 0.05) {
+      reasonParts.push(`${estRunMin < 8.5 ? 'Short Sprint' : 'Long Run'} ${fmtSigned(durOffset)}`);
+    } else {
+      reasonParts.push(`Equilibrium Run (0.0)`);
+    }
+    if (Math.abs(tempOffset) >= 0.05 || Math.abs(hotTrackOutsideTrim) >= 0.05) {
+      const tStr = `${effTempC}°C Track ${fmtSigned(tempOffset)}${hotTrackOutsideTrim ? ` (${fmtSigned(hotTrackOutsideTrim)} Outside)` : ''}`;
+      reasonParts.push(tStr);
+    } else {
+      reasonParts.push(`${effTempC}°C Track (0.0)`);
+    }
+    if (frontBrakeTrim) {
+      reasonParts.push(`Heavy Brake ${fmtSigned(frontBrakeTrim)}F`);
+    }
+    if (outsideFlowTrim) {
+      reasonParts.push(`Flowing ${fmtSigned(outsideFlowTrim)} ${profile.dir === 'CCW' ? 'RH' : 'LH'}`);
+    }
+
+    return {
+      profile,
+      laps: safeLaps,
+      estRunMin,
+      trackTempC: effTempC,
+      hasExplicitTemp,
+      durOffset,
+      tempOffset,
+      frontBrakeTrim,
+      outsideFlowTrim,
+      hotTrackOutsideTrim,
+      corners,
+      summaryText: `Session 1 Cold Call • ${safeLaps} Laps (~${estRunMin.toFixed(1)}m) • ${reasonParts.join(' • ')}`
+    };
+  }
 
   const WET_PRESET_PROFILES = {
     drying: {
@@ -874,24 +1034,7 @@
   };
 
   function getTrackDirection(venueName = '') {
-    const clean = String(venueName || '').trim();
-    if (TRACK_DIRECTION_MAP[clean]) return TRACK_DIRECTION_MAP[clean];
-    const match = Object.keys(TRACK_DIRECTION_MAP).find((k) =>
-      clean.toLowerCase().includes(k.toLowerCase())
-    );
-    if (match) return TRACK_DIRECTION_MAP[match];
-    try {
-      if (
-        typeof state !== 'undefined' &&
-        state &&
-        state.chassis &&
-        state.chassis.trackDirections &&
-        (state.chassis.trackDirections[clean] === 'CW' || state.chassis.trackDirections[clean] === 'CCW')
-      ) {
-        return state.chassis.trackDirections[clean];
-      }
-    } catch (_) {}
-    return 'CW';
+    return getCircuitTyreProfile(venueName).dir;
   }
 
   function computeWetColdStagger(presetKey, direction) {
@@ -1110,6 +1253,8 @@
   function createDefaultChassisState() {
     return {
       raceLaps: 12,
+      trackTempC: null,
+      forceFreshColdSet: false,
       fuelFloorL: 12.0,
       currentTankL: 0.0,
       pumpBeforeL: 36.0,
@@ -1129,6 +1274,7 @@
       wetPreset: 'light',
       mountedTyres: { FL: 'KB1', FR: 'KB2', RL: 'KB3', RR: 'KB4' },
       coldTyres: { FL: 29.5, FR: 30.5, RL: 34.0, RR: 35.0 },
+      targetHotTyres: { FL: 40.0, FR: 40.0, RL: 43.0, RR: 43.0 },
       hotTyres: { FL: null, FR: null, RL: null, RR: null },
       pyroOpen: false,
       pyroTyres: createDefaultPyroCorners(),
@@ -1140,7 +1286,7 @@
 
   const DEFAULT_CORNER_TYRE_IDS = { FL: 'KB1', FR: 'KB2', RL: 'KB3', RR: 'KB4' };
 
-  function normalizeTyreCornersObject(rawCorners) {
+  function normalizeTyreCornersObject(rawCorners, defaultFrontTarget = 40.0, defaultRearTarget = 43.0) {
     if (!rawCorners || typeof rawCorners !== 'object') return null;
     const pickOptPos = (v) =>
       v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v)) && Number(v) > 0
@@ -1151,6 +1297,8 @@
       if (!src || typeof src !== 'object') return null;
       const cold = pickOptPos(src.cold);
       const hot = pickOptPos(src.hot);
+      const defAxleTarget = newKey.startsWith('F') ? defaultFrontTarget : defaultRearTarget;
+      const targetHot = pickOptPos(src.targetHot) ?? Number(Number(defAxleTarget).toFixed(1));
       const build = cold !== null && hot !== null ? Number((hot - cold).toFixed(1)) : null;
       const nextCold =
         cold !== null && hot !== null
@@ -1166,6 +1314,7 @@
       const pyro = normalizeSinglePyroObj(src.pyro);
       return {
         tyreId,
+        targetHot,
         cold,
         hot,
         build,
@@ -1179,10 +1328,10 @@
     const rr = normCorner('RR', 'RR');
     if (!fl && !fr && !rl && !rr) return null;
     return {
-      FL: fl || { tyreId: 'KB1', cold: null, hot: null, build: null, nextCold: null, pyro: null },
-      FR: fr || { tyreId: 'KB2', cold: null, hot: null, build: null, nextCold: null, pyro: null },
-      RL: rl || { tyreId: 'KB3', cold: null, hot: null, build: null, nextCold: null, pyro: null },
-      RR: rr || { tyreId: 'KB4', cold: null, hot: null, build: null, nextCold: null, pyro: null }
+      FL: fl || { tyreId: 'KB1', targetHot: defaultFrontTarget, cold: null, hot: null, build: null, nextCold: null, pyro: null },
+      FR: fr || { tyreId: 'KB2', targetHot: defaultFrontTarget, cold: null, hot: null, build: null, nextCold: null, pyro: null },
+      RL: rl || { tyreId: 'RL' ? 'KB3' : 'KB3', targetHot: defaultRearTarget, cold: null, hot: null, build: null, nextCold: null, pyro: null },
+      RR: rr || { tyreId: 'KB4', targetHot: defaultRearTarget, cold: null, hot: null, build: null, nextCold: null, pyro: null }
     };
   }
 
@@ -1696,24 +1845,11 @@
       const waterTempC = normalizeOptionalWaterTemp(s.waterTempC);
       const fuelTempC = Number.isFinite(Number(s.fuelTempC)) ? Number(Number(s.fuelTempC).toFixed(1)) : 20.0;
 
-      let tyres = normalizeTyreCornersObject(s.tyres || s.corners);
-      let litresToPourL = pickOptNum(s.litresToPourL ?? s.pourJugsL);
-      let startingFuelReqL = pickOptNum(s.startingFuelReqL ?? s.startFuelReqL);
-      let expectedBurnL = pickOptNum(s.expectedBurnL);
-      let fuelFloorL = pickOptNum(s.fuelFloorL);
-      let fuelInL = pickOptNum(s.fuelInL ?? s.beforeL);
-      let fuelOutL = pickOptNum(s.fuelOutL ?? s.afterL);
-      let fuelUsedL = pickOptNum(s.fuelUsedL ?? s.usedL);
-      let racedLaps = pickOptNum(s.racedLaps ?? s.laps);
-      let measuredBurnLPerLap = pickOptNum(s.measuredBurnLPerLap ?? s.burnLPerLap);
-      let scaleWeightKg = pickOptNum(s.scaleWeightKg);
-      let postRaceEstKg = pickOptNum(s.postRaceEstKg ?? s.predPostRaceKg);
-      let tyreHotTarget = pickOptNum(s.tyreHotTarget);
       let hotTargetFront = pickOptNum(s.hotTargetFront);
       let hotTargetRear = pickOptNum(s.hotTargetRear);
+      let tyreHotTarget = pickOptNum(s.tyreHotTarget);
 
       if (s.id === 'calder_r1' && defCalderR1) {
-        if (!tyres) tyres = normalizeTyreCornersObject(defCalderR1.tyres);
         if (litresToPourL === null) litresToPourL = defCalderR1.litresToPourL;
         if (startingFuelReqL === null) startingFuelReqL = defCalderR1.startingFuelReqL;
         if (expectedBurnL === null) expectedBurnL = defCalderR1.expectedBurnL;
@@ -1728,9 +1864,61 @@
         if (tyreHotTarget === null) tyreHotTarget = defCalderR1.tyreHotTarget;
       }
 
-      if (hotTargetFront === null) hotTargetFront = 40.0;
-      if (hotTargetRear === null) hotTargetRear = 43.0;
+      if (hotTargetFront === null && defMatch && Number.isFinite(Number(defMatch.hotTargetFront))) {
+        hotTargetFront = Number(defMatch.hotTargetFront);
+      }
+      if (hotTargetRear === null && defMatch && Number.isFinite(Number(defMatch.hotTargetRear))) {
+        hotTargetRear = Number(defMatch.hotTargetRear);
+      }
+      if (hotTargetFront === null) hotTargetFront = tyreHotTarget !== null ? tyreHotTarget : 40.0;
+      if (hotTargetRear === null) hotTargetRear = tyreHotTarget === 44.0 ? 44.0 : 43.0;
       if (tyreHotTarget === null) tyreHotTarget = hotTargetFront;
+
+      let tyres = normalizeTyreCornersObject(
+        s.tyres || s.corners || (defMatch && defMatch.tyres),
+        hotTargetFront,
+        hotTargetRear
+      );
+
+      // Migrate default demo Session 2+ runs (calder_q1/r1/r2, winton_q1/r1) so only Session 1 is stone-cold
+      const isSeededSubsequentSession =
+        s.id === 'calder_q1' ||
+        s.id === 'calder_r1' ||
+        s.id === 'calder_r2' ||
+        s.id === 'winton_q1' ||
+        s.id === 'winton_r1';
+      if (isSeededSubsequentSession && s.isStoneColdSession === undefined && tyres) {
+        ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+          if (tyres[c]) {
+            tyres[c].cold = null;
+            tyres[c].build = null;
+            tyres[c].nextCold = null;
+          }
+        });
+      }
+
+      const rawTrackTemp = s.trackTempC ?? (defMatch ? defMatch.trackTempC : null);
+      const trackTempC =
+        rawTrackTemp !== null && rawTrackTemp !== undefined && rawTrackTemp !== '' && Number.isFinite(Number(rawTrackTemp))
+          ? Math.round(clamp(Number(rawTrackTemp), 5, 65))
+          : null;
+
+      const cProf = getCircuitTyreProfile(venue);
+      const safeRunLaps = racedLaps !== null && racedLaps > 0 ? Math.round(racedLaps) : 10;
+      const estRunMin =
+        s.estRunMin !== null && s.estRunMin !== undefined && Number.isFinite(Number(s.estRunMin)) && Number(s.estRunMin) > 0
+          ? Number(Number(s.estRunMin).toFixed(1))
+          : Number(((safeRunLaps * cProf.estLapSec) / 60).toFixed(1));
+
+      const hasAnyColdRecorded = Boolean(
+        tyres && ['FL', 'FR', 'RL', 'RR'].some((c) => tyres[c] && tyres[c].cold !== null && tyres[c].cold > 0)
+      );
+      const isStoneColdSession =
+        s.isStoneColdSession !== undefined
+          ? Boolean(s.isStoneColdSession)
+          : isSeededSubsequentSession
+          ? false
+          : hasAnyColdRecorded;
 
       const inferredWet =
         s.tyreCondition === 'wet' ||
@@ -1772,6 +1960,9 @@
         exhaustId: s.exhaustId || 'Macca',
         fuelTempC,
         waterTempC,
+        trackTempC,
+        estRunMin,
+        isStoneColdSession,
         afr3500: a35,
         afr4000: a40,
         afr4500: a45,
@@ -1994,6 +2185,7 @@
       }
 
       const ht = (ch.hotTyres && typeof ch.hotTyres === 'object') ? ch.hotTyres : {};
+      const tht = (ch.targetHotTyres && typeof ch.targetHotTyres === 'object') ? ch.targetHotTyres : {};
       const hasMountedObj = Boolean(ch.mountedTyres && typeof ch.mountedTyres === 'object');
       const mt = hasMountedObj ? ch.mountedTyres : {};
       const usedCornerTyres = new Set();
@@ -2062,8 +2254,16 @@
         }
       });
 
+      const rawTrackTempCh = ch.trackTempC;
+      const hydratedTrackTempC =
+        rawTrackTempCh !== null && rawTrackTempCh !== undefined && rawTrackTempCh !== '' && Number.isFinite(Number(rawTrackTempCh))
+          ? Math.round(clamp(Number(rawTrackTempCh), 5, 65))
+          : null;
+
       candidate.chassis = {
         raceLaps: Number.isFinite(Number(ch.raceLaps)) ? Math.round(Number(ch.raceLaps)) : defChassis.raceLaps,
+        trackTempC: hydratedTrackTempC,
+        forceFreshColdSet: Boolean(ch.forceFreshColdSet),
         fuelFloorL: migratedFloor,
         currentTankL: 0.0,
         pumpBeforeL: Number.isFinite(Number(ch.pumpBeforeL)) ? Number(ch.pumpBeforeL) : defChassis.pumpBeforeL,
@@ -2098,6 +2298,12 @@
           FR: pickColdCorner('FR', defChassis.coldTyres.FR),
           RL: pickColdCorner('RL', defChassis.coldTyres.RL),
           RR: pickColdCorner('RR', defChassis.coldTyres.RR)
+        },
+        targetHotTyres: {
+          FL: pickOptNum(tht.FL) ?? hydratedFrontTarget,
+          FR: pickOptNum(tht.FR) ?? hydratedFrontTarget,
+          RL: pickOptNum(tht.RL) ?? hydratedRearTarget,
+          RR: pickOptNum(tht.RR) ?? hydratedRearTarget
         },
         hotTyres: {
           FL: pickOptNum(ht.FL ?? ht.LF),
@@ -2911,7 +3117,9 @@
       const axleTargetHot = c.startsWith('F') ? frontHotTarget : rearHotTarget;
       const ideals = [];
       (state.sessions || []).forEach((s) => {
+        if (!s || s.status === 'active') return;
         if ((s.venue || 'Calder Park Raceway') !== venue) return;
+        if (s.isStoneColdSession === false) return;
         if (!s.tyres || !s.tyres[c]) return;
         if (getSessionTyreCondition(s) !== condition) return;
         const rawCold = s.tyres[c].cold;
@@ -2919,8 +3127,15 @@
         const cold = rawCold !== null && rawCold !== undefined && rawCold !== '' ? Number(rawCold) : NaN;
         const hot = rawHot !== null && rawHot !== undefined && rawHot !== '' ? Number(rawHot) : NaN;
         if (Number.isFinite(cold) && cold > 10 && Number.isFinite(hot) && hot > 10) {
-          const idealCold = ((axleTargetHot + 14.7) * (cold + 14.7)) / (hot + 14.7) - 14.7;
-          ideals.push(idealCold);
+          const rawIdealCold = ((axleTargetHot + 14.7) * (cold + 14.7)) / (hot + 14.7) - 14.7;
+          const dynSessionOffset = computeDynamicColdOffsets({
+            venue: s.venue || venue,
+            laps: s.racedLaps || 10,
+            trackTempC: s.trackTempC,
+            tyreMode: condition
+          });
+          const normalizedIdealCold = rawIdealCold - (dynSessionOffset.corners[c] || 0);
+          ideals.push(normalizedIdealCold);
           runSet.add(s.id);
         }
       });
@@ -3814,6 +4029,8 @@
         'inputTyreHotTargetFront',
         'inputTyreHotTargetRear',
         'inputTyreSessionLaps',
+        'inputTrackTempC',
+        'btnToggleFreshColdSet',
         'btnUnmountAllTyres',
         'btnClearAllColdPsi',
         'selectMountedTyre_FL',
@@ -3837,8 +4054,9 @@
       tyresLocked
     );
 
-    // Lock 4-corner Hot PSI steppers until Post-Session Tyres (Step 6) is active
-    const lockHotPsiControls = !isStep6PostTyres;
+    // Corner Hot PSI steppers are editable in Pre-Session (!tyresLocked, as Target Hot PSI)
+    // and in Step 6 Post-Session Tyres (isStep6PostTyres, as Actual Hot Off-Track PSI)
+    const lockHotPsiControls = Boolean(tyresLocked && !isStep6PostTyres);
     setPreRaceControlsLocked(
       ['inputHotPsi_FL', 'inputHotPsi_FR', 'inputHotPsi_RL', 'inputHotPsi_RR'],
       [],
@@ -3877,8 +4095,19 @@
       activeSess.fuelPostLocked = false;
       activeSess.tyresPostLocked = false;
       activeSess.workflowStep = activeSess.tunePreLocked && activeSess.fuelPreLocked ? 3 : 1;
+      // Restore corner Hot PSI inputs to the locked Pre-Session Target Hot PSI when unlocking Step 3
+      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+        const axleDef = c.startsWith('F') ? (activeSess.hotTargetFront || 40.0) : (activeSess.hotTargetRear || 43.0);
+        const tHot =
+          activeSess.tyres && activeSess.tyres[c] && Number.isFinite(Number(activeSess.tyres[c].targetHot))
+            ? Number(activeSess.tyres[c].targetHot)
+            : axleDef;
+        const hotEl = $(`inputHotPsi_${c}`);
+        if (hotEl) hotEl.value = tHot.toFixed(1);
+      });
       syncFlatSessionsFromEvents(state);
       saveState();
+      recalcTyres();
       renderSessionLog();
       syncPreRacePostRaceLocksUi();
       showToast('Unlocked Pre-Race Tyres & Springs');
@@ -3923,82 +4152,6 @@
       $('inputTrackBurnLPerLap').value = Number(prof.burnLPerLap).toFixed(2);
     }
 
-    // Carry forward 4-corner Next Cold Set PSIs into Cold PSI and clear Hot PSI & Pyrometer for the upcoming session
-    const mounted = ensureMountedTyresState();
-    const mountedShocks = ensureMountedShocksState();
-    const mountedSprings = ensureMountedSpringsState();
-    const activeCond = ch.tyreCondition === 'wet' ? 'wet' : 'dry';
-    const hotTargetFront = Number.isFinite(Number(ch.hotTargetFront)) ? Number(ch.hotTargetFront) : 40.0;
-    const hotTargetRear = Number.isFinite(Number(ch.hotTargetRear)) ? Number(ch.hotTargetRear) : 43.0;
-    const learnedTyres = getTrackLearnedColdTyres(venue, hotTargetFront, hotTargetRear, activeCond);
-    const dryAiStagger = computeDryAiColdStagger(getTrackDirection(venue));
-
-    if (!ch.coldTyres || typeof ch.coldTyres !== 'object') {
-      ch.coldTyres = { FL: dryAiStagger.FL, FR: dryAiStagger.FR, RL: dryAiStagger.RL, RR: dryAiStagger.RR };
-    }
-    if (!ch.hotTyres || typeof ch.hotTyres !== 'object') {
-      ch.hotTyres = { FL: null, FR: null, RL: null, RR: null };
-    }
-    ch.pyroTyres = createDefaultPyroCorners();
-
-    const initialCorners = {};
-    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-      let nextColdVal = null;
-      if (prevSess && prevSess.tyres && prevSess.tyres[c]) {
-        const prevCorner = prevSess.tyres[c];
-        if (
-          prevCorner.nextCold !== null &&
-          prevCorner.nextCold !== undefined &&
-          Number.isFinite(Number(prevCorner.nextCold)) &&
-          Number(prevCorner.nextCold) > 0
-        ) {
-          nextColdVal = Number(Number(prevCorner.nextCold).toFixed(1));
-        } else if (
-          prevCorner.cold !== null &&
-          prevCorner.cold !== undefined &&
-          Number.isFinite(Number(prevCorner.cold)) &&
-          Number(prevCorner.cold) > 0
-        ) {
-          nextColdVal = Number(Number(prevCorner.cold).toFixed(1));
-        }
-      }
-      if (nextColdVal === null) {
-        if (
-          ch.coldTyres[c] !== null &&
-          ch.coldTyres[c] !== undefined &&
-          Number.isFinite(Number(ch.coldTyres[c])) &&
-          Number(ch.coldTyres[c]) > 0
-        ) {
-          nextColdVal = Number(Number(ch.coldTyres[c]).toFixed(1));
-        } else if (learnedTyres.corners[c] && Number.isFinite(Number(learnedTyres.corners[c].avg))) {
-          nextColdVal = Number(Number(learnedTyres.corners[c].avg).toFixed(1));
-        } else {
-          nextColdVal = dryAiStagger[c];
-        }
-      }
-
-      ch.coldTyres[c] = nextColdVal;
-      ch.hotTyres[c] = null;
-      const coldEl = $(`inputColdPsi_${c}`);
-      if (coldEl) coldEl.value = nextColdVal.toFixed(1);
-      const hotEl = $(`inputHotPsi_${c}`);
-      if (hotEl) hotEl.value = '';
-      ['Out', 'Mid', 'In'].forEach((zone) => {
-        const pEl = $(`inputPyro${zone}_${c}`);
-        if (pEl) pEl.value = '';
-      });
-
-      initialCorners[c] = {
-        tyreId: mounted[c] || '',
-        cold: nextColdVal,
-        hot: null,
-        build: null,
-        diff: null,
-        nextCold: nextColdVal,
-        pyro: null
-      };
-    });
-
     const activeCarbyId = (prevSess && prevSess.carbyId) || base.carbyId || '1 DME';
     const activeManifoldId = (prevSess && prevSess.manifoldId) || state.activeManifoldId || 'Macca';
     const activeExhaustId = (prevSess && prevSess.exhaustId) || state.activeExhaustId || 'Macca';
@@ -4024,6 +4177,93 @@
 
     const fuelSnap = recalcFuelAndWeight();
 
+    // Determine Session 1 (Stone-Cold) vs Session 2+ (Hot-Target Only)
+    ch.forceFreshColdSet = false;
+    const mounted = ensureMountedTyresState();
+    const mountedShocks = ensureMountedShocksState();
+    const mountedSprings = ensureMountedSpringsState();
+    const activeCond = ch.tyreCondition === 'wet' ? 'wet' : 'dry';
+    const hotTargetFront = Number.isFinite(Number(ch.hotTargetFront)) ? Number(ch.hotTargetFront) : 40.0;
+    const hotTargetRear = Number.isFinite(Number(ch.hotTargetRear)) ? Number(ch.hotTargetRear) : 43.0;
+
+    const hasCompletedSameSpecInEvent = targetEvt.sessions.some(
+      (s) => s && s.status === 'completed' && getSessionTyreCondition(s) === activeCond
+    );
+    const isStoneColdSession = !hasCompletedSameSpecInEvent;
+
+    const initialTrackTempC =
+      prevSess && prevSess.trackTempC !== null && prevSess.trackTempC !== undefined && Number.isFinite(Number(prevSess.trackTempC))
+        ? Math.round(Number(prevSess.trackTempC))
+        : ch.trackTempC !== null && ch.trackTempC !== undefined && Number.isFinite(Number(ch.trackTempC))
+        ? Math.round(Number(ch.trackTempC))
+        : null;
+    ch.trackTempC = initialTrackTempC;
+    if ($('inputTrackTempC')) {
+      $('inputTrackTempC').value = initialTrackTempC !== null ? String(initialTrackTempC) : '';
+    }
+
+    const activePresetKey = normalizeDryPresetKey(ui.activeDryPreset || ch.activeDryPreset || 'ai_antipush');
+    const dryBase = computeDryPresetColdBase(activePresetKey, venue);
+    const wetBase = computeWetColdStagger(ch.wetPreset || 'light', getTrackDirection(venue));
+    const dynOffsets = computeDynamicColdOffsets({
+      venue,
+      laps: fuelSnap.raceLaps,
+      trackTempC: initialTrackTempC,
+      tyreMode: activeCond
+    });
+
+    if (!ch.coldTyres || typeof ch.coldTyres !== 'object') {
+      ch.coldTyres = { FL: dryBase.FL, FR: dryBase.FR, RL: dryBase.RL, RR: dryBase.RR };
+    }
+    if (!ch.targetHotTyres || typeof ch.targetHotTyres !== 'object') {
+      ch.targetHotTyres = { FL: hotTargetFront, FR: hotTargetFront, RL: hotTargetRear, RR: hotTargetRear };
+    }
+    ch.hotTyres = { FL: null, FR: null, RL: null, RR: null };
+    ch.pyroTyres = createDefaultPyroCorners();
+
+    const initialCorners = {};
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const axleTarget = c.startsWith('F') ? hotTargetFront : hotTargetRear;
+      const carriedTargetHot =
+        prevSess && prevSess.tyres && prevSess.tyres[c] && Number.isFinite(Number(prevSess.tyres[c].targetHot))
+          ? Number(Number(prevSess.tyres[c].targetHot).toFixed(1))
+          : Number(axleTarget.toFixed(1));
+      ch.targetHotTyres[c] = carriedTargetHot;
+
+      let cornerColdVal = null;
+      if (isStoneColdSession) {
+        const baseAxleHot = activeCond === 'wet'
+          ? (c.startsWith('F') ? wetBase.hotTargetFront : wetBase.hotTargetRear)
+          : (c.startsWith('F') ? dryBase.hotTargetFront : dryBase.hotTargetRear);
+        const rawCornerBase = activeCond === 'wet' ? wetBase[c] : dryBase[c];
+        const targetScaledBase = rawCornerBase + (carriedTargetHot - baseAxleHot);
+        cornerColdVal = Number((targetScaledBase + (dynOffsets.corners[c] || 0)).toFixed(1));
+      }
+
+      ch.coldTyres[c] = cornerColdVal;
+      ch.hotTyres[c] = null;
+
+      const coldEl = $(`inputColdPsi_${c}`);
+      if (coldEl) coldEl.value = cornerColdVal !== null ? cornerColdVal.toFixed(1) : '';
+      const hotEl = $(`inputHotPsi_${c}`);
+      if (hotEl) hotEl.value = carriedTargetHot.toFixed(1);
+      ['Out', 'Mid', 'In'].forEach((zone) => {
+        const pEl = $(`inputPyro${zone}_${c}`);
+        if (pEl) pEl.value = '';
+      });
+
+      initialCorners[c] = {
+        tyreId: mounted[c] || '',
+        targetHot: carriedTargetHot,
+        cold: cornerColdVal,
+        hot: null,
+        build: null,
+        diff: null,
+        nextCold: cornerColdVal,
+        pyro: null
+      };
+    });
+
     const created = {
       id: `run_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       status: 'active',
@@ -4048,6 +4288,9 @@
       timing: timingVal,
       fuelPsi: fuelPsiVal,
       waterTempC: null,
+      trackTempC: initialTrackTempC,
+      estRunMin: dynOffsets.estRunMin,
+      isStoneColdSession,
       afr3500: null,
       afr4000: null,
       afr4500: null,
@@ -5209,9 +5452,51 @@
     return 'ai_antipush';
   }
 
+  function getCompletedEventSessionsForTyreMode(condOpt) {
+    const activeEvt = getActiveEvent();
+    if (!activeEvt || !Array.isArray(activeEvt.sessions)) return [];
+    const activeSess = getActiveSession();
+    const activeCond =
+      condOpt || (state.chassis && state.chassis.tyreCondition === 'wet' ? 'wet' : 'dry');
+    return activeEvt.sessions.filter(
+      (s) =>
+        s &&
+        s.id !== (activeSess && activeSess.id) &&
+        s.status === 'completed' &&
+        getSessionTyreCondition(s) === activeCond
+    );
+  }
+
+  function isCurrentTyreSessionStoneCold(condOpt) {
+    const activeCond =
+      condOpt || (state.chassis && state.chassis.tyreCondition === 'wet' ? 'wet' : 'dry');
+    const completedForSpec = getCompletedEventSessionsForTyreMode(activeCond);
+    if (completedForSpec.length === 0) {
+      return true;
+    }
+    const activeSess = getActiveSession();
+    if (activeSess && activeSess.tyresPreLocked && activeSess.isStoneColdSession !== undefined) {
+      return Boolean(activeSess.isStoneColdSession);
+    }
+    return Boolean(state.chassis && state.chassis.forceFreshColdSet);
+  }
+
+  function readTrackTempInputC() {
+    const el = $('inputTrackTempC');
+    const rawStr = el ? String(el.value || '').trim() : '';
+    if (rawStr === '') {
+      return { rawTrackTempC: null, effectiveTrackTempC: 26, isBlank: true };
+    }
+    const parsed = parseFloat(rawStr);
+    if (!Number.isFinite(parsed)) {
+      return { rawTrackTempC: null, effectiveTrackTempC: 26, isBlank: true };
+    }
+    const clamped = Math.round(clamp(parsed, 5, 65));
+    return { rawTrackTempC: clamped, effectiveTrackTempC: clamped, isBlank: false };
+  }
+
   function computeDryPresetColdBase(presetKey, venueOpt) {
     if (!state.chassis) state.chassis = createDefaultChassisState();
-    const ch = state.chassis;
     const venue = venueOpt || getSelectedTyreTrackVenue();
     const direction = getTrackDirection(venue);
     const normKey = normalizeDryPresetKey(presetKey);
@@ -5269,6 +5554,133 @@
     };
   }
 
+  function computeSession1DynamicColdCorners(venueOpt, lapsOpt, trackTempOpt, condOpt, frontTargetOpt, rearTargetOpt) {
+    if (!state.chassis) state.chassis = createDefaultChassisState();
+    const ch = state.chassis;
+    const venue = venueOpt || getSelectedTyreTrackVenue();
+    const condition = condOpt || (ch.tyreCondition === 'wet' ? 'wet' : 'dry');
+    const laps = Math.max(1, Math.round(Number(lapsOpt || ch.raceLaps || 12)));
+    const frontTarget = Number.isFinite(Number(frontTargetOpt)) ? Number(frontTargetOpt) : Number(ch.hotTargetFront ?? 40.0);
+    const rearTarget = Number.isFinite(Number(rearTargetOpt)) ? Number(rearTargetOpt) : Number(ch.hotTargetRear ?? 43.0);
+    const presetKey = normalizeDryPresetKey(ui.activeDryPreset || ch.activeDryPreset || 'ai_antipush');
+
+    const dryBase = computeDryPresetColdBase(presetKey, venue);
+    const wetBase = computeWetColdStagger(ch.wetPreset || 'light', getTrackDirection(venue));
+    const dyn = computeDynamicColdOffsets({
+      venue,
+      laps,
+      trackTempC: trackTempOpt,
+      tyreMode: condition
+    });
+
+    const corners = {};
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const axleHotTarget = c.startsWith('F') ? frontTarget : rearTarget;
+      const baseAxleHot =
+        condition === 'wet'
+          ? c.startsWith('F')
+            ? wetBase.hotTargetFront
+            : wetBase.hotTargetRear
+          : c.startsWith('F')
+          ? dryBase.hotTargetFront
+          : dryBase.hotTargetRear;
+      const baseCornerCold = condition === 'wet' ? wetBase[c] : dryBase[c];
+      const scaledBase = baseCornerCold + (axleHotTarget - baseAxleHot);
+      corners[c] = Number((scaledBase + (dyn.corners[c] || 0)).toFixed(1));
+    });
+
+    return {
+      venue,
+      condition,
+      laps,
+      frontTarget,
+      rearTarget,
+      dyn,
+      base: condition === 'wet' ? wetBase : dryBase,
+      corners
+    };
+  }
+
+  function syncDynamicTyreCornerInputs(opts = {}) {
+    if (!state.chassis) state.chassis = createDefaultChassisState();
+    const ch = state.chassis;
+    const activeSess = getActiveSession();
+    const isPreLocked = Boolean(activeSess && activeSess.tyresPreLocked);
+    if (isPreLocked) return;
+
+    const updateCold = opts.updateCold !== false;
+    const updateHotTargets = Boolean(opts.updateHotTargets);
+    const venue = getSelectedTyreTrackVenue();
+    const prof = ensureTrackProfile(venue);
+    const condition = ch.tyreCondition === 'wet' ? 'wet' : 'dry';
+    const frontTarget = Number(readNum('inputTyreHotTargetFront', ch.hotTargetFront ?? 40.0).toFixed(1));
+    const rearTarget = Number(readNum('inputTyreHotTargetRear', ch.hotTargetRear ?? 43.0).toFixed(1));
+    const laps = Math.max(1, Math.round(readNum('inputTyreSessionLaps', ch.raceLaps || 12)));
+    const { rawTrackTempC } = readTrackTempInputC();
+    const stoneCold = isCurrentTyreSessionStoneCold(condition);
+
+    if (!ch.coldTyres || typeof ch.coldTyres !== 'object') {
+      ch.coldTyres = { FL: null, FR: null, RL: null, RR: null };
+    }
+    if (!ch.targetHotTyres || typeof ch.targetHotTyres !== 'object') {
+      ch.targetHotTyres = { FL: frontTarget, FR: frontTarget, RL: rearTarget, RR: rearTarget };
+    }
+
+    if (stoneCold && updateCold) {
+      const calc = computeSession1DynamicColdCorners(venue, laps, rawTrackTempC, condition, frontTarget, rearTarget);
+      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+        ch.coldTyres[c] = calc.corners[c];
+        if (condition === 'dry' && prof && prof.coldTyres) {
+          prof.coldTyres[c] = calc.corners[c];
+        }
+        const coldEl = $(`inputColdPsi_${c}`);
+        if (coldEl) coldEl.value = calc.corners[c].toFixed(1);
+      });
+    } else if (!stoneCold) {
+      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+        ch.coldTyres[c] = null;
+        const coldEl = $(`inputColdPsi_${c}`);
+        if (coldEl) coldEl.value = '';
+      });
+    }
+
+    if (updateHotTargets) {
+      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+        const axleTarget = c.startsWith('F') ? frontTarget : rearTarget;
+        ch.targetHotTyres[c] = axleTarget;
+        const hotEl = $(`inputHotPsi_${c}`);
+        if (hotEl) hotEl.value = axleTarget.toFixed(1);
+      });
+    }
+  }
+
+  function toggleFreshColdSetMode() {
+    const activeSess = getActiveSession();
+    if (activeSess && activeSess.tyresPreLocked) {
+      showToast('Pre-Session Tyres are locked — click "Unlock Pre-Race Tyres" to change');
+      return;
+    }
+    if (!state.chassis) state.chassis = createDefaultChassisState();
+    const ch = state.chassis;
+    const completedForSpec = getCompletedEventSessionsForTyreMode(ch.tyreCondition === 'wet' ? 'wet' : 'dry');
+    if (completedForSpec.length === 0) {
+      showToast('Session 1 is already in Stone-Cold Start mode');
+      return;
+    }
+    ch.forceFreshColdSet = !ch.forceFreshColdSet;
+    if (activeSess) {
+      activeSess.isStoneColdSession = Boolean(ch.forceFreshColdSet);
+    }
+    syncDynamicTyreCornerInputs({ updateCold: true, updateHotTargets: false });
+    saveState();
+    recalcTyres();
+    showToast(
+      ch.forceFreshColdSet
+        ? 'Fresh Cold Set Enabled — Showing dynamic Stone-Cold Start PSI for brand-new spares'
+        : 'Returned to Session 2+ Hot-Target Only Mode (Zero Cold Settings Shown)'
+    );
+  }
+
   function syncTyreConditionUi() {
     if (!state.chassis) state.chassis = createDefaultChassisState();
     const ch = state.chassis;
@@ -5276,12 +5688,15 @@
     const presetKey = ch.wetPreset && WET_PRESET_PROFILES[ch.wetPreset] ? ch.wetPreset : 'light';
     const venue = getSelectedTyreTrackVenue();
     const direction = getTrackDirection(venue);
+    const stoneCold = isCurrentTyreSessionStoneCold(isWet ? 'wet' : 'dry');
+    const completedForSpec = getCompletedEventSessionsForTyreMode(isWet ? 'wet' : 'dry');
 
     const btnDry = $('btnTyreCondDry');
     const btnWet = $('btnTyreCondWet');
     const wetBar = $('wetSeverityBar');
     const dryBar = $('dryTargetPresetBar');
     const dirBadge = $('wetTrackDirBadge');
+    const freshBtn = $('btnToggleFreshColdSet');
 
     if (btnDry) {
       btnDry.classList.toggle('active', !isWet);
@@ -5303,6 +5718,11 @@
           ? 'CCW • Right-Loaded (FR/RR)'
           : 'CW • Left-Loaded (FL/RL)';
     }
+    if (freshBtn) {
+      freshBtn.style.display = completedForSpec.length > 0 ? 'inline-flex' : 'none';
+      freshBtn.classList.toggle('active', Boolean(ch.forceFreshColdSet));
+      freshBtn.setAttribute('aria-pressed', ch.forceFreshColdSet ? 'true' : 'false');
+    }
 
     const dirVenueEl = $('outActiveCircuitDirVenue');
     if (dirVenueEl) {
@@ -5310,10 +5730,11 @@
     }
     const dirSubEl = $('outActiveCircuitDirSub');
     if (dirSubEl) {
+      const cProf = getCircuitTyreProfile(venue);
       dirSubEl.textContent =
         direction === 'CCW'
-          ? 'Anti-Clockwise (CCW) • FR / RR Outside'
-          : 'Clockwise (CW) • FL / RL Outside';
+          ? `CCW • FR/RR Loaded • ~${cProf.estLapSec}s/lap (${cProf.brakeLoad} brake)`
+          : `CW • FL/RL Loaded • ~${cProf.estLapSec}s/lap (${cProf.brakeLoad} brake)`;
     }
     const dirSideHint = $('hintTrackDirectionSide');
     if (dirSideHint) {
@@ -5347,18 +5768,38 @@
       btn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
     });
 
-    const coldBase = computeDryPresetColdBase(activeDryPreset, venue);
-    const miniHeader = $('miniCarColdHeader');
-    if (miniHeader) {
-      miniHeader.textContent =
-        direction === 'CCW' ? 'CCW • RH Loaded' : 'CW • LH Loaded';
+    const miniBox = $('miniCarColdPreviewBox');
+    const cmdRow = document.querySelector('#tab-tyres .tyre-base-command-row');
+    if (miniBox) {
+      miniBox.style.display = stoneCold ? '' : 'none';
     }
-    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-      const miniEl = $(`miniCarCold_${c}`);
-      if (miniEl && Number.isFinite(Number(coldBase[c]))) {
-        miniEl.textContent = Number(coldBase[c]).toFixed(1);
+    if (cmdRow) {
+      cmdRow.classList.toggle('hot-only-mode', !stoneCold);
+    }
+
+    if (stoneCold) {
+      const laps = Math.max(1, Math.round(readNum('inputTyreSessionLaps', ch.raceLaps || 12)));
+      const { rawTrackTempC } = readTrackTempInputC();
+      const dynPreview = computeSession1DynamicColdCorners(
+        venue,
+        laps,
+        rawTrackTempC,
+        isWet ? 'wet' : 'dry',
+        frontTarget,
+        rearTarget
+      );
+      const miniHeader = $('miniCarColdHeader');
+      if (miniHeader) {
+        miniHeader.textContent =
+          direction === 'CCW' ? 'CCW • RH Loaded' : 'CW • LH Loaded';
       }
-    });
+      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+        const miniEl = $(`miniCarCold_${c}`);
+        if (miniEl && Number.isFinite(Number(dynPreview.corners[c]))) {
+          miniEl.textContent = Number(dynPreview.corners[c]).toFixed(1);
+        }
+      });
+    }
 
     const hintF = $('hintHotTargetFront');
     const hintR = $('hintHotTargetRear');
@@ -5405,7 +5846,9 @@
       const subEl = $(`subWetPreset_${k}`);
       if (subEl && WET_PRESET_PROFILES[k]) {
         const stg = computeWetColdStagger(k, direction);
-        subEl.textContent = `${stg.FL.toFixed(1)}/${stg.FR.toFixed(1)}F • ${stg.hotTargetFront.toFixed(1)}F/${stg.hotTargetRear.toFixed(1)}R`;
+        subEl.textContent = stoneCold
+          ? `${stg.FL.toFixed(1)}/${stg.FR.toFixed(1)}F • ${stg.hotTargetFront.toFixed(1)}F/${stg.hotTargetRear.toFixed(1)}R`
+          : `Hot Target ${stg.hotTargetFront.toFixed(1)}F / ${stg.hotTargetRear.toFixed(1)}R`;
       }
     });
   }
@@ -5427,7 +5870,6 @@
     ch.dryTargetPreset = normKey;
 
     const venue = getSelectedTyreTrackVenue();
-    const prof = ensureTrackProfile(venue);
     const coldBase = computeDryPresetColdBase(normKey, venue);
     const frontTarget = coldBase.hotTargetFront;
     const rearTarget = coldBase.hotTargetRear;
@@ -5446,15 +5888,7 @@
     }
 
     if (!isPreLocked) {
-      if (!ch.coldTyres || typeof ch.coldTyres !== 'object') {
-        ch.coldTyres = { FL: coldBase.FL, FR: coldBase.FR, RL: coldBase.RL, RR: coldBase.RR };
-      }
-      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-        ch.coldTyres[c] = coldBase[c];
-        if (prof && prof.coldTyres) prof.coldTyres[c] = coldBase[c];
-        const coldEl = $(`inputColdPsi_${c}`);
-        if (coldEl) coldEl.value = coldBase[c].toFixed(1);
-      });
+      syncDynamicTyreCornerInputs({ updateCold: true, updateHotTargets: true });
     }
 
     saveState();
@@ -5463,15 +5897,25 @@
     recalcTyres();
 
     if (!silentToast) {
-      const dirLabel = coldBase.direction === 'CCW' ? 'CCW • RH Loaded' : 'CW • LH Loaded';
-      const coldSummary = `FL ${coldBase.FL.toFixed(1)} • FR ${coldBase.FR.toFixed(1)} • RL ${coldBase.RL.toFixed(1)} • RR ${coldBase.RR.toFixed(1)}`;
-      if (normKey === 'classic_44') {
-        showToast(`Classic Square (44.0F / 44.0R) • ${dirLabel}: ${coldSummary}`);
-      } else if (normKey === 'track_learned') {
-        const srcTag = coldBase.totalRuns > 0 ? `${coldBase.totalRuns} logged run(s)` : 'AI Seed (0 runs logged)';
-        showToast(`Track Learned (${venue} • ${srcTag}): ${coldSummary}`);
+      const stoneCold = isCurrentTyreSessionStoneCold('dry');
+      if (stoneCold) {
+        const laps = Math.max(1, Math.round(readNum('inputTyreSessionLaps', ch.raceLaps || 12)));
+        const { rawTrackTempC } = readTrackTempInputC();
+        const dynCalc = computeSession1DynamicColdCorners(venue, laps, rawTrackTempC, 'dry', frontTarget, rearTarget);
+        const dirLabel = coldBase.direction === 'CCW' ? 'CCW • RH Loaded' : 'CW • LH Loaded';
+        const coldSummary = `FL ${dynCalc.corners.FL.toFixed(1)} • FR ${dynCalc.corners.FR.toFixed(1)} • RL ${dynCalc.corners.RL.toFixed(1)} • RR ${dynCalc.corners.RR.toFixed(1)}`;
+        if (normKey === 'classic_44') {
+          showToast(`Classic Square (44.0F / 44.0R) • ${dirLabel}: ${coldSummary}`);
+        } else if (normKey === 'track_learned') {
+          const srcTag = coldBase.totalRuns > 0 ? `${coldBase.totalRuns} logged run(s)` : 'AI Seed (0 runs logged)';
+          showToast(`Track Learned (${venue} • ${srcTag}): ${coldSummary}`);
+        } else {
+          showToast(`AI Anti-Push (40.0F / 43.0R) • ${dirLabel}: ${coldSummary}`);
+        }
       } else {
-        showToast(`AI Anti-Push (40.0F / 43.0R) • ${dirLabel}: ${coldSummary}`);
+        showToast(
+          `Session 2+ Hot Targets Set: FL ${frontTarget.toFixed(1)} • FR ${frontTarget.toFixed(1)} • RL ${rearTarget.toFixed(1)} • RR ${rearTarget.toFixed(1)} PSI`
+        );
       }
     }
   }
@@ -5575,17 +6019,7 @@
     }
 
     prof.wetColdTyres = { FL: stagger.FL, FR: stagger.FR, RL: stagger.RL, RR: stagger.RR };
-    if (!ch.coldTyres || typeof ch.coldTyres !== 'object') {
-      ch.coldTyres = { FL: stagger.FL, FR: stagger.FR, RL: stagger.RL, RR: stagger.RR };
-    }
-
-    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-      ch.coldTyres[c] = stagger[c];
-      const coldEl = $(`inputColdPsi_${c}`);
-      if (coldEl) {
-        coldEl.value = stagger[c].toFixed(1);
-      }
-    });
+    syncDynamicTyreCornerInputs({ updateCold: true, updateHotTargets: true });
 
     saveState();
     syncTyreConditionUi();
@@ -5594,9 +6028,16 @@
 
     if (!silentToast) {
       const pLabel = WET_PRESET_PROFILES[validKey].label;
-      showToast(
-        `${pLabel} (${direction}): FL ${stagger.FL.toFixed(1)} • FR ${stagger.FR.toFixed(1)} • RL ${stagger.RL.toFixed(1)} • RR ${stagger.RR.toFixed(1)} (Targets ${stagger.hotTargetFront.toFixed(1)}F / ${stagger.hotTargetRear.toFixed(1)}R)`
-      );
+      const stoneCold = isCurrentTyreSessionStoneCold('wet');
+      if (stoneCold) {
+        showToast(
+          `${pLabel} (${direction}): Cold Start & Hot Targets (${stagger.hotTargetFront.toFixed(1)}F / ${stagger.hotTargetRear.toFixed(1)}R) updated`
+        );
+      } else {
+        showToast(
+          `${pLabel}: Session 2+ Hot Targets ${stagger.hotTargetFront.toFixed(1)}F / ${stagger.hotTargetRear.toFixed(1)}R PSI`
+        );
+      }
     }
   }
 
@@ -5639,7 +6080,6 @@
     const direction = getTrackDirection(venue);
     const presetKey = ch.wetPreset || 'light';
     const wetStagger = computeWetColdStagger(presetKey, direction);
-    const dryStagger = computeDryAiColdStagger(direction);
 
     const restoredDryFront =
       Number.isFinite(Number(ch.savedDryHotTargetFront)) && Number(ch.savedDryHotTargetFront) > 15
@@ -5663,23 +6103,7 @@
       $('inputTyreHotTargetRear').value = targetHotRear.toFixed(1);
     }
 
-    const learnedStats = getTrackLearnedColdTyres(venue, targetHotFront, targetHotRear, ch.tyreCondition);
-    corners.forEach((c) => {
-      const cStat = learnedStats.corners[c];
-      const coldVal =
-        cStat && cStat.learned
-          ? cStat.avg
-          : isWet
-          ? wetStagger[c]
-          : dryStagger[c];
-      const coldEl = $(`inputColdPsi_${c}`);
-      if (coldEl) {
-        coldEl.value = coldVal.toFixed(1);
-      }
-      if (ch.coldTyres) {
-        ch.coldTyres[c] = coldVal;
-      }
-    });
+    syncDynamicTyreCornerInputs({ updateCold: true, updateHotTargets: true });
 
     saveState();
     syncTyreConditionUi();
@@ -6739,6 +7163,12 @@
     if ($('inputTrackBurnLPerLap')) $('inputTrackBurnLPerLap').value = Number(prof.burnLPerLap).toFixed(2);
     if ($('inputRaceLaps')) $('inputRaceLaps').value = String(ch.raceLaps);
     if ($('inputTyreSessionLaps')) $('inputTyreSessionLaps').value = String(ch.raceLaps);
+    if ($('inputTrackTempC')) {
+      $('inputTrackTempC').value =
+        ch.trackTempC !== null && ch.trackTempC !== undefined && ch.trackTempC !== '' && Number.isFinite(Number(ch.trackTempC))
+          ? String(Math.round(Number(ch.trackTempC)))
+          : '';
+    }
     if ($('inputFuelFloorL')) $('inputFuelFloorL').value = Number(ch.fuelFloorL ?? 12.0).toFixed(1);
 
     if ($('inputPumpBeforeL')) $('inputPumpBeforeL').value = Number(ch.pumpBeforeL).toFixed(1);
@@ -6757,44 +7187,77 @@
     if ($('inputTyreHotTargetRear')) $('inputTyreHotTargetRear').value = rearTarget.toFixed(1);
 
     const activeCond = ch.tyreCondition === 'wet' ? 'wet' : 'dry';
-    const tyreStats = getTrackLearnedColdTyres(venue, frontTarget, rearTarget, activeCond);
-    const dryStagger = computeDryAiColdStagger(getTrackDirection(venue));
+    const stoneCold = isCurrentTyreSessionStoneCold(activeCond);
+    const activeSess = getActiveSession();
+    const curStep = activeSess ? getSessionWorkflowStep(activeSess) : 1;
+    const isStep6PostTyres = Boolean(activeSess && curStep === 6 && !activeSess.tyresPostLocked);
 
+    const dynCold = computeSession1DynamicColdCorners(
+      venue,
+      ch.raceLaps || 12,
+      ch.trackTempC,
+      activeCond,
+      frontTarget,
+      rearTarget
+    );
+
+    if (!ch.targetHotTyres || typeof ch.targetHotTyres !== 'object') {
+      ch.targetHotTyres = { FL: frontTarget, FR: frontTarget, RL: rearTarget, RR: rearTarget };
+    }
     if (!ch.pyroTyres || typeof ch.pyroTyres !== 'object') {
       ch.pyroTyres = createDefaultPyroCorners();
     }
 
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const axleTargetHot = c.startsWith('F') ? frontTarget : rearTarget;
       const coldEl = $(`inputColdPsi_${c}`);
       if (coldEl) {
-        if (ch.coldTyres && ch.coldTyres[c] === null) {
+        if (!stoneCold) {
           coldEl.value = '';
+          if (ch.coldTyres) ch.coldTyres[c] = null;
         } else {
-          const cStat = tyreStats.corners[c];
           const storedCold =
             ch.coldTyres && ch.coldTyres[c] !== null && ch.coldTyres[c] !== undefined && Number.isFinite(Number(ch.coldTyres[c])) && Number(ch.coldTyres[c]) > 0
               ? Number(ch.coldTyres[c])
               : null;
-          const coldVal =
-            storedCold !== null
-              ? storedCold
-              : cStat && cStat.learned
-              ? cStat.avg
-              : prof.coldTyres && prof.coldTyres[c] !== null && Number.isFinite(Number(prof.coldTyres[c])) && Number(prof.coldTyres[c]) > 0
-              ? Number(prof.coldTyres[c])
-              : dryStagger[c];
+          const coldVal = storedCold !== null ? storedCold : dynCold[c];
           prof.coldTyres[c] = coldVal;
           if (ch.coldTyres) ch.coldTyres[c] = coldVal;
           coldEl.value = coldVal.toFixed(1);
         }
       }
+
+      const cornerTargetHot =
+        activeSess &&
+        activeSess.tyres &&
+        activeSess.tyres[c] &&
+        Number.isFinite(Number(activeSess.tyres[c].targetHot)) &&
+        Number(activeSess.tyres[c].targetHot) > 0
+          ? Number(activeSess.tyres[c].targetHot)
+          : ch.targetHotTyres &&
+            Number.isFinite(Number(ch.targetHotTyres[c])) &&
+            Number(ch.targetHotTyres[c]) > 0
+          ? Number(ch.targetHotTyres[c])
+          : axleTargetHot;
+      ch.targetHotTyres[c] = cornerTargetHot;
+
       const hotEl = $(`inputHotPsi_${c}`);
       if (hotEl) {
-        const hotVal =
-          ch.hotTyres && ch.hotTyres[c] !== null && ch.hotTyres[c] !== undefined && ch.hotTyres[c] !== '' && Number.isFinite(Number(ch.hotTyres[c])) && Number(ch.hotTyres[c]) > 0
-            ? Number(ch.hotTyres[c])
-            : null;
-        hotEl.value = hotVal !== null ? hotVal.toFixed(1) : '';
+        if (isStep6PostTyres) {
+          const storedHot =
+            ch.hotTyres &&
+            ch.hotTyres[c] !== null &&
+            ch.hotTyres[c] !== undefined &&
+            ch.hotTyres[c] !== '' &&
+            Number.isFinite(Number(ch.hotTyres[c])) &&
+            Number(ch.hotTyres[c]) > 0
+              ? Number(ch.hotTyres[c])
+              : cornerTargetHot;
+          if (ch.hotTyres) ch.hotTyres[c] = storedHot;
+          hotEl.value = storedHot.toFixed(1);
+        } else {
+          hotEl.value = cornerTargetHot.toFixed(1);
+        }
       }
       const pCorner = (ch.pyroTyres && ch.pyroTyres[c]) || { out: null, mid: null, in: null };
       const outEl = $(`inputPyroOut_${c}`);
@@ -6815,16 +7278,22 @@
   }
 
   function syncClearColdPsiBtnText() {
+    const activeCond = state.chassis && state.chassis.tyreCondition === 'wet' ? 'wet' : 'dry';
+    const stoneCold = isCurrentTyreSessionStoneCold(activeCond);
+    const btn = $('btnClearAllColdPsi');
+    if (!btn) return;
+    if (!stoneCold) {
+      btn.style.display = 'none';
+      return;
+    }
+    btn.style.display = '';
     const anyColdHasVal = ['FL', 'FR', 'RL', 'RR'].some((c) => {
       const el = $(`inputColdPsi_${c}`);
       return el && String(el.value || '').trim() !== '';
     });
-    const btn = $('btnClearAllColdPsi');
-    if (btn) {
-      btn.textContent = anyColdHasVal
-        ? 'Clear Cold PSI (Already Bled Hot)'
-        : 'Restore Learned Cold PSI';
-    }
+    btn.textContent = anyColdHasVal
+      ? 'Reset to Dynamic Cold Call'
+      : 'Restore Dynamic Cold PSI';
   }
 
   function toggleClearOrRestoreColdPsi() {
@@ -6836,38 +7305,23 @@
     if (!state.chassis) state.chassis = createDefaultChassisState();
     const ch = state.chassis;
     const venue = getSelectedTyreTrackVenue();
-    const coldBase = computeDryPresetColdBase(ui.activeDryPreset || ch.activeDryPreset || 'ai_antipush', venue);
+    const activeCond = ch.tyreCondition === 'wet' ? 'wet' : 'dry';
+    const frontTarget = Number(readNum('inputTyreHotTargetFront', ch.hotTargetFront ?? 40.0).toFixed(1));
+    const rearTarget = Number(readNum('inputTyreHotTargetRear', ch.hotTargetRear ?? 43.0).toFixed(1));
+    const laps = Math.max(1, Math.round(readNum('inputTyreSessionLaps', ch.raceLaps || 12)));
+    const { rawTrackTempC } = readTrackTempInputC();
+    const dynCold = computeSession1DynamicColdCorners(venue, laps, rawTrackTempC, activeCond, frontTarget, rearTarget);
     if (!ch.coldTyres || typeof ch.coldTyres !== 'object') {
-      ch.coldTyres = { FL: coldBase.FL, FR: coldBase.FR, RL: coldBase.RL, RR: coldBase.RR };
+      ch.coldTyres = { FL: dynCold.FL, FR: dynCold.FR, RL: dynCold.RL, RR: dynCold.RR };
     }
-    const anyColdHasVal = ['FL', 'FR', 'RL', 'RR'].some((c) => {
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const el = $(`inputColdPsi_${c}`);
-      return el && String(el.value || '').trim() !== '';
+      if (el) el.value = dynCold[c].toFixed(1);
+      ch.coldTyres[c] = dynCold[c];
     });
-
-    if (anyColdHasVal) {
-      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-        const el = $(`inputColdPsi_${c}`);
-        if (el) el.value = '';
-        ch.coldTyres[c] = null;
-      });
-      syncClearColdPsiBtnText();
-      recalcTyres();
-      showToast('Cleared Cold PSI (Hot-Only / Already Bled Hot mode)');
-    } else {
-      const activeCond = ch.tyreCondition === 'wet' ? 'wet' : 'dry';
-      const direction = getTrackDirection(venue);
-      const wetStg = computeWetColdStagger(ch.wetPreset || 'light', direction);
-      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-        const coldVal = activeCond === 'wet' ? wetStg[c] : coldBase[c];
-        const el = $(`inputColdPsi_${c}`);
-        if (el) el.value = coldVal.toFixed(1);
-        ch.coldTyres[c] = coldVal;
-      });
-      syncClearColdPsiBtnText();
-      recalcTyres();
-      showToast(`Restored ${venue} Cold PSIs`);
-    }
+    syncClearColdPsiBtnText();
+    recalcTyres();
+    showToast(`Applied ${venue} Session 1 Dynamic Cold Call`);
   }
 
   function updateScaleFactFromCard2() {
@@ -7203,18 +7657,35 @@
       $('inputRaceLaps').value = String(tyreSessionLaps);
     }
 
+    const trackTempInfo = readTrackTempInputC();
+    ch.trackTempC = trackTempInfo.rawTrackTempC;
+    const cProf = getCircuitTyreProfile(venue);
+    const estRunMin = Number(((tyreSessionLaps * cProf.estLapSec) / 60).toFixed(1));
+
+    if ($('hintTyreSessionLaps')) {
+      $('hintTyreSessionLaps').textContent = `~${estRunMin.toFixed(1)} min (${cProf.estLapSec}s/lap)`;
+    }
+    if ($('hintTrackTempC')) {
+      $('hintTrackTempC').textContent = trackTempInfo.isBlank ? 'IR Bitumen °C (26°C std)' : 'IR Bitumen °C';
+    }
+
     if ($('tyreTargetBadge')) {
       $('tyreTargetBadge').textContent = `TARGET: ${hotTargetFront.toFixed(1)}F / ${hotTargetRear.toFixed(1)}R PSI`;
     }
 
     syncTyreConditionUi();
 
+    const stoneCold = isCurrentTyreSessionStoneCold(activeCond);
+    const activeSess = getActiveSession();
+    const curStep = activeSess ? getSessionWorkflowStep(activeSess) : 1;
+    const isStep6PostTyres = Boolean(activeSess && curStep === 6 && !activeSess.tyresPostLocked);
+
     const learnedStats = getTrackLearnedColdTyres(venue, hotTargetFront, hotTargetRear, activeCond);
     const condLabel = activeCond === 'wet' ? 'Wet KW' : 'Dry KB';
     if ($('tyreTrackLearnedHint')) {
       $('tyreTrackLearnedHint').textContent =
         learnedStats.totalRuns > 0
-          ? `${condLabel} (${learnedStats.totalRuns} run${learnedStats.totalRuns === 1 ? '' : 's'})`
+          ? `${condLabel} (${learnedStats.totalRuns} S1 run${learnedStats.totalRuns === 1 ? '' : 's'})`
           : activeCond === 'wet'
           ? `${learnedStats.wetPresetLabel} (${learnedStats.direction})`
           : `${condLabel} Seed (${learnedStats.direction})`;
@@ -7226,10 +7697,75 @@
     if ($('outTyreTrackLearnedSub')) {
       $('outTyreTrackLearnedSub').textContent =
         learnedStats.totalRuns > 0
-          ? `Auto-learned (${condLabel} @ ${hotTargetFront.toFixed(1)}F/${hotTargetRear.toFixed(1)}R) from ${learnedStats.totalRuns} hot-logged run${learnedStats.totalRuns === 1 ? '' : 's'} at ${venue} (${learnedStats.direction})`
+          ? `Normalized Session 1 Cold baseline (${condLabel} @ ${hotTargetFront.toFixed(1)}F/${hotTargetRear.toFixed(1)}R, 11.5m / 26°C std) from ${learnedStats.totalRuns} stone-cold run${learnedStats.totalRuns === 1 ? '' : 's'} at ${venue} (${learnedStats.direction})`
           : activeCond === 'wet'
           ? `${learnedStats.wetPresetLabel} (${learnedStats.direction} ${learnedStats.direction === 'CCW' ? 'FR/RR loaded' : 'FL/RL loaded'}) • Targets ${learnedStats.wetStagger.hotTargetFront.toFixed(1)}F / ${learnedStats.wetStagger.hotTargetRear.toFixed(1)}R PSI`
-          : `AI Cold Start baseline (${condLabel} • ${learnedStats.direction}) for ${hotTargetFront.toFixed(1)}F / ${hotTargetRear.toFixed(1)}R PSI • Log Cold + Hot PSI to auto-learn ${venue}`;
+          : `AI Cold Start baseline (${condLabel} • ${learnedStats.direction}) for ${hotTargetFront.toFixed(1)}F / ${hotTargetRear.toFixed(1)}R PSI • Protected from Session 2+ hot-bled runs`;
+    }
+
+    const dynBannerEl = $('tyreDynamicBanner');
+    if (dynBannerEl) {
+      if (stoneCold) {
+        const dynCold = computeSession1DynamicColdCorners(
+          venue,
+          tyreSessionLaps,
+          trackTempInfo.rawTrackTempC,
+          activeCond,
+          hotTargetFront,
+          hotTargetRear
+        );
+        dynBannerEl.className = 'learned-inline-banner tyre-dynamic-banner stone-cold';
+        dynBannerEl.innerHTML = `<strong>Session 1 Stone-Cold Call (${tyreSessionLaps} Laps / ~${estRunMin.toFixed(1)}m @ ${trackTempInfo.effectiveTrackTempC}°C Track${trackTempInfo.isBlank ? ' std' : ''}):</strong> FL <strong>${dynCold.FL.toFixed(1)}</strong> &bull; FR <strong>${dynCold.FR.toFixed(1)}</strong> &bull; RL <strong>${dynCold.RL.toFixed(1)}</strong> &bull; RR <strong>${dynCold.RR.toFixed(1)} psi</strong> (${escapeHtml(dynCold.offsets.summaryText)})`;
+      } else {
+        const completedList = getCompletedEventSessionsForTyreMode(activeCond);
+        const prevSess = completedList.length ? completedList[completedList.length - 1] : null;
+        const prevLaps =
+          prevSess && Number.isFinite(Number(prevSess.racedLaps)) && Number(prevSess.racedLaps) > 0
+            ? Math.round(Number(prevSess.racedLaps))
+            : tyreSessionLaps;
+        const prevTemp =
+          prevSess &&
+          prevSess.trackTempC !== null &&
+          prevSess.trackTempC !== undefined &&
+          Number.isFinite(Number(prevSess.trackTempC))
+            ? Number(prevSess.trackTempC)
+            : 26;
+        const curOff = computeDynamicColdOffsets({
+          venue,
+          laps: tyreSessionLaps,
+          trackTempC: trackTempInfo.effectiveTrackTempC,
+          tyreMode: activeCond
+        });
+        const prevOff = computeDynamicColdOffsets({
+          venue,
+          laps: prevLaps,
+          trackTempC: prevTemp,
+          tyreMode: activeCond
+        });
+        const deltaMin = Number((((tyreSessionLaps - prevLaps) * cProf.estLapSec) / 60).toFixed(1));
+        const deltaTemp = Math.round(trackTempInfo.effectiveTrackTempC - prevTemp);
+        const extraRisePsi = Number(
+          (-((curOff.durationPsi + curOff.tempPsi) - (prevOff.durationPsi + prevOff.tempPsi))).toFixed(1)
+        );
+        const prevName = prevSess && prevSess.sessionName ? prevSess.sessionName : 'last run';
+
+        if (Math.abs(deltaMin) >= 1.0 || Math.abs(deltaTemp) >= 3 || Math.abs(extraRisePsi) >= 0.2) {
+          const minSign = deltaMin >= 0 ? '+' : '';
+          const tempSign = deltaTemp >= 0 ? '+' : '';
+          const riseSign = extraRisePsi >= 0 ? '+' : '';
+          const trimAction =
+            extraRisePsi > 0.05
+              ? `trim <strong>-${Math.abs(extraRisePsi).toFixed(1)} psi</strong> off paddock tyres if untouched since last bleed`
+              : extraRisePsi < -0.05
+              ? `add <strong>+${Math.abs(extraRisePsi).toFixed(1)} psi</strong> to paddock tyres if untouched since last bleed`
+              : `keep paddock hot-bled pressures as set`;
+          dynBannerEl.className = 'learned-inline-banner tyre-dynamic-banner hot-advisory';
+          dynBannerEl.innerHTML = `<strong>Hot-Bled Grid Advisory:</strong> ${tyreSessionLaps} Laps (${minSign}${deltaMin.toFixed(1)}m) &amp; ${trackTempInfo.effectiveTrackTempC}°C Track (${tempSign}${deltaTemp}°C vs ${escapeHtml(prevName)}): Expect <strong>~${riseSign}${extraRisePsi.toFixed(1)} psi</strong> ${extraRisePsi >= 0 ? 'extra' : 'less'} rise &mdash; ${trimAction}`;
+        } else {
+          dynBannerEl.className = 'learned-inline-banner tyre-dynamic-banner hot-steady';
+          dynBannerEl.innerHTML = `<strong>Session 2+ Hot-Cycled Mode (${tyreSessionLaps} Laps / ~${estRunMin.toFixed(1)}m @ ${trackTempInfo.effectiveTrackTempC}°C Track):</strong> Tyres already heat-cycled &amp; bled hot after ${escapeHtml(prevName)} &mdash; lock your <strong>Pre-Session Target Hot PSI</strong> below.`;
+        }
+      }
     }
 
     renderMountedTyreSelectors();
@@ -7238,6 +7774,9 @@
     const dryStagger = computeDryAiColdStagger(getTrackDirection(venue));
     if (!ch.coldTyres || typeof ch.coldTyres !== 'object') {
       ch.coldTyres = { FL: dryStagger.FL, FR: dryStagger.FR, RL: dryStagger.RL, RR: dryStagger.RR };
+    }
+    if (!ch.targetHotTyres || typeof ch.targetHotTyres !== 'object') {
+      ch.targetHotTyres = { FL: hotTargetFront, FR: hotTargetFront, RL: hotTargetRear, RR: hotTargetRear };
     }
     if (!ch.pyroTyres || typeof ch.pyroTyres !== 'object') {
       ch.pyroTyres = createDefaultPyroCorners();
@@ -7260,28 +7799,96 @@
         prof.coldTyres[c] = cLearned.avg;
       }
 
+      const coldWrapEl = $(`coldPsiFieldWrap_${c}`);
+      if (coldWrapEl) {
+        coldWrapEl.style.display = stoneCold ? '' : 'none';
+      }
+      const coldReadoutsEl = $(`tyreCornerColdReadouts_${c}`);
+      if (coldReadoutsEl) {
+        coldReadoutsEl.style.display = stoneCold ? '' : 'none';
+      }
+
+      const lblHotEl = $(`lblHotPsi_${c}`);
+      if (lblHotEl) {
+        lblHotEl.textContent = isStep6PostTyres
+          ? 'ACTUAL HOT OFF-TRACK PSI'
+          : stoneCold
+          ? 'Finish Hot Target PSI'
+          : 'PRE-SESSION TARGET HOT PSI';
+      }
+
       const coldEl = $(`inputColdPsi_${c}`);
-      const rawCold = coldEl ? String(coldEl.value || '').trim() : '';
-      const parsedCold = rawCold === '' ? null : parseFloat(rawCold);
-      const cold =
-        parsedCold !== null && Number.isFinite(parsedCold) && parsedCold > 0
-          ? Number(parsedCold.toFixed(1))
-          : null;
+      let cold = null;
+      if (stoneCold) {
+        const rawCold = coldEl ? String(coldEl.value || '').trim() : '';
+        const parsedCold = rawCold === '' ? null : parseFloat(rawCold);
+        cold =
+          parsedCold !== null && Number.isFinite(parsedCold) && parsedCold > 0
+            ? Number(parsedCold.toFixed(1))
+            : null;
+      } else if (coldEl) {
+        coldEl.value = '';
+      }
 
       const hotEl = $(`inputHotPsi_${c}`);
       const rawHot = hotEl ? String(hotEl.value || '').trim() : '';
       const parsedHot = rawHot === '' ? null : parseFloat(rawHot);
-      const hot =
-        parsedHot !== null && Number.isFinite(parsedHot) && parsedHot > 0
-          ? Number(parsedHot.toFixed(1))
-          : null;
 
-      const build = cold !== null && hot !== null ? Number((hot - cold).toFixed(1)) : null;
-      const diff = hot !== null ? Number((hot - axleTargetHot).toFixed(1)) : null;
+      let cornerTargetHot = axleTargetHot;
+      let hot = null;
+      const targetPillEl = $(`outCornerTargetPill_${c}`);
+
+      if (isStep6PostTyres) {
+        cornerTargetHot =
+          activeSess &&
+          activeSess.tyres &&
+          activeSess.tyres[c] &&
+          Number.isFinite(Number(activeSess.tyres[c].targetHot)) &&
+          Number(activeSess.tyres[c].targetHot) > 0
+            ? Number(activeSess.tyres[c].targetHot)
+            : ch.targetHotTyres &&
+              Number.isFinite(Number(ch.targetHotTyres[c])) &&
+              Number(ch.targetHotTyres[c]) > 0
+            ? Number(ch.targetHotTyres[c])
+            : axleTargetHot;
+
+        if (parsedHot !== null && Number.isFinite(parsedHot) && parsedHot > 0) {
+          hot = Number(parsedHot.toFixed(1));
+        } else {
+          hot = Number(cornerTargetHot.toFixed(1));
+          if (hotEl) hotEl.value = hot.toFixed(1);
+        }
+
+        if (targetPillEl) {
+          targetPillEl.style.display = 'inline-flex';
+          targetPillEl.textContent = `Target: ${cornerTargetHot.toFixed(1)} psi`;
+        }
+      } else {
+        if (parsedHot !== null && Number.isFinite(parsedHot) && parsedHot > 0) {
+          cornerTargetHot = Number(parsedHot.toFixed(1));
+        } else {
+          cornerTargetHot = Number(axleTargetHot.toFixed(1));
+          if (hotEl) hotEl.value = cornerTargetHot.toFixed(1);
+        }
+        ch.targetHotTyres[c] = cornerTargetHot;
+
+        if (activeSess && activeSess.tyresPostLocked && activeSess.tyres && activeSess.tyres[c] && Number.isFinite(Number(activeSess.tyres[c].hot))) {
+          hot = Number(Number(activeSess.tyres[c].hot).toFixed(1));
+        } else {
+          hot = null;
+        }
+
+        if (targetPillEl) {
+          targetPillEl.style.display = 'none';
+        }
+      }
+
+      const build = stoneCold && cold !== null && hot !== null ? Number((hot - cold).toFixed(1)) : null;
+      const diff = hot !== null ? Number((hot - cornerTargetHot).toFixed(1)) : null;
       const nextCold =
-        cold !== null && hot !== null
-          ? Number((((axleTargetHot + 14.7) * (cold + 14.7)) / (hot + 14.7) - 14.7).toFixed(1))
-          : cold !== null
+        stoneCold && cold !== null && hot !== null
+          ? Number((((cornerTargetHot + 14.7) * (cold + 14.7)) / (hot + 14.7) - 14.7).toFixed(1))
+          : stoneCold && cold !== null
           ? Number(cold.toFixed(1))
           : null;
 
@@ -7350,7 +7957,16 @@
       }
 
       const tyreId = mounted[c] || '';
-      corners[c] = { tyreId, cold, hot, build, diff, nextCold, pyro: pyroObj };
+      corners[c] = {
+        tyreId,
+        targetHot: cornerTargetHot,
+        cold,
+        hot,
+        build,
+        diff,
+        nextCold,
+        pyro: pyroObj
+      };
 
       ch.coldTyres[c] = cold;
       ch.hotTyres[c] = hot;
@@ -7377,48 +7993,44 @@
         }
       }
 
-      // Top Corner Action Badge depends on hotVal vs axleTargetHot (Front vs Rear)
+      // Top Corner Action Badge
       if (actionEl) {
         if (hot === null) {
-          actionEl.textContent = `TGT ${axleTargetHot.toFixed(1)}`;
+          actionEl.textContent = `TGT ${cornerTargetHot.toFixed(1)}`;
           actionEl.className = 'afr-status-badge estimated';
-        } else if (Math.abs(diff) <= 0.15) {
-          actionEl.textContent = `${axleTargetHot.toFixed(1)} OK`;
-          actionEl.className = 'afr-status-badge verified';
-        } else if (diff > 0.15) {
-          actionEl.textContent = `BLEED −${diff.toFixed(1)}`;
-          actionEl.className = diff >= 1.5 ? 'afr-status-badge danger' : 'afr-status-badge estimated';
-        } else {
-          actionEl.textContent = `ADD +${Math.abs(diff).toFixed(1)}`;
+        } else if (hot > cornerTargetHot + 0.05) {
+          const bleedVal = (hot - cornerTargetHot).toFixed(1);
+          actionEl.textContent = `BLEED -${bleedVal} PSI`;
+          actionEl.className = hot - cornerTargetHot >= 1.5 ? 'afr-status-badge danger' : 'afr-status-badge estimated';
+        } else if (hot < cornerTargetHot - 0.05) {
+          const addVal = (cornerTargetHot - hot).toFixed(1);
+          actionEl.textContent = `ADD +${addVal} PSI`;
           actionEl.className = 'afr-status-badge cyan';
+        } else {
+          actionEl.textContent = `ON TARGET (${cornerTargetHot.toFixed(1)})`;
+          actionEl.className = 'afr-status-badge verified';
         }
       }
 
-      // Bottom Corner Telemetry Strip (GAIN & NEXT COLD SET)
-      if (cold !== null && hot !== null) {
-        const bSign = build >= 0 ? '+' : '';
-        if (buildEl) {
-          buildEl.textContent = `${bSign}${build.toFixed(1)} psi`;
-          buildEl.className = build >= 8.0 && build <= 16.0 ? 'mono txt-emerald' : 'mono txt-amber';
-        }
-        if (nextColdEl) {
-          nextColdEl.textContent = `${nextCold.toFixed(1)} psi`;
-        }
-      } else if (cold === null && hot !== null) {
-        if (buildEl) {
-          buildEl.textContent = '— (Hot-only)';
-          buildEl.className = 'mono txt-amber';
-        }
-        if (nextColdEl) {
-          nextColdEl.textContent = 'Bled Hot';
-        }
-      } else {
-        if (buildEl) {
-          buildEl.textContent = '—';
-          buildEl.className = 'mono txt-amber';
-        }
-        if (nextColdEl) {
-          nextColdEl.textContent = cold !== null ? `${cold.toFixed(1)} psi` : '—';
+      // Bottom Corner Telemetry Strip (GAIN & NEXT COLD SET — shown only in Session 1 Stone-Cold mode)
+      if (stoneCold) {
+        if (cold !== null && hot !== null) {
+          const bSign = build >= 0 ? '+' : '';
+          if (buildEl) {
+            buildEl.textContent = `${bSign}${build.toFixed(1)} psi`;
+            buildEl.className = build >= 8.0 && build <= 16.0 ? 'mono txt-emerald' : 'mono txt-amber';
+          }
+          if (nextColdEl) {
+            nextColdEl.textContent = `${nextCold.toFixed(1)} psi`;
+          }
+        } else {
+          if (buildEl) {
+            buildEl.textContent = '—';
+            buildEl.className = 'mono txt-amber';
+          }
+          if (nextColdEl) {
+            nextColdEl.textContent = cold !== null ? `${cold.toFixed(1)} psi` : '—';
+          }
         }
       }
     });
@@ -7433,6 +8045,10 @@
       hotTargetFront,
       hotTargetRear,
       tyreSessionLaps,
+      trackTempC: trackTempInfo.rawTrackTempC,
+      effectiveTrackTempC: trackTempInfo.effectiveTrackTempC,
+      estRunMin,
+      isStoneColdSession: stoneCold,
       tyreCondition: activeCond,
       corners,
       shocks: { ...mountedShocks },
@@ -7512,6 +8128,12 @@
       $('inputPostScaleWeightKg').value = '';
     }
 
+    // Keep Step 3 Session Laps & Dynamic Cold Call synced with locked Race Laps
+    if ($('inputTyreSessionLaps')) {
+      $('inputTyreSessionLaps').value = String(fuelSnap.raceLaps);
+    }
+    syncDynamicTyreCornerInputs({ updateCold: true, updateHotTargets: false });
+
     const nextStep = getSessionWorkflowStep(unified);
     syncFlatSessionsFromEvents(state);
     saveState();
@@ -7589,15 +8211,50 @@
       sessionDate: formatIsoDateDisplay(activeEvt.eventDate),
       sessionName: activeSess.sessionName,
       racedLaps: racedLapsToSave,
+      trackTempC: tyreSnap.trackTempC,
+      estRunMin: tyreSnap.estRunMin,
+      isStoneColdSession: Boolean(tyreSnap.isStoneColdSession),
       tyreHotTarget: Number(tyreSnap.hotTargetFront.toFixed(1)),
       hotTargetFront: Number(tyreSnap.hotTargetFront.toFixed(1)),
       hotTargetRear: Number(tyreSnap.hotTargetRear.toFixed(1)),
       tyreCondition: tyreSnap.tyreCondition || 'dry',
       tyres: {
-        FL: { ...tyreSnap.corners.FL, pyro: tyreSnap.corners.FL.pyro ? { ...tyreSnap.corners.FL.pyro } : null },
-        FR: { ...tyreSnap.corners.FR, pyro: tyreSnap.corners.FR.pyro ? { ...tyreSnap.corners.FR.pyro } : null },
-        RL: { ...tyreSnap.corners.RL, pyro: tyreSnap.corners.RL.pyro ? { ...tyreSnap.corners.RL.pyro } : null },
-        RR: { ...tyreSnap.corners.RR, pyro: tyreSnap.corners.RR.pyro ? { ...tyreSnap.corners.RR.pyro } : null }
+        FL: {
+          ...tyreSnap.corners.FL,
+          cold: tyreSnap.isStoneColdSession ? tyreSnap.corners.FL.cold : null,
+          hot: null,
+          build: null,
+          diff: null,
+          nextCold: tyreSnap.isStoneColdSession ? tyreSnap.corners.FL.cold : null,
+          pyro: tyreSnap.corners.FL.pyro ? { ...tyreSnap.corners.FL.pyro } : null
+        },
+        FR: {
+          ...tyreSnap.corners.FR,
+          cold: tyreSnap.isStoneColdSession ? tyreSnap.corners.FR.cold : null,
+          hot: null,
+          build: null,
+          diff: null,
+          nextCold: tyreSnap.isStoneColdSession ? tyreSnap.corners.FR.cold : null,
+          pyro: tyreSnap.corners.FR.pyro ? { ...tyreSnap.corners.FR.pyro } : null
+        },
+        RL: {
+          ...tyreSnap.corners.RL,
+          cold: tyreSnap.isStoneColdSession ? tyreSnap.corners.RL.cold : null,
+          hot: null,
+          build: null,
+          diff: null,
+          nextCold: tyreSnap.isStoneColdSession ? tyreSnap.corners.RL.cold : null,
+          pyro: tyreSnap.corners.RL.pyro ? { ...tyreSnap.corners.RL.pyro } : null
+        },
+        RR: {
+          ...tyreSnap.corners.RR,
+          cold: tyreSnap.isStoneColdSession ? tyreSnap.corners.RR.cold : null,
+          hot: null,
+          build: null,
+          diff: null,
+          nextCold: tyreSnap.isStoneColdSession ? tyreSnap.corners.RR.cold : null,
+          pyro: tyreSnap.corners.RR.pyro ? { ...tyreSnap.corners.RR.pyro } : null
+        }
       },
       shocks: { ...tyreSnap.shocks },
       springs: { ...tyreSnap.springs },
@@ -7715,36 +8372,63 @@
     const rearTgt = Number.isFinite(Number(s.hotTargetRear))
       ? Number(s.hotTargetRear)
       : 43.0;
+    const hasTrackTemp =
+      s.trackTempC !== null && s.trackTempC !== undefined && s.trackTempC !== '' && Number.isFinite(Number(s.trackTempC));
+    const trackTempStr = hasTrackTemp ? ` • Track: ${Math.round(Number(s.trackTempC))}°C` : '';
     const targetStr = ` (Targets ${frontTgt.toFixed(1)}F / ${rearTgt.toFixed(1)}R PSI)`;
     const lapsStr = Number.isFinite(Number(s.racedLaps)) && Number(s.racedLaps) > 0 ? ` • ${Math.round(Number(s.racedLaps))} Laps` : '';
+    const modeTag = s.isStoneColdSession === false ? ' • Session 2+ Hot-Cycled' : ' • Session 1 Stone-Cold';
+
     const pillsHtml = ['FL', 'FR', 'RL', 'RR']
       .map((c) => {
-        const cr = s.tyres[c] || { tyreId: DEFAULT_CORNER_TYRE_IDS[c], cold: null, hot: null, nextCold: null, pyro: null };
+        const axleTgt = c.startsWith('F') ? frontTgt : rearTgt;
+        const cr = s.tyres[c] || { tyreId: DEFAULT_CORNER_TYRE_IDS[c], targetHot: axleTgt, cold: null, hot: null, nextCold: null, pyro: null };
         const tyreCode = cr.tyreId || DEFAULT_CORNER_TYRE_IDS[c] || c;
-        const hasCold = cr.cold !== null && cr.cold !== undefined && cr.cold !== '' && Number.isFinite(Number(cr.cold)) && Number(cr.cold) > 0;
+        const cornerTgt =
+          cr.targetHot !== null && cr.targetHot !== undefined && cr.targetHot !== '' && Number.isFinite(Number(cr.targetHot)) && Number(cr.targetHot) > 0
+            ? Number(cr.targetHot)
+            : axleTgt;
+        const hasCold =
+          s.isStoneColdSession !== false &&
+          cr.cold !== null &&
+          cr.cold !== undefined &&
+          cr.cold !== '' &&
+          Number.isFinite(Number(cr.cold)) &&
+          Number(cr.cold) > 0;
         const hasHot = cr.hot !== null && cr.hot !== undefined && cr.hot !== '' && Number.isFinite(Number(cr.hot)) && Number(cr.hot) > 0;
-        const hasNext = cr.nextCold !== null && cr.nextCold !== undefined && cr.nextCold !== '' && Number.isFinite(Number(cr.nextCold)) && Number(cr.nextCold) > 0;
         const pyroShort = formatCornerPyroShort(cr.pyro);
 
         let valHtml = '';
         let nextStr = '';
         if (hasCold && hasHot) {
-          valHtml = `${Number(cr.cold).toFixed(1)}&rarr;${Number(cr.hot).toFixed(1)}`;
-          if (hasNext) nextStr = `Next ${Number(cr.nextCold).toFixed(1)}`;
+          // Session 1: FL 29.8C → 40.4H (Tgt 40.0)
+          valHtml = `${c} ${Number(cr.cold).toFixed(1)}C &rarr; ${Number(cr.hot).toFixed(1)}H`;
+          nextStr = `(Tgt ${cornerTgt.toFixed(1)})`;
         } else if (!hasCold && hasHot) {
-          valHtml = `Hot ${Number(cr.hot).toFixed(1)}`;
-          nextStr = 'Bled Hot';
+          // Session 2+: FL Tgt 40.0 → 40.6H (Bleed -0.6)
+          const hotVal = Number(cr.hot);
+          const delta = hotVal - cornerTgt;
+          valHtml = `${c} Tgt ${cornerTgt.toFixed(1)} &rarr; ${hotVal.toFixed(1)}H`;
+          if (delta > 0.05) {
+            nextStr = `(Bleed -${delta.toFixed(1)})`;
+          } else if (delta < -0.05) {
+            nextStr = `(Add +${Math.abs(delta).toFixed(1)})`;
+          } else {
+            nextStr = `(On Tgt ${cornerTgt.toFixed(1)})`;
+          }
         } else if (hasCold && !hasHot) {
-          valHtml = `Cold ${Number(cr.cold).toFixed(1)}`;
+          valHtml = `${c} ${Number(cr.cold).toFixed(1)}C &rarr; Tgt ${cornerTgt.toFixed(1)}H`;
+          nextStr = 'Pre-Session Locked';
         } else {
-          valHtml = `[${escapeHtml(tyreCode)}]`;
+          valHtml = `${c} Tgt ${cornerTgt.toFixed(1)}H`;
+          nextStr = 'Pre-Session Target';
         }
 
         return `
           <div class="unified-tyre-pill">
             <span class="unified-tyre-corner">${c} [${escapeHtml(tyreCode)}]</span>
             <span class="unified-tyre-val">${valHtml}</span>
-            ${nextStr ? `<span class="unified-tyre-next">${nextStr}</span>` : ''}
+            ${nextStr ? `<span class="unified-tyre-next">${escapeHtml(nextStr)}</span>` : ''}
             ${pyroShort ? `<span class="session-pyro-tag">${escapeHtml(pyroShort)}</span>` : ''}
           </div>
         `;
@@ -7753,7 +8437,7 @@
 
     return `
       <div class="unified-session-subblock">
-        <div class="unified-subblock-title">4-Corner Tyres${escapeHtml(targetStr)}${escapeHtml(lapsStr)}</div>
+        <div class="unified-subblock-title">4-Corner Tyres${escapeHtml(targetStr)}${escapeHtml(trackTempStr)}${escapeHtml(lapsStr)}${escapeHtml(modeTag)}</div>
         <div class="unified-tyre-grid">${pillsHtml}</div>
       </div>
     `;
@@ -8439,6 +9123,9 @@
       'Fuel_Out_L',
       'Fuel_Used_L',
       'Raced_Laps',
+      'Est_Run_Min',
+      'Track_Temp_C',
+      'Session_Tyre_Mode',
       'Measured_Burn_L_Lap',
       'Scale_Weight_Kg',
       'Post_Race_Est_Kg',
@@ -8446,21 +9133,25 @@
       'Hot_Target_R',
       'Tyre_Hot_Target_PSI',
       'FL_Tyre_ID',
+      'FL_Target_Hot_PSI',
       'FL_Cold_PSI',
       'FL_Hot_PSI',
       'FL_NextCold_PSI',
       'FL_Pyro_O_M_I',
       'FR_Tyre_ID',
+      'FR_Target_Hot_PSI',
       'FR_Cold_PSI',
       'FR_Hot_PSI',
       'FR_NextCold_PSI',
       'FR_Pyro_O_M_I',
       'RL_Tyre_ID',
+      'RL_Target_Hot_PSI',
       'RL_Cold_PSI',
       'RL_Hot_PSI',
       'RL_NextCold_PSI',
       'RL_Pyro_O_M_I',
       'RR_Tyre_ID',
+      'RR_Target_Hot_PSI',
       'RR_Cold_PSI',
       'RR_Hot_PSI',
       'RR_NextCold_PSI',
@@ -8503,12 +9194,25 @@
       const rearTgt = Number.isFinite(Number(s.hotTargetRear))
         ? Number(s.hotTargetRear)
         : 43.0;
+      const cProf = getCircuitTyreProfile(trackName);
+      const lapsNum = Number.isFinite(Number(s.racedLaps)) && Number(s.racedLaps) > 0 ? Math.round(Number(s.racedLaps)) : 12;
+      const estRunMinVal =
+        s.estRunMin !== null && s.estRunMin !== undefined && Number.isFinite(Number(s.estRunMin)) && Number(s.estRunMin) > 0
+          ? Number(s.estRunMin)
+          : Number(((lapsNum * cProf.estLapSec) / 60).toFixed(1));
       const fmtCorner = (c, k) => {
         if (!t[c]) return '';
         const v = t[c][k];
         return v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v)) && Number(v) > 0
           ? Number(v).toFixed(1)
           : '';
+      };
+      const fmtCornerTargetHot = (c) => {
+        const axleDefault = c.startsWith('F') ? frontTgt : rearTgt;
+        if (t[c] && t[c].targetHot !== null && t[c].targetHot !== undefined && Number.isFinite(Number(t[c].targetHot)) && Number(t[c].targetHot) > 0) {
+          return Number(t[c].targetHot).toFixed(1);
+        }
+        return axleDefault.toFixed(1);
       };
       const fmtCornerPyroCsv = (c) => {
         if (!t[c] || !t[c].pyro || typeof t[c].pyro !== 'object') return '';
@@ -8565,6 +9269,11 @@
         fmtOptDec(s.fuelOutL, 1),
         fmtOptDec(s.fuelUsedL, 2),
         s.racedLaps !== null && s.racedLaps !== undefined ? String(Math.round(Number(s.racedLaps))) : '',
+        fmtOptDec(estRunMinVal, 1),
+        s.trackTempC !== null && s.trackTempC !== undefined && s.trackTempC !== '' && Number.isFinite(Number(s.trackTempC))
+          ? String(Math.round(Number(s.trackTempC)))
+          : '',
+        s.isStoneColdSession === false ? 'SESSION_2_PLUS_HOT_CYCLED' : 'SESSION_1_STONE_COLD',
         fmtOptDec(s.measuredBurnLPerLap, 2),
         fmtOptDec(s.scaleWeightKg, 1),
         fmtOptDec(s.postRaceEstKg, 1),
@@ -8572,21 +9281,25 @@
         fmtOptDec(rearTgt, 1),
         fmtOptDec(frontTgt, 1),
         fmtCornerTyreId('FL'),
+        fmtCornerTargetHot('FL'),
         fmtCorner('FL', 'cold'),
         fmtCorner('FL', 'hot'),
         fmtCorner('FL', 'nextCold'),
         fmtCornerPyroCsv('FL'),
         fmtCornerTyreId('FR'),
+        fmtCornerTargetHot('FR'),
         fmtCorner('FR', 'cold'),
         fmtCorner('FR', 'hot'),
         fmtCorner('FR', 'nextCold'),
         fmtCornerPyroCsv('FR'),
         fmtCornerTyreId('RL'),
+        fmtCornerTargetHot('RL'),
         fmtCorner('RL', 'cold'),
         fmtCorner('RL', 'hot'),
         fmtCorner('RL', 'nextCold'),
         fmtCornerPyroCsv('RL'),
         fmtCornerTyreId('RR'),
+        fmtCornerTargetHot('RR'),
         fmtCorner('RR', 'cold'),
         fmtCorner('RR', 'hot'),
         fmtCorner('RR', 'nextCold'),
@@ -8621,7 +9334,7 @@
     }
     const payload = JSON.stringify(
       {
-        app: 'SNB Racing — HQ 202 Jetting & AFR (v0.7.0 Event & Suspension Edition)',
+        app: 'SNB Racing — HQ 202 Jetting & AFR (v0.8.0 Session 1/2+ Tyre & Track Temp Edition)',
         exportedAt: new Date().toISOString(),
         state
       },
@@ -10135,10 +10848,16 @@
     const dryCarKg = (Number(ch.scaleCheckKg) || 1377.0) - scaleFuelMass;
     const curFrontTarget = Number(ch.hotTargetFront ?? 40.0);
     const curRearTarget = Number(ch.hotTargetRear ?? 43.0);
+    const activeCond = ch.tyreCondition === 'wet' ? 'wet' : 'dry';
+    const stoneCold = isCurrentTyreSessionStoneCold(activeCond);
+    const trackTempDumpStr =
+      ch.trackTempC !== null && ch.trackTempC !== undefined && ch.trackTempC !== '' && Number.isFinite(Number(ch.trackTempC))
+        ? `${Math.round(Number(ch.trackTempC))}°C`
+        : '26°C (Std Default)';
 
     const lines = [];
     lines.push('====================================================================');
-    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.7.2)');
+    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.8.0)');
     lines.push(`Exported: ${new Date().toISOString()}`);
     lines.push('====================================================================');
     lines.push('');
@@ -10154,9 +10873,14 @@
     lines.push('');
 
     // 2. Active 4-Corner Setup (Tyres, Shocks, Springs)
-    lines.push('[2] CURRENT 4-CORNER CHASSIS SETUP (TYRES, TARGETS, PYROMETER, PEDDERS SHOCKS & SPRINGS)');
-    lines.push(`- Active Hot Tyre Targets (${ch.tyreCondition === 'wet' ? 'DECLARED WET KW' : 'DRY BUFFED KB'}): Front ${curFrontTarget.toFixed(1)} PSI (FL/FR) | Rear ${curRearTarget.toFixed(1)} PSI (RL/RR)`);
+    lines.push('[2] CURRENT 4-CORNER CHASSIS SETUP (TYRES, TARGETS, TRACK TEMP, PYROMETER, PEDDERS SHOCKS & SPRINGS)');
+    lines.push(`- Active Hot Tyre Targets (${activeCond === 'wet' ? 'DECLARED WET KW' : 'DRY BUFFED KB'}): Front ${curFrontTarget.toFixed(1)} PSI (FL/FR) | Rear ${curRearTarget.toFixed(1)} PSI (RL/RR) | Track_Temp_C: ${trackTempDumpStr} | Mode: ${stoneCold ? 'Session 1 Stone-Cold' : 'Session 2+ Hot-Cycled'}`);
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const axleTgt = c.startsWith('F') ? curFrontTarget : curRearTarget;
+      const cornerTgt =
+        ch.targetHotTyres && Number.isFinite(Number(ch.targetHotTyres[c])) && Number(ch.targetHotTyres[c]) > 0
+          ? Number(ch.targetHotTyres[c])
+          : axleTgt;
       const tObj = getTyreById(mountedTyres[c]);
       const shObj = getShockById(mountedShocks[c]);
       const spObj = getSpringById(mountedSprings[c]);
@@ -10165,15 +10889,18 @@
         : 'Unmounted';
       const shDesc = shObj ? `${shObj.code} (${formatShockKingBadge(shObj)})` : 'Unmounted';
       const spDesc = spObj ? `${spObj.code} (${formatSpringKingBadge(spObj)})` : 'Unmounted';
-      const liveCold = ch.coldTyres && ch.coldTyres[c] !== null && ch.coldTyres[c] !== undefined ? `${Number(ch.coldTyres[c]).toFixed(1)}C` : '—C';
+      const liveCold =
+        stoneCold && ch.coldTyres && ch.coldTyres[c] !== null && ch.coldTyres[c] !== undefined
+          ? `${Number(ch.coldTyres[c]).toFixed(1)}C->`
+          : '';
       const liveHot = ch.hotTyres && ch.hotTyres[c] !== null && ch.hotTyres[c] !== undefined ? `${Number(ch.hotTyres[c]).toFixed(1)}H` : '—H';
       const livePyro = ch.pyroTyres && ch.pyroTyres[c] ? formatPyroAiSummary(ch.pyroTyres[c]) : '';
-      lines.push(`- ${c}: Tyre=${tDesc} (${liveCold}->${liveHot})${livePyro ? ` ${livePyro}` : ''} | Shock=${shDesc} | Spring=${spDesc}`);
+      lines.push(`- ${c}: Tyre=${tDesc} (Target_Hot_PSI:${cornerTgt.toFixed(1)}, ${liveCold}${liveHot})${livePyro ? ` ${livePyro}` : ''} | Shock=${shDesc} | Spring=${spDesc}`);
     });
     lines.push('');
 
     // 3. Self-Learning Track Profiles (Fuel L/Lap & Cold Tyre Stagger)
-    lines.push('[3] SELF-LEARNING CIRCUIT PROFILES (FUEL BURN & COLD TYRE STAGGER)');
+    lines.push('[3] SELF-LEARNING CIRCUIT PROFILES (FUEL BURN & NORMALIZED SESSION 1 COLD TYRE STAGGER)');
     const venuesSet = new Set([
       'Calder Park Raceway',
       'Winton Motor Raceway',
@@ -10186,7 +10913,7 @@
       const tDry = getTrackLearnedColdTyres(v, curFrontTarget, curRearTarget, 'dry');
       const c = tDry.corners;
       lines.push(
-        `- ${v} (${tDry.direction}): Fuel=${fStat.avg.toFixed(2)} L/lap (${fStat.learned ? `${fStat.count} runs, ${fStat.min.toFixed(2)}-${fStat.max.toFixed(2)}` : 'seed'}) | Dry Cold Target@${curFrontTarget.toFixed(1)}F/${curRearTarget.toFixed(1)}R: FL ${c.FL.avg.toFixed(1)}, FR ${c.FR.avg.toFixed(1)}, RL ${c.RL.avg.toFixed(1)}, RR ${c.RR.avg.toFixed(1)} PSI (${tDry.totalRuns} runs)`
+        `- ${v} (${tDry.direction}): Fuel=${fStat.avg.toFixed(2)} L/lap (${fStat.learned ? `${fStat.count} runs, ${fStat.min.toFixed(2)}-${fStat.max.toFixed(2)}` : 'seed'}) | Normalized S1 Dry Cold@${curFrontTarget.toFixed(1)}F/${curRearTarget.toFixed(1)}R (11.5m/26°C std): FL ${c.FL.avg.toFixed(1)}, FR ${c.FR.avg.toFixed(1)}, RL ${c.RL.avg.toFixed(1)}, RR ${c.RR.avg.toFixed(1)} PSI (${tDry.totalRuns} S1 runs)`
       );
     });
     lines.push('');
@@ -10255,14 +10982,38 @@
         const rTgt = Number.isFinite(Number(s.hotTargetRear))
           ? Number(s.hotTargetRear)
           : 43.0;
+        const trackTempStr =
+          s.trackTempC !== null && s.trackTempC !== undefined && s.trackTempC !== '' && Number.isFinite(Number(s.trackTempC))
+            ? `${Math.round(Number(s.trackTempC))}°C`
+            : '26°C(std)';
+        const modeStr = s.isStoneColdSession === false ? 'S2+ Hot-Cycled' : 'S1 Stone-Cold';
         const fmtT = (c) => {
+          const axleTgt = c.startsWith('F') ? fTgt : rTgt;
           const cr = t[c] || {};
-          const cVal = cr.cold !== null && cr.cold !== undefined && Number.isFinite(Number(cr.cold)) ? Number(cr.cold) : null;
-          const hVal = cr.hot !== null && cr.hot !== undefined && Number.isFinite(Number(cr.hot)) ? Number(cr.hot) : null;
-          const gainStr = cVal !== null && hVal !== null ? ` (Gain ${hVal - cVal >= 0 ? '+' : ''}${(hVal - cVal).toFixed(1)}psi` : ' (';
-          const nextStr = cr.nextCold !== null && cr.nextCold !== undefined ? `${cVal !== null && hVal !== null ? ', ' : ''}NextCold ${Number(cr.nextCold).toFixed(1)})` : `${cVal !== null && hVal !== null ? ')' : ''}`;
+          const cornerTgt =
+            cr.targetHot !== null && cr.targetHot !== undefined && Number.isFinite(Number(cr.targetHot)) && Number(cr.targetHot) > 0
+              ? Number(cr.targetHot)
+              : axleTgt;
+          const cVal =
+            s.isStoneColdSession !== false && cr.cold !== null && cr.cold !== undefined && Number.isFinite(Number(cr.cold)) && Number(cr.cold) > 0
+              ? Number(cr.cold)
+              : null;
+          const hVal = cr.hot !== null && cr.hot !== undefined && Number.isFinite(Number(cr.hot)) && Number(cr.hot) > 0 ? Number(cr.hot) : null;
           const pyroStr = formatPyroAiSummary(cr.pyro);
-          return `${c}[${cr.tyreId || '—'}] ${cVal !== null ? cVal.toFixed(1) : '—'}->${hVal !== null ? hVal.toFixed(1) : '—'}${gainStr !== ' (' || nextStr ? `${gainStr}${nextStr}` : ''}${pyroStr ? ` ${pyroStr}` : ''}`;
+          if (cVal !== null && hVal !== null) {
+            return `${c}[${cr.tyreId || '—'}] ${cVal.toFixed(1)}C->${hVal.toFixed(1)}H (Target_Hot_PSI:${cornerTgt.toFixed(1)})${pyroStr ? ` ${pyroStr}` : ''}`;
+          }
+          if (cVal === null && hVal !== null) {
+            const delta = hVal - cornerTgt;
+            const actStr =
+              delta > 0.05
+                ? `Bleed -${delta.toFixed(1)}`
+                : delta < -0.05
+                ? `Add +${Math.abs(delta).toFixed(1)}`
+                : `On Tgt ${cornerTgt.toFixed(1)}`;
+            return `${c}[${cr.tyreId || '—'}] Target_Hot_PSI:${cornerTgt.toFixed(1)}->${hVal.toFixed(1)}H (${actStr})${pyroStr ? ` ${pyroStr}` : ''}`;
+          }
+          return `${c}[${cr.tyreId || '—'}] Target_Hot_PSI:${cornerTgt.toFixed(1)}${pyroStr ? ` ${pyroStr}` : ''}`;
         };
         const fmtSusp = (c) => {
           const shObj = getShockById(shMap[c]);
@@ -10277,7 +11028,7 @@
         lines.push(
           `    Fuel/Wt: Pour ${s.litresToPourL ?? '—'}L | In ${s.fuelInL ?? '—'}L -> Out ${s.fuelOutL ?? '—'}L | Used ${s.fuelUsedL ?? '—'}L (${s.racedLaps ?? '—'} laps = ${s.measuredBurnLPerLap ?? '—'} L/lap) | Scale/Est Wt: ${s.scaleWeightKg ?? '—'} / ${s.postRaceEstKg ?? '—'} kg`
         );
-        lines.push(`    Tyres (Targets ${fTgt.toFixed(1)}F / ${rTgt.toFixed(1)}R PSI • ${s.tyreCondition === 'wet' ? 'KW Wet' : 'KB Dry'}): ${fmtT('FL')} | ${fmtT('FR')} | ${fmtT('RL')} | ${fmtT('RR')}`);
+        lines.push(`    Tyres (${modeStr} • Track_Temp_C: ${trackTempStr} • Targets ${fTgt.toFixed(1)}F / ${rTgt.toFixed(1)}R PSI • ${s.tyreCondition === 'wet' ? 'KW Wet' : 'KB Dry'}): ${fmtT('FL')} | ${fmtT('FR')} | ${fmtT('RL')} | ${fmtT('RR')}`);
         lines.push(`    Suspension: ${fmtSusp('FL')} | ${fmtSusp('FR')} | ${fmtSusp('RL')} | ${fmtSusp('RR')}`);
         if (s.preRaceNotes) lines.push(`    Pre-Race Notes: ${s.preRaceNotes}`);
         if (s.postRaceNotes || s.notes) lines.push(`    Post-Race Notes: ${s.postRaceNotes || s.notes}`);
@@ -10807,7 +11558,8 @@
   /**
    * POST STEP 2 — SAVE & LOCK POST-SESSION FUEL & WEIGHT:
    * Saves Post-Session Fuel Pump-Out (or keeps estimated burn if skipped/blank) & optional Post-Race Scale Wt,
-   * sets fuelPostLocked = true, workflowStep = 6, closes #modalPostSessionFuel, and switches straight to #tab-tyres scrolled to top.
+   * sets fuelPostLocked = true, workflowStep = 6, pre-populates all 4 corner ACTUAL HOT OFF-TRACK PSI steppers
+   * with the exact Target Hot PSI locked in Pre-Session, closes #modalPostSessionFuel, and switches straight to #tab-tyres.
    */
   function savePostSessionFuelAndWeight(skipPumpOut = false) {
     const liveEvt = getActiveEvent();
@@ -10920,6 +11672,41 @@
     linked.fuelPostLocked = true;
     linked.workflowStep = 6;
 
+    // Pre-populate all 4 corner ACTUAL HOT OFF-TRACK PSI steppers with locked Pre-Session Target Hot PSIs
+    if (!state.chassis) state.chassis = createDefaultChassisState();
+    const frontTgt = Number.isFinite(Number(linked.hotTargetFront)) ? Number(linked.hotTargetFront) : Number(state.chassis.hotTargetFront ?? 40.0);
+    const rearTgt = Number.isFinite(Number(linked.hotTargetRear)) ? Number(linked.hotTargetRear) : Number(state.chassis.hotTargetRear ?? 43.0);
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const axleTgt = c.startsWith('F') ? frontTgt : rearTgt;
+      const lockedCornerTgt =
+        linked.tyres &&
+        linked.tyres[c] &&
+        Number.isFinite(Number(linked.tyres[c].targetHot)) &&
+        Number(linked.tyres[c].targetHot) > 0
+          ? Number(linked.tyres[c].targetHot)
+          : state.chassis.targetHotTyres &&
+            Number.isFinite(Number(state.chassis.targetHotTyres[c])) &&
+            Number(state.chassis.targetHotTyres[c]) > 0
+          ? Number(state.chassis.targetHotTyres[c])
+          : axleTgt;
+      const existingActualHot =
+        linked.tyres &&
+        linked.tyres[c] &&
+        linked.tyres[c].hot !== null &&
+        linked.tyres[c].hot !== undefined &&
+        Number.isFinite(Number(linked.tyres[c].hot)) &&
+        Number(linked.tyres[c].hot) > 0
+          ? Number(linked.tyres[c].hot)
+          : lockedCornerTgt;
+      if (state.chassis.hotTyres) {
+        state.chassis.hotTyres[c] = existingActualHot;
+      }
+      const hotEl = $(`inputHotPsi_${c}`);
+      if (hotEl) {
+        hotEl.value = existingActualHot.toFixed(1);
+      }
+    });
+
     const venueForLearn = liveEvt.venue || linked.venue || state.baseline.venue || 'Calder Park Raceway';
     syncFlatSessionsFromEvents(state);
     if (hasPumpOut) {
@@ -10940,27 +11727,17 @@
     // Auto-switch straight to #tab-tyres for Post Step 3 (Post-Session Tyres)
     switchTab('tab-tyres');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    const firstHotEl = $('inputHotPsi_FL');
-    if (firstHotEl && !firstHotEl.value) {
-      setTimeout(() => {
-        try {
-          firstHotEl.focus({ preventScroll: true });
-        } catch (_err) {
-          // ignore focus error
-        }
-      }, 220);
-    }
 
     showToast(
       hasPumpOut
-        ? `✓ Post-Session Fuel Locked (${linked.measuredBurnLPerLap.toFixed(2)} L/lap) — Enter Hot Tyre PSIs & Complete Session!`
-        : `✓ Post-Session Fuel Locked (Est Burn Kept) — Enter Hot Tyre PSIs & Complete Session!`
+        ? `✓ Post-Session Fuel Locked (${linked.measuredBurnLPerLap.toFixed(2)} L/lap) — Adjust Actual Hot Off-Track PSIs from Target & Complete Session!`
+        : `✓ Post-Session Fuel Locked (Est Burn Kept) — Adjust Actual Hot Off-Track PSIs from Target & Complete Session!`
     );
   }
 
   /**
    * POST STEP 3 — POST-SESSION TYRES & SESSION COMPLETION:
-   * Saves 4-corner Post-Session Hot Tyre PSIs, bleed/add deltas, Next Cold Set PSIs, and pyrometer temps,
+   * Saves 4-corner Post-Session Hot Tyre PSIs, bleed/add deltas, Next Cold Set PSIs (Session 1 only), and pyrometer temps,
    * marks the session VERIFIED & LOCKED, increments tyre laps once, promotes Tune + Fuel + Tyre baselines,
    * clears state.activeSessionId = null, and transitions immediately to the Gate B Select Next Session card!
    */
@@ -10992,27 +11769,50 @@
     const frontTarget = Number(tyreSnap.hotTargetFront.toFixed(1));
     const rearTarget = Number(tyreSnap.hotTargetRear.toFixed(1));
     const mounted = ensureMountedTyresState();
-    const nextColdRollForward = {};
+    const isStoneCold =
+      linked.isStoneColdSession !== undefined && linked.isStoneColdSession !== null
+        ? Boolean(linked.isStoneColdSession)
+        : Boolean(tyreSnap.isStoneColdSession);
 
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const axleTarget = c.startsWith('F') ? frontTarget : rearTarget;
       const snapCorner = (tyreSnap.corners && tyreSnap.corners[c]) || {};
-      const hotPsi = snapCorner.hot !== undefined && snapCorner.hot !== null ? Number(snapCorner.hot) : null;
-      const coldPsi =
-        snapCorner.cold !== undefined && snapCorner.cold !== null
+      const prevCorner = (linked.tyres && linked.tyres[c]) || {};
+      const cornerTargetHot =
+        prevCorner.targetHot !== null &&
+        prevCorner.targetHot !== undefined &&
+        Number.isFinite(Number(prevCorner.targetHot)) &&
+        Number(prevCorner.targetHot) > 0
+          ? Number(prevCorner.targetHot)
+          : snapCorner.targetHot !== null &&
+            snapCorner.targetHot !== undefined &&
+            Number.isFinite(Number(snapCorner.targetHot)) &&
+            Number(snapCorner.targetHot) > 0
+          ? Number(snapCorner.targetHot)
+          : axleTarget;
+
+      const hotPsi =
+        snapCorner.hot !== undefined && snapCorner.hot !== null
+          ? Number(snapCorner.hot)
+          : cornerTargetHot;
+      const coldPsi = isStoneCold
+        ? snapCorner.cold !== undefined && snapCorner.cold !== null
           ? Number(snapCorner.cold)
-          : linked.tyres && linked.tyres[c] && Number.isFinite(Number(linked.tyres[c].cold)) && Number(linked.tyres[c].cold) > 0
-          ? Number(linked.tyres[c].cold)
-          : null;
+          : prevCorner.cold !== null &&
+            prevCorner.cold !== undefined &&
+            Number.isFinite(Number(prevCorner.cold)) &&
+            Number(prevCorner.cold) > 0
+          ? Number(prevCorner.cold)
+          : null
+        : null;
 
       let nextColdPsi = null;
-      if (coldPsi !== null && hotPsi !== null) {
-        nextColdPsi = Number((((axleTarget + 14.7) * (coldPsi + 14.7)) / (hotPsi + 14.7) - 14.7).toFixed(1));
-      } else if (coldPsi !== null) {
+      if (isStoneCold && coldPsi !== null && hotPsi !== null) {
+        nextColdPsi = Number((((cornerTargetHot + 14.7) * (coldPsi + 14.7)) / (hotPsi + 14.7) - 14.7).toFixed(1));
+      } else if (isStoneCold && coldPsi !== null) {
         nextColdPsi = Number(coldPsi.toFixed(1));
       }
 
-      const prevCorner = (linked.tyres && linked.tyres[c]) || {};
       const mergedPyro =
         snapCorner.pyro ||
         normalizeSinglePyroObj(prevCorner.pyro) ||
@@ -11022,19 +11822,22 @@
       linked.tyres[c] = {
         ...prevCorner,
         tyreId: snapCorner.tyreId || prevCorner.tyreId || mounted[c] || DEFAULT_CORNER_TYRE_IDS[c],
+        targetHot: cornerTargetHot,
         cold: coldPsi,
         hot: hotPsi,
-        build: coldPsi !== null && hotPsi !== null ? Number((hotPsi - coldPsi).toFixed(1)) : null,
-        diff: hotPsi !== null ? Number((hotPsi - axleTarget).toFixed(1)) : null,
+        build: isStoneCold && coldPsi !== null && hotPsi !== null ? Number((hotPsi - coldPsi).toFixed(1)) : null,
+        diff: hotPsi !== null ? Number((hotPsi - cornerTargetHot).toFixed(1)) : null,
         nextCold: nextColdPsi,
         pyro: mergedPyro
       };
-
-      if (nextColdPsi !== null) {
-        nextColdRollForward[c] = nextColdPsi;
-      }
     });
 
+    linked.trackTempC =
+      tyreSnap.trackTempC !== null && tyreSnap.trackTempC !== undefined
+        ? tyreSnap.trackTempC
+        : linked.trackTempC ?? null;
+    linked.estRunMin = tyreSnap.estRunMin;
+    linked.isStoneColdSession = isStoneCold;
     linked.hotTargetFront = frontTarget;
     linked.hotTargetRear = rearTarget;
     linked.tyreHotTarget = frontTarget;
@@ -11104,23 +11907,25 @@
       carby.baselineAnchor.sourceLabel = state.baseline.sessionName;
     }
 
-    // Roll-forward Tyre Next Cold Set PSIs into live chassis baseline & clear Hot PSIs & Pyros for next run
+    // Prepare live chassis state for the next session in this event (which is now Session 2+ Hot-Cycled!)
     const venueForLearn = (liveEvt && liveEvt.venue) || linked.venue || state.baseline.venue || 'Calder Park Raceway';
     syncFlatSessionsFromEvents(state);
     recalculateTrackAverageBurn(venueForLearn);
 
-    const prof = ensureTrackProfile(venueForLearn);
+    if (state.chassis) {
+      state.chassis.forceFreshColdSet = false;
+    }
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-      if (Number.isFinite(nextColdRollForward[c])) {
-        const nextColdVal = nextColdRollForward[c];
-        if (state.chassis && state.chassis.coldTyres) {
-          state.chassis.coldTyres[c] = nextColdVal;
-        }
-        if (state.chassis && state.chassis.tyreCondition !== 'wet' && prof && prof.coldTyres) {
-          prof.coldTyres[c] = nextColdVal;
-        }
-        const coldInput = $(`inputColdPsi_${c}`);
-        if (coldInput) coldInput.value = nextColdVal.toFixed(1);
+      const axleTgt = c.startsWith('F') ? frontTarget : rearTarget;
+      const cornerTgt =
+        linked.tyres && linked.tyres[c] && Number.isFinite(Number(linked.tyres[c].targetHot))
+          ? Number(linked.tyres[c].targetHot)
+          : axleTgt;
+      if (state.chassis && state.chassis.coldTyres) {
+        state.chassis.coldTyres[c] = null;
+      }
+      if (state.chassis && state.chassis.targetHotTyres) {
+        state.chassis.targetHotTyres[c] = cornerTgt;
       }
       if (state.chassis && state.chassis.hotTyres) {
         state.chassis.hotTyres[c] = null;
@@ -11128,8 +11933,10 @@
       if (state.chassis && state.chassis.pyroTyres) {
         state.chassis.pyroTyres[c] = { out: null, mid: null, in: null };
       }
+      const coldInput = $(`inputColdPsi_${c}`);
+      if (coldInput) coldInput.value = '';
       const hotInput = $(`inputHotPsi_${c}`);
-      if (hotInput) hotInput.value = '';
+      if (hotInput) hotInput.value = cornerTgt.toFixed(1);
       ['Out', 'Mid', 'In'].forEach((zone) => {
         const pInp = $(`inputPyro${zone}_${c}`);
         if (pInp) pInp.value = '';
@@ -11787,7 +12594,14 @@
       ? stepStr.split('.')[1].length
       : 0;
 
-    // If an optional AFR, Cold/Hot Tyre PSI, Tyre Temp, Exhaust CFM, or Water Temp field is blank, start at a sensible default when stepping
+    // If an optional AFR, Cold/Hot Tyre PSI, Tyre Temp, Track Temp, Exhaust CFM, or Water Temp field is blank, start at a sensible default when stepping
+    if (idStr === 'inputTrackTempC' && !Number.isFinite(current)) {
+      const startTemp = Math.max(5, Math.min(65, Math.round(26 + delta)));
+      inputEl.value = String(startTemp);
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+      inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
     if (idStr === 'inputScaleCheckKg' && (!Number.isFinite(current) || current <= 500)) {
       inputEl.value = delta > 0 ? '1375.0' : '0.0';
       inputEl.dispatchEvent(new Event('input', { bubbles: true }));
@@ -11810,16 +12624,15 @@
       const cKey = idStr.replace('inputColdPsi_', '');
       const venue = getSelectedTyreTrackVenue();
       const activeCond = state.chassis && state.chassis.tyreCondition === 'wet' ? 'wet' : 'dry';
-      const learned = getTrackLearnedColdTyres(
+      const dynCold = computeSession1DynamicColdCorners(
         venue,
+        readNum('inputTyreSessionLaps', (state.chassis && state.chassis.raceLaps) || 12),
+        state.chassis ? state.chassis.trackTempC : null,
+        activeCond,
         readNum('inputTyreHotTargetFront', 40.0),
-        readNum('inputTyreHotTargetRear', 43.0),
-        activeCond
+        readNum('inputTyreHotTargetRear', 43.0)
       );
-      const startCold =
-        learned && learned.corners && learned.corners[cKey] && Number.isFinite(learned.corners[cKey].avg)
-          ? learned.corners[cKey].avg
-          : 30.0;
+      const startCold = Number.isFinite(dynCold[cKey]) ? dynCold[cKey] : 30.0;
       inputEl.value = startCold.toFixed(1);
       inputEl.dispatchEvent(new Event('input', { bubbles: true }));
       inputEl.dispatchEvent(new Event('change', { bubbles: true }));
@@ -12437,6 +13250,12 @@
         return;
       }
 
+      const freshColdSetBtn = e.target.closest('#btnToggleFreshColdSet');
+      if (freshColdSetBtn) {
+        toggleFreshColdSetMode();
+        return;
+      }
+
       const dropAiColdBtn = e.target.closest('#btnDropAiColdBaseline');
       if (dropAiColdBtn) {
         const activeSess = getActiveSession();
@@ -12643,6 +13462,37 @@
       }
 
       if (!target.id) return;
+
+      if (target.id === 'inputRaceLaps') {
+        const syncedLaps = Math.max(1, Math.round(readNum('inputRaceLaps', 12)));
+        if ($('inputTyreSessionLaps')) {
+          $('inputTyreSessionLaps').value = String(syncedLaps);
+        }
+        recalcFuelAndWeight();
+        syncDynamicTyreCornerInputs({ updateCold: true, updateHotTargets: false });
+        recalcTyres();
+        return;
+      }
+
+      if (target.id === 'inputTyreSessionLaps' || target.id === 'inputTrackTempC') {
+        if (target.id === 'inputTyreSessionLaps') {
+          const syncedLaps = Math.max(1, Math.round(readNum('inputTyreSessionLaps', 12)));
+          if ($('inputRaceLaps')) {
+            $('inputRaceLaps').value = String(syncedLaps);
+          }
+          recalcFuelAndWeight();
+        }
+        syncDynamicTyreCornerInputs({ updateCold: true, updateHotTargets: false });
+        recalcTyres();
+        return;
+      }
+
+      if (target.id === 'inputTyreHotTargetFront' || target.id === 'inputTyreHotTargetRear') {
+        syncDynamicTyreCornerInputs({ updateCold: true, updateHotTargets: true });
+        recalcTyres();
+        return;
+      }
+
       if (target.closest('#tab-fuel') || target.id === 'inputFuelSg') {
         recalcFuelAndWeight();
       } else if (target.closest('#tab-tyres') && !target.closest('#tyreStockManagerCard')) {

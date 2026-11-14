@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.7.9" />
+  <link rel="stylesheet" href="./styles.css?v=0.8.0" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -1089,7 +1089,7 @@
             </button>
           </div>
 
-          <div class="tyre-car-mini-matrix" aria-label="2x2 Car Cold Base Preview">
+          <div class="tyre-car-mini-matrix" id="miniCarColdPreviewBox" aria-label="2x2 Car Cold Base Preview">
             <div class="mini-car-head">
               <span class="mini-car-title">CAR COLD BASE</span>
               <span class="mini-car-dir" id="miniCarColdHeader">CW &bull; LH Loaded</span>
@@ -1118,7 +1118,7 @@
         <!-- 3-Button Wet Severity Stagger Bar (Shown when DECLARED WET KW is active) -->
         <div class="wet-severity-bar" id="wetSeverityBar" style="display: none;">
           <div class="wet-severity-head">
-            <span class="wet-severity-title">Wet Cold Stagger Preset</span>
+            <span class="wet-severity-title" id="wetSeverityTitle">Wet Stagger Preset</span>
             <span class="field-hint cyan" id="wetTrackDirBadge">CW &bull; Left-Loaded (FL/RL)</span>
           </div>
           <div class="seg-toggle wet-preset-seg" role="group" aria-label="Wet Severity Stagger Preset">
@@ -1170,17 +1170,17 @@
           </div>
         </div>
 
-        <!-- Row 2: Session Laps + Read-Only Active Circuit Direction Info Pill -->
+        <!-- Row 2: Session Laps (Auto-Synced w/ Raced Laps) + Track Temp (°C) (Step 1, Min 5, Max 65, Blankable 26°C) -->
         <div class="form-grid-2 compact-pair-grid" style="align-items: stretch; margin-bottom: 10px;">
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
               <label class="field-label" for="inputTyreSessionLaps">Session Laps</label>
-              <span class="field-hint">Added to Tyre Life</span>
+              <span class="field-hint" id="hintTyreSessionLaps">Synced w/ Fuel Laps</span>
             </div>
             <div class="num-stepper">
               <button type="button" class="stepper-btn" data-stepper-target="inputTyreSessionLaps" data-step="-1" aria-label="Decrease Tyre Session Laps">&minus;</button>
               <div class="num-input-wrap">
-                <input type="number" id="inputTyreSessionLaps" class="num-input" value="12" min="1" max="100" step="1" inputmode="numeric" />
+                <input type="number" id="inputTyreSessionLaps" class="num-input" value="10" min="1" max="100" step="1" inputmode="numeric" />
                 <span class="num-unit-badge">laps</span>
               </div>
               <button type="button" class="stepper-btn" data-stepper-target="inputTyreSessionLaps" data-step="1" aria-label="Increase Tyre Session Laps">+</button>
@@ -1189,21 +1189,51 @@
 
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
-              <span class="field-label">Active Circuit Direction</span>
-              <span class="field-hint emerald" id="hintTrackDirectionSide">LH Loaded</span>
+              <label class="field-label" for="inputTrackTempC">Track Temp (&deg;C)</label>
+              <span class="field-hint" id="hintTrackTempC">IR Bitumen &deg;C</span>
             </div>
-            <div class="tyre-circuit-dir-readout" role="status" aria-live="polite">
-              <span class="circuit-dir-venue" id="outActiveCircuitDirVenue">Calder Park Raceway</span>
-              <span class="circuit-dir-detail" id="outActiveCircuitDirSub">Clockwise (CW) &bull; FL / RL Outside</span>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="inputTrackTempC" data-step="-1" aria-label="Decrease Track Surface Temperature">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="inputTrackTempC" class="num-input" value="" placeholder="26" min="5" max="65" step="1" inputmode="numeric" />
+                <span class="num-unit-badge">&deg;C</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="inputTrackTempC" data-step="1" aria-label="Increase Track Surface Temperature">+</button>
             </div>
           </div>
+        </div>
+
+        <!-- Row 3: Active Circuit Direction + Right-Aligned [Fresh Cold Set] Override Pill -->
+        <div class="tyre-circuit-mode-row" style="margin-bottom: 10px;">
+          <div class="tyre-circuit-dir-readout" role="status" aria-live="polite" style="flex: 1; min-width: 0;">
+            <div class="circuit-dir-top-line">
+              <span class="circuit-dir-venue" id="outActiveCircuitDirVenue">Calder Park Raceway</span>
+              <span class="field-hint emerald" id="hintTrackDirectionSide">LH Loaded</span>
+            </div>
+            <span class="circuit-dir-detail" id="outActiveCircuitDirSub">Clockwise (CW) &bull; FL / RL Outside</span>
+          </div>
+          <button
+            type="button"
+            class="btn-fresh-cold-pill"
+            id="btnToggleFreshColdSet"
+            aria-pressed="false"
+            style="display: none;"
+            title="Bolt on brand-new un-cycled cold spares mid-weekend (re-enables Session 1 Cold Start PSI mode)"
+          >
+            [Fresh Cold Set]
+          </button>
+        </div>
+
+        <!-- 1-Line Dynamic Cold Call (Session 1) or Hot-Bled Grid Advisory (Session 2+) Banner -->
+        <div id="tyreDynamicBanner" class="tyre-dynamic-call-banner" role="status" aria-live="polite">
+          Session 1 Stone-Cold Start &bull; 10 Laps (~12.8 min) &bull; 26&deg;C Track (0.0 psi offset)
         </div>
 
         <!-- Post-Session Step 6 of 6 Callout Banner (Shown when workflowStep === 6) -->
         <div id="postTyresStep2Banner" class="post-step2-highlight-card" style="display: none;" role="region" aria-live="polite">
           <div class="post-step2-eyebrow">STEP 6 OF 6 &bull; POST-SESSION HOT TYRE PRESSURES &amp; PYROMETER</div>
           <div class="post-step2-title" id="postTyresStep2Title">
-            STEP 6 OF 6: Enter Hot Off-Track PSIs (and optional Pyrometer O/M/I) below, then tap 6. LOCK POST-SESSION TYRES &amp; COMPLETE SESSION &#10003;
+            STEP 6 OF 6: Adjust Actual Hot Off-Track PSIs up/down from Locked Target below, then tap 6. LOCK POST-SESSION TYRES &amp; COMPLETE SESSION &#10003;
           </div>
         </div>
 
@@ -1218,7 +1248,7 @@
             <button type="button" class="btn btn-secondary btn-clear-cold-psi" id="btnUnmountAllTyres" title="Strip all 4 hubs before changing tyre sets">
               Unmount All 4
             </button>
-            <button type="button" class="btn btn-secondary btn-clear-cold-psi" id="btnClearAllColdPsi">
+            <button type="button" class="btn btn-secondary btn-clear-cold-psi" id="btnClearAllColdPsi" style="display: none;">
               Clear Cold PSI (Already Bled Hot)
             </button>
           </div>
@@ -1229,7 +1259,10 @@
           <!-- FL: Front Left -->
           <div class="card-elevated tyre-corner-card">
             <div class="tyre-corner-head">
-              <span class="tyre-corner-badge">FL &mdash; FRONT LEFT</span>
+              <div class="tyre-corner-title-wrap">
+                <span class="tyre-corner-badge">FL &mdash; FRONT LEFT</span>
+                <span class="corner-locked-target-pill" id="outCornerTargetPill_FL">Target: 40.0 psi</span>
+              </div>
               <span class="afr-status-badge estimated" id="outTyreAction_FL">HOT PSI?</span>
             </div>
 
@@ -1258,27 +1291,27 @@
               </div>
             </div>
 
-            <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputColdPsi_FL">Cold PSI</label>
+            <div class="field-group tyre-stack-field" id="coldPsiFieldWrap_FL">
+              <label class="field-label" id="lblColdPsi_FL" for="inputColdPsi_FL">Cold Start PSI</label>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FL" data-step="-0.5" aria-label="Decrease FL Cold PSI">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FL" data-step="-0.1" aria-label="Decrease FL Cold PSI">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputColdPsi_FL" class="num-input" value="29.5" placeholder="&mdash;" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputColdPsi_FL" class="num-input" value="29.5" placeholder="&mdash;" min="18.0" max="50.0" step="0.1" inputmode="decimal" />
                   <span class="num-unit-badge">psi</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FL" data-step="0.5" aria-label="Increase FL Cold PSI">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FL" data-step="0.1" aria-label="Increase FL Cold PSI">+</button>
               </div>
             </div>
 
-            <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputHotPsi_FL">Hot PSI</label>
+            <div class="field-group tyre-stack-field" id="hotPsiFieldWrap_FL">
+              <label class="field-label" id="lblHotPsi_FL" for="inputHotPsi_FL">Finish Hot Target PSI</label>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_FL" data-step="-0.2" aria-label="Decrease FL Hot PSI">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_FL" data-step="-0.1" aria-label="Decrease FL Hot PSI">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputHotPsi_FL" class="num-input" value="" placeholder="&mdash;" min="20.0" max="60.0" step="0.2" inputmode="decimal" />
+                  <input type="number" id="inputHotPsi_FL" class="num-input" value="40.0" placeholder="&mdash;" min="20.0" max="60.0" step="0.1" inputmode="decimal" />
                   <span class="num-unit-badge">psi</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_FL" data-step="0.2" aria-label="Increase FL Hot PSI">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_FL" data-step="0.1" aria-label="Increase FL Hot PSI">+</button>
               </div>
             </div>
 
@@ -1310,7 +1343,7 @@
               </div>
             </div>
 
-            <div class="tyre-corner-readouts">
+            <div class="tyre-corner-readouts" id="tyreCornerColdReadouts_FL">
               <div class="tyre-telem-line">
                 <span class="telem-label" style="margin: 0;">Gain:</span>
                 <span class="mono txt-amber" id="outTyreBuild_FL">&mdash;</span>
@@ -1329,7 +1362,10 @@
           <!-- FR: Front Right -->
           <div class="card-elevated tyre-corner-card">
             <div class="tyre-corner-head">
-              <span class="tyre-corner-badge">FR &mdash; FRONT RIGHT</span>
+              <div class="tyre-corner-title-wrap">
+                <span class="tyre-corner-badge">FR &mdash; FRONT RIGHT</span>
+                <span class="corner-locked-target-pill" id="outCornerTargetPill_FR">Target: 40.0 psi</span>
+              </div>
               <span class="afr-status-badge estimated" id="outTyreAction_FR">HOT PSI?</span>
             </div>
 
@@ -1358,27 +1394,27 @@
               </div>
             </div>
 
-            <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputColdPsi_FR">Cold PSI</label>
+            <div class="field-group tyre-stack-field" id="coldPsiFieldWrap_FR">
+              <label class="field-label" id="lblColdPsi_FR" for="inputColdPsi_FR">Cold Start PSI</label>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FR" data-step="-0.5" aria-label="Decrease FR Cold PSI">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FR" data-step="-0.1" aria-label="Decrease FR Cold PSI">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputColdPsi_FR" class="num-input" value="30.5" placeholder="&mdash;" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputColdPsi_FR" class="num-input" value="30.5" placeholder="&mdash;" min="18.0" max="50.0" step="0.1" inputmode="decimal" />
                   <span class="num-unit-badge">psi</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FR" data-step="0.5" aria-label="Increase FR Cold PSI">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_FR" data-step="0.1" aria-label="Increase FR Cold PSI">+</button>
               </div>
             </div>
 
-            <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputHotPsi_FR">Hot PSI</label>
+            <div class="field-group tyre-stack-field" id="hotPsiFieldWrap_FR">
+              <label class="field-label" id="lblHotPsi_FR" for="inputHotPsi_FR">Finish Hot Target PSI</label>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_FR" data-step="-0.2" aria-label="Decrease FR Hot PSI">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_FR" data-step="-0.1" aria-label="Decrease FR Hot PSI">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputHotPsi_FR" class="num-input" value="" placeholder="&mdash;" min="20.0" max="60.0" step="0.2" inputmode="decimal" />
+                  <input type="number" id="inputHotPsi_FR" class="num-input" value="40.0" placeholder="&mdash;" min="20.0" max="60.0" step="0.1" inputmode="decimal" />
                   <span class="num-unit-badge">psi</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_FR" data-step="0.2" aria-label="Increase FR Hot PSI">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_FR" data-step="0.1" aria-label="Increase FR Hot PSI">+</button>
               </div>
             </div>
 
@@ -1410,7 +1446,7 @@
               </div>
             </div>
 
-            <div class="tyre-corner-readouts">
+            <div class="tyre-corner-readouts" id="tyreCornerColdReadouts_FR">
               <div class="tyre-telem-line">
                 <span class="telem-label" style="margin: 0;">Gain:</span>
                 <span class="mono txt-amber" id="outTyreBuild_FR">&mdash;</span>
@@ -1429,7 +1465,10 @@
           <!-- RL: Rear Left -->
           <div class="card-elevated tyre-corner-card">
             <div class="tyre-corner-head">
-              <span class="tyre-corner-badge">RL &mdash; REAR LEFT</span>
+              <div class="tyre-corner-title-wrap">
+                <span class="tyre-corner-badge">RL &mdash; REAR LEFT</span>
+                <span class="corner-locked-target-pill" id="outCornerTargetPill_RL">Target: 43.0 psi</span>
+              </div>
               <span class="afr-status-badge estimated" id="outTyreAction_RL">HOT PSI?</span>
             </div>
 
@@ -1458,27 +1497,27 @@
               </div>
             </div>
 
-            <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputColdPsi_RL">Cold PSI</label>
+            <div class="field-group tyre-stack-field" id="coldPsiFieldWrap_RL">
+              <label class="field-label" id="lblColdPsi_RL" for="inputColdPsi_RL">Cold Start PSI</label>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RL" data-step="-0.5" aria-label="Decrease RL Cold PSI">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RL" data-step="-0.1" aria-label="Decrease RL Cold PSI">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputColdPsi_RL" class="num-input" value="34.0" placeholder="&mdash;" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputColdPsi_RL" class="num-input" value="34.0" placeholder="&mdash;" min="18.0" max="50.0" step="0.1" inputmode="decimal" />
                   <span class="num-unit-badge">psi</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RL" data-step="0.5" aria-label="Increase RL Cold PSI">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RL" data-step="0.1" aria-label="Increase RL Cold PSI">+</button>
               </div>
             </div>
 
-            <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputHotPsi_RL">Hot PSI</label>
+            <div class="field-group tyre-stack-field" id="hotPsiFieldWrap_RL">
+              <label class="field-label" id="lblHotPsi_RL" for="inputHotPsi_RL">Finish Hot Target PSI</label>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_RL" data-step="-0.2" aria-label="Decrease RL Hot PSI">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_RL" data-step="-0.1" aria-label="Decrease RL Hot PSI">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputHotPsi_RL" class="num-input" value="" placeholder="&mdash;" min="20.0" max="60.0" step="0.2" inputmode="decimal" />
+                  <input type="number" id="inputHotPsi_RL" class="num-input" value="43.0" placeholder="&mdash;" min="20.0" max="60.0" step="0.1" inputmode="decimal" />
                   <span class="num-unit-badge">psi</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_RL" data-step="0.2" aria-label="Increase RL Hot PSI">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_RL" data-step="0.1" aria-label="Increase RL Hot PSI">+</button>
               </div>
             </div>
 
@@ -1510,7 +1549,7 @@
               </div>
             </div>
 
-            <div class="tyre-corner-readouts">
+            <div class="tyre-corner-readouts" id="tyreCornerColdReadouts_RL">
               <div class="tyre-telem-line">
                 <span class="telem-label" style="margin: 0;">Gain:</span>
                 <span class="mono txt-amber" id="outTyreBuild_RL">&mdash;</span>
@@ -1529,7 +1568,10 @@
           <!-- RR: Rear Right -->
           <div class="card-elevated tyre-corner-card">
             <div class="tyre-corner-head">
-              <span class="tyre-corner-badge">RR &mdash; REAR RIGHT</span>
+              <div class="tyre-corner-title-wrap">
+                <span class="tyre-corner-badge">RR &mdash; REAR RIGHT</span>
+                <span class="corner-locked-target-pill" id="outCornerTargetPill_RR">Target: 43.0 psi</span>
+              </div>
               <span class="afr-status-badge estimated" id="outTyreAction_RR">HOT PSI?</span>
             </div>
 
@@ -1558,27 +1600,27 @@
               </div>
             </div>
 
-            <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputColdPsi_RR">Cold PSI</label>
+            <div class="field-group tyre-stack-field" id="coldPsiFieldWrap_RR">
+              <label class="field-label" id="lblColdPsi_RR" for="inputColdPsi_RR">Cold Start PSI</label>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RR" data-step="-0.5" aria-label="Decrease RR Cold PSI">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RR" data-step="-0.1" aria-label="Decrease RR Cold PSI">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputColdPsi_RR" class="num-input" value="35.0" placeholder="&mdash;" min="18.0" max="50.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputColdPsi_RR" class="num-input" value="35.0" placeholder="&mdash;" min="18.0" max="50.0" step="0.1" inputmode="decimal" />
                   <span class="num-unit-badge">psi</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RR" data-step="0.5" aria-label="Increase RR Cold PSI">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputColdPsi_RR" data-step="0.1" aria-label="Increase RR Cold PSI">+</button>
               </div>
             </div>
 
-            <div class="field-group tyre-stack-field">
-              <label class="field-label" for="inputHotPsi_RR">Hot PSI</label>
+            <div class="field-group tyre-stack-field" id="hotPsiFieldWrap_RR">
+              <label class="field-label" id="lblHotPsi_RR" for="inputHotPsi_RR">Finish Hot Target PSI</label>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_RR" data-step="-0.2" aria-label="Decrease RR Hot PSI">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_RR" data-step="-0.1" aria-label="Decrease RR Hot PSI">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputHotPsi_RR" class="num-input" value="" placeholder="&mdash;" min="20.0" max="60.0" step="0.2" inputmode="decimal" />
+                  <input type="number" id="inputHotPsi_RR" class="num-input" value="43.0" placeholder="&mdash;" min="20.0" max="60.0" step="0.1" inputmode="decimal" />
                   <span class="num-unit-badge">psi</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_RR" data-step="0.2" aria-label="Increase RR Hot PSI">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputHotPsi_RR" data-step="0.1" aria-label="Increase RR Hot PSI">+</button>
               </div>
             </div>
 
@@ -1610,7 +1652,7 @@
               </div>
             </div>
 
-            <div class="tyre-corner-readouts">
+            <div class="tyre-corner-readouts" id="tyreCornerColdReadouts_RR">
               <div class="tyre-telem-line">
                 <span class="telem-label" style="margin: 0;">Gain:</span>
                 <span class="mono txt-amber" id="outTyreBuild_RR">&mdash;</span>
@@ -3702,6 +3744,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.7.9"></script>
+  <script src="./app.js?v=0.8.0"></script>
 </body>
 </html>
