@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.8.3" />
+  <link rel="stylesheet" href="./styles.css?v=0.8.4" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -2133,10 +2133,37 @@
             <div class="section-eyebrow">WORKSHOP 4-PAD SCALES &bull; GROUP 3H RULE 6C (&le;20MM REAR SPACER)</div>
             <h2 class="section-title">CORNER WEIGHT &amp; WEDGE BASELINE (WITH DRIVER)</h2>
           </div>
-          <span class="locked-badge" id="cornerWtStatusBadge">ENTER 4 CORNERS</span>
+          <span class="afr-status-badge estimated" id="cornerWtStatusBadge">Enter 4 Corners When Scaled</span>
         </div>
 
         <div class="card-elevated corner-wt-recessed-box">
+          <!-- Base Fuel When Scaled (L) Stepper Row -->
+          <div class="field-group cw-base-fuel-group" style="margin-bottom: 12px;">
+            <div class="field-label-row">
+              <label class="field-label" for="inputCwBaseFuelL">Base Fuel When Scaled (L)</label>
+              <span class="field-hint mono emerald" id="outCwBaseFuelHint">~14.8 kg @ 0.740 SG &bull; Dry Car+Driver: &ndash; kg</span>
+            </div>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="inputCwBaseFuelL" data-step="-0.5" aria-label="Decrease Base Fuel When Scaled">&minus;</button>
+              <div class="num-input-wrap">
+                <input type="number" id="inputCwBaseFuelL" class="num-input" data-corner-wt-input="baseFuelL" value="20.0" min="0.0" max="74.0" step="0.5" inputmode="decimal" />
+                <span class="num-unit-badge">L</span>
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="inputCwBaseFuelL" data-step="0.5" aria-label="Increase Base Fuel When Scaled">+</button>
+            </div>
+          </div>
+
+          <!-- TOP MIDDLE: Overall Front Axle Box -->
+          <div class="cw-axle-box cw-axle-box-front" id="cwAxleBoxFront">
+            <div class="cw-axle-eyebrow">OVERALL FRONT</div>
+            <div class="cw-axle-main-row">
+              <span class="cw-axle-kg mono" id="outCwFrontKg">&ndash; kg</span>
+              <span class="cw-axle-dot">&bull;</span>
+              <span class="cw-axle-pct-pill mono" id="outCwFrontPct">&ndash;%</span>
+            </div>
+          </div>
+
+          <!-- FRONT CORNERS ROW (2-col): FL (kg) | FR (kg) -->
           <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
@@ -2146,7 +2173,7 @@
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FL" data-step="-0.5" aria-label="Decrease FL Corner Weight">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputCornerWt_FL" class="num-input" value="" placeholder="&mdash;" min="150" max="600" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputCornerWt_FL" class="num-input" data-corner-wt-input="FL" value="" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
                   <span class="num-unit-badge">kg</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FL" data-step="0.5" aria-label="Increase FL Corner Weight">+</button>
@@ -2161,7 +2188,7 @@
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FR" data-step="-0.5" aria-label="Decrease FR Corner Weight">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputCornerWt_FR" class="num-input" value="" placeholder="&mdash;" min="150" max="600" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputCornerWt_FR" class="num-input" data-corner-wt-input="FR" value="" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
                   <span class="num-unit-badge">kg</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FR" data-step="0.5" aria-label="Increase FR Corner Weight">+</button>
@@ -2169,6 +2196,26 @@
             </div>
           </div>
 
+          <!-- CENTER CROSS-WEIGHT HUB (Between FL/FR and RL/RR) -->
+          <div class="cw-center-hub" id="cwCenterHub">
+            <div class="cw-hub-col">
+              <span class="cw-hub-label">TOTAL WT</span>
+              <span class="cw-hub-val mono" id="outCwTotalKg">&ndash; kg</span>
+              <span class="cw-hub-sub mono" id="outCwDryCarSub">Dry: &ndash; kg</span>
+            </div>
+            <div class="cw-hub-col cw-hub-col-cross" id="cwHubColCross">
+              <span class="cw-hub-label">CROSS WT (FL+RR)</span>
+              <span class="cw-hub-val-cross mono" id="outCwCrossPct">&ndash;%</span>
+              <span class="cw-hub-sub mono" id="outCwCrossKg">(&ndash; kg)</span>
+            </div>
+            <div class="cw-hub-col">
+              <span class="cw-hub-label">LEFT SIDE</span>
+              <span class="cw-hub-val mono" id="outCwLeftPct">&ndash;%</span>
+              <span class="cw-hub-sub mono" id="outCwLeftKg">(&ndash; kg)</span>
+            </div>
+          </div>
+
+          <!-- REAR CORNERS ROW (2-col): RL (kg) | RR (kg) -->
           <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
@@ -2178,7 +2225,7 @@
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RL" data-step="-0.5" aria-label="Decrease RL Corner Weight">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputCornerWt_RL" class="num-input" value="" placeholder="&mdash;" min="150" max="600" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputCornerWt_RL" class="num-input" data-corner-wt-input="RL" value="" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
                   <span class="num-unit-badge">kg</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RL" data-step="0.5" aria-label="Increase RL Corner Weight">+</button>
@@ -2193,12 +2240,23 @@
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RR" data-step="-0.5" aria-label="Decrease RR Corner Weight">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputCornerWt_RR" class="num-input" value="" placeholder="&mdash;" min="150" max="600" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputCornerWt_RR" class="num-input" data-corner-wt-input="RR" value="" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
                   <span class="num-unit-badge">kg</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RR" data-step="0.5" aria-label="Increase RR Corner Weight">+</button>
               </div>
             </div>
+          </div>
+
+          <!-- BOTTOM MIDDLE: Overall Rear Axle Box -->
+          <div class="cw-axle-box cw-axle-box-rear" id="cwAxleBoxRear">
+            <div class="cw-axle-eyebrow">OVERALL REAR</div>
+            <div class="cw-axle-main-row">
+              <span class="cw-axle-kg mono" id="outCwRearKg">&ndash; kg</span>
+              <span class="cw-axle-dot">&bull;</span>
+              <span class="cw-axle-pct-pill mono" id="outCwRearPct">&ndash;%</span>
+            </div>
+            <div class="cw-axle-sub mono" id="outCwStaticRearDelta">Static RL vs RR: &ndash; kg</div>
           </div>
 
           <!-- Spacers Installed When Scaled (RL & RR: 0 / 10 / 20mm) -->
@@ -2226,11 +2284,6 @@
                 <button type="button" class="rear-spacer-pill active" data-scale-spacer-corner="RR" data-scale-spacer-mm="20">20mm</button>
               </div>
             </div>
-          </div>
-
-          <!-- Auto-Calculated Summary Readout -->
-          <div class="corner-wt-summary-banner" id="outCornerWtSummaryBar">
-            Enter FL, FR, RL &amp; RR scale pad weights above to calculate Total, Cross Wt (FL+RR), Left %, Rear % &amp; Static RL vs RR delta.
           </div>
 
           <!-- Live Wedge Shift Estimator for 0 / 10 / 20mm Rear Spacers -->
@@ -3914,6 +3967,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.8.3"></script>
+  <script src="./app.js?v=0.8.4"></script>
 </body>
 </html>

@@ -5260,24 +5260,193 @@ button:disabled.btn-stage-locked,
   border: 1px solid rgba(251, 191, 36, 0.52);
 }
 
-/* 4-Corner Scale Weight & Wedge Baseline Card in Fleet & Kit */
+/* 4-Corner Scale Weight & Wedge Baseline Card in Fleet & Kit (4-Pad Chassis Scale Layout) */
 .corner-wt-recessed-box {
   padding: 12px 11px;
 }
 
-.corner-wt-summary-banner {
-  padding: 9px 10px;
-  border-radius: 8px;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 800;
-  line-height: 1.45;
-  color: #ECFDF5;
+.cw-base-fuel-group .field-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Top-Middle & Bottom-Middle Centered 3D Axle Boxes */
+.cw-axle-box {
+  max-width: 340px;
+  margin: 0 auto 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  text-align: center;
   background:
-    radial-gradient(ellipse 85% 50% at 50% 0%, rgba(16, 185, 129, 0.16) 0%, transparent 72%),
-    linear-gradient(180deg, #102621 0%, #091513 100%);
-  border: 1.5px solid rgba(52, 211, 153, 0.52);
-  margin-bottom: 8px;
+    radial-gradient(ellipse 80% 55% at 50% 0%, rgba(56, 189, 248, 0.14) 0%, transparent 72%),
+    linear-gradient(180deg, #1F2937 0%, #131922 58%, #0B0F16 100%);
+  border: 1.5px solid #526684;
+  border-top-color: #7D95B8;
+  border-bottom-color: #1E293B;
+  box-shadow:
+    0 3px 0 #06080C,
+    0 5px 12px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.cw-axle-box-rear {
+  margin: 0 auto 14px;
+}
+
+.cw-axle-eyebrow {
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94A3B8;
+  margin-bottom: 3px;
+}
+
+.cw-axle-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.cw-axle-kg {
+  font-size: 1.18rem;
+  font-weight: 900;
+  color: #F8FAFC;
+  letter-spacing: -0.01em;
+}
+
+.cw-axle-dot {
+  color: #64748B;
+  font-weight: 900;
+}
+
+.cw-axle-pct-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: #6EE7B7;
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(52, 211, 153, 0.55);
+}
+
+.cw-axle-pct-pill.amber {
+  color: #FDE047;
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(251, 191, 36, 0.62);
+}
+
+.cw-axle-pct-pill.muted {
+  color: #94A3B8;
+  background: rgba(148, 163, 184, 0.12);
+  border-color: rgba(148, 163, 184, 0.32);
+}
+
+.cw-axle-sub {
+  margin-top: 4px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #CBD5E1;
+}
+
+/* Center Cross-Weight Hub (Between FL/FR and RL/RR) */
+.cw-center-hub {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr 1fr;
+  gap: 7px;
+  align-items: stretch;
+  margin: 0 0 10px;
+  padding: 8px;
+  border-radius: 11px;
+  background:
+    radial-gradient(ellipse 85% 60% at 50% 0%, rgba(16, 185, 129, 0.14) 0%, transparent 72%),
+    linear-gradient(180deg, #16202C 0%, #0E141D 60%, #090D13 100%);
+  border: 1.5px solid #4A5F7D;
+  border-top-color: #6F88AC;
+  border-bottom-color: #1B2432;
+  box-shadow:
+    0 3px 0 #05070A,
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.cw-hub-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6px 5px;
+  border-radius: 8px;
+  background: rgba(15, 23, 34, 0.68);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+.cw-hub-col-cross {
+  background:
+    radial-gradient(ellipse 85% 60% at 50% 10%, rgba(16, 185, 129, 0.24) 0%, transparent 74%),
+    linear-gradient(180deg, #123128 0%, #0A1D18 65%, #071310 100%);
+  border: 1.5px solid rgba(52, 211, 153, 0.68);
+  box-shadow:
+    0 0 12px rgba(16, 185, 129, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.cw-hub-col-cross.amber {
+  background:
+    radial-gradient(ellipse 85% 60% at 50% 10%, rgba(245, 158, 11, 0.25) 0%, transparent 74%),
+    linear-gradient(180deg, #3B230B 0%, #241405 65%, #160C03 100%);
+  border-color: rgba(251, 191, 36, 0.72);
+  box-shadow:
+    0 0 12px rgba(245, 158, 11, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.cw-hub-label {
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94A3B8;
+  margin-bottom: 2px;
+}
+
+.cw-hub-col-cross .cw-hub-label {
+  color: #A7F3D0;
+}
+
+.cw-hub-col-cross.amber .cw-hub-label {
+  color: #FDE68A;
+}
+
+.cw-hub-val {
+  font-size: 0.94rem;
+  font-weight: 900;
+  color: #F8FAFC;
+  line-height: 1.15;
+}
+
+.cw-hub-val-cross {
+  font-size: 1.24rem;
+  font-weight: 900;
+  color: #6EE7B7;
+  line-height: 1.1;
+}
+
+.cw-hub-col-cross.amber .cw-hub-val-cross {
+  color: #FDE047;
+}
+
+.cw-hub-sub {
+  margin-top: 2px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #CBD5E1;
 }
 
 .corner-wt-wedge-est {
@@ -5290,4 +5459,5 @@ button:disabled.btn-stage-locked,
   background: linear-gradient(180deg, #141B26 0%, #0C1017 100%);
   border: 1px solid #3B4B64;
 }
+
 

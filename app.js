@@ -1438,6 +1438,7 @@
       FR: null,
       RL: null,
       RR: null,
+      baseFuelL: 20.0,
       rlSpacerMm: 0,
       rrSpacerMm: 20
     };
@@ -1449,15 +1450,23 @@
     const pickCornerKg = (v) => {
       if (v === null || v === undefined || v === '') return null;
       const n = Number(v);
-      return Number.isFinite(n) && n > 50 && n <= 800 ? Number(n.toFixed(1)) : null;
+      return Number.isFinite(n) && n > 0 && n <= 1200 ? Number(n.toFixed(1)) : null;
     };
+    const rawFuel = raw.baseFuelL;
+    const baseFuelL =
+      rawFuel !== null && rawFuel !== undefined && rawFuel !== '' && Number.isFinite(Number(rawFuel)) && Number(rawFuel) >= 0
+        ? Number(clamp(Number(rawFuel), 0, 74).toFixed(1))
+        : 20.0;
+    const rlRaw = raw.rlSpacerMm !== undefined ? raw.rlSpacerMm : raw.scaleSpacers && raw.scaleSpacers.RL;
+    const rrRaw = raw.rrSpacerMm !== undefined ? raw.rrSpacerMm : raw.scaleSpacers && raw.scaleSpacers.RR;
     return {
       FL: pickCornerKg(raw.FL),
       FR: pickCornerKg(raw.FR),
       RL: pickCornerKg(raw.RL),
       RR: pickCornerKg(raw.RR),
-      rlSpacerMm: snapSpacerMm(raw.rlSpacerMm, 0),
-      rrSpacerMm: snapSpacerMm(raw.rrSpacerMm, 20)
+      baseFuelL,
+      rlSpacerMm: snapSpacerMm(rlRaw, 0),
+      rrSpacerMm: snapSpacerMm(rrRaw, 20)
     };
   }
 
@@ -1795,9 +1804,11 @@
       candidate.suspensionSeededV2 = true;
     }
 
-    // Safely backfill Car #77 default active rear spacers (RL: 0mm, RR: 20mm) and cornerWeightBaseline without touching existing logs
+    // Safely backfill Car #77 default active rear spacers (RL: 0mm, RR: 20mm) and cornerWeights / cornerWeightBaseline without touching existing logs
     candidate.mountedSpacers = normalizeRearSpacersMap(candidate.mountedSpacers, DEFAULT_MOUNTED_SPACERS);
-    candidate.cornerWeightBaseline = normalizeCornerWeightBaseline(candidate.cornerWeightBaseline);
+    const normalizedCw = normalizeCornerWeightBaseline(candidate.cornerWeights || candidate.cornerWeightBaseline);
+    candidate.cornerWeights = normalizedCw;
+    candidate.cornerWeightBaseline = normalizedCw;
 
     const defTyrePool = createDefaultTyrePool();
     if (!Array.isArray(candidate.tyrePool) || candidate.tyrePool.length === 0) {
@@ -2513,6 +2524,7 @@
       mountedShocks: { ...DEFAULT_MOUNTED_SHOCKS },
       mountedSprings: { ...DEFAULT_MOUNTED_SPRINGS },
       mountedSpacers: { ...DEFAULT_MOUNTED_SPACERS },
+      cornerWeights: createDefaultCornerWeightBaseline(),
       cornerWeightBaseline: createDefaultCornerWeightBaseline(),
       activeManifoldId: 'Macca',
       activeExhaustId: 'Macca',
@@ -7092,8 +7104,10 @@
   }
 
   function ensureCornerWeightBaselineState() {
-    state.cornerWeightBaseline = normalizeCornerWeightBaseline(state.cornerWeightBaseline);
-    return state.cornerWeightBaseline;
+    const normalized = normalizeCornerWeightBaseline(state.cornerWeights || state.cornerWeightBaseline);
+    state.cornerWeights = normalized;
+    state.cornerWeightBaseline = normalized;
+    return normalized;
   }
 
   function renderRearSpacerControls() {
@@ -7136,7 +7150,7 @@
     saveState();
     renderRearSpacerControls();
     renderAiRearSpacerBanner();
-    renderCornerWeightBaselineCard();
+    renderCornerWeights();
     showToast(`${corner} Rear Spring Spacer set to ${nextMm}mm (RL ${spacers.RL}mm • RR ${spacers.RR}mm)`);
   }
 
@@ -7161,10 +7175,25 @@
     };
   }
 
+  function getActiveFuelSgForCornerWeights() {
+    const inpFuelSg = $('inputCalcFuelSg');
+    if (inpFuelSg) {
+      const parsed = parseFloat(inpFuelSg.value);
+      if (Number.isFinite(parsed) && parsed >= 0.68 && parsed <= 0.85) {
+        return Number(parsed.toFixed(3));
+      }
+    }
+    if (state && state.baseline && Number.isFinite(Number(state.baseline.fuelSg)) && Number(state.baseline.fuelSg) > 0) {
+      return Number(Number(state.baseline.fuelSg).toFixed(3));
+    }
+    return 0.740;
+  }
+
   /**
    * Computes 4-corner scale weight baseline metrics & live wedge shift when testing (testRlMm, testRrMm).
    * Physics: ~9.5 kg diagonal cross-weight (FL+RR) transfer (~0.7% cross-weight shift) per 10mm rear spacer step
    * on Pedders 5609 (~140 N/mm) rear coils.
+   * Accepts ANY 4 valid corner numbers > 0 (no >50 or >200 kg gate).
    */
   function computeCornerWeightAndWedgeTelemetry(testRlMmOpt, testRrMmOpt) {
     const cw = ensureCornerWeightBaselineState();
@@ -7172,16 +7201,28 @@
     const testRlMm = testRlMmOpt !== undefined ? snapSpacerMm(testRlMmOpt, spacers.RL) : spacers.RL;
     const testRrMm = testRrMmOpt !== undefined ? snapSpacerMm(testRrMmOpt, spacers.RR) : spacers.RR;
     const sprInfo = getMountedRearSpringRatesInfo();
+    const activeFuelSg = getActiveFuelSgForCornerWeights();
+    const baseFuelL =
+      cw.baseFuelL !== null && cw.baseFuelL !== undefined && Number.isFinite(Number(cw.baseFuelL)) && Number(cw.baseFuelL) >= 0
+        ? Number(Number(cw.baseFuelL).toFixed(1))
+        : 20.0;
+    const baseFuelMassKg = Number((baseFuelL * activeFuelSg).toFixed(1));
+    const scaleSpacers = { RL: cw.rlSpacerMm, RR: cw.rrSpacerMm };
+    const activeSpacers = { RL: testRlMm, RR: testRrMm };
 
     const hasAllFour =
       cw.FL !== null &&
       cw.FR !== null &&
       cw.RL !== null &&
       cw.RR !== null &&
-      cw.FL > 50 &&
-      cw.FR > 50 &&
-      cw.RL > 50 &&
-      cw.RR > 50;
+      Number.isFinite(Number(cw.FL)) &&
+      Number.isFinite(Number(cw.FR)) &&
+      Number.isFinite(Number(cw.RL)) &&
+      Number.isFinite(Number(cw.RR)) &&
+      Number(cw.FL) > 0 &&
+      Number(cw.FR) > 0 &&
+      Number(cw.RL) > 0 &&
+      Number(cw.RR) > 0;
 
     // Net +10mm steps of RR relative to RL vs when car was scaled
     const baseNetRrSteps = (cw.rrSpacerMm - cw.rlSpacerMm) / 10;
@@ -7196,7 +7237,14 @@
       const approxCrossShiftPct = Number((deltaRrSteps * 0.7 * sprInfo.rateScaleFactor).toFixed(2));
       return {
         hasAllFour: false,
+        allFourValid: false,
         cw,
+        baseFuelL,
+        activeFuelSg,
+        baseFuelMassKg,
+        dryCarDriverKg: null,
+        scaleSpacers,
+        activeSpacers,
         testRlMm,
         testRrMm,
         deltaRrSteps,
@@ -7206,18 +7254,31 @@
       };
     }
 
-    const totalKg = Number((cw.FL + cw.FR + cw.RL + cw.RR).toFixed(1));
-    const baseCrossKg = Number((cw.FL + cw.RR).toFixed(1));
+    const flKg = Number(cw.FL);
+    const frKg = Number(cw.FR);
+    const rlKg = Number(cw.RL);
+    const rrKg = Number(cw.RR);
+    const totalKg = Number((flKg + frKg + rlKg + rrKg).toFixed(1));
+    const dryCarDriverKg = Number((totalKg - baseFuelMassKg).toFixed(1));
+
+    const overallFrontKg = Number((flKg + frKg).toFixed(1));
+    const overallFrontPct = Number(((overallFrontKg / totalKg) * 100).toFixed(1));
+    const overallRearKg = Number((rlKg + rrKg).toFixed(1));
+    const overallRearPct = Number(((overallRearKg / totalKg) * 100).toFixed(1));
+
+    const leftSideKg = Number((flKg + rlKg).toFixed(1));
+    const baseLeftPct = Number(((leftSideKg / totalKg) * 100).toFixed(1));
+
+    const baseCrossKg = Number((flKg + rrKg).toFixed(1));
     const baseCrossPct = Number(((baseCrossKg / totalKg) * 100).toFixed(1));
-    const baseLeftPct = Number((((cw.FL + cw.RL) / totalKg) * 100).toFixed(1));
-    const baseRearPct = Number((((cw.RL + cw.RR) / totalKg) * 100).toFixed(1));
-    const baseRlVsRrKg = Number((cw.RL - cw.RR).toFixed(1));
+    const baseRearPct = overallRearPct;
+    const baseRlVsRrKg = Number((rlKg - rrKg).toFixed(1));
 
     // Live estimated corner weights at (testRlMm, testRrMm)
-    const liveFL = Number((cw.FL + perCornerDeltaKg).toFixed(1));
-    const liveFR = Number((cw.FR - perCornerDeltaKg).toFixed(1));
-    const liveRL = Number((cw.RL - perCornerDeltaKg).toFixed(1));
-    const liveRR = Number((cw.RR + perCornerDeltaKg).toFixed(1));
+    const liveFL = Number((flKg + perCornerDeltaKg).toFixed(1));
+    const liveFR = Number((frKg - perCornerDeltaKg).toFixed(1));
+    const liveRL = Number((rlKg - perCornerDeltaKg).toFixed(1));
+    const liveRR = Number((rrKg + perCornerDeltaKg).toFixed(1));
     const liveCrossKg = Number((liveFL + liveRR).toFixed(1));
     const liveCrossPct = Number(((liveCrossKg / totalKg) * 100).toFixed(1));
     const liveCrossShiftPct = Number((liveCrossPct - baseCrossPct).toFixed(1));
@@ -7225,13 +7286,33 @@
 
     return {
       hasAllFour: true,
+      allFourValid: true,
       cw,
+      FL: flKg,
+      FR: frKg,
+      RL: rlKg,
+      RR: rrKg,
+      baseFuelL,
+      activeFuelSg,
+      baseFuelMassKg,
+      dryCarDriverKg,
       totalKg,
+      overallFrontKg,
+      overallFrontPct,
+      overallRearKg,
+      overallRearPct,
+      leftSideKg,
       baseCrossKg,
       baseCrossPct,
+      crossPct: baseCrossPct,
       baseLeftPct,
+      leftPct: baseLeftPct,
       baseRearPct,
+      rearPct: overallRearPct,
       baseRlVsRrKg,
+      staticRlMinusRrKg: baseRlVsRrKg,
+      scaleSpacers,
+      activeSpacers,
       testRlMm,
       testRrMm,
       deltaRrSteps,
@@ -7242,6 +7323,7 @@
       liveRR,
       liveCrossKg,
       liveCrossPct,
+      projectedCrossPct: liveCrossPct,
       liveCrossShiftPct,
       liveRlVsRrKg,
       sprInfo
@@ -7250,13 +7332,17 @@
 
   function hydrateCornerWeightInputs() {
     const cw = ensureCornerWeightBaselineState();
+    const baseFuelInp = $('inputCwBaseFuelL');
+    if (baseFuelInp && document.activeElement !== baseFuelInp) {
+      baseFuelInp.value = Number(cw.baseFuelL ?? 20.0).toFixed(1);
+    }
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const inp = $(`inputCornerWt_${c}`);
       if (inp && document.activeElement !== inp) {
-        inp.value = cw[c] !== null && Number.isFinite(Number(cw[c])) ? Number(cw[c]).toFixed(1) : '';
+        inp.value = cw[c] !== null && Number.isFinite(Number(cw[c])) && Number(cw[c]) > 0 ? Number(cw[c]).toFixed(1) : '';
       }
     });
-    renderCornerWeightBaselineCard();
+    renderCornerWeights();
   }
 
   function renderCornerWeightBaselineCard() {
@@ -7264,6 +7350,11 @@
     if (!card) return;
     const telem = computeCornerWeightAndWedgeTelemetry();
     const { cw, sprInfo } = telem;
+
+    const baseFuelInp = $('inputCwBaseFuelL');
+    if (baseFuelInp && document.activeElement !== baseFuelInp) {
+      baseFuelInp.value = telem.baseFuelL.toFixed(1);
+    }
 
     // Sync scale baseline spacer pills
     ['RL', 'RR'].forEach((corner) => {
@@ -7281,7 +7372,19 @@
     });
 
     const badgeEl = $('cornerWtStatusBadge');
-    const summaryEl = $('outCornerWtSummaryBar');
+    const baseFuelHintEl = $('outCwBaseFuelHint');
+    const frontKgEl = $('outCwFrontKg');
+    const frontPctEl = $('outCwFrontPct');
+    const totalKgEl = $('outCwTotalKg');
+    const dryCarSubEl = $('outCwDryCarSub');
+    const crossColEl = $('cwHubColCross');
+    const crossPctEl = $('outCwCrossPct');
+    const crossKgEl = $('outCwCrossKg');
+    const leftPctEl = $('outCwLeftPct');
+    const leftKgEl = $('outCwLeftKg');
+    const rearKgEl = $('outCwRearKg');
+    const rearPctEl = $('outCwRearPct');
+    const staticRearDeltaEl = $('outCwStaticRearDelta');
     const wedgeEl = $('outCornerWtWedgeShiftBox');
 
     if (!telem.hasAllFour) {
@@ -7289,9 +7392,23 @@
         badgeEl.textContent = 'Enter 4 Corners When Scaled';
         badgeEl.className = 'afr-status-badge estimated';
       }
-      if (summaryEl) {
-        summaryEl.innerHTML = `<span>Total: <strong>&mdash; kg</strong></span> &bull; <span>Cross Wt (FL+RR): <strong>&mdash;%</strong></span> &bull; <span>Left: <strong>&mdash;%</strong></span> &bull; <span>Rear: <strong>&mdash;%</strong></span> &bull; <span>Static RL vs RR: <strong>&mdash; kg</strong></span>`;
+      if (baseFuelHintEl) {
+        baseFuelHintEl.textContent = `~${telem.baseFuelMassKg.toFixed(1)} kg @ ${telem.activeFuelSg.toFixed(3)} SG • Dry Car+Driver: — kg`;
       }
+      if (frontKgEl) frontKgEl.textContent = '— kg';
+      if (frontPctEl) frontPctEl.textContent = '—%';
+      if (totalKgEl) totalKgEl.textContent = '— kg';
+      if (dryCarSubEl) dryCarSubEl.textContent = 'Dry Car+Driver: — kg';
+      if (crossColEl) {
+        crossColEl.classList.remove('is-sweet-spot', 'is-warn');
+      }
+      if (crossPctEl) crossPctEl.textContent = '—%';
+      if (crossKgEl) crossKgEl.textContent = '— kg';
+      if (leftPctEl) leftPctEl.textContent = '—%';
+      if (leftKgEl) leftKgEl.textContent = '— kg';
+      if (rearKgEl) rearKgEl.textContent = '— kg';
+      if (rearPctEl) rearPctEl.textContent = '—%';
+      if (staticRearDeltaEl) staticRearDeltaEl.textContent = 'Static RL vs RR: — kg';
       if (wedgeEl) {
         const activeSpacers = ensureMountedSpacersState();
         const stepDelta = (activeSpacers.RR - activeSpacers.RL - (cw.rrSpacerMm - cw.rlSpacerMm)) / 10;
@@ -7303,24 +7420,42 @@
       return;
     }
 
-    const rlRrSign = telem.baseRlVsRrKg >= 0 ? '+' : '';
-    const crossClass =
-      telem.baseCrossPct >= 49.5 && telem.baseCrossPct <= 51.0 ? 'txt-emerald' : 'txt-amber';
+    const isSweetCross = telem.baseCrossPct >= 49.5 && telem.baseCrossPct <= 50.8;
+    const rlRrSign = telem.baseRlVsRrKg > 0 ? '+' : '';
+    const heavierSideLabel =
+      Math.abs(telem.baseRlVsRrKg) < 0.05
+        ? 'Even RL/RR'
+        : telem.baseRlVsRrKg > 0
+        ? 'RL heavier'
+        : 'RR heavier';
     const rearDiffWarn = Math.abs(telem.liveRlVsRrKg) > 18.0;
 
     if (badgeEl) {
-      badgeEl.textContent = `${telem.totalKg.toFixed(1)} kg • ${telem.baseCrossPct.toFixed(1)}% Cross`;
+      badgeEl.textContent = '✓ 4-Corner Baseline Active';
       badgeEl.className = 'afr-status-badge verified';
     }
-    if (summaryEl) {
-      summaryEl.innerHTML = `
-        <span>Total: <strong class="txt-emerald">${telem.totalKg.toFixed(1)} kg</strong></span> &bull;
-        <span>Cross Wt (FL+RR): <strong class="${crossClass}">${telem.baseCrossPct.toFixed(1)}%</strong> (${telem.baseCrossKg.toFixed(1)} kg)</span> &bull;
-        <span>Left: <strong>${telem.baseLeftPct.toFixed(1)}%</strong></span> &bull;
-        <span>Rear: <strong>${telem.baseRearPct.toFixed(1)}%</strong></span> &bull;
-        <span>Static RL vs RR: <strong class="${Math.abs(telem.baseRlVsRrKg) > 18 ? 'txt-amber' : 'txt-emerald'}">${rlRrSign}${telem.baseRlVsRrKg.toFixed(1)} kg</strong></span>
-      `;
+    if (baseFuelHintEl) {
+      baseFuelHintEl.textContent = `~${telem.baseFuelMassKg.toFixed(1)} kg @ ${telem.activeFuelSg.toFixed(3)} SG • Dry Car+Driver: ${telem.dryCarDriverKg.toFixed(1)} kg`;
     }
+    if (frontKgEl) frontKgEl.textContent = `${telem.overallFrontKg.toFixed(1)} kg`;
+    if (frontPctEl) frontPctEl.textContent = `${telem.overallFrontPct.toFixed(1)}%`;
+    if (totalKgEl) totalKgEl.textContent = `${telem.totalKg.toFixed(1)} kg`;
+    if (dryCarSubEl) dryCarSubEl.textContent = `Dry: ${telem.dryCarDriverKg.toFixed(1)} kg`;
+    if (crossColEl) {
+      crossColEl.classList.toggle('is-sweet-spot', isSweetCross);
+      crossColEl.classList.toggle('is-warn', !isSweetCross);
+    }
+    if (crossPctEl) crossPctEl.textContent = `${telem.baseCrossPct.toFixed(1)}%`;
+    if (crossKgEl) crossKgEl.textContent = `${telem.baseCrossKg.toFixed(1)} kg`;
+    if (leftPctEl) leftPctEl.textContent = `${telem.baseLeftPct.toFixed(1)}%`;
+    if (leftKgEl) leftKgEl.textContent = `${telem.leftSideKg.toFixed(1)} kg`;
+    if (rearKgEl) rearKgEl.textContent = `${telem.overallRearKg.toFixed(1)} kg`;
+    if (rearPctEl) rearPctEl.textContent = `${telem.overallRearPct.toFixed(1)}%`;
+    if (staticRearDeltaEl) {
+      staticRearDeltaEl.textContent = `Static RL vs RR: ${rlRrSign}${telem.baseRlVsRrKg.toFixed(1)} kg (${heavierSideLabel})`;
+      staticRearDeltaEl.className = `cw-axle-subline mono ${Math.abs(telem.baseRlVsRrKg) > 18 ? 'txt-amber' : ''}`;
+    }
+
     if (wedgeEl) {
       const dSign = telem.diagCrossDeltaKg >= 0 ? '+' : '';
       const pSign = telem.liveCrossShiftPct >= 0 ? '+' : '';
@@ -7334,8 +7469,20 @@
     }
   }
 
+  const renderCornerWeights = renderCornerWeightBaselineCard;
+
   function handleCornerWeightBaselineInput() {
     const cw = ensureCornerWeightBaselineState();
+    const baseFuelEl = $('inputCwBaseFuelL');
+    if (baseFuelEl) {
+      const rawFuel = String(baseFuelEl.value || '').trim();
+      if (rawFuel !== '') {
+        const parsedFuel = parseFloat(rawFuel);
+        if (Number.isFinite(parsedFuel) && parsedFuel >= 0) {
+          cw.baseFuelL = Number(clamp(parsedFuel, 0, 74.0).toFixed(1));
+        }
+      }
+    }
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const el = $(`inputCornerWt_${c}`);
       if (!el) return;
@@ -7344,12 +7491,14 @@
         cw[c] = null;
       } else {
         const num = parseFloat(raw);
-        cw[c] = Number.isFinite(num) && num > 50 && num <= 800 ? Number(num.toFixed(1)) : null;
+        cw[c] = Number.isFinite(num) && num > 0 && num <= 800 ? Number(num.toFixed(1)) : null;
       }
     });
+    state.cornerWeights = cw;
+    state.cornerWeightBaseline = cw;
     saveState();
-    renderCornerWeightBaselineCard();
-    renderAiRearSpacerBanner();
+    renderCornerWeights();
+    recalcTyres();
   }
 
   function handleScaleBaselineSpacerSelect(corner, rawMm) {
@@ -7361,9 +7510,11 @@
     } else {
       cw.rrSpacerMm = mm;
     }
+    state.cornerWeights = cw;
+    state.cornerWeightBaseline = cw;
     saveState();
-    renderCornerWeightBaselineCard();
-    renderAiRearSpacerBanner();
+    renderCornerWeights();
+    recalcTyres();
     showToast(`Scale Baseline ${corner} Spacer recorded as ${mm}mm`);
   }
 
@@ -10124,7 +10275,7 @@
     }
     const payload = JSON.stringify(
       {
-        app: 'SNB Racing — HQ 202 Jetting & AFR (v0.8.3 Rear Spacer, Scale Baseline & AI Wedge Edition)',
+        app: 'SNB Racing — HQ 202 Jetting & AFR (v0.8.4 4-Corner Scale Pad, Base Fuel & Wedge Edition)',
         exportedAt: new Date().toISOString(),
         state
       },
@@ -10158,6 +10309,7 @@
         saveState();
         syncSessionSelectFromBaseline();
         hydrateFuelAndTyreInputs();
+        hydrateCornerWeightInputs();
         renderAll();
         showToast(`Restored ${state.events.length} events (${state.sessions.length} sessions) from JSON backup`);
       } catch (err) {
@@ -11650,7 +11802,7 @@
 
     const lines = [];
     lines.push('====================================================================');
-    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.8.3)');
+    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.8.4)');
     lines.push(`Exported: ${new Date().toISOString()}`);
     lines.push('====================================================================');
     lines.push('');
@@ -11665,8 +11817,8 @@
     lines.push(`- Scale Fact Source: ${ch.scaleFactSource || 'Anchored to Official Track Scale Check'}`);
     lines.push(
       cwTelem.allFourValid
-        ? `- Corner_Weights_FL_FR_RL_RR (With Driver): FL ${cwTelem.FL.toFixed(1)} kg | FR ${cwTelem.FR.toFixed(1)} kg | RL ${cwTelem.RL.toFixed(1)} kg | RR ${cwTelem.RR.toFixed(1)} kg (Total ${cwTelem.totalKg.toFixed(1)} kg • Cross Wt (FL+RR): ${cwTelem.crossPct.toFixed(1)}% • Left: ${cwTelem.leftPct.toFixed(1)}% • Rear: ${cwTelem.rearPct.toFixed(1)}% • Static RL vs RR: ${cwTelem.staticRlMinusRrKg >= 0 ? '+' : ''}${cwTelem.staticRlMinusRrKg.toFixed(1)} kg @ Scaled Spacers RL ${cwTelem.scaleSpacers.RL}mm / RR ${cwTelem.scaleSpacers.RR}mm; Live Projected Cross Wt: ${cwTelem.projectedCrossPct.toFixed(1)}%)`
-        : `- Corner_Weights_FL_FR_RL_RR (With Driver): Not entered yet (Scaled Spacers RL ${cwTelem.scaleSpacers.RL}mm / RR ${cwTelem.scaleSpacers.RR}mm)`
+        ? `- Corner_Weights_FL_FR_RL_RR (With Driver): FL ${cwTelem.FL.toFixed(1)} kg | FR ${cwTelem.FR.toFixed(1)} kg | RL ${cwTelem.RL.toFixed(1)} kg | RR ${cwTelem.RR.toFixed(1)} kg | CW_Base_Fuel_L=${cwTelem.baseFuelL.toFixed(1)} L (~${cwTelem.baseFuelMassKg.toFixed(1)} kg @ ${cwTelem.activeFuelSg.toFixed(3)} SG; Dry Car+Driver: ${cwTelem.dryCarDriverKg.toFixed(1)} kg) | Total=${cwTelem.totalKg.toFixed(1)} kg | Overall_Front_kg=${cwTelem.overallFrontKg.toFixed(1)} kg (${cwTelem.overallFrontPct.toFixed(1)}%) | Overall_Rear_kg=${cwTelem.overallRearKg.toFixed(1)} kg (${cwTelem.overallRearPct.toFixed(1)}%) | Cross_Wt_Pct=${cwTelem.crossPct.toFixed(1)}% (${cwTelem.baseCrossKg.toFixed(1)} kg) | Left=${cwTelem.leftPct.toFixed(1)}% (${cwTelem.leftSideKg.toFixed(1)} kg) | Static RL vs RR: ${cwTelem.staticRlMinusRrKg >= 0 ? '+' : ''}${cwTelem.staticRlMinusRrKg.toFixed(1)} kg @ Scaled Spacers RL ${cwTelem.scaleSpacers.RL}mm / RR ${cwTelem.scaleSpacers.RR}mm; Live Projected Cross_Wt_Pct=${cwTelem.projectedCrossPct.toFixed(1)}%`
+        : `- Corner_Weights_FL_FR_RL_RR (With Driver): Not entered yet (CW_Base_Fuel_L=${cwTelem.baseFuelL.toFixed(1)} L • Scaled Spacers RL ${cwTelem.scaleSpacers.RL}mm / RR ${cwTelem.scaleSpacers.RR}mm)`
     );
     lines.push('');
 
@@ -13395,8 +13547,13 @@
     'inputPumpBeforeL',
     'inputPumpAfterL',
     'inputScaleCheckFuelL',
+    'inputCwBaseFuelL',
     'modalPostFuelInL',
-    'modalPostFuelOutL'
+    'modalPostFuelOutL',
+    'inputCornerWt_FL',
+    'inputCornerWt_FR',
+    'inputCornerWt_RL',
+    'inputCornerWt_RR'
   ]);
 
   function stepNumericInput(inputEl, delta) {
@@ -13413,7 +13570,19 @@
       ? stepStr.split('.')[1].length
       : 0;
 
-    // If an optional AFR, Cold/Hot Tyre PSI, Tyre Temp, Track Temp, Exhaust CFM, or Water Temp field is blank, start at a sensible default when stepping
+    // If an optional AFR, Cold/Hot Tyre PSI, Tyre Temp, Track Temp, Corner Wt, Exhaust CFM, or Water Temp field is blank, start at a sensible default when stepping
+    if (idStr.startsWith('inputCornerWt_') && (!Number.isFinite(current) || current <= 0)) {
+      inputEl.value = '342.5';
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+      inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+    if (idStr === 'inputCwBaseFuelL' && !Number.isFinite(current)) {
+      inputEl.value = '20.0';
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+      inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
     if (idStr === 'inputTrackTempC' && !Number.isFinite(current)) {
       const startTemp = Math.max(5, Math.min(65, Math.round(26 + delta)));
       inputEl.value = String(startTemp);
@@ -14239,7 +14408,10 @@
         return;
       }
 
-      const cornerWtAttr = target.getAttribute && target.getAttribute('data-corner-wt-input');
+      const cornerWtAttr =
+        (target.getAttribute && target.getAttribute('data-corner-wt-input')) ||
+        target.id === 'inputCwBaseFuelL' ||
+        (target.id && target.id.startsWith('inputCornerWt_'));
       if (cornerWtAttr) {
         handleCornerWeightBaselineInput();
         return;
@@ -15150,6 +15322,7 @@
           mountedShocks: { ...DEFAULT_MOUNTED_SHOCKS },
           mountedSprings: { ...DEFAULT_MOUNTED_SPRINGS },
           mountedSpacers: { ...DEFAULT_MOUNTED_SPACERS },
+          cornerWeights: createDefaultCornerWeightBaseline(),
           cornerWeightBaseline: createDefaultCornerWeightBaseline(),
           activeManifoldId: 'Macca',
           activeExhaustId: 'Macca',
