@@ -863,6 +863,17 @@
   };
 
   function getTrackDirection(venueName = '') {
+    try {
+      if (
+        typeof state !== 'undefined' &&
+        state &&
+        state.chassis &&
+        state.chassis.trackDirections &&
+        (state.chassis.trackDirections[venueName] === 'CW' || state.chassis.trackDirections[venueName] === 'CCW')
+      ) {
+        return state.chassis.trackDirections[venueName];
+      }
+    } catch (_) {}
     if (TRACK_DIRECTION_MAP[venueName]) return TRACK_DIRECTION_MAP[venueName];
     const match = Object.keys(TRACK_DIRECTION_MAP).find((k) =>
       venueName.toLowerCase().includes(k.toLowerCase())
@@ -902,6 +913,22 @@
       RR: isCW ? 35.0 : 34.0,
       hotTargetFront: 40.0,
       hotTargetRear: 43.0,
+      direction: isCW ? 'CW' : 'CCW'
+    };
+  }
+
+  function computeClassicSquareColdStagger(direction = 'CW') {
+    const isCW = direction !== 'CCW';
+    // Classic 44.0 Square:
+    // Clockwise (CW, LH Loaded): FL 33.0, FR 34.0, RL 35.0, RR 36.0
+    // Anti-Clockwise (CCW, RH Loaded): FL 34.0, FR 33.0, RL 36.0, RR 35.0
+    return {
+      FL: isCW ? 33.0 : 34.0,
+      FR: isCW ? 34.0 : 33.0,
+      RL: isCW ? 35.0 : 36.0,
+      RR: isCW ? 36.0 : 35.0,
+      hotTargetFront: 44.0,
+      hotTargetRear: 44.0,
       direction: isCW ? 'CW' : 'CCW'
     };
   }
@@ -1083,6 +1110,8 @@
       hotTargetRear: 43.0,
       savedDryHotTargetFront: 40.0,
       savedDryHotTargetRear: 43.0,
+      activeDryPreset: 'ai_antipush',
+      trackDirections: {},
       tyreCondition: 'dry',
       wetPreset: 'light',
       mountedTyres: { FL: 'KB1', FR: 'KB2', RL: 'KB3', RR: 'KB4' },
@@ -1982,6 +2011,21 @@
       const savedDryF = Number.isFinite(Number(ch.savedDryHotTargetFront)) ? Number(ch.savedDryHotTargetFront) : 40.0;
       const savedDryR = Number.isFinite(Number(ch.savedDryHotTargetRear)) ? Number(ch.savedDryHotTargetRear) : 43.0;
 
+      const rawPreset = String(ch.activeDryPreset || ch.dryTargetPreset || '').trim();
+      const hydratedDryPreset =
+        rawPreset === 'classic_44' || rawPreset === 'classic44'
+          ? 'classic_44'
+          : rawPreset === 'track_learned'
+          ? 'track_learned'
+          : 'ai_antipush';
+      const rawDirs = ch.trackDirections && typeof ch.trackDirections === 'object' ? ch.trackDirections : {};
+      const hydratedTrackDirections = {};
+      Object.keys(rawDirs).forEach((k) => {
+        if (rawDirs[k] === 'CW' || rawDirs[k] === 'CCW') {
+          hydratedTrackDirections[k] = rawDirs[k];
+        }
+      });
+
       candidate.chassis = {
         raceLaps: Number.isFinite(Number(ch.raceLaps)) ? Math.round(Number(ch.raceLaps)) : defChassis.raceLaps,
         fuelFloorL: migratedFloor,
@@ -2003,6 +2047,8 @@
         hotTargetRear: hydratedRearTarget,
         savedDryHotTargetFront: savedDryF,
         savedDryHotTargetRear: savedDryR,
+        activeDryPreset: hydratedDryPreset,
+        trackDirections: hydratedTrackDirections,
         tyreCondition: ch.tyreCondition === 'wet' ? 'wet' : 'dry',
         wetPreset: wetPresetVal,
         mountedTyres: {
@@ -2156,6 +2202,7 @@
     shockFleetFilter: 'all', // 'all' | 'F' | 'R' | 'mounted'
     springFleetFilter: 'all', // 'all' | 'F' | 'R' | 'mounted'
     newTyreSpec: 'buffed',  // 'buffed' | 'wet'
+    activeDryPreset: (state.chassis && state.chassis.activeDryPreset) || 'ai_antipush',
     logSearchTrack: 'ALL',
     logSearchYear: 'ALL',
     logSearchQuery: '',
@@ -3407,15 +3454,17 @@
       [
         'btnTyreCondDry',
         'btnTyreCondWet',
-        'btnPresetAiIdeal',
-        'btnPresetClassic44',
-        'btnDropAiColdBaseline',
+        'btnDryPreset_ai_antipush',
+        'btnDryPreset_classic_44',
+        'btnDryPreset_track_learned',
         'btnWetPreset_drying',
         'btnWetPreset_light',
         'btnWetPreset_heavy',
         'inputTyreHotTargetFront',
         'inputTyreHotTargetRear',
         'inputTyreSessionLaps',
+        'btnToggleTrackDirection',
+        'btnClearAllColdPsiRow',
         'btnUnmountAllTyres',
         'btnClearAllColdPsi',
         'selectMountedTyre_FL',
@@ -4810,6 +4859,73 @@
     );
   }
 
+  function normalizeDryPresetKey(rawKey) {
+    const k = String(rawKey || '').trim();
+    if (k === 'classic_44' || k === 'classic44') return 'classic_44';
+    if (k === 'track_learned') return 'track_learned';
+    return 'ai_antipush';
+  }
+
+  function computeDryPresetColdBase(presetKey, venueOpt) {
+    if (!state.chassis) state.chassis = createDefaultChassisState();
+    const ch = state.chassis;
+    const venue = venueOpt || getSelectedTyreTrackVenue();
+    const direction = getTrackDirection(venue);
+    const normKey = normalizeDryPresetKey(presetKey);
+
+    if (normKey === 'classic_44') {
+      const stg = computeClassicSquareColdStagger(direction);
+      return {
+        presetKey: 'classic_44',
+        FL: stg.FL,
+        FR: stg.FR,
+        RL: stg.RL,
+        RR: stg.RR,
+        hotTargetFront: 44.0,
+        hotTargetRear: 44.0,
+        direction,
+        totalRuns: 0
+      };
+    }
+
+    if (normKey === 'track_learned') {
+      const prof = ensureTrackProfile(venue);
+      const frontTarget =
+        prof && Number.isFinite(Number(prof.learnedHotFront)) && Number(prof.learnedHotFront) > 15
+          ? Number(prof.learnedHotFront)
+          : 40.0;
+      const rearTarget =
+        prof && Number.isFinite(Number(prof.learnedHotRear)) && Number(prof.learnedHotRear) > 15
+          ? Number(prof.learnedHotRear)
+          : 43.0;
+      const learnedStats = getTrackLearnedColdTyres(venue, frontTarget, rearTarget, 'dry');
+      return {
+        presetKey: 'track_learned',
+        FL: learnedStats.corners.FL.avg,
+        FR: learnedStats.corners.FR.avg,
+        RL: learnedStats.corners.RL.avg,
+        RR: learnedStats.corners.RR.avg,
+        hotTargetFront: frontTarget,
+        hotTargetRear: rearTarget,
+        direction,
+        totalRuns: learnedStats.totalRuns
+      };
+    }
+
+    const aiStg = computeDryAiColdStagger(direction);
+    return {
+      presetKey: 'ai_antipush',
+      FL: aiStg.FL,
+      FR: aiStg.FR,
+      RL: aiStg.RL,
+      RR: aiStg.RR,
+      hotTargetFront: 40.0,
+      hotTargetRear: 43.0,
+      direction,
+      totalRuns: 0
+    };
+  }
+
   function syncTyreConditionUi() {
     if (!state.chassis) state.chassis = createDefaultChassisState();
     const ch = state.chassis;
@@ -4823,7 +4939,6 @@
     const wetBar = $('wetSeverityBar');
     const dryBar = $('dryTargetPresetBar');
     const dirBadge = $('wetTrackDirBadge');
-    const dryDropInLabel = $('dryColdDropInLabel');
 
     if (btnDry) {
       btnDry.classList.toggle('active', !isWet);
@@ -4837,7 +4952,7 @@
       wetBar.style.display = isWet ? 'block' : 'none';
     }
     if (dryBar) {
-      dryBar.style.display = isWet ? 'none' : 'flex';
+      dryBar.style.display = isWet ? 'none' : 'grid';
     }
     if (dirBadge) {
       dirBadge.textContent =
@@ -4845,16 +4960,59 @@
           ? 'CCW • Right-Loaded (FR/RR)'
           : 'CW • Left-Loaded (FL/RL)';
     }
-    if (dryDropInLabel) {
-      const dryStg = computeDryAiColdStagger(direction);
-      const loadDesc = direction === 'CCW' ? 'CCW (RH Loaded)' : 'CW (LH Loaded)';
-      dryDropInLabel.innerHTML = `${escapeHtml(loadDesc)} AI Cold Baseline: <strong>FL ${dryStg.FL.toFixed(1)} &bull; FR ${dryStg.FR.toFixed(1)} &bull; RL ${dryStg.RL.toFixed(1)} &bull; RR ${dryStg.RR.toFixed(1)}</strong>`;
+
+    const dirToggleBtn = $('btnToggleTrackDirection');
+    if (dirToggleBtn) {
+      dirToggleBtn.textContent = direction === 'CCW' ? '↺ CCW' : '↻ CW';
+      dirToggleBtn.title =
+        direction === 'CCW'
+          ? `${venue}: Anti-Clockwise (RH Loaded) — tap to switch to CW`
+          : `${venue}: Clockwise (LH Loaded) — tap to switch to CCW`;
     }
+    const dirSideHint = $('hintTrackDirectionSide');
+    if (dirSideHint) {
+      dirSideHint.textContent = direction === 'CCW' ? 'RH Loaded' : 'LH Loaded';
+    }
+
+    const activeDryPreset = normalizeDryPresetKey(ui.activeDryPreset || ch.activeDryPreset || 'ai_antipush');
+    ui.activeDryPreset = activeDryPreset;
+    ch.activeDryPreset = activeDryPreset;
 
     const frontTarget = Number(ch.hotTargetFront ?? 40.0);
     const rearTarget = Number(ch.hotTargetRear ?? 43.0);
-    const isAiIdeal = !isWet && Math.abs(frontTarget - 40.0) < 0.06 && Math.abs(rearTarget - 43.0) < 0.06;
     const isClassic44 = !isWet && Math.abs(frontTarget - 44.0) < 0.06 && Math.abs(rearTarget - 44.0) < 0.06;
+
+    const learnedStatsForVenue = getTrackLearnedColdTyres(venue, 40.0, 43.0, 'dry');
+    const subTrackLearned = $('subPresetTrackLearned');
+    if (subTrackLearned) {
+      subTrackLearned.textContent =
+        learnedStatsForVenue.totalRuns > 0
+          ? `${learnedStatsForVenue.totalRuns} Run${learnedStatsForVenue.totalRuns === 1 ? '' : 's'} Avg`
+          : 'Seed (0 Runs)';
+    }
+
+    ['ai_antipush', 'classic_44', 'track_learned'].forEach((k) => {
+      const btn = $(`btnDryPreset_${k}`);
+      if (!btn) return;
+      const isSelected = !isWet && k === activeDryPreset;
+      btn.classList.toggle('active-preset', isSelected);
+      btn.classList.toggle('active', isSelected);
+      btn.classList.toggle('preset-greyed', !isSelected);
+      btn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+    });
+
+    const coldBase = computeDryPresetColdBase(activeDryPreset, venue);
+    const miniHeader = $('miniCarColdHeader');
+    if (miniHeader) {
+      miniHeader.textContent =
+        direction === 'CCW' ? 'CCW • RH Loaded' : 'CW • LH Loaded';
+    }
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const miniEl = $(`miniCarCold_${c}`);
+      if (miniEl && Number.isFinite(Number(coldBase[c]))) {
+        miniEl.textContent = Number(coldBase[c]).toFixed(1);
+      }
+    });
 
     const hintF = $('hintHotTargetFront');
     const hintR = $('hintHotTargetRear');
@@ -4866,6 +5024,9 @@
       } else if (isClassic44) {
         hintF.textContent = 'Classic Square 44.0';
         hintF.className = 'field-hint amber';
+      } else if (activeDryPreset === 'track_learned') {
+        hintF.textContent = `Track Target ${frontTarget.toFixed(1)}`;
+        hintF.className = 'field-hint emerald';
       } else {
         hintF.textContent = 'Dry Default 40.0';
         hintF.className = 'field-hint emerald';
@@ -4879,21 +5040,13 @@
       } else if (isClassic44) {
         hintR.textContent = 'Classic Square 44.0';
         hintR.className = 'field-hint amber';
+      } else if (activeDryPreset === 'track_learned') {
+        hintR.textContent = `Track Target ${rearTarget.toFixed(1)}`;
+        hintR.className = 'field-hint emerald';
       } else {
         hintR.textContent = 'Dry Default 43.0';
         hintR.className = 'field-hint emerald';
       }
-    }
-
-    const btnAiIdeal = $('btnPresetAiIdeal');
-    if (btnAiIdeal) {
-      btnAiIdeal.classList.toggle('active', isAiIdeal);
-      btnAiIdeal.setAttribute('aria-pressed', isAiIdeal ? 'true' : 'false');
-    }
-    const btnClassic44 = $('btnPresetClassic44');
-    if (btnClassic44) {
-      btnClassic44.classList.toggle('active', isClassic44);
-      btnClassic44.setAttribute('aria-pressed', isClassic44 ? 'true' : 'false');
     }
 
     ['drying', 'light', 'heavy'].forEach((k) => {
@@ -4913,13 +5066,26 @@
 
   function applyDryTargetPreset(presetKey, silentToast = false) {
     if (!state.chassis) state.chassis = createDefaultChassisState();
+    const activeSess = getActiveSession();
+    const isPreLocked = Boolean(activeSess && activeSess.tyresPreLocked);
+    if (isPreLocked && !silentToast) {
+      showToast('Pre-Race Tyres are locked — click "Unlock Pre-Race Tyres" to change');
+      return;
+    }
+
     const ch = state.chassis;
     ch.tyreCondition = 'dry';
+    const normKey = normalizeDryPresetKey(presetKey);
+    ui.activeDryPreset = normKey;
+    ch.activeDryPreset = normKey;
+    ch.dryTargetPreset = normKey;
 
-    const isClassic = presetKey === 'classic44' || presetKey === 'classic_44';
-    const frontTarget = isClassic ? 44.0 : 40.0;
-    const rearTarget = isClassic ? 44.0 : 43.0;
-    ch.dryTargetPreset = isClassic ? 'classic_44' : 'ai_ideal';
+    const venue = getSelectedTyreTrackVenue();
+    const prof = ensureTrackProfile(venue);
+    const coldBase = computeDryPresetColdBase(normKey, venue);
+    const frontTarget = coldBase.hotTargetFront;
+    const rearTarget = coldBase.hotTargetRear;
+
     ch.hotTargetFront = frontTarget;
     ch.hotTargetRear = rearTarget;
     ch.savedDryHotTargetFront = frontTarget;
@@ -4933,26 +5099,16 @@
       $('inputTyreHotTargetRear').value = rearTarget.toFixed(1);
     }
 
-    const venue = getSelectedTyreTrackVenue();
-    const direction = getTrackDirection(venue);
-    const learnedStats = getTrackLearnedColdTyres(venue, frontTarget, rearTarget, 'dry');
-    const activeSess = getActiveSession();
-    const isPreLocked = Boolean(activeSess && activeSess.tyresPreLocked);
-    let droppedInCold = false;
-
-    if (!isPreLocked && !isClassic && learnedStats.totalRuns === 0) {
-      const dryStg = computeDryAiColdStagger(direction);
-      const prof = ensureTrackProfile(venue);
+    if (!isPreLocked) {
       if (!ch.coldTyres || typeof ch.coldTyres !== 'object') {
-        ch.coldTyres = { FL: dryStg.FL, FR: dryStg.FR, RL: dryStg.RL, RR: dryStg.RR };
+        ch.coldTyres = { FL: coldBase.FL, FR: coldBase.FR, RL: coldBase.RL, RR: coldBase.RR };
       }
       ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-        ch.coldTyres[c] = dryStg[c];
-        if (prof && prof.coldTyres) prof.coldTyres[c] = dryStg[c];
+        ch.coldTyres[c] = coldBase[c];
+        if (prof && prof.coldTyres) prof.coldTyres[c] = coldBase[c];
         const coldEl = $(`inputColdPsi_${c}`);
-        if (coldEl) coldEl.value = dryStg[c].toFixed(1);
+        if (coldEl) coldEl.value = coldBase[c].toFixed(1);
       });
-      droppedInCold = true;
     }
 
     saveState();
@@ -4961,57 +5117,46 @@
     recalcTyres();
 
     if (!silentToast) {
-      if (isClassic) {
-        showToast('Classic 44.0 Square Target set (44.0F / 44.0R PSI)');
-      } else if (droppedInCold) {
-        const dryStg = computeDryAiColdStagger(direction);
-        showToast(
-          `AI Ideal Anti-Push (40.0F / 43.0R) + ${direction} Cold Baseline: FL ${dryStg.FL.toFixed(1)} • FR ${dryStg.FR.toFixed(1)} • RL ${dryStg.RL.toFixed(1)} • RR ${dryStg.RR.toFixed(1)}`
-        );
+      const dirLabel = coldBase.direction === 'CCW' ? 'CCW • RH Loaded' : 'CW • LH Loaded';
+      const coldSummary = `FL ${coldBase.FL.toFixed(1)} • FR ${coldBase.FR.toFixed(1)} • RL ${coldBase.RL.toFixed(1)} • RR ${coldBase.RR.toFixed(1)}`;
+      if (normKey === 'classic_44') {
+        showToast(`Classic Square (44.0F / 44.0R) • ${dirLabel}: ${coldSummary}`);
+      } else if (normKey === 'track_learned') {
+        const srcTag = coldBase.totalRuns > 0 ? `${coldBase.totalRuns} logged run(s)` : 'AI Seed (0 runs logged)';
+        showToast(`Track Learned (${venue} • ${srcTag}): ${coldSummary}`);
       } else {
-        showToast('AI Ideal Anti-Push Targets set (40.0F / 43.0R PSI) — Tap Drop In AI Cold Start if resetting Cold PSI');
+        showToast(`AI Anti-Push (40.0F / 43.0R) • ${dirLabel}: ${coldSummary}`);
       }
     }
   }
 
-  function dropInAiColdStartBaseline() {
+  function toggleTrackDirection() {
     if (!state.chassis) state.chassis = createDefaultChassisState();
+    const activeSess = getActiveSession();
+    if (activeSess && activeSess.tyresPreLocked) {
+      showToast('Pre-Race Tyres are locked — click "Unlock Pre-Race Tyres" to change');
+      return;
+    }
     const ch = state.chassis;
     const venue = getSelectedTyreTrackVenue();
-    const direction = getTrackDirection(venue);
-    const prof = ensureTrackProfile(venue);
-    const dryStg = computeDryAiColdStagger(direction);
-
-    ch.tyreCondition = 'dry';
-    ch.hotTargetFront = 40.0;
-    ch.hotTargetRear = 43.0;
-    ch.savedDryHotTargetFront = 40.0;
-    ch.savedDryHotTargetRear = 43.0;
-    ch.tyreHotTarget = 40.0;
-    ch.dryTargetPreset = 'ai_ideal';
-
-    if ($('inputTyreHotTargetFront')) $('inputTyreHotTargetFront').value = '40.0';
-    if ($('inputTyreHotTargetRear')) $('inputTyreHotTargetRear').value = '43.0';
-
-    if (!ch.coldTyres || typeof ch.coldTyres !== 'object') {
-      ch.coldTyres = { FL: dryStg.FL, FR: dryStg.FR, RL: dryStg.RL, RR: dryStg.RR };
+    const curDir = getTrackDirection(venue);
+    const nextDir = curDir === 'CW' ? 'CCW' : 'CW';
+    if (!ch.trackDirections || typeof ch.trackDirections !== 'object') {
+      ch.trackDirections = {};
     }
-    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-      ch.coldTyres[c] = dryStg[c];
-      if (prof && prof.coldTyres) prof.coldTyres[c] = dryStg[c];
-      const coldEl = $(`inputColdPsi_${c}`);
-      if (coldEl) coldEl.value = dryStg[c].toFixed(1);
-    });
+    ch.trackDirections[venue] = nextDir;
 
-    saveState();
-    syncTyreConditionUi();
-    syncClearColdPsiBtnText();
-    recalcTyres();
+    if (ch.tyreCondition === 'wet') {
+      applyWetPreset(ch.wetPreset || 'light', true);
+    } else {
+      applyDryTargetPreset(ui.activeDryPreset || ch.activeDryPreset || 'ai_antipush', true);
+    }
+    const loadDesc = nextDir === 'CCW' ? 'Anti-Clockwise (RH Loaded)' : 'Clockwise (LH Loaded)';
+    showToast(`${venue} Direction → ${nextDir} • ${loadDesc}`);
+  }
 
-    const loadLabel = direction === 'CCW' ? 'CCW • RH Loaded' : 'CW • LH Loaded';
-    showToast(
-      `Dropped in ${venue} (${loadLabel}) AI Cold Baseline: FL ${dryStg.FL.toFixed(1)} • FR ${dryStg.FR.toFixed(1)} • RL ${dryStg.RL.toFixed(1)} • RR ${dryStg.RR.toFixed(1)}`
-    );
+  function dropInAiColdStartBaseline() {
+    applyDryTargetPreset('ai_antipush', false);
   }
 
   function syncPyroVisibilityUi() {
@@ -6349,24 +6494,36 @@
   }
 
   function syncClearColdPsiBtnText() {
-    const btn = $('btnClearAllColdPsi');
-    if (!btn) return;
     const anyColdHasVal = ['FL', 'FR', 'RL', 'RR'].some((c) => {
       const el = $(`inputColdPsi_${c}`);
       return el && String(el.value || '').trim() !== '';
     });
-    btn.textContent = anyColdHasVal
-      ? 'Clear Cold PSI (Already Bled Hot)'
-      : 'Restore Learned Cold PSI';
+    const btn = $('btnClearAllColdPsi');
+    if (btn) {
+      btn.textContent = anyColdHasVal
+        ? 'Clear Cold PSI (Already Bled Hot)'
+        : 'Restore Learned Cold PSI';
+    }
+    const rowBtn = $('btnClearAllColdPsiRow');
+    if (rowBtn) {
+      rowBtn.textContent = anyColdHasVal
+        ? 'Clear Cold (Hot-Bled)'
+        : 'Restore Cold Base';
+    }
   }
 
   function toggleClearOrRestoreColdPsi() {
+    const activeSess = getActiveSession();
+    if (activeSess && activeSess.tyresPreLocked) {
+      showToast('Pre-Race Tyres are locked — click "Unlock Pre-Race Tyres" to change');
+      return;
+    }
     if (!state.chassis) state.chassis = createDefaultChassisState();
     const ch = state.chassis;
     const venue = getSelectedTyreTrackVenue();
-    const dryStg = computeDryAiColdStagger(getTrackDirection(venue));
+    const coldBase = computeDryPresetColdBase(ui.activeDryPreset || ch.activeDryPreset || 'ai_antipush', venue);
     if (!ch.coldTyres || typeof ch.coldTyres !== 'object') {
-      ch.coldTyres = { FL: dryStg.FL, FR: dryStg.FR, RL: dryStg.RL, RR: dryStg.RR };
+      ch.coldTyres = { FL: coldBase.FL, FR: coldBase.FR, RL: coldBase.RL, RR: coldBase.RR };
     }
     const anyColdHasVal = ['FL', 'FR', 'RL', 'RR'].some((c) => {
       const el = $(`inputColdPsi_${c}`);
@@ -6383,19 +6540,11 @@
       recalcTyres();
       showToast('Cleared Cold PSI (Hot-Only / Already Bled Hot mode)');
     } else {
-      const prof = ensureTrackProfile(venue);
       const activeCond = ch.tyreCondition === 'wet' ? 'wet' : 'dry';
-      const frontTarget = Number(ch.hotTargetFront ?? 40.0);
-      const rearTarget = Number(ch.hotTargetRear ?? 43.0);
-      const tyreStats = getTrackLearnedColdTyres(venue, frontTarget, rearTarget, activeCond);
+      const direction = getTrackDirection(venue);
+      const wetStg = computeWetColdStagger(ch.wetPreset || 'light', direction);
       ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-        const cStat = tyreStats.corners[c];
-        const coldVal =
-          cStat && cStat.learned
-            ? cStat.avg
-            : prof.coldTyres && prof.coldTyres[c] !== null && Number.isFinite(Number(prof.coldTyres[c])) && Number(prof.coldTyres[c]) > 0
-            ? Number(prof.coldTyres[c])
-            : dryStg[c];
+        const coldVal = activeCond === 'wet' ? wetStg[c] : coldBase[c];
         const el = $(`inputColdPsi_${c}`);
         if (el) el.value = coldVal.toFixed(1);
         ch.coldTyres[c] = coldVal;
@@ -11261,25 +11410,25 @@
      ------------------------------------------------------------------------ */
   function bindEvents() {
     // Press-and-Hold Accelerating Auto-Repeat for all [data-stepper-target] buttons
-    let holdDelayTimer = null;
-    let holdRepeatTimer = null;
-    let holdStartTimestamp = 0;
-    let holdTickCounter = 0;
-    let lastHoldStepperBtn = null;
-    let lastHoldStepperTime = 0;
+    let activeHold = null;
+    let lastHoldEndTime = 0;
+    let lastHoldTargetId = null;
 
-    const clearStepperHoldTimers = () => {
-      if (holdDelayTimer) {
-        clearTimeout(holdDelayTimer);
-        holdDelayTimer = null;
+    const stopActiveHold = () => {
+      if (!activeHold) return;
+      if (activeHold.timeoutId) {
+        clearTimeout(activeHold.timeoutId);
       }
-      if (holdRepeatTimer) {
-        clearInterval(holdRepeatTimer);
-        holdRepeatTimer = null;
+      if (activeHold.intervalId) {
+        clearInterval(activeHold.intervalId);
       }
+      lastHoldEndTime = Date.now();
+      lastHoldTargetId = activeHold.targetId;
+      activeHold = null;
     };
 
     // Prevent Android/iOS Chrome long-press context/copy/preview popup on steppers
+    // CRITICAL: Do NOT stop activeHold here — mobile fires contextmenu at ~500ms of touch hold!
     ['contextmenu', 'selectstart'].forEach((evtName) => {
       document.addEventListener(
         evtName,
@@ -11287,7 +11436,6 @@
           if (e.target && e.target.closest && e.target.closest('.num-stepper, [data-stepper-target]')) {
             e.preventDefault();
             e.stopPropagation();
-            clearStepperHoldTimers();
           }
         },
         true
@@ -11305,68 +11453,79 @@
         stepperBtn.setPointerCapture(e.pointerId);
       } catch (_) {}
 
-      clearStepperHoldTimers();
+      stopActiveHold();
       const targetId = stepperBtn.getAttribute('data-stepper-target');
-      const baseDelta = parseFloat(stepperBtn.getAttribute('data-step'));
-      if (!targetId || !Number.isFinite(baseDelta)) return;
+      const stepDelta = parseFloat(stepperBtn.getAttribute('data-step'));
+      if (!targetId || !Number.isFinite(stepDelta)) return;
 
-      lastHoldStepperBtn = stepperBtn;
-      lastHoldStepperTime = Date.now();
-      holdStartTimestamp = Date.now();
-      holdTickCounter = 0;
+      const startTime = Date.now();
+      activeHold = {
+        targetId,
+        stepDelta,
+        startTime,
+        timeoutId: null,
+        intervalId: null,
+        didRepeat: false
+      };
 
-      // Single immediate step on initial press
-      stepNumericInput($(targetId), baseDelta);
+      // Immediate 1x step on pointerdown
+      stepNumericInput(document.getElementById(targetId), stepDelta);
 
-      // Start accelerating repeat after 320ms hold
-      holdDelayTimer = setTimeout(() => {
-        holdRepeatTimer = setInterval(() => {
-          const targetEl = $(targetId);
-          if (!targetEl || stepperBtn.disabled || !document.body.contains(stepperBtn)) {
-            clearStepperHoldTimers();
+      // After 300ms hold, start continuous setInterval every 75ms that NEVER stops until finger lifts off
+      activeHold.timeoutId = setTimeout(() => {
+        if (!activeHold || activeHold.targetId !== targetId) return;
+        activeHold.intervalId = setInterval(() => {
+          if (!activeHold) return;
+          const targetEl = document.getElementById(activeHold.targetId);
+          if (!targetEl || targetEl.disabled) {
+            stopActiveHold();
             return;
           }
-          const elapsed = Date.now() - holdStartTimestamp;
-          holdTickCounter += 1;
-          lastHoldStepperTime = Date.now();
+          activeHold.didRepeat = true;
+          const elapsed = Date.now() - activeHold.startTime;
+          const base = activeHold.stepDelta;
+          const absStep = Math.abs(base);
+          const isIntegerLaps =
+            absStep >= 1 && activeHold.targetId.toLowerCase().includes('laps');
 
-          if (elapsed < 1150) {
-            // 320ms..1150ms: step every 2nd tick (~105ms) at 1x
-            if (holdTickCounter % 2 === 0) {
-              stepNumericInput(targetEl, baseDelta);
-            }
-          } else if (elapsed < 2300) {
-            // 1150ms..2300ms: step every 55ms tick at 2x
-            stepNumericInput(targetEl, baseDelta * 2);
+          if (elapsed < 1200) {
+            // 300ms – 1200ms: 1x data-step per tick
+            stepNumericInput(targetEl, base);
+          } else if (elapsed < 2500) {
+            // 1200ms – 2500ms: 2x data-step per tick
+            stepNumericInput(targetEl, base * 2);
           } else {
-            // >2300ms: 5x turbo for 0.1 / 0.5 steppers, 3x for others
-            const absStep = Math.abs(baseDelta);
-            const mult = Math.abs(absStep - 0.1) < 1e-6 || Math.abs(absStep - 0.5) < 1e-6 ? 5 : 3;
-            stepNumericInput(targetEl, baseDelta * mult);
+            // 2500ms+: 5x data-step per tick (keep 2x on integer Laps if step is 1)
+            const mult = isIntegerLaps ? 2 : 5;
+            stepNumericInput(targetEl, base * mult);
           }
-        }, 55);
-      }, 320);
+        }, 75);
+      }, 300);
     });
 
-    ['pointerup', 'pointercancel', 'pointerleave'].forEach((evtName) => {
-      document.addEventListener(evtName, clearStepperHoldTimers, true);
+    // ONLY stop repeater on lift-off / cancel / blur / visibilitychange — NEVER on pointerleave or pointerout!
+    ['pointerup', 'pointercancel', 'touchend', 'touchcancel'].forEach((evtName) => {
+      window.addEventListener(evtName, stopActiveHold, true);
     });
-    window.addEventListener('blur', clearStepperHoldTimers);
+    window.addEventListener('blur', stopActiveHold);
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden) clearStepperHoldTimers();
+      if (document.hidden) stopActiveHold();
     });
 
     // Delegated click handler for steppers, tabs, cards, log buttons, fleet
     document.addEventListener('click', (e) => {
       const stepperBtn = e.target.closest('[data-stepper-target]');
       if (stepperBtn) {
-        if (lastHoldStepperBtn === stepperBtn && Date.now() - lastHoldStepperTime < 900) {
-          lastHoldStepperBtn = null;
+        const targetId = stepperBtn.getAttribute('data-stepper-target');
+        if (
+          activeHold ||
+          (lastHoldTargetId === targetId && Date.now() - lastHoldEndTime < 650)
+        ) {
+          lastHoldTargetId = null;
           return;
         }
-        const targetId = stepperBtn.getAttribute('data-stepper-target');
         const delta = parseFloat(stepperBtn.getAttribute('data-step'));
-        stepNumericInput($(targetId), delta);
+        stepNumericInput(document.getElementById(targetId), delta);
         return;
       }
 
@@ -11759,10 +11918,24 @@
         return;
       }
 
-      const dryPresetBtn = e.target.closest('[data-dry-target-preset]');
+      const dryPresetBtn = e.target.closest('[data-dry-preset], [data-dry-target-preset]');
       if (dryPresetBtn) {
-        const pKey = dryPresetBtn.getAttribute('data-dry-target-preset');
+        const pKey =
+          dryPresetBtn.getAttribute('data-dry-preset') ||
+          dryPresetBtn.getAttribute('data-dry-target-preset');
         applyDryTargetPreset(pKey, false);
+        return;
+      }
+
+      const toggleDirBtn = e.target.closest('#btnToggleTrackDirection');
+      if (toggleDirBtn) {
+        toggleTrackDirection();
+        return;
+      }
+
+      const clearColdRowBtn = e.target.closest('#btnClearAllColdPsiRow');
+      if (clearColdRowBtn) {
+        toggleClearOrRestoreColdPsi();
         return;
       }
 

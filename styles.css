@@ -1218,7 +1218,7 @@ textarea:focus-visible {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
-  touch-action: manipulation;
+  touch-action: none;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
 
@@ -4225,30 +4225,26 @@ button:disabled.btn-stage-locked,
 /* =========================================================
    5. SPLIT FRONT/REAR HOT TARGET PRESETS & 4-CORNER PYROMETER
    ========================================================= */
-.dry-preset-bar {
+.tyre-base-command-row {
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  gap: 8px;
+  align-items: stretch;
   margin-bottom: 10px;
-  padding: 8px 10px;
+  padding: 8px;
   border-radius: 10px;
   background:
-    linear-gradient(180deg, rgba(22, 29, 40, 0.92) 0%, rgba(12, 16, 23, 0.96) 100%);
-  border: 1.5px solid rgba(71, 85, 105, 0.55);
+    linear-gradient(180deg, rgba(22, 29, 40, 0.94) 0%, rgba(11, 15, 22, 0.98) 100%);
+  border: 1.5px solid rgba(71, 85, 105, 0.58);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 3px 8px rgba(0, 0, 0, 0.55);
+    0 3px 8px rgba(0, 0, 0, 0.58);
 }
 
-.dry-preset-pills {
+.tyre-preset-trio {
   display: grid;
-  grid-template-columns: 1.35fr 1fr;
-  gap: 8px;
-  margin-bottom: 7px;
-}
-
-@media (max-width: 420px) {
-  .dry-preset-pills {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
 }
 
 .tyre-preset-pill {
@@ -4257,13 +4253,13 @@ button:disabled.btn-stage-locked,
   align-items: center;
   justify-content: center;
   gap: 2px;
-  min-height: 42px;
-  padding: 6px 10px;
+  min-height: 52px;
+  padding: 6px 4px;
   border-radius: 8px;
   cursor: pointer;
   text-align: center;
   background:
-    radial-gradient(ellipse 80% 50% at 50% 10%, rgba(255, 255, 255, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 50% at 50% 10%, rgba(255, 255, 255, 0.10) 0%, transparent 70%),
     linear-gradient(180deg, #273244 0%, #161d29 55%, #0d121a 100%);
   border: 1.5px solid #475569;
   border-top-color: #64748b;
@@ -4272,17 +4268,18 @@ button:disabled.btn-stage-locked,
   box-shadow:
     0 2px 0 #05070b,
     0 4px 8px rgba(0, 0, 0, 0.65),
-    inset 0 1px 0 rgba(255, 255, 255, 0.16);
-  transition: transform 0.08s ease, filter 0.12s ease, border-color 0.15s ease;
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  transition: transform 0.08s ease, filter 0.12s ease, border-color 0.15s ease, opacity 0.15s ease;
 }
 
 .tyre-preset-pill:active {
   transform: translateY(1px);
 }
 
+.tyre-preset-pill.active-preset,
 .tyre-preset-pill.active {
   background:
-    radial-gradient(ellipse 80% 50% at 50% 10%, rgba(16, 185, 129, 0.28) 0%, transparent 70%),
+    radial-gradient(ellipse 85% 55% at 50% 10%, rgba(52, 211, 153, 0.34) 0%, transparent 72%),
     linear-gradient(180deg, #065f46 0%, #064e3b 58%, #022c22 100%);
   border-color: #10b981;
   border-top-color: #6ee7b7;
@@ -4290,44 +4287,147 @@ button:disabled.btn-stage-locked,
   color: #ecfdf5;
   box-shadow:
     0 2px 0 #021712,
-    0 0 10px rgba(16, 185, 129, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    0 0 12px rgba(16, 185, 129, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.tyre-preset-pill.preset-greyed {
+  background:
+    linear-gradient(180deg, #161c26 0%, #0e131b 60%, #090c11 100%);
+  border-color: #263142;
+  border-top-color: #334155;
+  border-bottom-color: #0f172a;
+  color: #64748b;
+  box-shadow:
+    0 1px 0 #040609,
+    inset 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
 .preset-pill-main {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 900;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   line-height: 1.15;
+  white-space: nowrap;
 }
 
 .preset-pill-sub {
-  font-size: 0.65rem;
-  font-weight: 700;
-  opacity: 0.85;
-  letter-spacing: 0.02em;
+  font-size: 0.62rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  opacity: 0.9;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 
-.dry-cold-dropin-row {
+.tyre-preset-pill.preset-greyed .preset-pill-sub {
+  color: #475569;
+  opacity: 0.85;
+}
+
+.tyre-car-mini-matrix {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 5px 7px;
+  border-radius: 8px;
+  background:
+    radial-gradient(ellipse 85% 60% at 50% 50%, rgba(16, 185, 129, 0.08) 0%, transparent 75%),
+    linear-gradient(180deg, #0d131c 0%, #070a0f 100%);
+  border: 1.5px solid rgba(52, 211, 153, 0.38);
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.85),
+    0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.mini-car-head {
+  font-size: 0.58rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6ee7b7;
+  text-align: center;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-car-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px 6px;
+}
+
+.mini-car-cell {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(71, 85, 105, 0.45);
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #94a3b8;
+}
+
+.mini-car-cell strong {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: #ecfdf5;
+}
+
+.tyre-dir-cold-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  min-height: 44px;
+}
+
+.btn-tyre-dir-toggle,
+.btn-tyre-cold-mode {
+  min-height: 44px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding-top: 6px;
-  border-top: 1px solid rgba(71, 85, 105, 0.35);
+  justify-content: center;
+  text-align: center;
+  line-height: 1.15;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 10%, rgba(255, 255, 255, 0.14) 0%, transparent 70%),
+    linear-gradient(180deg, #2b374b 0%, #19212e 55%, #0e131b 100%);
+  border: 1.5px solid #475569;
+  border-top-color: #64748b;
+  border-bottom-color: #1e293b;
+  color: #e2e8f0;
+  box-shadow:
+    0 2px 0 #05070b,
+    0 3px 6px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-.dry-cold-dropin-info {
-  font-size: 0.70rem;
-  color: #cbd5e1;
-  line-height: 1.3;
+.btn-tyre-dir-toggle:active,
+.btn-tyre-cold-mode:active {
+  transform: translateY(1px);
 }
 
-.dry-cold-dropin-info strong {
-  color: #34d399;
-  font-family: var(--font-mono);
-  font-weight: 800;
+.btn-tyre-dir-toggle {
+  border-color: rgba(56, 189, 248, 0.55);
+  color: #bae6fd;
+}
+
+@media (max-width: 460px) {
+  .tyre-base-command-row {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
 }
 
 /* Collapsible 4-Corner Pyrometer O / M / I (°C) */

@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.7.4" />
+  <link rel="stylesheet" href="./styles.css?v=0.7.5" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -945,25 +945,46 @@
           </div>
         </div>
 
-        <!-- Compact Quick-Preset Pill Row (Shown in Dry KB Mode) -->
-        <div class="dry-preset-bar" id="dryTargetPresetBar">
-          <div class="dry-preset-pills" role="group" aria-label="Dry Hot Target Quick Presets">
-            <button type="button" class="tyre-preset-pill active" id="btnPresetAiIdeal" data-dry-target-preset="ai_ideal">
-              <span class="preset-pill-main">AI Ideal Anti-Push (40.0F / 43.0R)</span>
-              <span class="preset-pill-sub" id="subPresetAiIdeal">Front Grip + Live-Axle Bite</span>
+        <!-- Top Preset Trio + 2x2 Car Cold Base Matrix (Shown in Dry KB Mode) -->
+        <div class="tyre-base-command-row" id="dryTargetPresetBar">
+          <div class="tyre-preset-trio" role="group" aria-label="Dry Cold and Hot Target Presets">
+            <button type="button" class="tyre-preset-pill active-preset" id="btnDryPreset_ai_antipush" data-dry-preset="ai_antipush" aria-pressed="true">
+              <span class="preset-pill-main">AI Anti-Push</span>
+              <span class="preset-pill-sub" id="subDryPresetAiAntiPush">40.0F / 43.0R Hot</span>
             </button>
-            <button type="button" class="tyre-preset-pill" id="btnPresetClassic44" data-dry-target-preset="classic_44">
-              <span class="preset-pill-main">Classic 44.0 Square</span>
-              <span class="preset-pill-sub">44.0F / 44.0R Reference</span>
+            <button type="button" class="tyre-preset-pill preset-greyed" id="btnDryPreset_classic_44" data-dry-preset="classic_44" aria-pressed="false">
+              <span class="preset-pill-main">Classic Square</span>
+              <span class="preset-pill-sub" id="subDryPresetClassic44">44.0F / 44.0R Hot</span>
+            </button>
+            <button type="button" class="tyre-preset-pill preset-greyed" id="btnDryPreset_track_learned" data-dry-preset="track_learned" aria-pressed="false">
+              <span class="preset-pill-main">Track Learned</span>
+              <span class="preset-pill-sub" id="subDryPresetTrackLearned">Saved Track Base</span>
             </button>
           </div>
-          <div class="dry-cold-dropin-row" id="dryColdDropInRow">
-            <span class="dry-cold-dropin-info" id="dryColdDropInLabel">
-              CW (LH Loaded) AI Cold Baseline: <strong>FL 29.5 &bull; FR 30.5 &bull; RL 34.0 &bull; RR 35.0</strong>
-            </span>
-            <button type="button" class="btn btn-amber-outline btn-xs" id="btnDropAiColdBaseline">
-              Drop In AI Cold Start
-            </button>
+
+          <div class="tyre-car-mini-matrix" aria-label="2x2 Car Cold Base Preview">
+            <div class="mini-car-head">
+              <span class="mini-car-title">CAR COLD BASE</span>
+              <span class="mini-car-dir" id="miniCarColdHeader">CW &bull; LH Loaded</span>
+            </div>
+            <div class="mini-car-grid">
+              <div class="mini-car-cell">
+                <span class="mini-corner-tag">FL</span>
+                <span class="mini-corner-psi" id="miniCarCold_FL">29.5</span>
+              </div>
+              <div class="mini-car-cell">
+                <span class="mini-corner-tag">FR</span>
+                <span class="mini-corner-psi" id="miniCarCold_FR">30.5</span>
+              </div>
+              <div class="mini-car-cell">
+                <span class="mini-corner-tag">RL</span>
+                <span class="mini-corner-psi" id="miniCarCold_RL">34.0</span>
+              </div>
+              <div class="mini-car-cell">
+                <span class="mini-corner-tag">RR</span>
+                <span class="mini-corner-psi" id="miniCarCold_RR">35.0</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1022,7 +1043,7 @@
           </div>
         </div>
 
-        <!-- Row 2: Session Laps + Live Auto-Learned Cold Stagger Summary -->
+        <!-- Row 2: Session Laps + Circuit Direction & Cold Mode Control Pair -->
         <div class="form-grid-2 compact-pair-grid" style="align-items: stretch; margin-bottom: 10px;">
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
@@ -1039,10 +1060,19 @@
             </div>
           </div>
 
-          <div class="telem-cell" style="justify-content: center;">
-            <span class="telem-label" id="outTyreLearnedCardTitle">Track Learned Cold Stagger (Dry)</span>
-            <span class="telem-val txt-emerald" id="outTyreTrackLearnedSummary" style="font-size: 13.5px;">FL 29.5 &bull; FR 30.5 &bull; RL 34.0 &bull; RR 35.0</span>
-            <span class="telem-sub" id="outTyreTrackLearnedSub">Auto-learned from 1 dry run at Calder Park Raceway</span>
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <span class="field-label">Circuit Direction &amp; Cold Mode</span>
+              <span class="field-hint emerald" id="hintTrackDirectionSide">LH Loaded</span>
+            </div>
+            <div class="tyre-dir-cold-pair">
+              <button type="button" class="btn btn-secondary btn-tyre-dir-toggle" id="btnToggleTrackDirection" title="Toggle circuit direction between Clockwise (CW - LH Loaded) and Anti-Clockwise (CCW - RH Loaded)">
+                &#8635; CW
+              </button>
+              <button type="button" class="btn btn-secondary btn-tyre-cold-mode" id="btnClearAllColdPsiRow" title="Clear all 4 Cold PSI inputs when tyres are already bled hot, or restore cold stagger">
+                Clear Cold (Hot-Bled)
+              </button>
+            </div>
           </div>
         </div>
 
@@ -3484,6 +3514,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.7.4"></script>
+  <script src="./app.js?v=0.7.5"></script>
 </body>
 </html>
