@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.8.2" />
+  <link rel="stylesheet" href="./styles.css?v=0.8.3" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -1237,6 +1237,23 @@
           </div>
         </div>
 
+        <!-- Self-Learning AI Rear Spacer Recommendation Bar (RL & RR: 0 / 10 / 20mm) -->
+        <div id="aiRearSpacerBanner" class="ai-rear-spacer-bar" role="region" aria-label="AI Rear Spacer Recommendation">
+          <div class="ai-spacer-bar-main">
+            <div class="ai-spacer-call-line">
+              <span class="ai-spacer-eyebrow">AI SPACER CALL:</span>
+              <span class="ai-spacer-values" id="outAiSpacerCall">RL 0mm &bull; RR 20mm</span>
+              <span class="ai-spacer-match-pill" id="outAiSpacerStatusPill">ON CAR</span>
+            </div>
+            <div class="ai-spacer-reason-line" id="outAiSpacerReason">
+              CW Circuit &bull; RR 20mm preloads inside RR (+19kg wedge) to stop right-hand exit wheelspin
+            </div>
+          </div>
+          <button type="button" class="btn-apply-ai-spacer" id="btnApplyAiSpacers">
+            [Apply]
+          </button>
+        </div>
+
         <div class="car-orientation-bar">
           <div class="car-orientation-banner" style="margin-bottom: 0; flex: 1;">
             <span>&uarr; FRONT OF RACE CAR &uarr;</span>
@@ -1495,6 +1512,17 @@
                 </div>
                 <select id="springSelect_RL" class="select-input corner-susp-select" data-corner-spring-select="RL" aria-label="Select Rear Left Spring"></select>
               </div>
+              <div class="corner-susp-row rear-spacer-row">
+                <div class="corner-susp-top">
+                  <span class="corner-susp-label">REAR SPACER</span>
+                  <span class="corner-susp-badge mono" id="outSpacerBadge_RL">0mm (Rule 6c &le;20mm)</span>
+                </div>
+                <div class="rear-spacer-seg" role="group" aria-label="Rear Left Spring Spacer">
+                  <button type="button" class="rear-spacer-pill active" data-rear-spacer-corner="RL" data-rear-spacer-mm="0" id="btnSpacer_RL_0" aria-pressed="true">0mm</button>
+                  <button type="button" class="rear-spacer-pill" data-rear-spacer-corner="RL" data-rear-spacer-mm="10" id="btnSpacer_RL_10" aria-pressed="false">10mm</button>
+                  <button type="button" class="rear-spacer-pill" data-rear-spacer-corner="RL" data-rear-spacer-mm="20" id="btnSpacer_RL_20" aria-pressed="false">20mm</button>
+                </div>
+              </div>
             </div>
 
             <div class="field-group tyre-stack-field" id="coldPsiFieldWrap_RL">
@@ -1598,6 +1626,17 @@
                 </div>
                 <select id="springSelect_RR" class="select-input corner-susp-select" data-corner-spring-select="RR" aria-label="Select Rear Right Spring"></select>
               </div>
+              <div class="corner-susp-row rear-spacer-row">
+                <div class="corner-susp-top">
+                  <span class="corner-susp-label">REAR SPACER</span>
+                  <span class="corner-susp-badge mono" id="outSpacerBadge_RR">20mm (Rule 6c &le;20mm)</span>
+                </div>
+                <div class="rear-spacer-seg" role="group" aria-label="Rear Right Spring Spacer">
+                  <button type="button" class="rear-spacer-pill" data-rear-spacer-corner="RR" data-rear-spacer-mm="0" id="btnSpacer_RR_0" aria-pressed="false">0mm</button>
+                  <button type="button" class="rear-spacer-pill" data-rear-spacer-corner="RR" data-rear-spacer-mm="10" id="btnSpacer_RR_10" aria-pressed="false">10mm</button>
+                  <button type="button" class="rear-spacer-pill active" data-rear-spacer-corner="RR" data-rear-spacer-mm="20" id="btnSpacer_RR_20" aria-pressed="true">20mm</button>
+                </div>
+              </div>
             </div>
 
             <div class="field-group tyre-stack-field" id="coldPsiFieldWrap_RR">
@@ -1693,6 +1732,22 @@
         <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveTyresSession" style="margin-top: 12px;">
           LOCK PRE-RACE TYRES (READY TO RACE) &rarr;
         </button>
+
+        <!-- Step 6 Post-Session Handling Feedback Tags (1-Tap Multi-Select for Self-Learning) -->
+        <div class="post-handling-tags-box" id="postHandlingTagsWrap" style="margin-top: 10px;">
+          <div class="field-label-row" style="margin-bottom: 6px;">
+            <span class="field-label">Post-Session Handling Feedback (Optional &bull; Self-Learning)</span>
+            <span class="field-hint emerald" id="outHandlingTagsHint">Tap all that apply</span>
+          </div>
+          <div class="handling-tags-strip" role="group" aria-label="Post-Session Handling Feedback Tags">
+            <button type="button" class="handling-tag-pill" data-handling-tag="Balanced" aria-pressed="false">&#9878;&#65039; Balanced</button>
+            <button type="button" class="handling-tag-pill" data-handling-tag="Mid-Corner Push" aria-pressed="false">&#8599;&#65039; Mid-Corner Push</button>
+            <button type="button" class="handling-tag-pill" data-handling-tag="Spin LH Exit (RL)" aria-pressed="false">&#128260; Spin LH Exit (RL)</button>
+            <button type="button" class="handling-tag-pill" data-handling-tag="Spin RH Exit (RR)" aria-pressed="false">&#128260; Spin RH Exit (RR)</button>
+            <button type="button" class="handling-tag-pill" data-handling-tag="Loose Entry" aria-pressed="false">&#9889; Loose Entry</button>
+          </div>
+        </div>
+
         <button type="button" class="btn btn-locked-grey btn-stage-locked btn-full btn-cta-lg" id="btnCompleteSessionFromTyres" style="margin-top: 8px;" disabled>
           LOCK POST-SESSION TYRES &amp; COMPLETE SESSION
         </button>
@@ -2069,6 +2124,121 @@
         </div>
 
         <div id="springFleetContainer"></div>
+      </div>
+
+      <!-- 6) 4-Corner Scale Weight & Cross-Weight Baseline Card (With Driver) -->
+      <div class="card" id="cornerWeightBaselineCard">
+        <div class="section-head">
+          <div>
+            <div class="section-eyebrow">WORKSHOP 4-PAD SCALES &bull; GROUP 3H RULE 6C (&le;20MM REAR SPACER)</div>
+            <h2 class="section-title">CORNER WEIGHT &amp; WEDGE BASELINE (WITH DRIVER)</h2>
+          </div>
+          <span class="locked-badge" id="cornerWtStatusBadge">ENTER 4 CORNERS</span>
+        </div>
+
+        <div class="card-elevated corner-wt-recessed-box">
+          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="inputCornerWt_FL">FL (kg)</label>
+                <span class="field-hint">Front Left</span>
+              </div>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FL" data-step="-0.5" aria-label="Decrease FL Corner Weight">&minus;</button>
+                <div class="num-input-wrap">
+                  <input type="number" id="inputCornerWt_FL" class="num-input" value="" placeholder="&mdash;" min="150" max="600" step="0.5" inputmode="decimal" />
+                  <span class="num-unit-badge">kg</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FL" data-step="0.5" aria-label="Increase FL Corner Weight">+</button>
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="inputCornerWt_FR">FR (kg)</label>
+                <span class="field-hint">Front Right</span>
+              </div>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FR" data-step="-0.5" aria-label="Decrease FR Corner Weight">&minus;</button>
+                <div class="num-input-wrap">
+                  <input type="number" id="inputCornerWt_FR" class="num-input" value="" placeholder="&mdash;" min="150" max="600" step="0.5" inputmode="decimal" />
+                  <span class="num-unit-badge">kg</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FR" data-step="0.5" aria-label="Increase FR Corner Weight">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="inputCornerWt_RL">RL (kg)</label>
+                <span class="field-hint">Rear Left</span>
+              </div>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RL" data-step="-0.5" aria-label="Decrease RL Corner Weight">&minus;</button>
+                <div class="num-input-wrap">
+                  <input type="number" id="inputCornerWt_RL" class="num-input" value="" placeholder="&mdash;" min="150" max="600" step="0.5" inputmode="decimal" />
+                  <span class="num-unit-badge">kg</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RL" data-step="0.5" aria-label="Increase RL Corner Weight">+</button>
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="inputCornerWt_RR">RR (kg)</label>
+                <span class="field-hint">Rear Right</span>
+              </div>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RR" data-step="-0.5" aria-label="Decrease RR Corner Weight">&minus;</button>
+                <div class="num-input-wrap">
+                  <input type="number" id="inputCornerWt_RR" class="num-input" value="" placeholder="&mdash;" min="150" max="600" step="0.5" inputmode="decimal" />
+                  <span class="num-unit-badge">kg</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RR" data-step="0.5" aria-label="Increase RR Corner Weight">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Spacers Installed When Scaled (RL & RR: 0 / 10 / 20mm) -->
+          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <span class="field-label">RL Spacer (When Scaled)</span>
+                <span class="field-hint mono" id="outScaleBaseSpacerLbl_RL">0mm</span>
+              </div>
+              <div class="rear-spacer-seg" role="group" aria-label="RL Spacer Installed When Scaled">
+                <button type="button" class="rear-spacer-pill active" data-scale-spacer-corner="RL" data-scale-spacer-mm="0">0mm</button>
+                <button type="button" class="rear-spacer-pill" data-scale-spacer-corner="RL" data-scale-spacer-mm="10">10mm</button>
+                <button type="button" class="rear-spacer-pill" data-scale-spacer-corner="RL" data-scale-spacer-mm="20">20mm</button>
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <span class="field-label">RR Spacer (When Scaled)</span>
+                <span class="field-hint mono" id="outScaleBaseSpacerLbl_RR">20mm</span>
+              </div>
+              <div class="rear-spacer-seg" role="group" aria-label="RR Spacer Installed When Scaled">
+                <button type="button" class="rear-spacer-pill" data-scale-spacer-corner="RR" data-scale-spacer-mm="0">0mm</button>
+                <button type="button" class="rear-spacer-pill" data-scale-spacer-corner="RR" data-scale-spacer-mm="10">10mm</button>
+                <button type="button" class="rear-spacer-pill active" data-scale-spacer-corner="RR" data-scale-spacer-mm="20">20mm</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Auto-Calculated Summary Readout -->
+          <div class="corner-wt-summary-banner" id="outCornerWtSummaryBar">
+            Enter FL, FR, RL &amp; RR scale pad weights above to calculate Total, Cross Wt (FL+RR), Left %, Rear % &amp; Static RL vs RR delta.
+          </div>
+
+          <!-- Live Wedge Shift Estimator for 0 / 10 / 20mm Rear Spacers -->
+          <div class="corner-wt-wedge-est" id="outCornerWtWedgeShiftBox">
+            <strong>Live Rear Spacer Wedge Shift (~9.5 kg diagonal / ~0.7% Cross Wt per 10mm step on Pedders 5609 ~140 N/mm):</strong>
+            Enter 4-corner weights above to preview exact cross-weight &amp; RL/RR static load across <code>0mm / 10mm / 20mm</code> spacers.
+          </div>
+        </div>
       </div>
 
       <!-- Live Inch <-> mm <-> Area (mm^2) Orifice Converter -->
@@ -3744,6 +3914,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.8.2"></script>
+  <script src="./app.js?v=0.8.3"></script>
 </body>
 </html>

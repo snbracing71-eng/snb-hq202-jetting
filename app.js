@@ -1399,6 +1399,80 @@
 
   const DEFAULT_MOUNTED_SHOCKS = { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' };
   const DEFAULT_MOUNTED_SPRINGS = { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' };
+  const DEFAULT_MOUNTED_SPACERS = { RL: 0, RR: 20 };
+  const VALID_SPACER_MM = [0, 10, 20];
+  const HANDLING_TAG_OPTIONS = [
+    'Balanced',
+    'Mid-Corner Push',
+    'Spin LH Exit (RL)',
+    'Spin RH Exit (RR)',
+    'Loose Entry'
+  ];
+
+  function snapSpacerMm(val, fallback = 0) {
+    if (val === null || val === undefined || val === '') return fallback;
+    const num = Number(val);
+    if (!Number.isFinite(num)) return fallback;
+    if (num <= 5) return 0;
+    if (num >= 15) return 20;
+    return 10;
+  }
+
+  function normalizeRearSpacersMap(rawMap, fallbackMap = DEFAULT_MOUNTED_SPACERS) {
+    const fb = fallbackMap || DEFAULT_MOUNTED_SPACERS;
+    if (!rawMap || typeof rawMap !== 'object') {
+      return {
+        RL: snapSpacerMm(fb.RL, 0),
+        RR: snapSpacerMm(fb.RR, 20)
+      };
+    }
+    return {
+      RL: snapSpacerMm(rawMap.RL, snapSpacerMm(fb.RL, 0)),
+      RR: snapSpacerMm(rawMap.RR, snapSpacerMm(fb.RR, 20))
+    };
+  }
+
+  function createDefaultCornerWeightBaseline() {
+    return {
+      FL: null,
+      FR: null,
+      RL: null,
+      RR: null,
+      rlSpacerMm: 0,
+      rrSpacerMm: 20
+    };
+  }
+
+  function normalizeCornerWeightBaseline(raw) {
+    const def = createDefaultCornerWeightBaseline();
+    if (!raw || typeof raw !== 'object') return def;
+    const pickCornerKg = (v) => {
+      if (v === null || v === undefined || v === '') return null;
+      const n = Number(v);
+      return Number.isFinite(n) && n > 50 && n <= 800 ? Number(n.toFixed(1)) : null;
+    };
+    return {
+      FL: pickCornerKg(raw.FL),
+      FR: pickCornerKg(raw.FR),
+      RL: pickCornerKg(raw.RL),
+      RR: pickCornerKg(raw.RR),
+      rlSpacerMm: snapSpacerMm(raw.rlSpacerMm, 0),
+      rrSpacerMm: snapSpacerMm(raw.rrSpacerMm, 20)
+    };
+  }
+
+  function normalizeHandlingTagsArray(raw) {
+    if (!Array.isArray(raw)) return [];
+    const seen = new Set();
+    const out = [];
+    raw.forEach((item) => {
+      const s = String(item || '').trim();
+      if (!s || seen.has(s)) return;
+      seen.add(s);
+      out.push(s);
+    });
+    return out;
+  }
 
   function createDefaultShocks() {
     return [
@@ -1598,6 +1672,7 @@
       candidate.springs = defSprings;
       candidate.mountedShocks = { ...DEFAULT_MOUNTED_SHOCKS };
       candidate.mountedSprings = { ...DEFAULT_MOUNTED_SPRINGS };
+      candidate.mountedSpacers = { ...DEFAULT_MOUNTED_SPACERS };
       candidate.suspensionSeededV1 = true;
       candidate.suspensionSeededV2 = true;
     } else {
@@ -1719,6 +1794,10 @@
       candidate.suspensionSeededV1 = true;
       candidate.suspensionSeededV2 = true;
     }
+
+    // Safely backfill Car #77 default active rear spacers (RL: 0mm, RR: 20mm) and cornerWeightBaseline without touching existing logs
+    candidate.mountedSpacers = normalizeRearSpacersMap(candidate.mountedSpacers, DEFAULT_MOUNTED_SPACERS);
+    candidate.cornerWeightBaseline = normalizeCornerWeightBaseline(candidate.cornerWeightBaseline);
 
     const defTyrePool = createDefaultTyrePool();
     if (!Array.isArray(candidate.tyrePool) || candidate.tyrePool.length === 0) {
@@ -1963,6 +2042,13 @@
         s.springs,
         defMatch && defMatch.springs ? defMatch.springs : DEFAULT_MOUNTED_SPRINGS
       );
+      const spacers = normalizeRearSpacersMap(
+        s.spacers,
+        defMatch && defMatch.spacers ? defMatch.spacers : DEFAULT_MOUNTED_SPACERS
+      );
+      const handlingTags = normalizeHandlingTagsArray(
+        s.handlingTags !== undefined ? s.handlingTags : defMatch && defMatch.handlingTags ? defMatch.handlingTags : []
+      );
 
       return {
         ...s,
@@ -2004,6 +2090,8 @@
         tyres,
         shocks,
         springs,
+        spacers,
+        handlingTags,
         tunePreLocked: s.tunePreLocked !== undefined ? Boolean(s.tunePreLocked) : (s.status || 'completed') === 'completed',
         fuelPreLocked: s.fuelPreLocked !== undefined ? Boolean(s.fuelPreLocked) : (s.status || 'completed') === 'completed',
         tyresPreLocked: s.tyresPreLocked !== undefined ? Boolean(s.tyresPreLocked) : (s.status || 'completed') === 'completed',
@@ -2424,6 +2512,8 @@
       springs: createDefaultSprings(),
       mountedShocks: { ...DEFAULT_MOUNTED_SHOCKS },
       mountedSprings: { ...DEFAULT_MOUNTED_SPRINGS },
+      mountedSpacers: { ...DEFAULT_MOUNTED_SPACERS },
+      cornerWeightBaseline: createDefaultCornerWeightBaseline(),
       activeManifoldId: 'Macca',
       activeExhaustId: 'Macca',
       tyrePool: createDefaultTyrePool(),
@@ -2469,6 +2559,7 @@
     springFleetFilter: 'all', // 'all' | 'F' | 'R' | 'mounted'
     newTyreSpec: 'buffed',  // 'buffed' | 'wet'
     activeDryPreset: (state.chassis && state.chassis.activeDryPreset) || 'ai_antipush',
+    selectedHandlingTags: [],
     logSearchTrack: 'ALL',
     logSearchYear: 'ALL',
     logSearchQuery: '',
@@ -3954,6 +4045,7 @@
     const btnLockPostTyresTop = $('btnLockPostTyresTop');
     const btnPostTyres = $('btnCompleteSessionFromTyres') || $('btnCompleteFromTyres');
     const step2Banner = $('postTyresStep2Banner');
+    const handlingTagsWrap = $('postHandlingTagsWrap');
     const tyresContentWrap = $('tyresActiveSessionContent');
 
     const isStep6PostTyres = Boolean(activeSess && curStep === 6 && !tyresPostLocked);
@@ -3966,6 +4058,12 @@
     }
     if (step2Banner) {
       step2Banner.style.display = isStep6PostTyres ? 'block' : 'none';
+    }
+    if (handlingTagsWrap) {
+      handlingTagsWrap.style.display = isStep6PostTyres ? 'block' : 'none';
+      if (isStep6PostTyres) {
+        renderHandlingTagsStrip();
+      }
     }
     if (tyresContentWrap) {
       tyresContentWrap.classList.toggle('tyres-post-step2-active', isStep6PostTyres);
@@ -4045,6 +4143,7 @@
         'inputTyreSessionLaps',
         'inputTrackTempC',
         'btnToggleFreshColdSet',
+        'btnApplyAiSpacers',
         'btnUnmountAllTyres',
         'btnClearAllColdPsi',
         'selectMountedTyre_FL',
@@ -4064,7 +4163,7 @@
         'inputColdPsi_RL',
         'inputColdPsi_RR'
       ],
-      [],
+      ['[data-rear-spacer-corner]'],
       tyresLocked
     );
 
@@ -4193,9 +4292,11 @@
 
     // Determine Session 1 (Stone-Cold) vs Session 2+ (Hot-Target Only)
     ch.forceFreshColdSet = false;
+    ui.selectedHandlingTags = [];
     const mounted = ensureMountedTyresState();
     const mountedShocks = ensureMountedShocksState();
     const mountedSprings = ensureMountedSpringsState();
+    const mountedSpacers = ensureMountedSpacersState();
     const activeCond = ch.tyreCondition === 'wet' ? 'wet' : 'dry';
     const hotTargetFront = Number.isFinite(Number(ch.hotTargetFront)) ? Number(ch.hotTargetFront) : 40.0;
     const hotTargetRear = Number.isFinite(Number(ch.hotTargetRear)) ? Number(ch.hotTargetRear) : 43.0;
@@ -4336,6 +4437,8 @@
       tyres: initialCorners,
       shocks: { ...mountedShocks },
       springs: { ...mountedSprings },
+      spacers: { ...mountedSpacers },
+      handlingTags: [],
       tunePreLocked: false,
       fuelPreLocked: false,
       tyresPreLocked: false,
@@ -6977,8 +7080,587 @@
     }
     saveState();
     renderCornerSuspensionSelectors();
+    renderAiRearSpacerBanner();
+    renderCornerWeightBaselineCard();
     if (typeof renderSpringFleet === 'function') renderSpringFleet();
     showToast(`Mounted Spring ${chosen ? chosen.code : cleanId} (${formatSpringKingBadge(chosen)}) on ${corner}`);
+  }
+
+  function ensureMountedSpacersState() {
+    state.mountedSpacers = normalizeRearSpacersMap(state.mountedSpacers, DEFAULT_MOUNTED_SPACERS);
+    return state.mountedSpacers;
+  }
+
+  function ensureCornerWeightBaselineState() {
+    state.cornerWeightBaseline = normalizeCornerWeightBaseline(state.cornerWeightBaseline);
+    return state.cornerWeightBaseline;
+  }
+
+  function renderRearSpacerControls() {
+    const spacers = ensureMountedSpacersState();
+    const activeSess = getActiveSession();
+    const isLocked = Boolean(activeSess && activeSess.tyresPreLocked);
+
+    ['RL', 'RR'].forEach((corner) => {
+      const mmVal = snapSpacerMm(spacers[corner], corner === 'RR' ? 20 : 0);
+      spacers[corner] = mmVal;
+      const badgeEl = $(`outSpacerBadge_${corner}`);
+      if (badgeEl) {
+        badgeEl.textContent = `${mmVal} mm`;
+        badgeEl.className = `corner-susp-badge mono spacer-mm-badge ${mmVal > 0 ? 'txt-amber' : ''}`;
+      }
+      document.querySelectorAll(`[data-rear-spacer-corner="${corner}"]`).forEach((btn) => {
+        const btnMm = snapSpacerMm(btn.getAttribute('data-rear-spacer-mm'), 0);
+        const active = btnMm === mmVal;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        btn.disabled = isLocked;
+      });
+    });
+  }
+
+  function handleRearSpacerSelect(corner, rawMm) {
+    if (corner !== 'RL' && corner !== 'RR') return;
+    const activeSess = getActiveSession();
+    if (activeSess && activeSess.tyresPreLocked) {
+      renderRearSpacerControls();
+      showToast('Pre-Race Tyres & Springs are locked — Unlock first to change Rear Spacer');
+      return;
+    }
+    const spacers = ensureMountedSpacersState();
+    const nextMm = snapSpacerMm(rawMm, 0);
+    spacers[corner] = nextMm;
+    if (activeSess) {
+      activeSess.spacers = { ...spacers };
+    }
+    saveState();
+    renderRearSpacerControls();
+    renderAiRearSpacerBanner();
+    renderCornerWeightBaselineCard();
+    showToast(`${corner} Rear Spring Spacer set to ${nextMm}mm (RL ${spacers.RL}mm • RR ${spacers.RR}mm)`);
+  }
+
+  function getMountedRearSpringRatesInfo() {
+    const mountedSprings = ensureMountedSpringsState();
+    const rlObj = getSpringById(mountedSprings.RL);
+    const rrObj = getSpringById(mountedSprings.RR);
+    const rlRate = rlObj && isFiniteSpecNum(rlObj.rateNmm) ? Number(rlObj.rateNmm) : 138;
+    const rrRate = rrObj && isFiniteSpecNum(rrObj.rateNmm) ? Number(rrObj.rateNmm) : 141;
+    const rlHt = rlObj && isFiniteSpecNum(rlObj.heightMm) ? Number(rlObj.heightMm) : 184;
+    const rrHt = rrObj && isFiniteSpecNum(rrObj.heightMm) ? Number(rrObj.heightMm) : 185;
+    const avgRate = (rlRate + rrRate) / 2;
+    return {
+      rlCode: rlObj ? rlObj.code : 'R6',
+      rrCode: rrObj ? rrObj.code : 'R5',
+      rlRate,
+      rrRate,
+      rlHt,
+      rrHt,
+      avgRate,
+      rateScaleFactor: clamp(avgRate / 140, 0.85, 1.15)
+    };
+  }
+
+  /**
+   * Computes 4-corner scale weight baseline metrics & live wedge shift when testing (testRlMm, testRrMm).
+   * Physics: ~9.5 kg diagonal cross-weight (FL+RR) transfer (~0.7% cross-weight shift) per 10mm rear spacer step
+   * on Pedders 5609 (~140 N/mm) rear coils.
+   */
+  function computeCornerWeightAndWedgeTelemetry(testRlMmOpt, testRrMmOpt) {
+    const cw = ensureCornerWeightBaselineState();
+    const spacers = ensureMountedSpacersState();
+    const testRlMm = testRlMmOpt !== undefined ? snapSpacerMm(testRlMmOpt, spacers.RL) : spacers.RL;
+    const testRrMm = testRrMmOpt !== undefined ? snapSpacerMm(testRrMmOpt, spacers.RR) : spacers.RR;
+    const sprInfo = getMountedRearSpringRatesInfo();
+
+    const hasAllFour =
+      cw.FL !== null &&
+      cw.FR !== null &&
+      cw.RL !== null &&
+      cw.RR !== null &&
+      cw.FL > 50 &&
+      cw.FR > 50 &&
+      cw.RL > 50 &&
+      cw.RR > 50;
+
+    // Net +10mm steps of RR relative to RL vs when car was scaled
+    const baseNetRrSteps = (cw.rrSpacerMm - cw.rlSpacerMm) / 10;
+    const testNetRrSteps = (testRrMm - testRlMm) / 10;
+    const deltaRrSteps = testNetRrSteps - baseNetRrSteps;
+
+    // ~9.5 kg diagonal (FL+RR) transfer per 10mm step (~4.75 kg per corner on diagonal pair)
+    const diagCrossDeltaKg = Number((deltaRrSteps * 9.5 * sprInfo.rateScaleFactor).toFixed(1));
+    const perCornerDeltaKg = diagCrossDeltaKg / 2;
+
+    if (!hasAllFour) {
+      const approxCrossShiftPct = Number((deltaRrSteps * 0.7 * sprInfo.rateScaleFactor).toFixed(2));
+      return {
+        hasAllFour: false,
+        cw,
+        testRlMm,
+        testRrMm,
+        deltaRrSteps,
+        diagCrossDeltaKg,
+        approxCrossShiftPct,
+        sprInfo
+      };
+    }
+
+    const totalKg = Number((cw.FL + cw.FR + cw.RL + cw.RR).toFixed(1));
+    const baseCrossKg = Number((cw.FL + cw.RR).toFixed(1));
+    const baseCrossPct = Number(((baseCrossKg / totalKg) * 100).toFixed(1));
+    const baseLeftPct = Number((((cw.FL + cw.RL) / totalKg) * 100).toFixed(1));
+    const baseRearPct = Number((((cw.RL + cw.RR) / totalKg) * 100).toFixed(1));
+    const baseRlVsRrKg = Number((cw.RL - cw.RR).toFixed(1));
+
+    // Live estimated corner weights at (testRlMm, testRrMm)
+    const liveFL = Number((cw.FL + perCornerDeltaKg).toFixed(1));
+    const liveFR = Number((cw.FR - perCornerDeltaKg).toFixed(1));
+    const liveRL = Number((cw.RL - perCornerDeltaKg).toFixed(1));
+    const liveRR = Number((cw.RR + perCornerDeltaKg).toFixed(1));
+    const liveCrossKg = Number((liveFL + liveRR).toFixed(1));
+    const liveCrossPct = Number(((liveCrossKg / totalKg) * 100).toFixed(1));
+    const liveCrossShiftPct = Number((liveCrossPct - baseCrossPct).toFixed(1));
+    const liveRlVsRrKg = Number((liveRL - liveRR).toFixed(1));
+
+    return {
+      hasAllFour: true,
+      cw,
+      totalKg,
+      baseCrossKg,
+      baseCrossPct,
+      baseLeftPct,
+      baseRearPct,
+      baseRlVsRrKg,
+      testRlMm,
+      testRrMm,
+      deltaRrSteps,
+      diagCrossDeltaKg,
+      liveFL,
+      liveFR,
+      liveRL,
+      liveRR,
+      liveCrossKg,
+      liveCrossPct,
+      liveCrossShiftPct,
+      liveRlVsRrKg,
+      sprInfo
+    };
+  }
+
+  function hydrateCornerWeightInputs() {
+    const cw = ensureCornerWeightBaselineState();
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const inp = $(`inputCornerWt_${c}`);
+      if (inp && document.activeElement !== inp) {
+        inp.value = cw[c] !== null && Number.isFinite(Number(cw[c])) ? Number(cw[c]).toFixed(1) : '';
+      }
+    });
+    renderCornerWeightBaselineCard();
+  }
+
+  function renderCornerWeightBaselineCard() {
+    const card = $('cornerWeightBaselineCard');
+    if (!card) return;
+    const telem = computeCornerWeightAndWedgeTelemetry();
+    const { cw, sprInfo } = telem;
+
+    // Sync scale baseline spacer pills
+    ['RL', 'RR'].forEach((corner) => {
+      const curMm = corner === 'RL' ? cw.rlSpacerMm : cw.rrSpacerMm;
+      const lblEl = $(`outScaleBaseSpacerLbl_${corner}`);
+      if (lblEl) {
+        lblEl.textContent = `${curMm} mm`;
+      }
+      document.querySelectorAll(`[data-scale-spacer-corner="${corner}"]`).forEach((btn) => {
+        const bMm = snapSpacerMm(btn.getAttribute('data-scale-spacer-mm'), 0);
+        const active = bMm === curMm;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+    });
+
+    const badgeEl = $('cornerWtStatusBadge');
+    const summaryEl = $('outCornerWtSummaryBar');
+    const wedgeEl = $('outCornerWtWedgeShiftBox');
+
+    if (!telem.hasAllFour) {
+      if (badgeEl) {
+        badgeEl.textContent = 'Enter 4 Corners When Scaled';
+        badgeEl.className = 'afr-status-badge estimated';
+      }
+      if (summaryEl) {
+        summaryEl.innerHTML = `<span>Total: <strong>&mdash; kg</strong></span> &bull; <span>Cross Wt (FL+RR): <strong>&mdash;%</strong></span> &bull; <span>Left: <strong>&mdash;%</strong></span> &bull; <span>Rear: <strong>&mdash;%</strong></span> &bull; <span>Static RL vs RR: <strong>&mdash; kg</strong></span>`;
+      }
+      if (wedgeEl) {
+        const activeSpacers = ensureMountedSpacersState();
+        const stepDelta = (activeSpacers.RR - activeSpacers.RL - (cw.rrSpacerMm - cw.rlSpacerMm)) / 10;
+        const estKg = Number((stepDelta * 9.5 * sprInfo.rateScaleFactor).toFixed(1));
+        const estPct = Number((stepDelta * 0.7 * sprInfo.rateScaleFactor).toFixed(1));
+        const signStr = estKg >= 0 ? '+' : '';
+        wedgeEl.innerHTML = `<strong>Live Wedge Estimator (${sprInfo.rlCode} ${sprInfo.rlRate} N/mm RL &bull; ${sprInfo.rrCode} ${sprInfo.rrRate} N/mm RR):</strong> Each <strong>10mm</strong> rear spacer step shifts diagonal (FL+RR) cross-weight by <strong>~9.5 kg (~0.7%)</strong>. Active car setup (RL <strong>${activeSpacers.RL}mm</strong> / RR <strong>${activeSpacers.RR}mm</strong>) is <strong>${signStr}${estKg.toFixed(1)} kg (${signStr}${estPct.toFixed(1)}% Cross Wt)</strong> vs scale sheet baseline (RL ${cw.rlSpacerMm}mm / RR ${cw.rrSpacerMm}mm).`;
+      }
+      return;
+    }
+
+    const rlRrSign = telem.baseRlVsRrKg >= 0 ? '+' : '';
+    const crossClass =
+      telem.baseCrossPct >= 49.5 && telem.baseCrossPct <= 51.0 ? 'txt-emerald' : 'txt-amber';
+    const rearDiffWarn = Math.abs(telem.liveRlVsRrKg) > 18.0;
+
+    if (badgeEl) {
+      badgeEl.textContent = `${telem.totalKg.toFixed(1)} kg • ${telem.baseCrossPct.toFixed(1)}% Cross`;
+      badgeEl.className = 'afr-status-badge verified';
+    }
+    if (summaryEl) {
+      summaryEl.innerHTML = `
+        <span>Total: <strong class="txt-emerald">${telem.totalKg.toFixed(1)} kg</strong></span> &bull;
+        <span>Cross Wt (FL+RR): <strong class="${crossClass}">${telem.baseCrossPct.toFixed(1)}%</strong> (${telem.baseCrossKg.toFixed(1)} kg)</span> &bull;
+        <span>Left: <strong>${telem.baseLeftPct.toFixed(1)}%</strong></span> &bull;
+        <span>Rear: <strong>${telem.baseRearPct.toFixed(1)}%</strong></span> &bull;
+        <span>Static RL vs RR: <strong class="${Math.abs(telem.baseRlVsRrKg) > 18 ? 'txt-amber' : 'txt-emerald'}">${rlRrSign}${telem.baseRlVsRrKg.toFixed(1)} kg</strong></span>
+      `;
+    }
+    if (wedgeEl) {
+      const dSign = telem.diagCrossDeltaKg >= 0 ? '+' : '';
+      const pSign = telem.liveCrossShiftPct >= 0 ? '+' : '';
+      const liveRlRrSign = telem.liveRlVsRrKg >= 0 ? '+' : '';
+      const warnHtml = rearDiffWarn
+        ? ` <span class="txt-danger">&bull; ⚠️ Inside Rear Unload Warning: |RL vs RR| = ${Math.abs(telem.liveRlVsRrKg).toFixed(1)} kg (&gt;18 kg open-diff spin threshold!)</span>`
+        : '';
+      wedgeEl.innerHTML = `
+        <div><strong>Active Car Spacers (RL ${telem.testRlMm}mm &bull; RR ${telem.testRrMm}mm) vs Scaled (RL ${cw.rlSpacerMm}mm &bull; RR ${cw.rrSpacerMm}mm):</strong> Diagonal shift <strong>${dSign}${telem.diagCrossDeltaKg.toFixed(1)} kg (${pSign}${telem.liveCrossShiftPct.toFixed(1)}% Cross Wt)</strong> &rarr; Est Live: <strong>FL ${telem.liveFL.toFixed(1)}</strong> / <strong>FR ${telem.liveFR.toFixed(1)}</strong> / <strong>RL ${telem.liveRL.toFixed(1)}</strong> / <strong>RR ${telem.liveRR.toFixed(1)} kg</strong> &bull; Live Cross: <strong class="txt-emerald">${telem.liveCrossPct.toFixed(1)}%</strong> &bull; Live RL vs RR: <strong>${liveRlRrSign}${telem.liveRlVsRrKg.toFixed(1)} kg</strong>${warnHtml}</div>
+      `;
+    }
+  }
+
+  function handleCornerWeightBaselineInput() {
+    const cw = ensureCornerWeightBaselineState();
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const el = $(`inputCornerWt_${c}`);
+      if (!el) return;
+      const raw = String(el.value || '').trim();
+      if (raw === '') {
+        cw[c] = null;
+      } else {
+        const num = parseFloat(raw);
+        cw[c] = Number.isFinite(num) && num > 50 && num <= 800 ? Number(num.toFixed(1)) : null;
+      }
+    });
+    saveState();
+    renderCornerWeightBaselineCard();
+    renderAiRearSpacerBanner();
+  }
+
+  function handleScaleBaselineSpacerSelect(corner, rawMm) {
+    if (corner !== 'RL' && corner !== 'RR') return;
+    const cw = ensureCornerWeightBaselineState();
+    const mm = snapSpacerMm(rawMm, 0);
+    if (corner === 'RL') {
+      cw.rlSpacerMm = mm;
+    } else {
+      cw.rrSpacerMm = mm;
+    }
+    saveState();
+    renderCornerWeightBaselineCard();
+    renderAiRearSpacerBanner();
+    showToast(`Scale Baseline ${corner} Spacer recorded as ${mm}mm`);
+  }
+
+  /**
+   * Self-Learning AI Rear Spacer Recommender (RL & RR: strictly 0, 10, or 20mm).
+   * Evaluates in priority order:
+   *  1) Circuit Direction (CW vs CCW) & Key Traction Exit Profile (including Sandown Turn 4 LH exit vs Turn 1/13 fast LH)
+   *  2) Corner Weights (if entered in Fleet & Kit) + Mounted Rear Spring Rates (R6 138 N/mm vs R5 141 N/mm)
+   *  3) Historical Session Learning (Handling Tags + RL vs RR Hot PSI gain / Pyrometer spike at active venue)
+   */
+  function recommendRearSpacers(venueOpt) {
+    const venue = normalizeVenueName(venueOpt || getSelectedTyreTrackVenue());
+    const cProf = getCircuitTyreProfile(venue);
+    const dir = cProf.dir || 'CW';
+    const isCCW = dir === 'CCW';
+    const isSandown = /sandown/i.test(venue);
+    const sprInfo = getMountedRearSpringRatesInfo();
+    const cwTelem = computeCornerWeightAndWedgeTelemetry();
+    const activeSpacers = ensureMountedSpacersState();
+
+    // Layer 1: Circuit Direction & Rear Spring Asymmetry Seed
+    // Car #77 has R6 (138 N/mm, 184mm) on RL and R5 (141 N/mm, 185mm) on RR.
+    // On CW tracks (LH loaded, tight RH exits), FL+RR wedge (RL 0mm • RR 10-20mm) preloads inside RR on RH exits and aids RH turn-in.
+    // On CCW tracks (RH loaded, tight LH exits like Sandown T4), excessive RR spacer (20mm) unloads inside RL on LH exits;
+    // RL 0mm • RR 10mm keeps ~10 kg more static weight on RL for LH exit drive while R5 (141 N/mm) + 10mm supports fast LH sweepers.
+    let recRL = 0;
+    let recRR = isCCW ? 10 : 20;
+    let sourceTag = isCCW ? `CCW Track Seed` : `CW Wedge Seed`;
+    let reason = isSandown
+      ? `Sandown (CCW): RL 0mm • RR 10mm balances Turn 1/13 fast LH support (${sprInfo.rrCode} ${sprInfo.rrRate} N/mm) without unloading inside RL (+9.5 kg vs 20mm) on tight Turn 4 LH exit.`
+      : isCCW
+      ? `${venue} (CCW • RH Loaded): RL 0mm • RR 10mm supports fast LH corners on ${sprInfo.rrCode} (${sprInfo.rrRate} N/mm) while keeping inside RL planted on tight LH exits.`
+      : `${venue} (CW • LH Loaded): RL 0mm • RR 20mm adds FL+RR diagonal wedge (~+19 kg / +1.4% vs 0/0) to preload inside RR on tight RH exits & help RH turn-in.`;
+
+    // Layer 2: Corner Weights + Mounted Rear Spring Rates (if all 4 corners entered in Fleet & Kit)
+    let insideUnloadWarning = '';
+    if (cwTelem.hasAllFour) {
+      const targetCrossMin = isCCW ? 49.8 : 50.3;
+      const targetCrossMax = isCCW ? 50.4 : 50.8;
+      const targetCrossMid = Number(((targetCrossMin + targetCrossMax) / 2).toFixed(2));
+
+      let bestCand = null;
+      VALID_SPACER_MM.forEach((candRL) => {
+        VALID_SPACER_MM.forEach((candRR) => {
+          const sim = computeCornerWeightAndWedgeTelemetry(candRL, candRR);
+          const crossErr = Math.abs(sim.liveCrossPct - targetCrossMid);
+          const inWindow = sim.liveCrossPct >= targetCrossMin && sim.liveCrossPct <= targetCrossMax;
+          // Inside rear on CW is RR (unloaded on RH exit); on CCW is RL (unloaded on LH exit)
+          const insideRearDeficitKg = isCCW ? sim.liveRR - sim.liveRL : sim.liveRL - sim.liveRR;
+          const severeUnload = Math.abs(sim.liveRlVsRrKg) > 18.0 || insideRearDeficitKg > 18.0;
+          const heightPenalty = (candRL + candRR) * 0.015; // prefer lower CG if cross-weight is identical
+          const score = crossErr + (inWindow ? -0.15 : 0) + (severeUnload ? 1.2 : 0) + heightPenalty;
+          if (!bestCand || score < bestCand.score) {
+            bestCand = { candRL, candRR, sim, score, severeUnload };
+          }
+        });
+      });
+
+      if (bestCand) {
+        recRL = bestCand.candRL;
+        recRR = bestCand.candRR;
+        sourceTag = `Scale Wedge (${ bestCand.sim.liveCrossPct.toFixed(1)}% Cross)`;
+        reason = `Scaled Cross-Wt Target (${targetCrossMin.toFixed(1)}–${targetCrossMax.toFixed(1)}% ${isCCW ? 'CCW neutral' : 'CW wedge'}): RL ${recRL}mm • RR ${recRR}mm gives ${bestCand.sim.liveCrossPct.toFixed(1)}% FL+RR (${bestCand.sim.liveRL.toFixed(0)}L / ${bestCand.sim.liveRR.toFixed(0)}R kg).`;
+      }
+
+      // Check if current 20mm spacer leaves either inside rear >18 kg lighter than opposite rear
+      if ((activeSpacers.RL === 20 || activeSpacers.RR === 20) && Math.abs(cwTelem.liveRlVsRrKg) > 18.0) {
+        const lighterCorner = cwTelem.liveRL < cwTelem.liveRR ? 'RL' : 'RR';
+        const diffKg = Math.abs(cwTelem.liveRlVsRrKg).toFixed(1);
+        insideUnloadWarning = ` ⚠️ Active 20mm spacer leaves ${lighterCorner} ${diffKg} kg lighter (>18 kg spin risk)!`;
+      }
+    }
+
+    // Layer 3: Historical Session Learning at active venue (Handling Tags + RL vs RR Hot PSI gain / Pyrometer temps)
+    const venueSessions = (state.sessions || []).filter(
+      (s) => s && s.status === 'completed' && normalizeVenueName(s.venue) === venue
+    );
+
+    if (venueSessions.length > 0) {
+      // Inspect recent runs at this venue (newest last in array -> reverse for most recent first)
+      const recentRuns = [...venueSessions].reverse();
+      const latestRun = recentRuns[0];
+      const latestSpacers = normalizeRearSpacersMap(latestRun.spacers, activeSpacers);
+      const latestTags = normalizeHandlingTagsArray(latestRun.handlingTags);
+
+      let spinLhCount = 0;
+      let spinRhCount = 0;
+      let pushCount = 0;
+      let looseEntryCount = 0;
+      let balancedCount = 0;
+      let abnormalRlSpikeOnCcw = false;
+      let abnormalRrSpikeOnCw = false;
+
+      recentRuns.slice(0, 4).forEach((run) => {
+        const tags = normalizeHandlingTagsArray(run.handlingTags);
+        if (tags.includes('Spin LH Exit (RL)')) spinLhCount++;
+        if (tags.includes('Spin RH Exit (RR)')) spinRhCount++;
+        if (tags.includes('Mid-Corner Push')) pushCount++;
+        if (tags.includes('Loose Entry')) looseEntryCount++;
+        if (tags.includes('Balanced')) balancedCount++;
+
+        // Check RL vs RR hot pressure build or pyrometer spike
+        if (run.tyres && run.tyres.RL && run.tyres.RR) {
+          const rlC = run.tyres.RL;
+          const rrC = run.tyres.RR;
+          const runSp = normalizeRearSpacersMap(run.spacers, DEFAULT_MOUNTED_SPACERS);
+          const rlBuild =
+            rlC.cold !== null && rlC.hot !== null && Number.isFinite(Number(rlC.hot - rlC.cold))
+              ? Number(rlC.hot - rlC.cold)
+              : null;
+          const rrBuild =
+            rrC.cold !== null && rrC.hot !== null && Number.isFinite(Number(rrC.hot - rrC.cold))
+              ? Number(rrC.hot - rrC.cold)
+              : null;
+          const avgPyro = (p) => {
+            if (!p || typeof p !== 'object') return null;
+            const vals = [p.out, p.mid, p.in].filter((v) => v !== null && v !== undefined && Number.isFinite(Number(v))).map(Number);
+            return vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+          };
+          const rlPyro = avgPyro(rlC.pyro);
+          const rrPyro = avgPyro(rrC.pyro);
+
+          if (isCCW && runSp.RR >= 20) {
+            if ((rlBuild !== null && rrBuild !== null && rlBuild - rrBuild >= 1.2) || (rlPyro !== null && rrPyro !== null && rlPyro - rrPyro >= 7)) {
+              abnormalRlSpikeOnCcw = true;
+            }
+          }
+          if (!isCCW && runSp.RL >= 20) {
+            if ((rrBuild !== null && rlBuild !== null && rrBuild - rlBuild >= 1.2) || (rrPyro !== null && rlPyro !== null && rrPyro - rlPyro >= 7)) {
+              abnormalRrSpikeOnCw = true;
+            }
+          }
+        }
+      });
+
+      if (latestTags.includes('Spin LH Exit (RL)') || spinLhCount > 0 || abnormalRlSpikeOnCcw) {
+        // Put ~9.5-10 kg static preload back onto RL by stepping RR down 20->10 (or RL +10)
+        if (latestSpacers.RR >= 20) {
+          recRL = latestSpacers.RL;
+          recRR = 10;
+        } else if (latestSpacers.RR === 10 && latestSpacers.RL === 0) {
+          recRL = 0;
+          recRR = 0;
+        } else {
+          recRL = snapSpacerMm(Math.min(20, latestSpacers.RL + 10), 10);
+          recRR = latestSpacers.RR;
+        }
+        sourceTag = `Learned (${venueSessions.length} Run${venueSessions.length === 1 ? '' : 's'} • Anti-Spin RL)`;
+        reason = `${latestTags.includes('Spin LH Exit (RL)') || spinLhCount > 0 ? 'Logged "Spin LH Exit (RL)"' : 'Unloaded RL hot-gain/pyro spike'} at ${venue}: Step spacers from RL ${latestSpacers.RL}/RR ${latestSpacers.RR}mm → RL ${recRL}mm • RR ${recRR}mm to put ~9.5 kg static preload back onto inside RL.`;
+      } else if (latestTags.includes('Spin RH Exit (RR)') || spinRhCount > 0 || abnormalRrSpikeOnCw) {
+        // Preload inside RR by stepping RR +10mm (up to 20mm) or RL -10mm
+        if (latestSpacers.RR < 20) {
+          recRL = latestSpacers.RL;
+          recRR = snapSpacerMm(latestSpacers.RR + 10, 20);
+        } else {
+          recRL = snapSpacerMm(Math.max(0, latestSpacers.RL - 10), 0);
+          recRR = 20;
+        }
+        sourceTag = `Learned (${venueSessions.length} Run${venueSessions.length === 1 ? '' : 's'} • Anti-Spin RR)`;
+        reason = `${latestTags.includes('Spin RH Exit (RR)') || spinRhCount > 0 ? 'Logged "Spin RH Exit (RR)"' : 'Unloaded RR hot-gain/pyro spike'} at ${venue}: Step spacers to RL ${recRL}mm • RR ${recRR}mm (+FL/RR wedge) to plant inside RR on RH corner exits.`;
+      } else if ((latestTags.includes('Mid-Corner Push') || pushCount > 0) && spinLhCount === 0 && spinRhCount === 0) {
+        // Favour +10mm on loaded outside rear (RR on CCW, RL on CW)
+        if (isCCW) {
+          recRL = latestSpacers.RL;
+          recRR = snapSpacerMm(Math.min(20, Math.max(latestSpacers.RR, 10) + (latestTags.includes('Mid-Corner Push') ? 10 : 0)), 20);
+        } else {
+          recRL = snapSpacerMm(Math.min(20, latestSpacers.RL + 10), 10);
+          recRR = latestSpacers.RR;
+        }
+        sourceTag = `Learned (${venueSessions.length} Run${venueSessions.length === 1 ? '' : 's'} • Anti-Push)`;
+        reason = `Logged "Mid-Corner Push" with zero inside wheelspin at ${venue}: Favour +10mm on loaded outside rear (RL ${recRL}mm • RR ${recRR}mm) to aid mid-corner rotation.`;
+      } else if (latestTags.includes('Loose Entry') || looseEntryCount > 0) {
+        if (isCCW) {
+          recRL = latestSpacers.RL;
+          recRR = snapSpacerMm(Math.max(0, latestSpacers.RR - 10), 10);
+        } else {
+          recRL = snapSpacerMm(Math.max(0, latestSpacers.RL - 10), 0);
+          recRR = snapSpacerMm(Math.max(0, latestSpacers.RR - 10), 10);
+        }
+        sourceTag = `Learned (${venueSessions.length} Run${venueSessions.length === 1 ? '' : 's'} • Entry Stability)`;
+        reason = `Logged "Loose Entry" at ${venue}: Step rear spacer down to RL ${recRL}mm • RR ${recRR}mm to lower rear roll centre & calm entry oversteer.`;
+      } else if (latestTags.includes('Balanced') || balancedCount > 0) {
+        recRL = latestSpacers.RL;
+        recRR = latestSpacers.RR;
+        sourceTag = `Verified Balanced (${venueSessions.length} Run${venueSessions.length === 1 ? '' : 's'})`;
+        reason = `Last verified balanced setup at ${venue} (${latestRun.sessionName}): Keep RL ${recRL}mm • RR ${recRR}mm (${sprInfo.rlCode} ${sprInfo.rlRate} N/mm / ${sprInfo.rrCode} ${sprInfo.rrRate} N/mm).`;
+      }
+    }
+
+    recRL = snapSpacerMm(recRL, 0);
+    recRR = snapSpacerMm(recRR, 20);
+    const matchesActive = activeSpacers.RL === recRL && activeSpacers.RR === recRR;
+
+    return {
+      venue,
+      direction: dir,
+      RL: recRL,
+      RR: recRR,
+      matchesActive,
+      sourceTag,
+      reason: `${reason}${insideUnloadWarning}`
+    };
+  }
+
+  function renderAiRearSpacerBanner(venueOpt) {
+    const banner = $('aiRearSpacerBanner');
+    if (!banner) return;
+    const rec = recommendRearSpacers(venueOpt);
+    const activeSess = getActiveSession();
+    const isLocked = Boolean(activeSess && activeSess.tyresPreLocked);
+
+    const callEl = $('outAiSpacerCall');
+    const pillEl = $('outAiSpacerStatusPill');
+    const reasonEl = $('outAiSpacerReason');
+    const applyBtn = $('btnApplyAiSpacers');
+
+    if (callEl) {
+      callEl.textContent = `AI SPACER CALL: RL ${rec.RL}mm • RR ${rec.RR}mm`;
+    }
+    if (pillEl) {
+      pillEl.textContent = rec.matchesActive ? `✓ ON CAR (${rec.sourceTag})` : rec.sourceTag;
+      pillEl.className = rec.matchesActive ? 'ai-spacer-status-pill on-car' : 'ai-spacer-status-pill';
+    }
+    if (reasonEl) {
+      reasonEl.textContent = rec.reason;
+    }
+    if (applyBtn) {
+      applyBtn.style.display = isLocked ? 'none' : 'inline-flex';
+      applyBtn.disabled = isLocked || rec.matchesActive;
+      applyBtn.textContent = rec.matchesActive ? '✓ Applied' : 'Apply';
+    }
+  }
+
+  function applyAiRecommendedSpacers() {
+    const activeSess = getActiveSession();
+    if (activeSess && activeSess.tyresPreLocked) {
+      showToast('Pre-Race Tyres & Springs are locked — Unlock first to apply AI Spacer Call');
+      return;
+    }
+    const rec = recommendRearSpacers();
+    const spacers = ensureMountedSpacersState();
+    spacers.RL = rec.RL;
+    spacers.RR = rec.RR;
+    if (activeSess) {
+      activeSess.spacers = { ...spacers };
+    }
+    saveState();
+    renderRearSpacerControls();
+    renderAiRearSpacerBanner();
+    renderCornerWeightBaselineCard();
+    showToast(`Applied AI Spacer Call: RL ${rec.RL}mm • RR ${rec.RR}mm`);
+  }
+
+  function renderHandlingTagsStrip() {
+    const wrap = $('postHandlingTagsWrap');
+    if (!wrap) return;
+    if (!Array.isArray(ui.selectedHandlingTags)) {
+      ui.selectedHandlingTags = [];
+    }
+    const hintEl = $('outHandlingTagsHint');
+    if (hintEl) {
+      hintEl.textContent =
+        ui.selectedHandlingTags.length > 0
+          ? `Selected: ${ui.selectedHandlingTags.join(' • ')}`
+          : 'Optional • Trains AI Rear Spacer Recommender';
+    }
+    document.querySelectorAll('[data-handling-tag]').forEach((btn) => {
+      const tag = btn.getAttribute('data-handling-tag');
+      const active = ui.selectedHandlingTags.includes(tag);
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+  }
+
+  function toggleHandlingTag(rawTag) {
+    const tag = String(rawTag || '').trim();
+    if (!tag) return;
+    if (!Array.isArray(ui.selectedHandlingTags)) {
+      ui.selectedHandlingTags = [];
+    }
+    const idx = ui.selectedHandlingTags.indexOf(tag);
+    if (idx >= 0) {
+      ui.selectedHandlingTags.splice(idx, 1);
+    } else {
+      // If selecting 'Balanced', clear contradiction tags; if selecting a symptom, clear 'Balanced'
+      if (tag === 'Balanced') {
+        ui.selectedHandlingTags = ['Balanced'];
+      } else {
+        ui.selectedHandlingTags = ui.selectedHandlingTags.filter((t) => t !== 'Balanced');
+        ui.selectedHandlingTags.push(tag);
+      }
+    }
+    const activeSess = getActiveSession();
+    if (activeSess) {
+      activeSess.handlingTags = [...ui.selectedHandlingTags];
+    }
+    renderHandlingTagsStrip();
   }
 
   function swapMountedTyresLR() {
@@ -7293,6 +7975,11 @@
     syncPyroVisibilityUi();
     renderMountedTyreSelectors();
     renderCornerSuspensionSelectors();
+    renderRearSpacerControls();
+    renderAiRearSpacerBanner(venue);
+    renderHandlingTagsStrip();
+    hydrateCornerWeightInputs();
+    renderCornerWeightBaselineCard();
     renderTyreStockList();
   }
 
@@ -7658,6 +8345,7 @@
     const mounted = ensureMountedTyresState();
     const mountedShocks = ensureMountedShocksState();
     const mountedSprings = ensureMountedSpringsState();
+    const mountedSpacers = ensureMountedSpacersState();
     const activeCond = ch.tyreCondition === 'wet' ? 'wet' : 'dry';
 
     const hotTargetFront = Number(readNum('inputTyreHotTargetFront', ch.hotTargetFront ?? 40.0).toFixed(1));
@@ -7789,6 +8477,9 @@
 
     renderMountedTyreSelectors();
     renderCornerSuspensionSelectors();
+    renderRearSpacerControls();
+    renderAiRearSpacerBanner(venue);
+    renderHandlingTagsStrip();
 
     const dryStagger = computeDryAiColdStagger(getTrackDirection(venue));
     if (!ch.coldTyres || typeof ch.coldTyres !== 'object') {
@@ -8071,7 +8762,8 @@
       tyreCondition: activeCond,
       corners,
       shocks: { ...mountedShocks },
-      springs: { ...mountedSprings }
+      springs: { ...mountedSprings },
+      spacers: { ...mountedSpacers }
     };
   }
 
@@ -8277,6 +8969,7 @@
       },
       shocks: { ...tyreSnap.shocks },
       springs: { ...tyreSnap.springs },
+      spacers: { ...(tyreSnap.spacers || ensureMountedSpacersState()) },
       appendPreRaceNote: notes,
       tyresPreLocked: true
     });
@@ -8440,10 +9133,23 @@
       })
       .join('');
 
+    const hTags = normalizeHandlingTagsArray(s.handlingTags);
+    const handlingHtml =
+      hTags.length > 0
+        ? `<div class="session-handling-tags-row">${hTags
+            .map((tagVal) => {
+              const opt = HANDLING_TAG_OPTIONS.find((o) => o.value === tagVal);
+              const lbl = opt ? opt.label : tagVal;
+              return `<span class="session-handling-tag-badge">${escapeHtml(lbl)}</span>`;
+            })
+            .join('')}</div>`
+        : '';
+
     return `
       <div class="unified-session-subblock">
         <div class="unified-subblock-title">4-Corner Tyres${escapeHtml(targetStr)}${escapeHtml(trackTempStr)}${escapeHtml(lapsStr)}${escapeHtml(modeTag)}</div>
         <div class="unified-tyre-grid unified-4col-grid">${pillsHtml}</div>
+        ${handlingHtml}
       </div>
     `;
   }
@@ -8451,6 +9157,7 @@
   function renderUnifiedSuspensionBlock(s) {
     const shMap = (s && s.shocks && typeof s.shocks === 'object') ? s.shocks : DEFAULT_MOUNTED_SHOCKS;
     const spMap = (s && s.springs && typeof s.springs === 'object') ? s.springs : DEFAULT_MOUNTED_SPRINGS;
+    const spacerMap = normalizeRearSpacersMap(s && s.spacers, DEFAULT_MOUNTED_SPACERS);
 
     const pillsHtml = ['FL', 'FR', 'RL', 'RR']
       .map((c) => {
@@ -8469,8 +9176,10 @@
           ? String(spRaw).replace(/^spr_/i, '')
           : '';
 
+        const isRear = c === 'RL' || c === 'RR';
+        const spacerSuffix = isRear ? ` (${spacerMap[c]}mm)` : '';
         const shkLine = shCode ? `Shk ${escapeHtml(shCode)}` : '&mdash;';
-        const sprLine = spCode ? `Spr ${escapeHtml(spCode)}` : '&mdash;';
+        const sprLine = spCode ? `Spr ${escapeHtml(spCode)}${escapeHtml(spacerSuffix)}` : '&mdash;';
 
         return `
           <div class="unified-tyre-pill susp-id-cell">
@@ -8543,6 +9252,12 @@
         const spObj = getSpringById(spId);
         tyreParts.push(spObj ? spObj.code : String(spId).replace(/^spr_/, ''));
       });
+    }
+    const spacerMap = normalizeRearSpacersMap(s.spacers, DEFAULT_MOUNTED_SPACERS);
+    tyreParts.push(`RL ${spacerMap.RL}mm`, `RR ${spacerMap.RR}mm`, `${spacerMap.RL}mm`, `${spacerMap.RR}mm`, 'spacer');
+    const hTags = normalizeHandlingTagsArray(s.handlingTags);
+    if (hTags.length > 0) {
+      tyreParts.push(...hTags);
     }
     const jetMmStr = Number.isFinite(Number(s.jetMm)) ? Number(s.jetMm).toFixed(3) : '';
     const radStr = Number.isFinite(Number(s.rad)) ? Number(s.rad).toFixed(1) : '';
@@ -9225,6 +9940,10 @@
       'RL_Spring',
       'RR_Shock',
       'RR_Spring',
+      'RL_Spacer_mm',
+      'RR_Spacer_mm',
+      'Handling_Tags',
+      'Corner_Weights_FL_FR_RL_RR',
       'Pre_Race_Notes',
       'Post_Race_Notes'
     ];
@@ -9232,6 +9951,10 @@
       val !== null && val !== undefined && val !== '' && Number.isFinite(Number(val))
         ? Number(val).toFixed(dec)
         : '';
+    const cwTelem = computeCornerWeightAndWedgeTelemetry();
+    const cornerWeightsCsvStr = cwTelem.allFourValid
+      ? `FL:${cwTelem.FL.toFixed(1)}/FR:${cwTelem.FR.toFixed(1)}/RL:${cwTelem.RL.toFixed(1)}/RR:${cwTelem.RR.toFixed(1)}kg (Cross:${cwTelem.projectedCrossPct.toFixed(1)}% @ RL:${cwTelem.activeSpacers.RL}mm/RR:${cwTelem.activeSpacers.RR}mm)`
+      : '';
     const rows = state.sessions.map((s) => {
       const ownerEvt = findEventForSession(s.id);
       const a35 = normalizeOptionalAfr(s.afr3500);
@@ -9247,6 +9970,8 @@
       const t = s.tyres || {};
       const shMap = (s.shocks && typeof s.shocks === 'object') ? s.shocks : DEFAULT_MOUNTED_SHOCKS;
       const spMap = (s.springs && typeof s.springs === 'object') ? s.springs : DEFAULT_MOUNTED_SPRINGS;
+      const spacerMap = normalizeRearSpacersMap(s.spacers, DEFAULT_MOUNTED_SPACERS);
+      const handlingTagsCsv = normalizeHandlingTagsArray(s.handlingTags).join(' | ');
       const frontTgt = Number.isFinite(Number(s.hotTargetFront))
         ? Number(s.hotTargetFront)
         : Number.isFinite(Number(s.tyreHotTarget))
@@ -9373,6 +10098,10 @@
         fmtCornerSpring('RL'),
         fmtCornerShock('RR'),
         fmtCornerSpring('RR'),
+        String(spacerMap.RL),
+        String(spacerMap.RR),
+        handlingTagsCsv,
+        cornerWeightsCsvStr,
         s.preRaceNotes || '',
         s.postRaceNotes !== undefined ? s.postRaceNotes : s.notes || ''
       ];
@@ -9395,7 +10124,7 @@
     }
     const payload = JSON.stringify(
       {
-        app: 'SNB Racing — HQ 202 Jetting & AFR (v0.8.0 Session 1/2+ Tyre & Track Temp Edition)',
+        app: 'SNB Racing — HQ 202 Jetting & AFR (v0.8.3 Rear Spacer, Scale Baseline & AI Wedge Edition)',
         exportedAt: new Date().toISOString(),
         state
       },
@@ -10904,6 +11633,10 @@
     const mountedTyres = ensureMountedTyresState();
     const mountedShocks = ensureMountedShocksState();
     const mountedSprings = ensureMountedSpringsState();
+    const mountedSpacers = ensureMountedSpacersState();
+    const cwTelem = computeCornerWeightAndWedgeTelemetry();
+    const activeVenue = getSelectedTyreTrackVenue();
+    const aiRec = recommendRearSpacers(activeVenue);
     const scaleFuelMass = (Number(ch.scaleCheckFuelL) || 0) * (Number(b.fuelSg) || 0.740);
     const dryCarKg = (Number(ch.scaleCheckKg) || 1377.0) - scaleFuelMass;
     const curFrontTarget = Number(ch.hotTargetFront ?? 40.0);
@@ -10917,7 +11650,7 @@
 
     const lines = [];
     lines.push('====================================================================');
-    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.8.0)');
+    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.8.3)');
     lines.push(`Exported: ${new Date().toISOString()}`);
     lines.push('====================================================================');
     lines.push('');
@@ -10930,11 +11663,18 @@
     lines.push(`- Baseline WOT AFR: ${b.wotAfr !== null && b.wotAfr !== undefined ? Number(b.wotAfr).toFixed(2) : 'Weather-Only'} (${b.afrStatus})`);
     lines.push(`- Scale Fact Anchor: ${Number(ch.scaleCheckKg).toFixed(1)} kg Official Scale Wt w/ ${Number(ch.scaleCheckFuelL).toFixed(1)} L in tank = ${dryCarKg.toFixed(1)} kg Dry Car + Driver`);
     lines.push(`- Scale Fact Source: ${ch.scaleFactSource || 'Anchored to Official Track Scale Check'}`);
+    lines.push(
+      cwTelem.allFourValid
+        ? `- Corner_Weights_FL_FR_RL_RR (With Driver): FL ${cwTelem.FL.toFixed(1)} kg | FR ${cwTelem.FR.toFixed(1)} kg | RL ${cwTelem.RL.toFixed(1)} kg | RR ${cwTelem.RR.toFixed(1)} kg (Total ${cwTelem.totalKg.toFixed(1)} kg • Cross Wt (FL+RR): ${cwTelem.crossPct.toFixed(1)}% • Left: ${cwTelem.leftPct.toFixed(1)}% • Rear: ${cwTelem.rearPct.toFixed(1)}% • Static RL vs RR: ${cwTelem.staticRlMinusRrKg >= 0 ? '+' : ''}${cwTelem.staticRlMinusRrKg.toFixed(1)} kg @ Scaled Spacers RL ${cwTelem.scaleSpacers.RL}mm / RR ${cwTelem.scaleSpacers.RR}mm; Live Projected Cross Wt: ${cwTelem.projectedCrossPct.toFixed(1)}%)`
+        : `- Corner_Weights_FL_FR_RL_RR (With Driver): Not entered yet (Scaled Spacers RL ${cwTelem.scaleSpacers.RL}mm / RR ${cwTelem.scaleSpacers.RR}mm)`
+    );
     lines.push('');
 
-    // 2. Active 4-Corner Setup (Tyres, Shocks, Springs)
-    lines.push('[2] CURRENT 4-CORNER CHASSIS SETUP (TYRES, TARGETS, TRACK TEMP, PYROMETER, PEDDERS SHOCKS & SPRINGS)');
+    // 2. Active 4-Corner Setup (Tyres, Shocks, Springs, Rear Spacers)
+    lines.push('[2] CURRENT 4-CORNER CHASSIS SETUP (TYRES, TARGETS, TRACK TEMP, PYROMETER, PEDDERS SHOCKS, SPRINGS & REAR SPACERS)');
     lines.push(`- Active Hot Tyre Targets (${activeCond === 'wet' ? 'DECLARED WET KW' : 'DRY BUFFED KB'}): Front ${curFrontTarget.toFixed(1)} PSI (FL/FR) | Rear ${curRearTarget.toFixed(1)} PSI (RL/RR) | Track_Temp_C: ${trackTempDumpStr} | Mode: ${stoneCold ? 'Session 1 Stone-Cold' : 'Session 2+ Hot-Cycled'}`);
+    lines.push(`- Active Rear Spring Spacers (Rule 6c Max 20mm): RL_Spacer_mm=${mountedSpacers.RL}mm | RR_Spacer_mm=${mountedSpacers.RR}mm`);
+    lines.push(`- AI Rear Spacer Call (${activeVenue} • ${aiRec.direction}): RL ${aiRec.RL}mm | RR ${aiRec.RR}mm (${aiRec.reason})`);
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const axleTgt = c.startsWith('F') ? curFrontTarget : curRearTarget;
       const cornerTgt =
@@ -10948,7 +11688,8 @@
         ? `${tObj.code} (${tObj.spec === 'wet' ? 'KW Wet' : 'KB Buffed'}, ${getTyreCumulativeLaps(tObj.id)} laps, ${Number(tObj.treadMm).toFixed(1)}mm, ${tObj.durometer}A)`
         : 'Unmounted';
       const shDesc = shObj ? `${shObj.code} (${formatShockKingBadge(shObj)})` : 'Unmounted';
-      const spDesc = spObj ? `${spObj.code} (${formatSpringKingBadge(spObj)})` : 'Unmounted';
+      const spacerDesc = (c === 'RL' || c === 'RR') ? ` [Spacer: ${mountedSpacers[c]}mm]` : '';
+      const spDesc = spObj ? `${spObj.code}${spacerDesc} (${formatSpringKingBadge(spObj)})` : `Unmounted${spacerDesc}`;
       const liveCold =
         stoneCold && ch.coldTyres && ch.coldTyres[c] !== null && ch.coldTyres[c] !== undefined
           ? `${Number(ch.coldTyres[c]).toFixed(1)}C->`
@@ -11034,6 +11775,8 @@
         const t = s.tyres || {};
         const shMap = s.shocks || DEFAULT_MOUNTED_SHOCKS;
         const spMap = s.springs || DEFAULT_MOUNTED_SPRINGS;
+        const spacerMap = normalizeRearSpacersMap(s.spacers, DEFAULT_MOUNTED_SPACERS);
+        const hTags = normalizeHandlingTagsArray(s.handlingTags);
         const fTgt = Number.isFinite(Number(s.hotTargetFront))
           ? Number(s.hotTargetFront)
           : Number.isFinite(Number(s.tyreHotTarget))
@@ -11079,7 +11822,8 @@
           const shObj = getShockById(shMap[c]);
           const spObj = getSpringById(spMap[c]);
           const shCode = shObj ? `${shObj.code}(${formatShockKingBadge(shObj)})` : shMap[c] || '—';
-          const spCode = spObj ? `${spObj.code}(${formatSpringKingBadge(spObj)})` : spMap[c] || '—';
+          const spacerTag = (c === 'RL' || c === 'RR') ? `(${spacerMap[c]}mm)` : '';
+          const spCode = spObj ? `${spObj.code}${spacerTag}(${formatSpringKingBadge(spObj)})` : `${spMap[c] || '—'}${spacerTag}`;
           return `${c}:Shk=${shCode}/Spr=${spCode}`;
         };
         lines.push(
@@ -11089,7 +11833,10 @@
           `    Fuel/Wt: Pour ${s.litresToPourL ?? '—'}L | In ${s.fuelInL ?? '—'}L -> Out ${s.fuelOutL ?? '—'}L | Used ${s.fuelUsedL ?? '—'}L (${s.racedLaps ?? '—'} laps = ${s.measuredBurnLPerLap ?? '—'} L/lap) | Scale/Est Wt: ${s.scaleWeightKg ?? '—'} / ${s.postRaceEstKg ?? '—'} kg`
         );
         lines.push(`    Tyres (${modeStr} • Track_Temp_C: ${trackTempStr} • Targets ${fTgt.toFixed(1)}F / ${rTgt.toFixed(1)}R PSI • ${s.tyreCondition === 'wet' ? 'KW Wet' : 'KB Dry'}): ${fmtT('FL')} | ${fmtT('FR')} | ${fmtT('RL')} | ${fmtT('RR')}`);
-        lines.push(`    Suspension: ${fmtSusp('FL')} | ${fmtSusp('FR')} | ${fmtSusp('RL')} | ${fmtSusp('RR')}`);
+        lines.push(`    Suspension (RL_Spacer_mm:${spacerMap.RL}mm | RR_Spacer_mm:${spacerMap.RR}mm): ${fmtSusp('FL')} | ${fmtSusp('FR')} | ${fmtSusp('RL')} | ${fmtSusp('RR')}`);
+        if (hTags.length > 0) {
+          lines.push(`    Handling_Tags: ${hTags.join(', ')}`);
+        }
         if (s.preRaceNotes) lines.push(`    Pre-Race Notes: ${s.preRaceNotes}`);
         if (s.postRaceNotes || s.notes) lines.push(`    Post-Race Notes: ${s.postRaceNotes || s.notes}`);
       });
@@ -11904,6 +12651,8 @@
     linked.tyreCondition = tyreSnap.tyreCondition || linked.tyreCondition || 'dry';
     linked.shocks = { ...tyreSnap.shocks };
     linked.springs = { ...tyreSnap.springs };
+    linked.spacers = { ...(tyreSnap.spacers || ensureMountedSpacersState()) };
+    linked.handlingTags = normalizeHandlingTagsArray(ui.selectedHandlingTags);
     if (!linked.racedLaps || linked.racedLaps <= 0) {
       linked.racedLaps = tyreSnap.tyreSessionLaps || 10;
     }
@@ -12014,6 +12763,7 @@
     state.activeSessionId = null;
     state.awaitingPostRaceId = null;
     ui.postRaceTargetSessionId = null;
+    ui.selectedHandlingTags = [];
 
     if ($('selectCalcCarby')) {
       $('selectCalcCarby').value = state.baseline.carbyId;
@@ -12806,6 +13556,7 @@
       renderExhaustFleet();
       renderShockFleet();
       renderSpringFleet();
+      renderCornerWeightBaselineCard();
       renderJetInventory();
       updateOrificeConverter('mm');
     });
@@ -13379,6 +14130,36 @@
         return;
       }
 
+      const rearSpacerBtn = e.target.closest('[data-rear-spacer-corner]');
+      if (rearSpacerBtn) {
+        handleRearSpacerSelect(
+          rearSpacerBtn.getAttribute('data-rear-spacer-corner'),
+          rearSpacerBtn.getAttribute('data-rear-spacer-mm')
+        );
+        return;
+      }
+
+      const applyAiSpacerBtn = e.target.closest('#btnApplyAiSpacers');
+      if (applyAiSpacerBtn) {
+        applyAiRecommendedSpacers();
+        return;
+      }
+
+      const handlingTagBtn = e.target.closest('[data-handling-tag]');
+      if (handlingTagBtn) {
+        toggleHandlingTag(handlingTagBtn.getAttribute('data-handling-tag'));
+        return;
+      }
+
+      const scaleSpacerBtn = e.target.closest('[data-scale-spacer-corner]');
+      if (scaleSpacerBtn) {
+        handleScaleBaselineSpacerSelect(
+          scaleSpacerBtn.getAttribute('data-scale-spacer-corner'),
+          scaleSpacerBtn.getAttribute('data-scale-spacer-mm')
+        );
+        return;
+      }
+
       const toggleAllPyroBtn = e.target.closest('#btnToggleAllPyro');
       if (toggleAllPyroBtn) {
         toggleCornerPyro('ALL');
@@ -13455,6 +14236,12 @@
       const cornerSpringSel = target.getAttribute && target.getAttribute('data-corner-spring-select');
       if (cornerSpringSel) {
         handleCornerSpringSelectChange(cornerSpringSel, target.value);
+        return;
+      }
+
+      const cornerWtAttr = target.getAttribute && target.getAttribute('data-corner-wt-input');
+      if (cornerWtAttr) {
+        handleCornerWeightBaselineInput();
         return;
       }
 
@@ -14362,6 +15149,8 @@
           springs: createDefaultSprings(),
           mountedShocks: { ...DEFAULT_MOUNTED_SHOCKS },
           mountedSprings: { ...DEFAULT_MOUNTED_SPRINGS },
+          mountedSpacers: { ...DEFAULT_MOUNTED_SPACERS },
+          cornerWeightBaseline: createDefaultCornerWeightBaseline(),
           activeManifoldId: 'Macca',
           activeExhaustId: 'Macca',
           sessions: flattenEventsToSessions(defaultEvents),
@@ -14379,6 +15168,7 @@
         ui.expandedEventId = null;
         ui.expandedSessionId = null;
         ui.expandedEventIds = new Set();
+        ui.selectedHandlingTags = [];
         if ($('searchLogQuery')) $('searchLogQuery').value = '';
         if ($('btnClearLogQuery')) $('btnClearLogQuery').hidden = true;
         if ($('selectCalcCarby')) {
@@ -14387,6 +15177,7 @@
         saveState();
         syncSessionSelectFromBaseline();
         hydrateFuelAndTyreInputs();
+        hydrateCornerWeightInputs();
         renderAll();
         showToast('Restored Calder Park & Winton Seed Events');
       });
@@ -14589,6 +15380,7 @@
     renderDynoRpmFormInputs();
     syncSessionSelectFromBaseline();
     hydrateFuelAndTyreInputs();
+    hydrateCornerWeightInputs();
   } catch (err) {
     console.error('[boot:hydrateInputs]', err);
   }
