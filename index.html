@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.7.5" />
+  <link rel="stylesheet" href="./styles.css?v=0.7.6" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -1043,7 +1043,7 @@
           </div>
         </div>
 
-        <!-- Row 2: Session Laps + Circuit Direction & Cold Mode Control Pair -->
+        <!-- Row 2: Session Laps + Read-Only Active Circuit Direction Info Pill -->
         <div class="form-grid-2 compact-pair-grid" style="align-items: stretch; margin-bottom: 10px;">
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
@@ -1062,16 +1062,12 @@
 
           <div class="field-group" style="margin-bottom: 0;">
             <div class="field-label-row">
-              <span class="field-label">Circuit Direction &amp; Cold Mode</span>
+              <span class="field-label">Active Circuit Direction</span>
               <span class="field-hint emerald" id="hintTrackDirectionSide">LH Loaded</span>
             </div>
-            <div class="tyre-dir-cold-pair">
-              <button type="button" class="btn btn-secondary btn-tyre-dir-toggle" id="btnToggleTrackDirection" title="Toggle circuit direction between Clockwise (CW - LH Loaded) and Anti-Clockwise (CCW - RH Loaded)">
-                &#8635; CW
-              </button>
-              <button type="button" class="btn btn-secondary btn-tyre-cold-mode" id="btnClearAllColdPsiRow" title="Clear all 4 Cold PSI inputs when tyres are already bled hot, or restore cold stagger">
-                Clear Cold (Hot-Bled)
-              </button>
+            <div class="tyre-circuit-dir-readout" role="status" aria-live="polite">
+              <span class="circuit-dir-venue" id="outActiveCircuitDirVenue">Calder Park Raceway</span>
+              <span class="circuit-dir-detail" id="outActiveCircuitDirSub">Clockwise (CW) &bull; FL / RL Outside</span>
             </div>
           </div>
         </div>
@@ -2943,11 +2939,25 @@
       </div>
 
       <div id="newEventCustomTrackWrap" class="field-group" style="display: none;">
-        <div class="field-label-row">
-          <label class="field-label" for="newEventCustomTrack">Custom Track / Venue Name</label>
-          <span class="field-hint amber">Required</span>
+        <div class="form-grid-2 compact-pair-grid" style="gap: 8px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="newEventCustomTrack">Custom Track / Venue Name</label>
+              <span class="field-hint amber">Required</span>
+            </div>
+            <input type="text" id="newEventCustomTrack" class="text-input" placeholder="e.g. Test Track" autocomplete="off" />
+          </div>
+          <div class="field-group" style="margin-bottom: 0;">
+            <div class="field-label-row">
+              <label class="field-label" for="newEventCustomTrackDir">Circuit Direction</label>
+              <span class="field-hint emerald">Outside Load</span>
+            </div>
+            <select id="newEventCustomTrackDir" class="select-input" aria-label="Custom Track Direction">
+              <option value="CW" selected>Clockwise (CW &bull; LH Loaded)</option>
+              <option value="CCW">Anti-Clockwise (CCW &bull; RH Loaded)</option>
+            </select>
+          </div>
         </div>
-        <input type="text" id="newEventCustomTrack" class="text-input" placeholder="e.g. Wakefield / Test Track" autocomplete="off" />
       </div>
 
       <div class="field-group" style="margin-bottom: 12px;">
@@ -3514,6 +3524,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.7.5"></script>
+  <script src="./app.js?v=0.7.6"></script>
 </body>
 </html>

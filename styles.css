@@ -4372,55 +4372,49 @@ button:disabled.btn-stage-locked,
   color: #94a3b8;
 }
 
-.mini-car-cell strong {
+.mini-car-cell strong,
+.mini-corner-psi {
   font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 900;
   color: #ecfdf5;
 }
 
-.tyre-dir-cold-pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
+.tyre-circuit-dir-readout {
   min-height: 44px;
-}
-
-.btn-tyre-dir-toggle,
-.btn-tyre-cold-mode {
-  min-height: 44px;
-  padding: 4px 6px;
+  padding: 5px 10px;
   border-radius: 8px;
-  font-size: 0.68rem;
-  font-weight: 900;
-  letter-spacing: 0.02em;
-  cursor: pointer;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  text-align: center;
-  line-height: 1.15;
+  gap: 2px;
   background:
-    radial-gradient(ellipse 80% 50% at 50% 10%, rgba(255, 255, 255, 0.14) 0%, transparent 70%),
-    linear-gradient(180deg, #2b374b 0%, #19212e 55%, #0e131b 100%);
-  border: 1.5px solid #475569;
-  border-top-color: #64748b;
-  border-bottom-color: #1e293b;
-  color: #e2e8f0;
+    linear-gradient(180deg, rgba(16, 23, 34, 0.96) 0%, rgba(9, 13, 20, 0.99) 100%);
+  border: 1.5px solid rgba(52, 211, 153, 0.35);
   box-shadow:
-    0 2px 0 #05070b,
-    0 3px 6px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    inset 0 1px 3px rgba(0, 0, 0, 0.8),
+    0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-.btn-tyre-dir-toggle:active,
-.btn-tyre-cold-mode:active {
-  transform: translateY(1px);
+.circuit-dir-venue {
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: #f8fafc;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.btn-tyre-dir-toggle {
-  border-color: rgba(56, 189, 248, 0.55);
-  color: #bae6fd;
+.circuit-dir-detail {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 800;
+  color: #6ee7b7;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @media (max-width: 460px) {

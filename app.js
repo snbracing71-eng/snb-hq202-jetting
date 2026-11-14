@@ -791,10 +791,34 @@
   };
 
   const TRACK_DIRECTION_MAP = {
+    // Clockwise ('CW' -> Left side FL / RL is loaded outside)
     'Calder Park': 'CW',
     'Calder Park Raceway': 'CW',
     'Winton': 'CW',
     'Winton Motor Raceway': 'CW',
+    'Symmons Plains': 'CW',
+    'Symmons Plains Raceway': 'CW',
+    'Mallala': 'CW',
+    'Mallala Motorsport Park': 'CW',
+    'Morgan Park': 'CW',
+    'Morgan Park Raceway': 'CW',
+    'CARCO.com.au Raceway': 'CW',
+    'CARCO.com.au Raceway (Wanneroo)': 'CW',
+    'Wanneroo': 'CW',
+    'Barbagallo': 'CW',
+    'Collie Motorplex': 'CW',
+    'Hidden Valley': 'CW',
+    'Hidden Valley Raceway': 'CW',
+    'Baskerville': 'CW',
+    'Baskerville Raceway': 'CW',
+    'Lakeside': 'CW',
+    'Lakeside Park': 'CW',
+    'Haunted Hills': 'CW',
+    'Haunted Hills / Bryant Park': 'CW',
+    'Bryant Park': 'CW',
+    'Broadford': 'CW',
+    'Broadford State Motorcycle Complex': 'CW',
+    // Anti-Clockwise ('CCW' -> Right side FR / RR is loaded outside)
     'Sandown': 'CCW',
     'Sandown Raceway': 'CCW',
     'Sandown International Raceway': 'CCW',
@@ -802,34 +826,21 @@
     'Phillip Island Grand Prix Circuit': 'CCW',
     'Sydney Motorsport Park': 'CCW',
     'Sydney Motorsport Park (SMSP)': 'CCW',
-    'The Bend': 'CCW',
-    'The Bend Motorsport Park': 'CCW',
-    'Symmons Plains': 'CW',
-    'Symmons Plains Raceway': 'CW',
-    'Queensland Raceway': 'CCW',
-    'Queensland Raceway (Willowbank)': 'CCW',
-    'Mallala': 'CW',
-    'Mallala Motorsport Park': 'CW',
-    'Morgan Park': 'CW',
-    'Morgan Park Raceway': 'CW',
+    'Mount Panorama': 'CCW',
+    'Mount Panorama (Bathurst)': 'CCW',
+    'Bathurst': 'CCW',
     'Wakefield Park': 'CCW',
     'Wakefield Park / One Raceway': 'CCW',
     'One Raceway': 'CCW',
-    'Barbagallo': 'CW',
-    'Wanneroo': 'CW',
-    'CARCO.com.au Raceway (Wanneroo)': 'CW',
-    'Hidden Valley': 'CW',
-    'Hidden Valley Raceway': 'CW',
-    'Baskerville': 'CW',
-    'Baskerville Raceway': 'CW',
-    'Mount Panorama (Bathurst)': 'CCW',
-    'Bathurst': 'CCW',
-    'Lakeside Park': 'CW',
-    'Broadford': 'CW',
-    'Haunted Hills': 'CW',
-    'Pheasant Wood': 'CW',
-    'Collie Motorplex': 'CCW',
-    'Townsville': 'CW'
+    'Pheasant Wood': 'CCW',
+    'Pheasant Wood Circuit': 'CCW',
+    'Queensland Raceway': 'CCW',
+    'Queensland Raceway (Willowbank)': 'CCW',
+    'Willowbank': 'CCW',
+    'The Bend': 'CCW',
+    'The Bend Motorsport Park': 'CCW',
+    'Townsville': 'CCW',
+    'Townsville Reid Park': 'CCW'
   };
 
   const WET_PRESET_PROFILES = {
@@ -863,22 +874,24 @@
   };
 
   function getTrackDirection(venueName = '') {
+    const clean = String(venueName || '').trim();
+    if (TRACK_DIRECTION_MAP[clean]) return TRACK_DIRECTION_MAP[clean];
+    const match = Object.keys(TRACK_DIRECTION_MAP).find((k) =>
+      clean.toLowerCase().includes(k.toLowerCase())
+    );
+    if (match) return TRACK_DIRECTION_MAP[match];
     try {
       if (
         typeof state !== 'undefined' &&
         state &&
         state.chassis &&
         state.chassis.trackDirections &&
-        (state.chassis.trackDirections[venueName] === 'CW' || state.chassis.trackDirections[venueName] === 'CCW')
+        (state.chassis.trackDirections[clean] === 'CW' || state.chassis.trackDirections[clean] === 'CCW')
       ) {
-        return state.chassis.trackDirections[venueName];
+        return state.chassis.trackDirections[clean];
       }
     } catch (_) {}
-    if (TRACK_DIRECTION_MAP[venueName]) return TRACK_DIRECTION_MAP[venueName];
-    const match = Object.keys(TRACK_DIRECTION_MAP).find((k) =>
-      venueName.toLowerCase().includes(k.toLowerCase())
-    );
-    return match ? TRACK_DIRECTION_MAP[match] : 'CW';
+    return 'CW';
   }
 
   function computeWetColdStagger(presetKey, direction) {
@@ -3463,8 +3476,6 @@
         'inputTyreHotTargetFront',
         'inputTyreHotTargetRear',
         'inputTyreSessionLaps',
-        'btnToggleTrackDirection',
-        'btnClearAllColdPsiRow',
         'btnUnmountAllTyres',
         'btnClearAllColdPsi',
         'selectMountedTyre_FL',
@@ -3785,6 +3796,7 @@
     const sel = $('newEventTrack');
     const customWrap = $('newEventCustomTrackWrap');
     const customInp = $('newEventCustomTrack');
+    const customDirSel = $('newEventCustomTrackDir');
     if (sel) {
       const hasPreset = Array.from(sel.options).some(
         (opt) => opt.value === curVenue && opt.value !== '__CUSTOM_TRACK__' && opt.value !== '__CUSTOM__'
@@ -3793,9 +3805,12 @@
         sel.value = curVenue;
         if (customWrap) customWrap.style.display = 'none';
       } else {
-        sel.value = '__CUSTOM__';
+        sel.value = '__CUSTOM_TRACK__';
         if (customWrap) customWrap.style.display = 'block';
         if (customInp) customInp.value = curVenue;
+        if (customDirSel) {
+          customDirSel.value = getTrackDirection(curVenue) === 'CCW' ? 'CCW' : 'CW';
+        }
       }
     }
     if ($('newEventDate')) {
@@ -3808,7 +3823,18 @@
   }
 
   function startLiveEventFromModal() {
+    const selTrack = $('newEventTrack');
+    const isCustomTrack =
+      selTrack && (selTrack.value === '__CUSTOM_TRACK__' || selTrack.value === '__CUSTOM__');
     const venue = normalizeVenueName(readVenueFromSelectorPair('newEventTrack', 'newEventCustomTrack'));
+    if (isCustomTrack && venue) {
+      if (!state.chassis) state.chassis = createDefaultChassisState();
+      if (!state.chassis.trackDirections || typeof state.chassis.trackDirections !== 'object') {
+        state.chassis.trackDirections = {};
+      }
+      const chosenDir = ($('newEventCustomTrackDir') && $('newEventCustomTrackDir').value) === 'CCW' ? 'CCW' : 'CW';
+      state.chassis.trackDirections[venue] = chosenDir;
+    }
     const eventDate = ($('newEventDate') && $('newEventDate').value) || getLocalTodayIso();
     const eventTitle = (($('newEventTitle') && $('newEventTitle').value) || '').trim();
 
@@ -4961,13 +4987,16 @@
           : 'CW • Left-Loaded (FL/RL)';
     }
 
-    const dirToggleBtn = $('btnToggleTrackDirection');
-    if (dirToggleBtn) {
-      dirToggleBtn.textContent = direction === 'CCW' ? '↺ CCW' : '↻ CW';
-      dirToggleBtn.title =
+    const dirVenueEl = $('outActiveCircuitDirVenue');
+    if (dirVenueEl) {
+      dirVenueEl.textContent = venue;
+    }
+    const dirSubEl = $('outActiveCircuitDirSub');
+    if (dirSubEl) {
+      dirSubEl.textContent =
         direction === 'CCW'
-          ? `${venue}: Anti-Clockwise (RH Loaded) — tap to switch to CW`
-          : `${venue}: Clockwise (LH Loaded) — tap to switch to CCW`;
+          ? 'Anti-Clockwise (CCW) • FR / RR Outside'
+          : 'Clockwise (CW) • FL / RL Outside';
     }
     const dirSideHint = $('hintTrackDirectionSide');
     if (dirSideHint) {
@@ -4983,7 +5012,7 @@
     const isClassic44 = !isWet && Math.abs(frontTarget - 44.0) < 0.06 && Math.abs(rearTarget - 44.0) < 0.06;
 
     const learnedStatsForVenue = getTrackLearnedColdTyres(venue, 40.0, 43.0, 'dry');
-    const subTrackLearned = $('subPresetTrackLearned');
+    const subTrackLearned = $('subDryPresetTrackLearned') || $('subPresetTrackLearned');
     if (subTrackLearned) {
       subTrackLearned.textContent =
         learnedStatsForVenue.totalRuns > 0
@@ -5128,31 +5157,6 @@
         showToast(`AI Anti-Push (40.0F / 43.0R) • ${dirLabel}: ${coldSummary}`);
       }
     }
-  }
-
-  function toggleTrackDirection() {
-    if (!state.chassis) state.chassis = createDefaultChassisState();
-    const activeSess = getActiveSession();
-    if (activeSess && activeSess.tyresPreLocked) {
-      showToast('Pre-Race Tyres are locked — click "Unlock Pre-Race Tyres" to change');
-      return;
-    }
-    const ch = state.chassis;
-    const venue = getSelectedTyreTrackVenue();
-    const curDir = getTrackDirection(venue);
-    const nextDir = curDir === 'CW' ? 'CCW' : 'CW';
-    if (!ch.trackDirections || typeof ch.trackDirections !== 'object') {
-      ch.trackDirections = {};
-    }
-    ch.trackDirections[venue] = nextDir;
-
-    if (ch.tyreCondition === 'wet') {
-      applyWetPreset(ch.wetPreset || 'light', true);
-    } else {
-      applyDryTargetPreset(ui.activeDryPreset || ch.activeDryPreset || 'ai_antipush', true);
-    }
-    const loadDesc = nextDir === 'CCW' ? 'Anti-Clockwise (RH Loaded)' : 'Clockwise (LH Loaded)';
-    showToast(`${venue} Direction → ${nextDir} • ${loadDesc}`);
   }
 
   function dropInAiColdStartBaseline() {
@@ -6503,12 +6507,6 @@
       btn.textContent = anyColdHasVal
         ? 'Clear Cold PSI (Already Bled Hot)'
         : 'Restore Learned Cold PSI';
-    }
-    const rowBtn = $('btnClearAllColdPsiRow');
-    if (rowBtn) {
-      rowBtn.textContent = anyColdHasVal
-        ? 'Clear Cold (Hot-Bled)'
-        : 'Restore Cold Base';
     }
   }
 
@@ -11927,18 +11925,6 @@
         return;
       }
 
-      const toggleDirBtn = e.target.closest('#btnToggleTrackDirection');
-      if (toggleDirBtn) {
-        toggleTrackDirection();
-        return;
-      }
-
-      const clearColdRowBtn = e.target.closest('#btnClearAllColdPsiRow');
-      if (clearColdRowBtn) {
-        toggleClearOrRestoreColdPsi();
-        return;
-      }
-
       const dropAiColdBtn = e.target.closest('#btnDropAiColdBaseline');
       if (dropAiColdBtn) {
         const activeSess = getActiveSession();
@@ -12164,8 +12150,9 @@
     if ($('newEventTrack')) {
       $('newEventTrack').addEventListener('change', () => {
         if ($('newEventCustomTrackWrap')) {
+          const val = $('newEventTrack').value;
           $('newEventCustomTrackWrap').style.display =
-            $('newEventTrack').value === '__CUSTOM__' ? 'block' : 'none';
+            val === '__CUSTOM_TRACK__' || val === '__CUSTOM__' ? 'block' : 'none';
         }
       });
     }
