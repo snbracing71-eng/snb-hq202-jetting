@@ -1827,9 +1827,46 @@
     };
 
     // One-time Initial Seeding & Weekend Event Architecture (seedInitializedV1):
-    // ONLY seed default dummy events when !candidate.seedInitializedV1 and no events array exists yet.
+    // ONLY seed default dummy events when !candidate.seedInitializedV1.
     // NEVER re-seed just because candidate.events.length === 0!
-    if (Array.isArray(candidate.events)) {
+    if (!candidate.seedInitializedV1) {
+      const rawEvents = Array.isArray(candidate.events) && candidate.events.length > 0 ? candidate.events : defaultEvents;
+      candidate.events = rawEvents.map((evt, idx) => {
+        const evtVenue = normalizeVenueName(evt.venue || 'Calder Park Raceway');
+        const evtIso =
+          typeof evt.eventDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(evt.eventDate.trim())
+            ? evt.eventDate.trim()
+            : todayIso;
+        const evtId = String(evt.id || `evt_${idx + 1}`);
+        const locked = evt.locked !== undefined ? Boolean(evt.locked) : true;
+        const sessions = Array.isArray(evt.sessions)
+          ? evt.sessions.map((s) => {
+              const hydrated = hydrateSingleSession(s, evtVenue, evtIso);
+              hydrated.eventId = evtId;
+              hydrated.eventTitle = evt.eventTitle || '';
+              hydrated.eventLocked = locked;
+              if (locked) {
+                hydrated.status = 'completed';
+              }
+              return hydrated;
+            })
+          : [];
+        return {
+          id: evtId,
+          venue: evtVenue,
+          eventDate: evtIso,
+          eventTitle: typeof evt.eventTitle === 'string' ? evt.eventTitle.trim() : '',
+          locked,
+          endedAt: evt.endedAt || (locked ? `${evtIso}T17:00:00` : null),
+          sessions
+        };
+      });
+      candidate.activeEventId = null;
+      candidate.activeSessionId = null;
+      candidate.eventArchitectureV1 = true;
+      candidate.seedInitializedV1 = true;
+      candidate.awaitingPostRaceId = null;
+    } else if (Array.isArray(candidate.events)) {
       candidate.events = candidate.events.map((evt, idx) => {
         const evtVenue = normalizeVenueName(evt.venue || 'Calder Park Raceway');
         const evtIso =
@@ -1881,18 +1918,6 @@
       }
       candidate.eventArchitectureV1 = true;
       candidate.seedInitializedV1 = true;
-    } else if (!candidate.seedInitializedV1) {
-      candidate.events = defaultEvents.map((evt) => ({
-        ...evt,
-        venue: normalizeVenueName(evt.venue),
-        locked: true,
-        sessions: (evt.sessions || []).map((s) => hydrateSingleSession(s, evt.venue, evt.eventDate))
-      }));
-      candidate.activeEventId = null;
-      candidate.activeSessionId = null;
-      candidate.eventArchitectureV1 = true;
-      candidate.seedInitializedV1 = true;
-      candidate.awaitingPostRaceId = null;
     } else {
       candidate.events = [];
       candidate.activeEventId = null;
@@ -2188,8 +2213,9 @@
   }
 
   let state = loadState();
-  // Persist the one-time eventArchitectureV1 / suspensionSeededV1 migration immediately if needed
+  // Persist the one-time seedInitializedV1 / eventArchitectureV1 / suspensionSeededV1 migration immediately
   try {
+    state.seedInitializedV1 = true;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (_) {}
 
@@ -2215,7 +2241,7 @@
     expandedTyreId: null,
     expandedEventIds: new Set([
       ...(state.activeEventId ? [state.activeEventId] : []),
-      ...(Array.isArray(state.events) && state.events[0] ? [state.events[0].id] : ['evt_calder_nov26'])
+      ...(Array.isArray(state.events) && state.events[0] ? [state.events[0].id] : [])
     ]),
     pendingActionAfterNewEvent: null,
     tyreStockFilter: 'all', // 'all' | 'buffed' | 'wet'
@@ -2235,6 +2261,7 @@
   };
 
   function saveState() {
+    state.seedInitializedV1 = true;
     syncFlatSessionsFromEvents(state);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -2420,7 +2447,7 @@
 
   function getActiveCalcPhysics() {
     const base = state.baseline;
-    const targetAfr = readNum('inputTargetAfr', 12.85);
+    const targetAfr = readNum('inputTargetAfr', 12.75);
     const sgNew = readNum('inputFuelSg', 0.740);
     const fuelTempC = readNum('inputFuelTempC', 20.0);
     const sg15Eq = sgNew + 0.0007 * (fuelTempC - 15);
@@ -2495,26 +2522,71 @@
     };
   }
 
-  function pickToolboxTriplet(idealMm) {
-    const activeJets = sortJetsByDiameter(state.jets.filter((j) => j.inToolbox));
-    const pool = activeJets.length > 0 ? activeJets : sortJetsByDiameter(state.jets);
+  /**
+   * Finds the Recommended Safe Mid-Point Jet from active toolbox jets (sorted smallest-to-largest mm):
+   * 1) Calculates exact idealJetMm for targetAfr using fourth-root RAD & SG physics.
+   * 2) Picks the jet closest to idealJetMm, THEN checks its predictedAfr:
+   *    if that jet's predictedAfr triggers red lean danger (endCylAfr >= 13.25 or predictedAfr > targetAfr + 0.12),
+   *    automatically steps 1 index RICHER (midIdx + 1) so the center Recommended Mid-Point Jet is ALWAYS safe!
+   * 3) Returns the 3-Jet Comparison Bracket centered around safeMidJet:
+   *    - Left Card: 1 STEP LEANER (sortedJets[midIdx - 1])
+   *    - Center Card: SAFE MID-POINT (RECOMMENDED) (sortedJets[midIdx])
+   *    - Right Card: 1 STEP RICHER (sortedJets[midIdx + 1])
+   */
+  function findRecommendedSafeMidJet(physOpt, activeJetsOpt) {
+    const phys = physOpt && typeof physOpt === 'object' && Number.isFinite(physOpt.idealJetMm)
+      ? physOpt
+      : getActiveCalcPhysics();
+    const toolboxJets = Array.isArray(activeJetsOpt) && activeJetsOpt.length > 0
+      ? sortJetsByDiameter(activeJetsOpt)
+      : sortJetsByDiameter(state.jets.filter((j) => j.inToolbox));
+    const sortedJets = toolboxJets.length > 0 ? toolboxJets : sortJetsByDiameter(state.jets);
 
-    let bestIdx = 0;
+    let midIdx = 0;
     let bestDiff = Infinity;
-    pool.forEach((jet, idx) => {
-      const diff = Math.abs(jet.mm - idealMm);
+    sortedJets.forEach((jet, idx) => {
+      const diff = Math.abs(jet.mm - phys.idealJetMm);
       if (diff < bestDiff) {
         bestDiff = diff;
-        bestIdx = idx;
+        midIdx = idx;
       }
     });
 
+    while (midIdx < sortedJets.length - 1) {
+      const candidateJet = sortedJets[midIdx];
+      const predictedAfr = calculatePredictedAfr(
+        phys.effectiveBaseAfr,
+        phys.rhoRatio,
+        phys.base.jetMm,
+        candidateJet.mm,
+        phys.base.fuelSg,
+        phys.sgNew
+      );
+      const endCylAfr = predictedAfr + END_CYL_LEAN_OFFSET;
+      const isLeanDanger =
+        endCylAfr >= 13.25 ||
+        predictedAfr > phys.targetAfr + 0.12 ||
+        (phys.totalTiming > 34.0 && predictedAfr > 12.95);
+      if (!isLeanDanger) break;
+      midIdx += 1;
+    }
+
+    const safeMidJet = sortedJets[midIdx] || sortedJets[0] || null;
     return {
-      pool,
-      leaner: bestIdx > 0 ? pool[bestIdx - 1] : null,
-      recommended: pool[bestIdx],
-      richer: bestIdx < pool.length - 1 ? pool[bestIdx + 1] : null
+      pool: sortedJets,
+      midIdx,
+      safeMidJet,
+      recommended: safeMidJet,
+      leaner: midIdx > 0 ? sortedJets[midIdx - 1] : null,
+      richer: midIdx < sortedJets.length - 1 ? sortedJets[midIdx + 1] : null
     };
+  }
+
+  function pickToolboxTriplet(idealMm) {
+    const phys = getActiveCalcPhysics();
+    return findRecommendedSafeMidJet(
+      Number.isFinite(Number(idealMm)) ? { ...phys, idealJetMm: Number(idealMm) } : phys
+    );
   }
 
   /* ------------------------------------------------------------------------
@@ -3032,7 +3104,7 @@
 
     const htmlParts = [];
     if (includePlaceholder) {
-      htmlParts.push('<option value="">-- Select Session to Commence --</option>');
+      htmlParts.push('<option value="">-- Select Next Session to Commence --</option>');
     }
 
     SESSION_PROGRESSION.forEach((stdName) => {
@@ -3529,7 +3601,7 @@
 
     // 2. FUEL & WT TAB (#tab-fuel — Pre Step 2 & Post Step 2 pop-up trigger)
     const fuelTopPreCard = $('fuelTopPreActionCard');
-    const fuelTopStepTag = $('fuelTopPreStepTag');
+    const fuelTopStepTag = $('fuelTopStepTag') || $('fuelTopPreStepTag');
     const btnSaveFuelTop = $('btnSaveFuelWeightSessionTop');
     const btnSaveFuel = $('btnSaveFuelWeightSession') || $('btnSaveFuelSession');
     const unlockFuelTop = $('unlockFuelPreRaceRowTop');
@@ -3537,26 +3609,36 @@
     const postFuelStep5Card = $('postFuelStep5Card');
     const postFuelStep5Badge = $('postFuelStep5Badge');
     const btnOpenPostTuneFromFuel = $('btnOpenPostTuneFromFuel');
-    const btnOpenPostSessionFuelModal = $('btnOpenPostSessionFuelModal');
+    const btnOpenPostSessionFuelTop = $('btnOpenPostSessionFuelTop');
+    const btnOpenPostSessionFuelModalCard = $('btnOpenPostSessionFuelModalCard') || $('btnOpenPostSessionFuelModal');
+    const btnCompleteSessionFromFuel = $('btnCompleteSessionFromFuel');
     const btnLockPostFuelStep5 = $('btnLockPostFuelStep5');
     const btnSkipPostFuelStep5 = $('btnSkipPostFuelStep5');
     const unlockFuelPostRow = $('unlockFuelPostRaceRow');
 
     const showPostFuelCard = Boolean(activeSess && allPreLocked);
-    if (postFuelStep5Card) {
-      postFuelStep5Card.style.display = showPostFuelCard ? 'block' : 'none';
-    }
     if (fuelTopPreCard) {
-      fuelTopPreCard.style.display = showPostFuelCard ? 'none' : 'block';
+      fuelTopPreCard.style.display = 'block';
+    }
+    if (postFuelStep5Card) {
+      postFuelStep5Card.style.display = showPostFuelCard && tunePostLocked ? 'block' : 'none';
     }
 
     if (fuelTopStepTag) {
-      if (curStep === 2) {
-        fuelTopStepTag.textContent = 'PRE-RACE STEP 2 OF 3 • FUEL & WT';
-      } else if (fuelLocked) {
-        fuelTopStepTag.textContent = '✓ PRE-RACE FUEL & WT LOCKED';
-      } else {
+      if (curStep === 1) {
         fuelTopStepTag.textContent = 'LOCK PRE-RACE TUNE FIRST';
+      } else if (curStep === 2) {
+        fuelTopStepTag.textContent = 'PRE-RACE STEP 2 OF 3 • FUEL & WT';
+      } else if (curStep === 3) {
+        fuelTopStepTag.textContent = '✓ PRE-FUEL LOCKED • GO TO TYRES';
+      } else if (curStep === 4) {
+        fuelTopStepTag.textContent = '🟢 READY TO RACE • POST-RACE STEP 1 OF 3';
+      } else if (curStep === 5) {
+        fuelTopStepTag.textContent = 'POST-RACE STEP 2 OF 3 • FUEL & WT';
+      } else if (curStep === 6) {
+        fuelTopStepTag.textContent = '✓ POST-FUEL LOCKED • GO TO POST TYRES';
+      } else {
+        fuelTopStepTag.textContent = '✓ SESSION VERIFIED & LOCKED';
       }
     }
 
@@ -3568,6 +3650,22 @@
       : 'LOCK PRE-RACE FUEL & WT →';
     applyStageButtonState(btnSaveFuelTop, canLockStep2, step2BtnLabel);
     applyStageButtonState(btnSaveFuel, canLockStep2, step2BtnLabel);
+    if (btnSaveFuelTop) {
+      btnSaveFuelTop.style.display = allPreLocked ? 'none' : 'inline-flex';
+    }
+
+    if (btnOpenPostTuneFromFuel) {
+      btnOpenPostTuneFromFuel.style.display = allPreLocked ? 'inline-flex' : 'none';
+      applyStageButtonState(btnOpenPostTuneFromFuel, canOpenStep4, step4BtnLabel);
+    }
+    if (btnOpenPostSessionFuelTop) {
+      btnOpenPostSessionFuelTop.style.display = tunePostLocked ? 'inline-flex' : 'none';
+      applyStageButtonState(btnOpenPostSessionFuelTop, canOpenStep5, step5BtnLabel);
+    }
+    if (btnCompleteSessionFromFuel) {
+      btnCompleteSessionFromFuel.style.display = tunePostLocked ? 'inline-flex' : 'none';
+      applyStageButtonState(btnCompleteSessionFromFuel, canOpenStep5, step5BtnLabel);
+    }
 
     if (unlockFuelTop) {
       unlockFuelTop.style.display = fuelLocked && !tunePostLocked ? 'flex' : 'none';
@@ -3598,13 +3696,9 @@
           : 'POST-RACE STEP 2 OF 3 • FUEL & WT';
         postFuelStep5Badge.className = fuelPostLocked ? 'badge verified' : 'badge emerald';
       }
-      if (btnOpenPostTuneFromFuel) {
-        btnOpenPostTuneFromFuel.style.display = curStep === 4 ? 'inline-flex' : 'none';
-        applyStageButtonState(btnOpenPostTuneFromFuel, canOpenStep4, step4BtnLabel);
-      }
-      if (btnOpenPostSessionFuelModal) {
-        btnOpenPostSessionFuelModal.style.display = curStep === 4 ? 'none' : 'inline-flex';
-        applyStageButtonState(btnOpenPostSessionFuelModal, canOpenStep5, step5BtnLabel);
+      if (btnOpenPostSessionFuelModalCard) {
+        btnOpenPostSessionFuelModalCard.style.display = curStep === 4 ? 'none' : 'inline-flex';
+        applyStageButtonState(btnOpenPostSessionFuelModalCard, canOpenStep5, step5BtnLabel);
       }
       if (btnLockPostFuelStep5) {
         applyStageButtonState(btnLockPostFuelStep5, canOpenStep5, step5BtnLabel);
@@ -3620,7 +3714,7 @@
 
     // 3. TYRES / SPRINGS TAB (#tab-tyres — Pre Step 3 & Post Step 3)
     const tyresTopPreCard = $('tyresTopPreActionCard');
-    const tyresTopStepTag = $('tyresTopPreStepTag');
+    const tyresTopStepTag = $('tyresTopStepTag') || $('tyresTopPreStepTag');
     const btnSaveTyresTop = $('btnSaveTyresSessionTop');
     const btnSaveTyres = $('btnSaveTyresSession');
     const unlockTyresTop = $('unlockTyresPreRaceRowTop');
@@ -3633,8 +3727,8 @@
     const step2Banner = $('postTyresStep2Banner');
     const tyresContentWrap = $('tyresActiveSessionContent');
 
-    const showPostTyresTopCard = Boolean(activeSess && allPreLocked);
     const isStep6PostTyres = Boolean(activeSess && curStep === 6 && !tyresPostLocked);
+    const showPostTyresTopCard = Boolean(activeSess && (isStep6PostTyres || tyresPostLocked));
     if (postTyresStep6TopCard) {
       postTyresStep6TopCard.style.display = showPostTyresTopCard ? 'block' : 'none';
     }
@@ -3651,6 +3745,10 @@
     if (tyresTopStepTag) {
       if (curStep === 3) {
         tyresTopStepTag.textContent = 'PRE-RACE STEP 3 OF 3 • TYRES & SPRINGS';
+      } else if (curStep === 4) {
+        tyresTopStepTag.textContent = '🟢 READY TO RACE • POST-RACE STEP 1 OF 3';
+      } else if (curStep === 5) {
+        tyresTopStepTag.textContent = '✓ POST-TUNE LOCKED • POST-RACE STEP 2 OF 3';
       } else if (tyresLocked) {
         tyresTopStepTag.textContent = '✓ PRE-RACE TYRES LOCKED (READY TO RACE)';
       } else {
@@ -3669,13 +3767,16 @@
       : 'LOCK PRE-RACE TYRES (READY TO RACE) →';
     applyStageButtonState(btnSaveTyresTop, canLockStep3, step3BtnLabel);
     applyStageButtonState(btnSaveTyres, canLockStep3, step3BtnLabel);
+    if (btnSaveTyresTop) {
+      btnSaveTyresTop.style.display = allPreLocked ? 'none' : 'inline-flex';
+    }
 
     if (btnOpenPostTuneFromTyres) {
-      btnOpenPostTuneFromTyres.style.display = curStep === 4 ? 'inline-flex' : 'none';
+      btnOpenPostTuneFromTyres.style.display = allPreLocked && curStep <= 5 ? 'inline-flex' : 'none';
       applyStageButtonState(btnOpenPostTuneFromTyres, canOpenStep4, step4BtnLabel);
     }
     if (btnOpenPostFuelFromTyres) {
-      btnOpenPostFuelFromTyres.style.display = curStep === 5 ? 'inline-flex' : 'none';
+      btnOpenPostFuelFromTyres.style.display = tunePostLocked && curStep <= 5 ? 'inline-flex' : 'none';
       applyStageButtonState(btnOpenPostFuelFromTyres, canOpenStep5, step5BtnLabel);
     }
 
@@ -3689,7 +3790,7 @@
       ? 'COMPLETE POST-SESSION FUEL & WEIGHT FIRST'
       : 'LOCK PRE-RACE STEPS 1–3 FIRST';
     if (btnLockPostTyresTop) {
-      btnLockPostTyresTop.style.display = curStep === 4 || curStep === 5 ? 'none' : 'inline-flex';
+      btnLockPostTyresTop.style.display = 'inline-flex';
       applyStageButtonState(btnLockPostTyresTop, isStep6PostTyres, step6BtnLabel);
     }
     applyStageButtonState(btnPostTyres, isStep6PostTyres, step6BtnLabel);
@@ -7873,10 +7974,10 @@
       `;
 
     let wfStatusBadgeClass = 'verified';
-    let wfStatusBadgeText = 'VERIFIED & COMPLETE';
+    let wfStatusBadgeText = 'VERIFIED & LOCKED';
     if (s.status === 'completed' || (s.tunePostLocked && s.tyresPostLocked) || !isEstimated) {
       wfStatusBadgeClass = 'verified';
-      wfStatusBadgeText = 'VERIFIED & COMPLETE';
+      wfStatusBadgeText = 'VERIFIED & LOCKED';
     } else if (s.fuelPostLocked && !s.tyresPostLocked) {
       wfStatusBadgeClass = 'cyan';
       wfStatusBadgeText = '5. POST-FUEL LOCKED';
@@ -10398,7 +10499,7 @@
 
     const scaleRaw = $('modalPostScaleKg') ? String($('modalPostScaleKg').value || '').trim() : '';
     const scaleVal = scaleRaw !== '' ? parseFloat(scaleRaw) : NaN;
-    const scaleHintEl = $('modalPostScaleFactHint');
+    const scaleHintEl = $('modalPostScaleHint') || $('modalPostScaleFactHint');
     if (scaleHintEl) {
       if (Number.isFinite(scaleVal) && scaleVal > 500 && hasOut) {
         const sg = Math.max(0.65, readNum('inputFuelSg', (state.baseline && state.baseline.fuelSg) || 0.740));
@@ -11944,30 +12045,6 @@
         return;
       }
 
-      const wfStepPill = e.target.closest('.wf-step-pill[data-wf-step]');
-      if (wfStepPill) {
-        const stepNum = parseInt(wfStepPill.getAttribute('data-wf-step'), 10);
-        const sess = getActiveSession();
-        const curStep = getSessionWorkflowStep(sess);
-        if (stepNum === 1 || stepNum === 4) {
-          switchTab('tab-calc');
-          if (stepNum === 4 && sess && isAllPreLocked(sess)) {
-            openPostRaceAfrModal();
-          }
-        } else if (stepNum === 2 || stepNum === 5) {
-          switchTab('tab-fuel');
-          if (stepNum === 5 && curStep >= 5) {
-            setTimeout(() => {
-              const postBox = $('fuelPostRaceStep5Box');
-              if (postBox) postBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 60);
-          }
-        } else if (stepNum === 3 || stepNum === 6) {
-          switchTab('tab-tyres');
-        }
-        return;
-      }
-
       const modeBtn = e.target.closest('[data-weather-mode]');
       if (modeBtn) {
         ui.weatherMode = modeBtn.getAttribute('data-weather-mode');
@@ -12937,6 +13014,12 @@
     }
     if ($('btnOpenPostTuneFromFuel')) {
       $('btnOpenPostTuneFromFuel').addEventListener('click', openPostRaceAfrModal);
+    }
+    if ($('btnOpenPostSessionFuelTop')) {
+      $('btnOpenPostSessionFuelTop').addEventListener('click', openPostSessionFuelModal);
+    }
+    if ($('btnOpenPostSessionFuelModalCard')) {
+      $('btnOpenPostSessionFuelModalCard').addEventListener('click', openPostSessionFuelModal);
     }
     if ($('btnOpenPostSessionFuelModal')) {
       $('btnOpenPostSessionFuelModal').addEventListener('click', openPostSessionFuelModal);
