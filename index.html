@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.7.7" />
+  <link rel="stylesheet" href="./styles.css?v=0.7.8" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -233,40 +233,6 @@
             END EVENT
           </button>
         </div>
-
-        <!-- Guided 6-Step Sequential Session Workflow Strip -->
-        <div id="sessionWorkflowBanner" class="workflow-guide-banner state-pre-pending" role="status" aria-live="polite">
-          <div class="wf-6step-strip" id="workflow6StepStrip" aria-label="6-Step Session Workflow Progress">
-            <div class="wf-phase-group">
-              <span class="wf-phase-label">PRE:</span>
-              <span class="wf-step-pill is-active" id="wfPill_1" data-wf-step="1">&bull; 1. Tune</span>
-              <span class="wf-step-arrow" aria-hidden="true">&rarr;</span>
-              <span class="wf-step-pill is-upcoming" id="wfPill_2" data-wf-step="2">2. Fuel</span>
-              <span class="wf-step-arrow" aria-hidden="true">&rarr;</span>
-              <span class="wf-step-pill is-upcoming" id="wfPill_3" data-wf-step="3">3. Tyres</span>
-            </div>
-            <span class="wf-phase-divider" aria-hidden="true">|</span>
-            <div class="wf-phase-group">
-              <span class="wf-phase-label">POST:</span>
-              <span class="wf-step-pill is-upcoming" id="wfPill_4" data-wf-step="4">4. Tune</span>
-              <span class="wf-step-arrow" aria-hidden="true">&rarr;</span>
-              <span class="wf-step-pill is-upcoming" id="wfPill_5" data-wf-step="5">5. Fuel</span>
-              <span class="wf-step-arrow" aria-hidden="true">&rarr;</span>
-              <span class="wf-step-pill is-upcoming" id="wfPill_6" data-wf-step="6">6. Tyres</span>
-            </div>
-          </div>
-          <div class="wf-banner-status-row">
-            <span class="wf-banner-dot" id="sessionWorkflowBannerDot"></span>
-            <span class="wf-banner-text" id="sessionWorkflowBannerText">STEP 1 OF 6: Check weather/RAD, pick jet &amp; lock Pre-Session Tune.</span>
-          </div>
-        </div>
-
-        <!-- Out-of-Turn 1-Tap Redirect Bar (Shown whenever active setup tab is NOT the current workflowStep tab) -->
-        <div id="workflowRedirectWrap" class="wf-redirect-wrap" style="display: none;">
-          <button type="button" class="btn btn-confirm btn-full btn-cta-lg wf-redirect-btn" id="btnWorkflowGoToActiveStep">
-            Current Step is 1. Pre-Session Tune &mdash; Tap to Go Straight There &rarr;
-          </button>
-        </div>
       </div>
     </div>
 
@@ -275,10 +241,10 @@
          ========================================================= -->
     <section id="tab-calc" class="tab-panel active" aria-labelledby="navTabCalc">
       <div id="calcActiveSessionContent">
-      <!-- TOP WORKFLOW ACTION BAR FOR TUNE (STEP 1 PRE-TUNE & STEP 4 POST-TUNE) -->
+      <!-- TOP WORKFLOW ACTION BAR FOR TUNE (PRE-RACE TUNE -> POST-SESSION TUNE -> POST-SESSION FUEL & WEIGHT) -->
       <div class="top-workflow-action-card" id="tuneTopWorkflowCard">
         <div class="top-wf-header-row">
-          <span class="top-wf-step-tag" id="tuneTopWfTag">STEP 1 OF 6 &bull; PRE-SESSION TUNE</span>
+          <span class="top-wf-step-tag" id="tuneTopStepTag">PRE-RACE STEP 1 &bull; TUNE</span>
           <div class="unlock-prerace-row" id="unlockTunePreRaceRowTop" style="display: none; margin: 0;">
             <button type="button" class="btn-unlock-prerace" id="btnUnlockTunePreRaceTop">
               Unlock Pre-Tune
@@ -290,16 +256,23 @@
           class="btn btn-confirm btn-full btn-cta-lg"
           id="btnConfirmLockJetTop"
         >
-          1. LOCK PRE-SESSION TUNE &amp; GO TO FUEL &rarr;
+          LOCK PRE-RACE TUNE &rarr;
         </button>
         <button
           type="button"
-          class="btn btn-locked-grey btn-stage-locked btn-full btn-cta-lg"
+          class="btn btn-confirm btn-full btn-cta-lg"
           id="btnOpenPostRaceAfr"
           style="margin-top: 8px; display: none;"
-          disabled
         >
-          4. ENTER POST-SESSION TUNE &rarr;
+          POST-SESSION TUNE (ENTER DATA)
+        </button>
+        <button
+          type="button"
+          class="btn btn-confirm btn-full btn-cta-lg"
+          id="btnOpenPostSessionFuelFromTune"
+          style="margin-top: 8px; display: none;"
+        >
+          POST-SESSION FUEL &amp; WEIGHT (ENTER DATA)
         </button>
       </div>
 
@@ -579,12 +552,12 @@
             <div class="field-group" style="margin-bottom: 0;">
               <div class="field-label-row">
                 <label class="field-label" for="inputTargetAfr">Target WOT AFR</label>
-                <span class="field-hint emerald" id="targetAfrHint">12.8&ndash;12.9</span>
+                <span class="field-hint emerald" id="targetAfrHint">12.75 Sweet-Spot</span>
               </div>
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputTargetAfr" data-step="-0.05" aria-label="Decrease Target WOT AFR">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputTargetAfr" class="num-input" value="12.85" min="11.50" max="14.20" step="0.05" inputmode="decimal" />
+                  <input type="number" id="inputTargetAfr" class="num-input" value="12.75" min="11.50" max="14.20" step="0.05" inputmode="decimal" />
                   <span class="num-unit-badge">AFR</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputTargetAfr" data-step="0.05" aria-label="Increase Target WOT AFR">+</button>
@@ -651,7 +624,7 @@
 
           <!-- 3 Tappable Toolbox Jet Cards -->
           <div class="field-label-row" style="margin-bottom: 10px;">
-            <span class="field-label">Active Toolbox Jet Options (Tap to Select)</span>
+            <span class="field-label">3-Jet Comparison Bracket (Centered on Safe Mid-Point)</span>
             <span class="field-hint" id="activeToolboxCountHint">15 in toolbox</span>
           </div>
 
@@ -698,17 +671,16 @@
               &larr; BACK / EDIT INPUTS
             </button>
             <button type="button" id="btnConfirmLockJet" class="btn btn-confirm btn-full">
-              1. LOCK PRE-SESSION TUNE &amp; GO TO FUEL &rarr;
+              LOCK PRE-RACE TUNE &rarr;
             </button>
           </div>
           <button
             type="button"
-            class="btn btn-locked-grey btn-stage-locked btn-full btn-cta-lg"
+            class="btn btn-confirm btn-full btn-cta-lg"
             id="btnOpenPostRaceAfrStep2"
             style="margin-top: 8px; display: none;"
-            disabled
           >
-            4. ENTER POST-SESSION TUNE &rarr;
+            POST-SESSION TUNE (ENTER DATA)
           </button>
         </div>
       </div>
@@ -716,14 +688,14 @@
     </section>
 
     <!-- =========================================================
-         TAB 2: FUEL & WT (Step 2 Pre-Session Planner & Step 5 Post-Session Pump-Out/Scales)
+         TAB 2: FUEL & WT (Pre-Race Step 2 & Post-Race Step 2)
          ========================================================= -->
     <section id="tab-fuel" class="tab-panel" aria-labelledby="navTabFuel">
       <div id="fuelActiveSessionContent">
-      <!-- TOP WORKFLOW ACTION BAR FOR PRE-SESSION FUEL (STEP 2 OF 6) -->
+      <!-- TOP WORKFLOW ACTION BAR FOR FUEL & WEIGHT -->
       <div class="top-workflow-action-card" id="fuelTopPreActionCard">
         <div class="top-wf-header-row">
-          <span class="top-wf-step-tag" id="fuelTopWfTag">STEP 2 OF 6 &bull; PRE-SESSION FUEL &amp; WEIGHT</span>
+          <span class="top-wf-step-tag" id="fuelTopStepTag">PRE-RACE STEP 2 &bull; FUEL &amp; WEIGHT</span>
           <div class="unlock-prerace-row" id="unlockFuelPreRaceRowTop" style="display: none; margin: 0;">
             <button type="button" class="btn-unlock-prerace" id="btnUnlockFuelPreRaceTop">
               Unlock Pre-Fuel
@@ -731,16 +703,32 @@
           </div>
         </div>
         <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveFuelWeightSessionTop">
-          2. LOCK PRE-SESSION FUEL &amp; GO TO TYRES &rarr;
+          LOCK PRE-RACE FUEL &amp; WT &rarr;
+        </button>
+        <button
+          type="button"
+          class="btn btn-confirm btn-full btn-cta-lg"
+          id="btnOpenPostTuneFromFuel"
+          style="margin-top: 8px; display: none;"
+        >
+          POST-SESSION TUNE (ENTER DATA)
+        </button>
+        <button
+          type="button"
+          class="btn btn-confirm btn-full btn-cta-lg"
+          id="btnOpenPostSessionFuelTop"
+          style="margin-top: 8px; display: none;"
+        >
+          POST-SESSION FUEL &amp; WEIGHT (ENTER DATA)
         </button>
       </div>
 
-      <!-- STEP 5 OF 6: DEDICATED TOP POST-SESSION FUEL & WEIGHT CARD (Shown at VERY TOP of #tab-fuel in Post-Session) -->
+      <!-- POST-SESSION FUEL & WEIGHT CARD (Shown at top of #tab-fuel in Post-Session) -->
       <div class="card post-step5-fuel-card" id="postFuelStep5Card" style="display: none;">
         <div class="section-head" style="flex-wrap: wrap; gap: 8px;">
           <div>
-            <div class="section-eyebrow" style="color: var(--emerald);">POST-SESSION STEP 5 OF 6 &bull; PUMP-OUT &amp; OFFICIAL SCALES</div>
-            <h2 class="section-title">5. Post-Session Fuel Pump-Out &amp; Scales</h2>
+            <div class="section-eyebrow" style="color: var(--emerald);">POST-SESSION STEP 2 &bull; PUMP-OUT &amp; OFFICIAL SCALES</div>
+            <h2 class="section-title">Post-Session Fuel &amp; Weight</h2>
           </div>
           <div class="unlock-prerace-row" id="unlockFuelPostRaceRow" style="display: none; margin: 0;">
             <button type="button" class="btn-unlock-prerace" id="btnUnlockFuelPostRace">
@@ -748,6 +736,15 @@
             </button>
           </div>
         </div>
+
+        <button
+          type="button"
+          class="btn btn-confirm btn-full btn-cta-lg"
+          id="btnOpenPostSessionFuelModalCard"
+          style="margin-bottom: 10px;"
+        >
+          POST-SESSION FUEL &amp; WEIGHT (ENTER DATA)
+        </button>
 
         <div class="card-elevated" id="postFuelStep5InputsGroup" style="margin-bottom: 12px;">
           <!-- Row 1: Fuel In (L) | Pumped Out (L) -->
@@ -825,10 +822,10 @@
         </div>
 
         <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnLockPostFuelStep5">
-          5. LOCK POST-SESSION FUEL &amp; GO TO POST TYRES &rarr;
+          SAVE &amp; LOCK POST-FUEL &rarr; GO TO POST TYRES
         </button>
         <button type="button" class="btn btn-secondary btn-full" id="btnSkipPostFuelStep5" style="margin-top: 8px;">
-          Skip Pump-Out (Keep Est Burn) &amp; Go to Tyres &rarr;
+          No Pump-Out This Run (Keep Est &amp; Go to Post Tyres)
         </button>
       </div>
 
@@ -998,10 +995,10 @@
           </button>
         </div>
         <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveFuelWeightSession">
-          2. LOCK PRE-SESSION FUEL &amp; GO TO TYRES &rarr;
+          LOCK PRE-RACE FUEL &amp; WT &rarr;
         </button>
-        <button type="button" class="btn btn-locked-grey btn-stage-locked btn-full btn-cta-lg" id="btnCompleteSessionFromFuel" style="margin-top: 8px; display: none;" disabled>
-          5. LOCK POST-SESSION FUEL &amp; GO TO POST TYRES &rarr;
+        <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnCompleteSessionFromFuel" style="margin-top: 8px; display: none;">
+          POST-SESSION FUEL &amp; WEIGHT (ENTER DATA)
         </button>
       </div>
       </div>
@@ -1012,10 +1009,10 @@
          ========================================================= -->
     <section id="tab-tyres" class="tab-panel" aria-labelledby="navTabTyres">
       <div id="tyresActiveSessionContent">
-      <!-- TOP WORKFLOW ACTION BAR FOR PRE-SESSION TYRES (STEP 3 OF 6) -->
+      <!-- TOP WORKFLOW ACTION BAR FOR PRE-SESSION TYRES (STEP 3) -->
       <div class="top-workflow-action-card" id="tyresTopPreActionCard">
         <div class="top-wf-header-row">
-          <span class="top-wf-step-tag" id="tyresTopWfTag">STEP 3 OF 6 &bull; PRE-SESSION TYRES &amp; SPRINGS</span>
+          <span class="top-wf-step-tag" id="tyresTopStepTag">PRE-RACE STEP 3 &bull; TYRES &amp; SPRINGS</span>
           <div class="unlock-prerace-row" id="unlockTyresPreRaceRowTop" style="display: none; margin: 0;">
             <button type="button" class="btn-unlock-prerace" id="btnUnlockTyresPreRaceTop">
               Unlock Pre-Tyres
@@ -1023,18 +1020,34 @@
           </div>
         </div>
         <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveTyresSessionTop">
-          3. LOCK PRE-SESSION TYRES &mdash; READY TO RACE &rarr;
+          LOCK PRE-RACE TYRES (READY TO RACE) &rarr;
+        </button>
+        <button
+          type="button"
+          class="btn btn-confirm btn-full btn-cta-lg"
+          id="btnOpenPostTuneFromTyres"
+          style="margin-top: 8px; display: none;"
+        >
+          POST-SESSION TUNE (ENTER DATA)
+        </button>
+        <button
+          type="button"
+          class="btn btn-confirm btn-full btn-cta-lg"
+          id="btnOpenPostFuelFromTyres"
+          style="margin-top: 8px; display: none;"
+        >
+          POST-SESSION FUEL &amp; WEIGHT (ENTER DATA)
         </button>
       </div>
 
-      <!-- STEP 6 OF 6: DEDICATED TOP POST-SESSION TYRES BAR (Directly under session header at VERY TOP of #tab-tyres) -->
+      <!-- POST-SESSION STEP 3: DEDICATED TOP POST-SESSION TYRES BAR (Directly under session header at VERY TOP of #tab-tyres) -->
       <div id="postTyresStep6TopCard" class="post-step2-highlight-card" style="display: none; margin-bottom: 14px;" role="region" aria-live="polite">
-        <div class="post-step2-eyebrow">POST-SESSION STEP 6 OF 6 &bull; HOT TYRE PRESSURES &amp; PYROMETER</div>
+        <div class="post-step2-eyebrow">POST-SESSION STEP 3 &bull; HOT TYRE PRESSURES &amp; PYROMETER</div>
         <div class="post-step2-title" id="postTyresStep6Prompt" style="margin-bottom: 10px;">
-          STEP 6 OF 6: Enter Hot Off-Track PSIs (and optional Pyrometer O/M/I) in the 4 corners below, then lock session:
+          Enter Hot Off-Track PSIs (and optional Pyrometer O/M/I) in the 4 corners below, then lock session:
         </div>
         <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnLockPostTyresTop">
-          6. LOCK POST-SESSION TYRES &amp; COMPLETE SESSION &#10003;
+          LOCK POST-SESSION TYRES &amp; COMPLETE SESSION
         </button>
       </div>
 
@@ -1636,10 +1649,10 @@
 
         <!-- Standalone Full-Width 3D Emerald Action Button -->
         <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveTyresSession" style="margin-top: 12px;">
-          3. LOCK PRE-SESSION TYRES &mdash; READY TO RACE &rarr;
+          LOCK PRE-RACE TYRES (READY TO RACE) &rarr;
         </button>
         <button type="button" class="btn btn-locked-grey btn-stage-locked btn-full btn-cta-lg" id="btnCompleteSessionFromTyres" style="margin-top: 8px;" disabled>
-          6. LOCK POST-SESSION TYRES &amp; COMPLETE SESSION &#10003;
+          LOCK POST-SESSION TYRES &amp; COMPLETE SESSION
         </button>
       </div>
 
@@ -2146,33 +2159,33 @@
   </nav>
 
   <!-- =========================================================
-       MODAL 1: STEP 4 OF 6 — ENTER POST-SESSION TUNE & GAUGES
+       MODAL 1: POST STEP 1 — POST-SESSION TUNE POP-UP WINDOW
        ========================================================= -->
-  <div class="modal-backdrop" id="modalPostRaceAfr" role="dialog" aria-modal="true" aria-labelledby="modalPostRaceTitle">
+  <div class="modal-backdrop" id="modalPostSessionTune" role="dialog" aria-modal="true" aria-labelledby="modalPostRaceTitle">
     <div class="modal-sheet">
       <div class="modal-head">
         <div>
-          <div class="section-eyebrow">STEP 4 OF 6 &bull; POST-SESSION ENGINE TUNE &amp; GAUGES</div>
-          <h2 class="section-title" id="modalPostRaceTitle">4. Enter Post-Session Tune</h2>
+          <div class="section-eyebrow">POST-RACE STEP 1 OF 3 &bull; POST-SESSION TUNE &amp; GAUGES</div>
+          <h2 class="section-title" id="modalPostRaceTitle">Post-Session Tune</h2>
         </div>
-        <button type="button" class="btn btn-danger" data-close-modal="modalPostRaceAfr" aria-label="Close Post-Race Modal">
+        <button type="button" class="btn btn-danger" data-close-modal="modalPostSessionTune" aria-label="Close Post-Session Tune Modal">
           Close
         </button>
       </div>
 
       <p style="margin: 0 0 12px; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45;">
-        Step 4 of 6 for <strong id="postRaceModalSessionLabel" class="txt-emerald">Practice 1 (1 DME)</strong>: Enter post-session engine tune &amp; wideband AFR gauges below, then lock to jump straight to Step 5 (Post-Session Fuel &amp; Weight).
+        Post-Session Tune for <strong id="postRaceModalSessionLabel" class="txt-emerald">Practice 1 (1 DME)</strong>: Enter peak WOT gauges below, then save &amp; lock to unlock Post-Session Fuel &amp; Weight.
       </p>
 
-      <!-- SECTION 1: POST-RACE TUNE & GAUGES -->
+      <!-- SECTION 1: POST-RACE TUNE & GAUGES (Full-Width Unclipped Steppers) -->
       <div class="card-elevated post-race-section-card" style="margin-bottom: 12px;">
-        <div class="section-eyebrow" style="margin-bottom: 8px;">Post-Race Tune &amp; Wideband Gauges</div>
+        <div class="section-eyebrow" style="margin-bottom: 8px;">Post-Session Engine Tune &amp; Wideband Gauges</div>
 
-        <!-- 1A. Top / Peak WOT RPM (Full-Width) -->
+        <!-- 1. Top / Peak WOT RPM (Full-Width) -->
         <div class="field-group" style="margin-bottom: 10px;">
           <div class="field-label-row">
-            <label class="field-label" for="modalPostPeakRpm">Peak WOT RPM</label>
-            <span class="field-hint">Tach Recall</span>
+            <label class="field-label" for="modalPostPeakRpm">Top / Peak WOT RPM</label>
+            <span class="field-hint">50 RPM steps &bull; Tach Recall</span>
           </div>
           <div class="num-stepper">
             <button type="button" class="stepper-btn" data-stepper-target="modalPostPeakRpm" data-step="-50" aria-label="Decrease Peak WOT RPM">&minus;</button>
@@ -2184,16 +2197,16 @@
           </div>
         </div>
 
-        <!-- 1B. Peak WOT Collector AFR (Full-Width + Skip Toggle if AFR Gauge Not Read) -->
+        <!-- 2. Peak WOT Collector AFR (Full-Width + Skip Toggle if AFR Gauge Not Read) -->
         <div class="field-group" style="margin-bottom: 10px;">
           <div class="field-label-row">
             <label class="field-label" for="modalPostWotAfr">Peak WOT Collector AFR</label>
-            <span class="field-hint emerald" id="modalPostEndCylPreview">#1/#6 Est: 12.77</span>
+            <span class="field-hint emerald" id="modalPostEndCylPreview">#1/#6 Est: 13.02</span>
           </div>
           <div class="num-stepper" id="modalPostWotAfrStepperWrap">
             <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="-0.05" aria-label="Decrease Post-Race WOT AFR">&minus;</button>
             <div class="num-input-wrap">
-              <input type="number" id="modalPostWotAfr" class="num-input" value="12.50" min="10.50" max="15.50" step="0.05" />
+              <input type="number" id="modalPostWotAfr" class="num-input" value="12.75" min="10.50" max="15.50" step="0.05" />
               <span class="num-unit-badge">AFR</span>
             </div>
             <button type="button" class="stepper-btn" data-stepper-target="modalPostWotAfr" data-step="0.05" aria-label="Increase Post-Race WOT AFR">+</button>
@@ -2204,8 +2217,40 @@
           </label>
         </div>
 
-        <!-- Collapsible 3D Metal Toggle Bar for Optional Mid-Range RPM Sweep (3500-5500 RPM) -->
-        <div style="margin-bottom: 10px;">
+        <!-- 3. WOT Fuel Pressure (psi) (Full-Width Unclipped Stepper) -->
+        <div class="field-group" style="margin-bottom: 10px;">
+          <div class="field-label-row">
+            <label class="field-label" for="modalPostFuelPsi">WOT Fuel Pressure (psi)</label>
+            <span class="field-hint emerald" id="modalPostFuelPsiHint">4.0&ndash;5.5 psi</span>
+          </div>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelPsi" data-step="-0.1" aria-label="Decrease Post-Race Fuel Pressure">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="modalPostFuelPsi" class="num-input" value="5.0" min="2.0" max="8.5" step="0.1" />
+              <span class="num-unit-badge">psi</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelPsi" data-step="0.1" aria-label="Increase Post-Race Fuel Pressure">+</button>
+          </div>
+        </div>
+
+        <!-- 4. Peak Water Temp (°C) (Full-Width Unclipped Stepper) -->
+        <div class="field-group" style="margin-bottom: 10px;">
+          <div class="field-label-row">
+            <label class="field-label" for="modalPostWaterTemp">Peak Water Temp (&deg;C)</label>
+            <span class="field-hint amber" id="modalPostWaterHint">warn &ge; 98&deg;C</span>
+          </div>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostWaterTemp" data-step="-1" aria-label="Decrease Peak Water Temp">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="modalPostWaterTemp" class="num-input" value="85" min="50" max="125" step="1" />
+              <span class="num-unit-badge">&deg;C</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostWaterTemp" data-step="1" aria-label="Increase Peak Water Temp">+</button>
+          </div>
+        </div>
+
+        <!-- 5. Collapsible + Staggered Mid-Range RPM AFRs (3500–5500 RPM, Optional) -->
+        <div style="margin-bottom: 0;">
           <button
             type="button"
             class="btn btn-secondary btn-full"
@@ -2214,7 +2259,7 @@
             aria-controls="postMidSweepWrap"
             style="min-height: 42px; font-size: 0.78rem;"
           >
-            + Optional Mid-Range RPM Sweep (3500&ndash;5500 RPM)
+            + Staggered Mid-Range RPM AFRs (3500&ndash;5500 RPM, Optional)
           </button>
 
           <div id="postMidSweepWrap" class="mid-sweep-panel" style="display: none;">
@@ -2286,58 +2331,152 @@
             </div>
           </div>
         </div>
-
-        <!-- 1C & 1D. WOT Fuel Pressure + Peak Water Temp (2-Col Pair) -->
-        <div class="form-grid-2 compact-pair-grid">
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="modalPostFuelPsi">WOT Fuel PSI</label>
-              <span class="field-hint emerald" id="modalPostFuelPsiHint">4.0&ndash;5.5 psi</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelPsi" data-step="-0.1" aria-label="Decrease Post-Race Fuel Pressure">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="modalPostFuelPsi" class="num-input" value="5.0" min="2.0" max="8.5" step="0.1" />
-                <span class="num-unit-badge">psi</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelPsi" data-step="0.1" aria-label="Increase Post-Race Fuel Pressure">+</button>
-            </div>
-          </div>
-
-          <div class="field-group" style="margin-bottom: 0;">
-            <div class="field-label-row">
-              <label class="field-label" for="modalPostWaterTemp">Peak Water Temp</label>
-              <span class="field-hint amber" id="modalPostWaterHint">warn &ge; 98&deg;C</span>
-            </div>
-            <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="modalPostWaterTemp" data-step="-1" aria-label="Decrease Peak Water Temp">&minus;</button>
-              <div class="num-input-wrap">
-                <input type="number" id="modalPostWaterTemp" class="num-input" value="85" min="50" max="125" step="1" />
-                <span class="num-unit-badge">&deg;C</span>
-              </div>
-              <button type="button" class="stepper-btn" data-stepper-target="modalPostWaterTemp" data-step="1" aria-label="Increase Peak Water Temp">+</button>
-            </div>
-          </div>
-        </div>
       </div>
 
-      <!-- SECTION 2: POST-SESSION TUNE NOTES -->
+      <!-- 6. Post-Tune Notes (Optional) -->
       <div class="field-group" style="margin-bottom: 14px;">
         <div class="field-label-row">
-          <label class="field-label" for="modalPostNotes">Post-Session Tune Notes</label>
+          <label class="field-label" for="modalPostNotes">Post-Tune Notes (Optional)</label>
           <span class="field-hint emerald">Saved Live to Session Log</span>
         </div>
         <input
           type="text"
           id="modalPostNotes"
           class="text-input"
-          placeholder="e.g. Car strong off hairpin, 12.82 AFR down chute, P2"
+          placeholder="e.g. Car strong off hairpin, 12.75 AFR down chute, P2"
           autocomplete="off"
         />
       </div>
 
+      <!-- 7. Green bottom button inside modal -->
       <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSavePostRaceAfr">
-        LOCK POST-SESSION TUNE &amp; GO TO POST FUEL &rarr;
+        SAVE &amp; LOCK POST-SESSION TUNE &rarr;
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 1B: POST STEP 2 — POST-SESSION FUEL & WEIGHT POP-UP WINDOW
+       ========================================================= -->
+  <div class="modal-backdrop" id="modalPostSessionFuel" role="dialog" aria-modal="true" aria-labelledby="modalPostFuelTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">POST-RACE STEP 2 OF 3 &bull; POST-SESSION FUEL &amp; OFFICIAL SCALE</div>
+          <h2 class="section-title" id="modalPostFuelTitle">Post-Session Fuel &amp; Weight</h2>
+        </div>
+        <button type="button" class="btn btn-danger" data-close-modal="modalPostSessionFuel" aria-label="Close Post-Session Fuel Modal">
+          Close
+        </button>
+      </div>
+
+      <p style="margin: 0 0 12px; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45;">
+        Post-Session Fuel &amp; Weight for <strong id="postFuelModalSessionLabel" class="txt-emerald">Practice 1 (1 DME)</strong>: Enter pumped-out fuel &amp; optional post-race scale weight below, then save &amp; lock to jump straight to Post-Session Tyres.
+      </p>
+
+      <div class="card-elevated post-race-section-card" style="margin-bottom: 12px;">
+        <div class="section-eyebrow" style="margin-bottom: 8px;">Tank Pump-Out, Laps &amp; Official Scale Check</div>
+
+        <!-- 1. Fuel In Tank Before Run (L) -->
+        <div class="field-group" style="margin-bottom: 10px;">
+          <div class="field-label-row">
+            <label class="field-label" for="modalPostFuelInL">Fuel In Tank Before Run (L)</label>
+            <span class="field-hint emerald">Pre-filled from Litres to Pour</span>
+          </div>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelInL" data-step="-0.5" aria-label="Decrease Fuel In Tank Before Run">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="modalPostFuelInL" class="num-input" value="16.0" min="0" max="80" step="0.1" />
+              <span class="num-unit-badge">L</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelInL" data-step="0.5" aria-label="Increase Fuel In Tank Before Run">+</button>
+          </div>
+        </div>
+
+        <!-- 2. Fuel Pumped Out After Run (L) -->
+        <div class="field-group" style="margin-bottom: 10px;">
+          <div class="field-label-row">
+            <label class="field-label" for="modalPostFuelOutL">Fuel Pumped Out After Run (L)</label>
+            <span class="field-hint">0.1 L steps &bull; Blank if not pumped out</span>
+          </div>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelOutL" data-step="-0.1" aria-label="Decrease Fuel Pumped Out">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="modalPostFuelOutL" class="num-input" value="" placeholder="&mdash;" min="0" max="80" step="0.1" />
+              <span class="num-unit-badge">L</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelOutL" data-step="0.1" aria-label="Increase Fuel Pumped Out">+</button>
+          </div>
+        </div>
+
+        <!-- 3. Raced Laps Completed -->
+        <div class="field-group" style="margin-bottom: 10px;">
+          <div class="field-label-row">
+            <label class="field-label" for="modalPostRacedLaps">Raced Laps Completed</label>
+            <span class="field-hint">1 lap steps &bull; Added to Tyre Laps</span>
+          </div>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostRacedLaps" data-step="-1" aria-label="Decrease Raced Laps">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="modalPostRacedLaps" class="num-input" value="8" min="1" max="60" step="1" />
+              <span class="num-unit-badge">laps</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostRacedLaps" data-step="1" aria-label="Increase Raced Laps">+</button>
+          </div>
+        </div>
+
+        <!-- 4. Live Calculated Readout Box: Fuel Used (L) & Measured Burn (L/lap) -->
+        <div class="telemetry-grid-2" style="margin-bottom: 10px;">
+          <div class="telemetry-cell">
+            <div class="telem-label">Fuel Used (L)</div>
+            <div class="telem-val txt-emerald" id="modalPostFuelUsedOut">&mdash;</div>
+            <div class="telem-sub" id="modalPostFuelUsedSub">Enter Pumped Out (L)</div>
+          </div>
+          <div class="telemetry-cell">
+            <div class="telem-label">Measured Burn (L/lap)</div>
+            <div class="telem-val txt-amber" id="modalPostMeasuredBurnOut">&mdash;</div>
+            <div class="telem-sub" id="modalPostMeasuredBurnSub">Updates Circuit Avg</div>
+          </div>
+        </div>
+
+        <!-- 5. Post-Race Official Scale Wt (kg — Optional) -->
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="modalPostScaleKg">Post-Race Official Scale Wt (kg &mdash; Optional)</label>
+            <span class="field-hint amber" id="modalPostScaleHint">Updates Weekend Track Scale</span>
+          </div>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostScaleKg" data-step="-0.5" aria-label="Decrease Post-Race Scale Wt">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="modalPostScaleKg" class="num-input" value="" placeholder="Not Weighed" min="1200" max="1600" step="0.5" />
+              <span class="num-unit-badge">kg</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostScaleKg" data-step="0.5" aria-label="Increase Post-Race Scale Wt">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Post-Fuel Notes (Optional) -->
+      <div class="field-group" style="margin-bottom: 14px;">
+        <div class="field-label-row">
+          <label class="field-label" for="modalPostFuelNotes">Post-Fuel Notes (Optional)</label>
+          <span class="field-hint emerald">Saved Live to Session Log</span>
+        </div>
+        <input
+          type="text"
+          id="modalPostFuelNotes"
+          class="text-input"
+          placeholder="e.g. Pumped out 4.2 L after 8 laps, official scales 1383.5 kg"
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- 7. Green bottom button inside modal + subtle No Pump-Out button -->
+      <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveModalPostFuel">
+        SAVE &amp; LOCK POST-FUEL &rarr; GO TO POST TYRES
+      </button>
+      <button type="button" class="btn btn-secondary btn-full" id="btnSkipModalPostFuel" style="margin-top: 8px; min-height: 42px; font-size: 0.78rem;">
+        No Pump-Out This Run (Keep Est &amp; Go to Post Tyres)
       </button>
     </div>
   </div>
@@ -3563,6 +3702,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.7.7"></script>
+  <script src="./app.js?v=0.7.8"></script>
 </body>
 </html>
