@@ -2460,10 +2460,9 @@
     confirmDeleteShockId: null,
     confirmDeleteSpringId: null,
     expandedTyreId: null,
-    expandedEventIds: new Set([
-      ...(state.activeEventId ? [state.activeEventId] : []),
-      ...(Array.isArray(state.events) && state.events[0] ? [state.events[0].id] : [])
-    ]),
+    expandedEventId: null,
+    expandedSessionId: null,
+    expandedEventIds: new Set(),
     pendingActionAfterNewEvent: null,
     tyreStockFilter: 'all', // 'all' | 'buffed' | 'wet'
     shockFleetFilter: 'all', // 'all' | 'F' | 'R' | 'mounted'
@@ -8419,36 +8418,22 @@
         const pyroShort = formatCornerPyroShort(cr.pyro);
 
         let valHtml = '';
-        let nextStr = '';
         if (hasCold && hasHot) {
-          // Session 1: FL 29.8C → 40.4H (Tgt 40.0)
-          valHtml = `${c} ${Number(cr.cold).toFixed(1)}C &rarr; ${Number(cr.hot).toFixed(1)}H`;
-          nextStr = `(Tgt ${cornerTgt.toFixed(1)})`;
+          valHtml = `${Number(cr.cold).toFixed(1)}C &rarr; ${Number(cr.hot).toFixed(1)}H`;
         } else if (!hasCold && hasHot) {
-          // Session 2+: FL Tgt 40.0 → 40.6H (Bleed -0.6)
-          const hotVal = Number(cr.hot);
-          const delta = hotVal - cornerTgt;
-          valHtml = `${c} Tgt ${cornerTgt.toFixed(1)} &rarr; ${hotVal.toFixed(1)}H`;
-          if (delta > 0.05) {
-            nextStr = `(Bleed -${delta.toFixed(1)})`;
-          } else if (delta < -0.05) {
-            nextStr = `(Add +${Math.abs(delta).toFixed(1)})`;
-          } else {
-            nextStr = `(On Tgt ${cornerTgt.toFixed(1)})`;
-          }
+          valHtml = `${Number(cr.hot).toFixed(1)}H`;
         } else if (hasCold && !hasHot) {
-          valHtml = `${c} ${Number(cr.cold).toFixed(1)}C &rarr; Tgt ${cornerTgt.toFixed(1)}H`;
-          nextStr = 'Pre-Session Locked';
+          valHtml = `${Number(cr.cold).toFixed(1)}C &rarr; &mdash;`;
         } else {
-          valHtml = `${c} Tgt ${cornerTgt.toFixed(1)}H`;
-          nextStr = 'Pre-Session Target';
+          valHtml = `&mdash;H`;
         }
+        const subTgtStr = `Tgt ${cornerTgt.toFixed(1)}`;
 
         return `
-          <div class="unified-tyre-pill">
-            <span class="unified-tyre-corner">${c} [${escapeHtml(tyreCode)}]</span>
+          <div class="unified-tyre-pill tyre-4col-cell">
+            <span class="unified-tyre-corner">${c} &bull; ${escapeHtml(tyreCode)}</span>
             <span class="unified-tyre-val">${valHtml}</span>
-            ${nextStr ? `<span class="unified-tyre-next">${escapeHtml(nextStr)}</span>` : ''}
+            <span class="unified-tyre-next">${escapeHtml(subTgtStr)}</span>
             ${pyroShort ? `<span class="session-pyro-tag">${escapeHtml(pyroShort)}</span>` : ''}
           </div>
         `;
@@ -8458,7 +8443,7 @@
     return `
       <div class="unified-session-subblock">
         <div class="unified-subblock-title">4-Corner Tyres${escapeHtml(targetStr)}${escapeHtml(trackTempStr)}${escapeHtml(lapsStr)}${escapeHtml(modeTag)}</div>
-        <div class="unified-tyre-grid">${pillsHtml}</div>
+        <div class="unified-tyre-grid unified-4col-grid">${pillsHtml}</div>
       </div>
     `;
   }
@@ -8469,29 +8454,29 @@
 
     const pillsHtml = ['FL', 'FR', 'RL', 'RR']
       .map((c) => {
-        const shObj = getShockById(shMap[c]);
-        const spObj = getSpringById(spMap[c]);
-        const shCode = shObj ? shObj.code : shMap[c] ? String(shMap[c]).replace(/^shk_/, '') : '—';
-        const spCode = spObj ? spObj.code : spMap[c] ? String(spMap[c]).replace(/^spr_/, '') : '—';
-        const comp = shObj ? (shObj.compMmS !== undefined ? shObj.compMmS : shObj.kingComp) : null;
-        const reb = shObj ? (shObj.rebMmS !== undefined ? shObj.rebMmS : shObj.kingReb) : null;
-        const shSpec =
-          isFiniteSpecNum(comp) && isFiniteSpecNum(reb)
-            ? `${Math.round(Number(comp))}/${Math.round(Number(reb))} mm/s`
-            : '';
-        const rate = spObj ? (spObj.rateNmm !== undefined ? spObj.rateNmm : spObj.kingRate) : null;
-        const ht = spObj ? (spObj.heightMm !== undefined ? spObj.heightMm : spObj.kingHeight) : null;
-        const spSpec =
-          isFiniteSpecNum(rate)
-            ? `${formatSpringMetricNum(rate)} N/mm${isFiniteSpecNum(ht) ? `•${formatSpringMetricNum(ht)}mm` : ''}`
-            : '';
-        const subLine = [shSpec, spSpec].filter(Boolean).join(' • ');
+        const shRaw = shMap[c];
+        const spRaw = spMap[c];
+        const shObj = shRaw ? getShockById(shRaw) : null;
+        const spObj = spRaw ? getSpringById(spRaw) : null;
+        const shCode = shObj
+          ? shObj.code
+          : shRaw && String(shRaw).trim() && String(shRaw).trim() !== '—'
+          ? String(shRaw).replace(/^shk_/i, '')
+          : '';
+        const spCode = spObj
+          ? spObj.code
+          : spRaw && String(spRaw).trim() && String(spRaw).trim() !== '—'
+          ? String(spRaw).replace(/^spr_/i, '')
+          : '';
+
+        const shkLine = shCode ? `Shk ${escapeHtml(shCode)}` : '&mdash;';
+        const sprLine = spCode ? `Spr ${escapeHtml(spCode)}` : '&mdash;';
 
         return `
-          <div class="unified-tyre-pill">
-            <span class="unified-tyre-corner">${c} SUSP</span>
-            <span class="unified-tyre-val">Shk ${escapeHtml(shCode)} / Spr ${escapeHtml(spCode)}</span>
-            ${subLine ? `<span class="unified-tyre-next">${escapeHtml(subLine)}</span>` : ''}
+          <div class="unified-tyre-pill susp-id-cell">
+            <span class="unified-tyre-corner">${c}</span>
+            <span class="unified-susp-id-line">${shkLine}</span>
+            <span class="unified-susp-id-line">${sprLine}</span>
           </div>
         `;
       })
@@ -8499,8 +8484,8 @@
 
     return `
       <div class="unified-session-subblock">
-        <div class="unified-subblock-title">4-Corner Shocks &amp; Springs (Pedders GSR 9033/9067 &amp; 5608/5609)</div>
-        <div class="unified-tyre-grid">${pillsHtml}</div>
+        <div class="unified-subblock-title">4-CORNER SHOCKS &amp; SPRINGS</div>
+        <div class="unified-tyre-grid unified-4col-grid">${pillsHtml}</div>
       </div>
     `;
   }
@@ -8761,6 +8746,60 @@
     `;
   }
 
+  function renderCompactSessionAccordionItemHtml(s, isEventLocked) {
+    const isBaseline =
+      state.baseline.linkedSessionId === s.id ||
+      (state.baseline.sessionName === s.sessionName &&
+        state.baseline.carbyId === s.carbyId &&
+        Math.abs(state.baseline.jetMm - s.jetMm) < 0.0005 &&
+        Math.abs(state.baseline.rad - s.rad) < 0.05);
+    const isActiveRun = !isEventLocked && s.id === state.activeSessionId;
+    const isSessOpen = ui.expandedSessionId === s.id;
+
+    const rawJet = String(s.jetLabel || '').replace(/^Jet\s+/i, '').split('/')[0].trim() || `${Number(s.jetMm || 1.98).toFixed(2)}mm`;
+    const wotAfrStr = Number.isFinite(Number(s.afrWot)) ? `${Number(s.afrWot).toFixed(2)} AFR` : '— AFR';
+    const quickGlanceStr = `${s.carbyId || '1 DME'} • ${rawJet} • ${wotAfrStr}`;
+
+    let statusPillHtml = '';
+    if (isActiveRun && s.status !== 'completed') {
+      statusPillHtml = `<span class="session-row-status-pill in-progress">IN PROGRESS</span>`;
+    } else if (isBaseline) {
+      statusPillHtml = `<span class="session-row-status-pill baseline">BASELINE</span>`;
+    }
+
+    return `
+      <div class="event-session-item ${isSessOpen ? 'expanded' : ''} ${isBaseline ? 'is-baseline' : ''}" data-session-id="${escapeHtml(s.id)}">
+        <div
+          role="button"
+          tabindex="0"
+          class="session-compact-row ${isSessOpen ? 'expanded' : ''}"
+          data-toggle-session-acc="${escapeHtml(s.id)}"
+          aria-expanded="${isSessOpen ? 'true' : 'false'}"
+        >
+          <div class="session-row-left">
+            <span class="session-row-chevron" aria-hidden="true">${isSessOpen ? '&#9660;' : '&#9654;'}</span>
+            <span class="session-row-name">${escapeHtml(s.sessionName)}</span>
+            ${s.timestamp ? `<span class="session-row-time tabular">${escapeHtml(s.timestamp)}</span>` : ''}
+          </div>
+          <div class="session-row-right">
+            ${statusPillHtml}
+            <span class="session-row-summary-pill tabular">${escapeHtml(quickGlanceStr)}</span>
+            ${
+              !isEventLocked
+                ? `<button type="button" class="btn-icon-delete session-row-delete-btn" data-delete-session="${escapeHtml(s.id)}" title="Remove Session" aria-label="Remove Session">&#10005;</button>`
+                : ''
+            }
+          </div>
+        </div>
+        ${
+          isSessOpen
+            ? `<div class="session-full-breakdown">${renderUnifiedSessionCardHtml(s, isEventLocked)}</div>`
+            : ''
+        }
+      </div>
+    `;
+  }
+
   function renderSessionLog() {
     const fallbackIso = getLocalTodayIso();
     if (!Array.isArray(state.events)) {
@@ -8933,9 +8972,9 @@
       .map(({ evt, orderedSessions }) => {
         const isLiveEvt = !evt.locked && evt.id === state.activeEventId;
         const isExpanded =
-          isLiveEvt ||
           queryTokens.length > 0 ||
-          ui.expandedEventIds.has(evt.id);
+          ui.expandedEventId === evt.id ||
+          (ui.expandedEventIds instanceof Set && ui.expandedEventIds.has(evt.id));
         const dispDate = formatIsoDateDisplay(evt.eventDate || fallbackIso) || evt.eventDate;
         const titlePart = evt.eventTitle ? ` &bull; ${escapeHtml(evt.eventTitle)}` : '';
         const sessCount = orderedSessions.length;
@@ -8966,14 +9005,16 @@
                   title="Delete Event"
                   aria-label="Delete Event"
                 >&#10005;</button>
-                <span class="event-acc-chevron" aria-hidden="true">&#9660;</span>
+                <span class="event-acc-chevron" aria-hidden="true">${isExpanded ? '&#9660;' : '&#9654;'}</span>
               </div>
             </div>
 
             <div class="event-sessions-body" style="display: ${isExpanded ? 'block' : 'none'};">
               ${
                 orderedSessions.length > 0
-                  ? orderedSessions.map((s) => renderUnifiedSessionCardHtml(s, Boolean(evt.locked))).join('')
+                  ? `<div class="event-session-list">${orderedSessions
+                      .map((s) => renderCompactSessionAccordionItemHtml(s, Boolean(evt.locked)))
+                      .join('')}</div>`
                   : `<div style="padding: 10px 6px 14px; font-size: 0.78rem; color: var(--text-secondary);">No sessions logged in this event yet.</div>`
               }
             </div>
@@ -9382,10 +9423,9 @@
         candidate.eventArchitectureV1 = true;
         state = hydrateState(candidate);
         ui.weatherOnly = Boolean(state.baseline.weatherOnly || state.baseline.wotAfr === null);
-        ui.expandedEventIds = new Set([
-          ...(state.activeEventId ? [state.activeEventId] : []),
-          ...(Array.isArray(state.events) && state.events[0] ? [state.events[0].id] : [])
-        ]);
+        ui.expandedEventId = null;
+        ui.expandedSessionId = null;
+        ui.expandedEventIds = new Set();
         saveState();
         syncSessionSelectFromBaseline();
         hydrateFuelAndTyreInputs();
@@ -12055,6 +12095,9 @@
     if (ui.editingSessionId === sid) {
       ui.editingSessionId = null;
     }
+    if (ui.expandedSessionId === sid) {
+      ui.expandedSessionId = null;
+    }
     ui.confirmDeleteSessionId = null;
     recalculateTrackAverageBurn(removedVenue);
     if (Array.isArray(state.tyrePool)) {
@@ -12134,6 +12177,12 @@
     }
     if (ui.editingSessionId && sessionIdsInEvent.has(ui.editingSessionId)) {
       ui.editingSessionId = null;
+    }
+    if (ui.expandedSessionId && sessionIdsInEvent.has(ui.expandedSessionId)) {
+      ui.expandedSessionId = null;
+    }
+    if (ui.expandedEventId === eid) {
+      ui.expandedEventId = null;
     }
     if (ui.expandedEventIds instanceof Set) {
       ui.expandedEventIds.delete(eid);
@@ -12925,15 +12974,50 @@
         return;
       }
 
+      const deleteSessionBtn = e.target.closest('[data-delete-session]');
+      if (deleteSessionBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const sid = deleteSessionBtn.getAttribute('data-delete-session');
+        openDeleteSessionModal(sid);
+        return;
+      }
+
+      const toggleSessionAccBtn = e.target.closest('[data-toggle-session-acc]');
+      if (toggleSessionAccBtn) {
+        const sid = toggleSessionAccBtn.getAttribute('data-toggle-session-acc');
+        if (ui.expandedSessionId === sid) {
+          ui.expandedSessionId = null;
+          if (ui.editingSessionId === sid) {
+            ui.editingSessionId = null;
+          }
+        } else {
+          ui.expandedSessionId = sid;
+        }
+        renderSessionLog();
+        return;
+      }
+
       const toggleEventAccBtn = e.target.closest('[data-toggle-event-acc]');
       if (toggleEventAccBtn) {
         const eid = toggleEventAccBtn.getAttribute('data-toggle-event-acc');
         if (!(ui.expandedEventIds instanceof Set)) {
           ui.expandedEventIds = new Set();
         }
-        if (ui.expandedEventIds.has(eid)) {
+        const wasOpen = ui.expandedEventId === eid || ui.expandedEventIds.has(eid);
+        if (wasOpen) {
+          if (ui.expandedEventId === eid) {
+            ui.expandedEventId = null;
+          }
           ui.expandedEventIds.delete(eid);
+          // If closing this Event, also collapse any open session inside it
+          const evt = Array.isArray(state.events) ? state.events.find((ev) => ev && ev.id === eid) : null;
+          if (evt && Array.isArray(evt.sessions) && evt.sessions.some((s) => s && s.id === ui.expandedSessionId)) {
+            ui.expandedSessionId = null;
+            ui.editingSessionId = null;
+          }
         } else {
+          ui.expandedEventId = eid;
           ui.expandedEventIds.add(eid);
         }
         renderSessionLog();
@@ -13074,13 +13158,6 @@
           renderAll();
           showToast(`Locked ${sess.sessionName} • ${state.baseline.venue} (${sess.jetLabel}) as Baseline`);
         }
-        return;
-      }
-
-      const deleteSessionBtn = e.target.closest('[data-delete-session]');
-      if (deleteSessionBtn) {
-        const sid = deleteSessionBtn.getAttribute('data-delete-session');
-        openDeleteSessionModal(sid);
         return;
       }
 
@@ -14299,7 +14376,9 @@
         ui.logSearchTrack = 'ALL';
         ui.logSearchYear = 'ALL';
         ui.logSearchQuery = '';
-        ui.expandedEventIds = new Set(['evt_calder_nov26']);
+        ui.expandedEventId = null;
+        ui.expandedSessionId = null;
+        ui.expandedEventIds = new Set();
         if ($('searchLogQuery')) $('searchLogQuery').value = '';
         if ($('btnClearLogQuery')) $('btnClearLogQuery').hidden = true;
         if ($('selectCalcCarby')) {
