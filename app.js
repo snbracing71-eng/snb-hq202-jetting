@@ -1843,7 +1843,7 @@
     ];
   }
 
-  const DEFAULT_MOUNTED_SHOCKS = { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' };
+  const DEFAULT_MOUNTED_SHOCKS = { FL: 'shk_F14', FR: 'shk_F16', RL: 'shk_R13', RR: 'shk_R14' };
   const DEFAULT_MOUNTED_SPRINGS = { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' };
   const DEFAULT_MOUNTED_SPACERS = { RL: 0, RR: 20 };
   const VALID_SPACER_MM = [0, 10, 20];
@@ -2378,61 +2378,751 @@
     };
   }
 
+  const PEDDERS_SHOCK_VELOCITIES_MS = [0.05, 0.1, 0.3, 0.6, 1.0];
+
+  const PEDDERS_SHOCK_NOMINAL = {
+    F: {
+      partNo: '9033',
+      label: 'Pedders GSR 9033 Front Nominal',
+      compN: [650, 820, 980, 1140, 1330],
+      rebN: [-1600, -2500, -4000, -5900, -8700]
+    },
+    R: {
+      partNo: '9067',
+      label: 'Pedders GSR 9067 Rear Nominal',
+      compN: [160, 440, 650, 800, 1050],
+      rebN: [-145, -465, -1400, -2200, -3300]
+    }
+  };
+
+  const PEDDERS_SPRING_NOMINAL = {
+    F: {
+      partNo: '5608',
+      label: 'Pedders 5608 Front Nominal',
+      heightNormalMm: 216,
+      rateKgMm: 14.57
+    },
+    R: {
+      partNo: '5609',
+      label: 'Pedders 5609 Rear Nominal',
+      heightNormalMm: 170,
+      rateKgMm: 2.54
+    }
+  };
+
+  function parsePeddersCurveInput(raw) {
+    if (Array.isArray(raw)) {
+      const nums = raw.map((v) => Number(v)).filter((v) => Number.isFinite(v));
+      return nums.length === 5 ? nums.map((n) => Math.round(n)) : null;
+    }
+    if (typeof raw === 'string' && raw.trim()) {
+      const parts = raw
+        .split(/[\s,;\/|]+/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((s) => Number(s))
+        .filter((v) => Number.isFinite(v));
+      return parts.length === 5 ? parts.map((n) => Math.round(n)) : null;
+    }
+    return null;
+  }
+
   function createDefaultShocks() {
     return [
-      // Front Shocks (14 units, Pedders GSR 9033 — end: 'F')
-      { id: 'shk_F29', code: 'F29', end: 'F', partNo: '9033', origin: '#77', compMmS: null, rebMmS: null, status: 'available', notes: 'On Car #77' },
-      { id: 'shk_F27', code: 'F27', end: 'F', partNo: '9033', origin: '#77', compMmS: null, rebMmS: null, status: 'available', notes: 'On Car #77' },
-      { id: 'shk_F4',  code: 'F4',  end: 'F', partNo: '9033', origin: '',    compMmS: 62,   rebMmS: -180, status: 'other_car', notes: 'in LS Rails' },
-      { id: 'shk_F7',  code: 'F7',  end: 'F', partNo: '9033', origin: '#71', compMmS: 74,   rebMmS: -180, status: 'available', notes: '' },
-      { id: 'shk_F9',  code: 'F9',  end: 'F', partNo: '9033', origin: '#71', compMmS: 58,   rebMmS: -275, status: 'available', notes: '' },
-      { id: 'shk_F10', code: 'F10', end: 'F', partNo: '9033', origin: '',    compMmS: 62,   rebMmS: -252, status: 'available', notes: '' },
-      { id: 'shk_F11', code: 'F11', end: 'F', partNo: '9033', origin: '#71', compMmS: 52,   rebMmS: -260, status: 'available', notes: '' },
-      { id: 'shk_F12', code: 'F12', end: 'F', partNo: '9033', origin: '',    compMmS: 70,   rebMmS: -248, status: 'available', notes: '' },
-      { id: 'shk_F13', code: 'F13', end: 'F', partNo: '9033', origin: '',    compMmS: 40,   rebMmS: -270, status: 'other_car', notes: 'in LS Rails' },
-      { id: 'shk_F15', code: 'F15', end: 'F', partNo: '9033', origin: '',    compMmS: 75,   rebMmS: -240, status: 'available', notes: '' },
-      { id: 'shk_F16', code: 'F16', end: 'F', partNo: '9033', origin: '',    compMmS: 70,   rebMmS: -180, status: 'available', notes: '' },
-      { id: 'shk_F17', code: 'F17', end: 'F', partNo: '9033', origin: '',    compMmS: null, rebMmS: null, status: 'available', notes: '' },
-      { id: 'shk_F18', code: 'F18', end: 'F', partNo: '9033', origin: '',    compMmS: null, rebMmS: null, status: 'available', notes: '' },
-      { id: 'shk_F19', code: 'F19', end: 'F', partNo: '9033', origin: '#71', compMmS: null, rebMmS: null, status: 'available', notes: '' },
+      // Front Shocks (15 units, Pedders GSR 9033 — end: 'F')
+      {
+        id: 'shk_F14',
+        code: 'F14',
+        end: 'F',
+        partNo: '9033',
+        origin: '#77',
+        compN: [663, 756, 952, 1144, 1052],
+        rebN: [-1650, -2315, -3877, -5878, -9292],
+        diffPctVsNom: -1.32,
+        locationTag: 'ON CAR #77',
+        pairTag: 'Matt Setup (FL) • Paired F14-F15 (-1.32% vs Nom)',
+        compMmS: null,
+        rebMmS: null,
+        status: 'available',
+        notes: 'ON CAR #77 (FL) — Matt active front-left setup (-1.32% vs Nominal).'
+      },
+      {
+        id: 'shk_F16',
+        code: 'F16',
+        end: 'F',
+        partNo: '9033',
+        origin: '#77',
+        compN: [530, 792, 978, 1127, 1368],
+        rebN: [-1365, -2147, -4078, -6103, -9210],
+        diffPctVsNom: -1.93,
+        locationTag: 'ON CAR #77',
+        pairTag: 'Matt Setup (FR) (-1.93% vs Nom)',
+        compMmS: null,
+        rebMmS: null,
+        status: 'available',
+        notes: 'ON CAR #77 (FR) — Matt active front-right setup (-1.93% vs Nominal; strong 1.0m/s high-speed comp support 1368N).'
+      },
+      {
+        id: 'shk_F10',
+        code: 'F10',
+        end: 'F',
+        partNo: '9033',
+        origin: '#71',
+        compN: [552, 752, 931, 1076, 545],
+        rebN: [-1860, -2539, -3991, -5902, -9040],
+        diffPctVsNom: -3.65,
+        locationTag: 'TRAILER SPARE',
+        pairTag: 'SOFT Pair F10-F12 (-3.65% vs Nom)',
+        compMmS: 62,
+        rebMmS: -252,
+        status: 'available',
+        notes: 'TRAILER SPARE — SOFT front pair F10-F12 (-3.65% vs Nominal).'
+      },
+      {
+        id: 'shk_F12',
+        code: 'F12',
+        end: 'F',
+        partNo: '9033',
+        origin: '#71',
+        compN: [768, 827, 987, 1143, 604],
+        rebN: [-2046, -2724, -3843, -5693, -9027],
+        diffPctVsNom: -3.65,
+        locationTag: 'TRAILER SPARE',
+        pairTag: 'SOFT Pair F10-F12 (-3.65% vs Nom)',
+        compMmS: 70,
+        rebMmS: -248,
+        status: 'available',
+        notes: 'TRAILER SPARE — SOFT front pair F10-F12 (-3.65% vs Nominal).'
+      },
+      {
+        id: 'shk_F27',
+        code: 'F27',
+        end: 'F',
+        partNo: '9033',
+        origin: '#77',
+        compN: [699, 817, 1168, 1635, 2258],
+        rebN: [-2514, -3199, -4875, -7150, -10075],
+        diffPctVsNom: 26.82,
+        locationTag: 'TRAILER SPARE',
+        pairTag: 'STIFF Pair F27-F29 (+26.82% vs Nom • Prev Car #77 FR)',
+        compMmS: null,
+        rebMmS: null,
+        status: 'available',
+        notes: 'TRAILER SPARE — STIFF pair F27-F29 (+26.82% vs Nominal; previous Car #77 FR).'
+      },
+      {
+        id: 'shk_F29',
+        code: 'F29',
+        end: 'F',
+        partNo: '9033',
+        origin: '#77',
+        compN: [717, 829, 1168, 1639, 2248],
+        rebN: [-2334, -3025, -4666, -6783, -9658],
+        diffPctVsNom: 26.82,
+        locationTag: 'TRAILER SPARE',
+        pairTag: 'STIFF Pair F27-F29 (+26.82% vs Nom • Prev Car #77 FL)',
+        compMmS: null,
+        rebMmS: null,
+        status: 'available',
+        notes: 'TRAILER SPARE — STIFF pair F27-F29 (+26.82% vs Nominal; previous Car #77 FL).'
+      },
+      {
+        id: 'shk_F9',
+        code: 'F9',
+        end: 'F',
+        partNo: '9033',
+        origin: '#71',
+        compN: [553, 896, 1200, 1365, 620],
+        rebN: [-1974, -2801, -4187, -6078, -9149],
+        diffPctVsNom: -0.76,
+        locationTag: 'SHED SPARE',
+        pairTag: 'Paired F9-F11 (-0.76% vs Nom)',
+        compMmS: 58,
+        rebMmS: -275,
+        status: 'available',
+        notes: 'SHED SPARE — Paired F9-F11 (-0.76% vs Nominal).'
+      },
+      {
+        id: 'shk_F11',
+        code: 'F11',
+        end: 'F',
+        partNo: '9033',
+        origin: '#71',
+        compN: [533, 764, 911, 1056, 552],
+        rebN: [-1968, -2855, -4307, -6132, -8899],
+        diffPctVsNom: -0.76,
+        locationTag: 'SHED SPARE',
+        pairTag: 'Paired F9-F11 (-0.76% vs Nom)',
+        compMmS: 52,
+        rebMmS: -260,
+        status: 'available',
+        notes: 'SHED SPARE — Paired F9-F11 (-0.76% vs Nominal).'
+      },
+      {
+        id: 'shk_F15',
+        code: 'F15',
+        end: 'F',
+        partNo: '9033',
+        origin: '#71',
+        compN: [796, 850, 1006, 1070, 621],
+        rebN: [-1921, -2654, -3869, -5970, -9603],
+        diffPctVsNom: -1.32,
+        locationTag: 'SHED SPARE',
+        pairTag: 'Paired F14-F15 (-1.32% vs Nom)',
+        compMmS: 75,
+        rebMmS: -240,
+        status: 'available',
+        notes: 'SHED SPARE — Paired F14-F15 (-1.32% vs Nominal).'
+      },
+      {
+        id: 'shk_F17',
+        code: 'F17',
+        end: 'F',
+        partNo: '9033',
+        origin: '#71',
+        compN: [778, 843, 999, 1188, 574],
+        rebN: [-2286, -2770, -4035, -6398, -10326],
+        diffPctVsNom: 6.57,
+        locationTag: 'SHED SPARE',
+        pairTag: 'Paired F17-F18 (+6.57% vs Nom)',
+        compMmS: null,
+        rebMmS: null,
+        status: 'available',
+        notes: 'SHED SPARE — Paired F17-F18 (+6.57% vs Nominal).'
+      },
+      {
+        id: 'shk_F18',
+        code: 'F18',
+        end: 'F',
+        partNo: '9033',
+        origin: '#71',
+        compN: [840, 896, 1043, 1201, 589],
+        rebN: [-2233, -2930, -4212, -6465, -9724],
+        diffPctVsNom: 6.57,
+        locationTag: 'SHED SPARE',
+        pairTag: 'Paired F17-F18 (+6.57% vs Nom)',
+        compMmS: null,
+        rebMmS: null,
+        status: 'available',
+        notes: 'SHED SPARE — Paired F17-F18 (+6.57% vs Nominal).'
+      },
+      {
+        id: 'shk_F4',
+        code: 'F4',
+        end: 'F',
+        partNo: '9033',
+        origin: '',
+        compN: null,
+        rebN: null,
+        diffPctVsNom: null,
+        locationTag: 'IN LS RAILS',
+        pairTag: 'Bench 200mm/s: 62 / -180',
+        compMmS: 62,
+        rebMmS: -180,
+        status: 'other_car',
+        notes: 'in LS Rails'
+      },
+      {
+        id: 'shk_F13',
+        code: 'F13',
+        end: 'F',
+        partNo: '9033',
+        origin: '',
+        compN: null,
+        rebN: null,
+        diffPctVsNom: null,
+        locationTag: 'IN LS RAILS',
+        pairTag: 'Bench 200mm/s: 40 / -270',
+        compMmS: 40,
+        rebMmS: -270,
+        status: 'other_car',
+        notes: 'in LS Rails'
+      },
+      {
+        id: 'shk_F19',
+        code: 'F19',
+        end: 'F',
+        partNo: '9033',
+        origin: '#71',
+        compN: null,
+        rebN: null,
+        diffPctVsNom: null,
+        locationTag: 'UNTESTED',
+        pairTag: 'Not on Pedders Dyno Sheet',
+        compMmS: null,
+        rebMmS: null,
+        status: 'available',
+        notes: 'Untested spare unit'
+      },
+      {
+        id: 'shk_F7',
+        code: 'F7',
+        end: 'F',
+        partNo: '9033',
+        origin: '#71',
+        compN: [561, 817, 1259, 1814, 2477],
+        rebN: [-610, -1575, -2901, -4624, -7618],
+        diffPctVsNom: null,
+        locationTag: 'BIN / DO NOT USE',
+        pairTag: 'QUARANTINED — Defective Valve Curve',
+        compMmS: 74,
+        rebMmS: -180,
+        status: 'bin',
+        notes: 'QUARANTINED (BIN / DO NOT USE): Collapsed -610N low-speed rebound @ 0.05m/s & 2477N high-speed compression spike @ 1.0m/s.'
+      },
       // Rear Shocks (14 units, Pedders GSR 9067 — end: 'R')
-      { id: 'shk_R26', code: 'R26', end: 'R', partNo: '9067', origin: '#77', compMmS: null, rebMmS: null, status: 'available', notes: 'On Car #77' },
-      { id: 'shk_R25', code: 'R25', end: 'R', partNo: '9067', origin: '#77', compMmS: null, rebMmS: null, status: 'available', notes: 'On Car #77' },
-      { id: 'shk_R1',  code: 'R1',  end: 'R', partNo: '9067', origin: '',    compMmS: 42,   rebMmS: -80,  status: 'available', notes: '' },
-      { id: 'shk_R3',  code: 'R3',  end: 'R', partNo: '9067', origin: '',    compMmS: 39,   rebMmS: -92,  status: 'available', notes: '' },
-      { id: 'shk_R5',  code: 'R5',  end: 'R', partNo: '9067', origin: '',    compMmS: 42,   rebMmS: -83,  status: 'available', notes: '' },
-      { id: 'shk_R6',  code: 'R6',  end: 'R', partNo: '9067', origin: '',    compMmS: 38,   rebMmS: -92,  status: 'available', notes: '' },
-      { id: 'shk_R9',  code: 'R9',  end: 'R', partNo: '9067', origin: '#71', compMmS: null, rebMmS: null, status: 'available', notes: '' },
-      { id: 'shk_R10', code: 'R10', end: 'R', partNo: '9067', origin: '',    compMmS: 37,   rebMmS: -90,  status: 'available', notes: '' },
-      { id: 'shk_R11', code: 'R11', end: 'R', partNo: '9067', origin: '#71', compMmS: null, rebMmS: null, status: 'available', notes: '' },
-      { id: 'shk_R12', code: 'R12', end: 'R', partNo: '9067', origin: '#71', compMmS: null, rebMmS: null, status: 'available', notes: '' },
-      { id: 'shk_R13', code: 'R13', end: 'R', partNo: '9067', origin: '',    compMmS: 50,   rebMmS: -80,  status: 'available', notes: '' },
-      { id: 'shk_R14', code: 'R14', end: 'R', partNo: '9067', origin: '',    compMmS: 40,   rebMmS: -86,  status: 'available', notes: '' },
-      { id: 'shk_R15', code: 'R15', end: 'R', partNo: '9067', origin: '',    compMmS: null, rebMmS: null, status: 'available', notes: '' },
-      { id: 'shk_R16', code: 'R16', end: 'R', partNo: '9067', origin: '#71', compMmS: null, rebMmS: null, status: 'available', notes: '' }
+      {
+        id: 'shk_R13',
+        code: 'R13',
+        end: 'R',
+        partNo: '9067',
+        origin: '#77',
+        compN: [239, 464, 682, 834, 1103],
+        rebN: [-292, -759, -1653, -2393, -3610],
+        diffPctVsNom: 28.16,
+        locationTag: 'ON CAR #77',
+        pairTag: 'Matt Setup (RL) • Paired R6-R13 (+28.16% vs Nom)',
+        compMmS: 50,
+        rebMmS: -80,
+        status: 'available',
+        notes: 'ON CAR #77 (RL) — Matt active rear-left setup (+28.16% vs Nominal).'
+      },
+      {
+        id: 'shk_R14',
+        code: 'R14',
+        end: 'R',
+        partNo: '9067',
+        origin: '#77',
+        compN: [267, 466, 691, 841, 1073],
+        rebN: [-285, -728, -1630, -2404, -3577],
+        diffPctVsNom: 27.37,
+        locationTag: 'ON CAR #77',
+        pairTag: 'Matt Setup (RR) • Paired R3-R14 (+27.37% vs Nom)',
+        compMmS: 40,
+        rebMmS: -86,
+        status: 'available',
+        notes: 'ON CAR #77 (RR) — Matt active rear-right setup (+27.37% vs Nominal; closely matched to R13).'
+      },
+      {
+        id: 'shk_R1',
+        code: 'R1',
+        end: 'R',
+        partNo: '9067',
+        origin: '',
+        compN: [227, 434, 594, 746, 1056],
+        rebN: [-264, -663, -1460, -2312, -3707],
+        diffPctVsNom: 17.51,
+        locationTag: 'TRAILER SPARE',
+        pairTag: 'SOFT Pair R1-R16 (+17.51% vs Nom)',
+        compMmS: 42,
+        rebMmS: -80,
+        status: 'available',
+        notes: 'TRAILER SPARE — SOFT rear pair R1-R16 (+17.51% vs Nominal).'
+      },
+      {
+        id: 'shk_R16',
+        code: 'R16',
+        end: 'R',
+        partNo: '9067',
+        origin: '#71',
+        compN: [239, 450, 609, 775, 1092],
+        rebN: [-265, -625, -1392, -2285, -3676],
+        diffPctVsNom: 17.51,
+        locationTag: 'TRAILER SPARE',
+        pairTag: 'SOFT Pair R1-R16 (+17.51% vs Nom)',
+        compMmS: null,
+        rebMmS: null,
+        status: 'available',
+        notes: 'TRAILER SPARE — SOFT rear pair R1-R16 (+17.51% vs Nominal).'
+      },
+      {
+        id: 'shk_R11',
+        code: 'R11',
+        end: 'R',
+        partNo: '9067',
+        origin: '#71',
+        compN: [239, 298, 583, 1012, 1596],
+        rebN: [-318, -855, -2189, -3257, -5346],
+        diffPctVsNom: 59.78,
+        locationTag: 'TRAILER SPARE',
+        pairTag: 'STIFF Pair R11-R12 (+59.78% vs Nom)',
+        compMmS: null,
+        rebMmS: null,
+        status: 'available',
+        notes: 'TRAILER SPARE — STIFF rear pair R11-R12 (+59.78% vs Nominal).'
+      },
+      {
+        id: 'shk_R12',
+        code: 'R12',
+        end: 'R',
+        partNo: '9067',
+        origin: '#71',
+        compN: [340, 426, 787, 1162, 1751],
+        rebN: [-439, -1088, -2272, -3273, -4968],
+        diffPctVsNom: 59.78,
+        locationTag: 'TRAILER SPARE',
+        pairTag: 'STIFF Pair R11-R12 (+59.78% vs Nom)',
+        compMmS: null,
+        rebMmS: null,
+        status: 'available',
+        notes: 'TRAILER SPARE — STIFF rear pair R11-R12 (+59.78% vs Nominal).'
+      },
+      {
+        id: 'shk_R25',
+        code: 'R25',
+        end: 'R',
+        partNo: '9067',
+        origin: '#77',
+        compN: [178, 320, 666, 919, 1204],
+        rebN: [-338, -645, -1719, -2848, -4286],
+        diffPctVsNom: null,
+        locationTag: 'TRAILER SPARE',
+        pairTag: 'Prev Car #77 RR (Paired R25-R26)',
+        compMmS: null,
+        rebMmS: null,
+        status: 'available',
+        notes: 'TRAILER SPARE — Previous Car #77 RR (Paired R25-R26).'
+      },
+      {
+        id: 'shk_R26',
+        code: 'R26',
+        end: 'R',
+        partNo: '9067',
+        origin: '#77',
+        compN: [242, 398, 750, 1010, 1295],
+        rebN: [-306, -582, -1590, -2715, -4140],
+        diffPctVsNom: null,
+        locationTag: 'TRAILER SPARE',
+        pairTag: 'Prev Car #77 RL (Paired R25-R26)',
+        compMmS: null,
+        rebMmS: null,
+        status: 'available',
+        notes: 'TRAILER SPARE — Previous Car #77 RL (Paired R25-R26).'
+      },
+      {
+        id: 'shk_R3',
+        code: 'R3',
+        end: 'R',
+        partNo: '9067',
+        origin: '',
+        compN: [326, 538, 701, 839, 1106],
+        rebN: [-242, -636, -1499, -2367, -3673],
+        diffPctVsNom: 27.37,
+        locationTag: 'SHED SPARE',
+        pairTag: 'Paired R3-R14 (+27.37% vs Nom)',
+        compMmS: 39,
+        rebMmS: -92,
+        status: 'available',
+        notes: 'SHED SPARE — Paired R3-R14 (+27.37% vs Nominal).'
+      },
+      {
+        id: 'shk_R5',
+        code: 'R5',
+        end: 'R',
+        partNo: '9067',
+        origin: '',
+        compN: [248, 467, 622, 772, 1084],
+        rebN: [-292, -706, -1473, -2245, -3509],
+        diffPctVsNom: 23.62,
+        locationTag: 'SHED SPARE',
+        pairTag: 'Paired R5-R10 (+23.62% vs Nom)',
+        compMmS: 42,
+        rebMmS: -83,
+        status: 'available',
+        notes: 'SHED SPARE — Paired R5-R10 (+23.62% vs Nominal).'
+      },
+      {
+        id: 'shk_R6',
+        code: 'R6',
+        end: 'R',
+        partNo: '9067',
+        origin: '',
+        compN: [275, 471, 627, 796, 1114],
+        rebN: [-315, -733, -1619, -2444, -3655],
+        diffPctVsNom: 28.16,
+        locationTag: 'SHED SPARE',
+        pairTag: 'Paired R6-R13 (+28.16% vs Nom)',
+        compMmS: 38,
+        rebMmS: -92,
+        status: 'available',
+        notes: 'SHED SPARE — Paired R6-R13 (+28.16% vs Nominal).'
+      },
+      {
+        id: 'shk_R9',
+        code: 'R9',
+        end: 'R',
+        partNo: '9067',
+        origin: '#71',
+        compN: [176, 358, 638, 809, 1095],
+        rebN: [-283, -705, -1479, -2293, -3515],
+        diffPctVsNom: 17.13,
+        locationTag: 'SHED SPARE',
+        pairTag: 'Paired R9-R15 (+17.13% vs Nom)',
+        compMmS: null,
+        rebMmS: null,
+        status: 'available',
+        notes: 'SHED SPARE — Paired R9-R15 (+17.13% vs Nominal).'
+      },
+      {
+        id: 'shk_R10',
+        code: 'R10',
+        end: 'R',
+        partNo: '9067',
+        origin: '',
+        compN: [261, 455, 646, 817, 1117],
+        rebN: [-290, -721, -1508, -2310, -3525],
+        diffPctVsNom: 23.62,
+        locationTag: 'SHED SPARE',
+        pairTag: 'Paired R5-R10 (+23.62% vs Nom)',
+        compMmS: 37,
+        rebMmS: -90,
+        status: 'available',
+        notes: 'SHED SPARE — Paired R5-R10 (+23.62% vs Nominal).'
+      },
+      {
+        id: 'shk_R15',
+        code: 'R15',
+        end: 'R',
+        partNo: '9067',
+        origin: '',
+        compN: [219, 412, 571, 712, 1034],
+        rebN: [-306, -648, -1469, -2402, -3765],
+        diffPctVsNom: 17.13,
+        locationTag: 'SHED SPARE',
+        pairTag: 'Paired R9-R15 (+17.13% vs Nom)',
+        compMmS: null,
+        rebMmS: null,
+        status: 'available',
+        notes: 'SHED SPARE — Paired R9-R15 (+17.13% vs Nominal).'
+      }
     ];
   }
 
   function createDefaultSprings() {
     return [
-      // Front Springs (8 units, Pedders 5608 — end: 'F')
-      { id: 'spr_F11',   code: 'F11',   end: 'F', partNo: '5608', origin: '#77', rateNmm: null,   heightMm: null,   status: 'available', notes: 'On Car #77' },
-      { id: 'spr_F12',   code: 'F12',   end: 'F', partNo: '5608', origin: '#77', rateNmm: null,   heightMm: null,   status: 'available', notes: 'On Car #77' },
-      { id: 'spr_F9',    code: 'F9',    end: 'F', partNo: '5608', origin: '#71', rateNmm: 106.44, heightMm: 270.98, status: 'available', notes: '' },
-      { id: 'spr_F10',   code: 'F10',   end: 'F', partNo: '5608', origin: '#71', rateNmm: 105.83, heightMm: 271.80, status: 'available', notes: '' },
-      { id: 'spr_F13',   code: 'F13',   end: 'F', partNo: '5608', origin: '#71', rateNmm: null,   heightMm: null,   status: 'available', notes: '' },
-      { id: 'spr_F_unk', code: 'F??',   end: 'F', partNo: '5608', origin: '#71', rateNmm: null,   heightMm: null,   status: 'available', notes: 'Unmarked front spring' },
-      { id: 'spr_F_sp7', code: 'F-SP7', end: 'F', partNo: '5608', origin: '',    rateNmm: null,   heightMm: null,   status: 'available', notes: 'Spare Front #7 (enter ID/specs when known)' },
-      { id: 'spr_F_sp8', code: 'F-SP8', end: 'F', partNo: '5608', origin: '',    rateNmm: null,   heightMm: null,   status: 'available', notes: 'Spare Front #8 (enter ID/specs when known)' },
-      // Rear Springs (8 units, Pedders 5609 — end: 'R')
-      { id: 'spr_R6',    code: 'R6',    end: 'R', partNo: '5609', origin: '#77', rateNmm: 138,  heightMm: 184,  status: 'available', notes: 'On Car #77' },
-      { id: 'spr_R5',    code: 'R5',    end: 'R', partNo: '5609', origin: '#77', rateNmm: 141,  heightMm: 185,  status: 'available', notes: 'On Car #77' },
-      { id: 'spr_R9',    code: 'R9',    end: 'R', partNo: '5609', origin: '#71', rateNmm: 143,  heightMm: null, status: 'available', notes: '' },
-      { id: 'spr_R10',   code: 'R10',   end: 'R', partNo: '5609', origin: '#71', rateNmm: 143,  heightMm: null, status: 'available', notes: '' },
-      { id: 'spr_R11',   code: 'R11',   end: 'R', partNo: '5609', origin: '#71', rateNmm: null, heightMm: null, status: 'available', notes: '' },
-      { id: 'spr_R12',   code: 'R12',   end: 'R', partNo: '5609', origin: '#71', rateNmm: null, heightMm: null, status: 'available', notes: '' },
-      { id: 'spr_D2',    code: 'D2',    end: 'R', partNo: '5609', origin: '',    rateNmm: null, heightMm: null, status: 'available', notes: 'Spare Rear D2' },
-      { id: 'spr_R_sp8', code: 'R-SP8', end: 'R', partNo: '5609', origin: '',    rateNmm: null, heightMm: null, status: 'available', notes: 'Spare Rear #8 (enter ID/specs when known)' }
+      // Front Springs (6 units, Pedders 5608 — Nominal: 216 mm @ 14.57 kg/mm)
+      {
+        id: 'spr_F11',
+        code: 'F11',
+        end: 'F',
+        partNo: '5608',
+        origin: '#77',
+        heightNormalMm: 217,
+        deltaHeightMm: 1,
+        rateKgMm: 15.70,
+        deltaRateKgMm: -0.28,
+        rateNmm: 15.70,
+        heightMm: 217,
+        locationTag: 'ON CAR #77',
+        pairTag: 'ON CAR #77 (FL) • Paired F11-F12',
+        status: 'available',
+        notes: 'ON CAR #77 (FL) — 217mm (+1) @ 15.70 kg/mm (-0.28).'
+      },
+      {
+        id: 'spr_F12',
+        code: 'F12',
+        end: 'F',
+        partNo: '5608',
+        origin: '#77',
+        heightNormalMm: 219,
+        deltaHeightMm: 3,
+        rateKgMm: 15.62,
+        deltaRateKgMm: -0.08,
+        rateNmm: 15.62,
+        heightMm: 219,
+        locationTag: 'ON CAR #77',
+        pairTag: 'ON CAR #77 (FR) • Paired F11-F12',
+        status: 'available',
+        notes: 'ON CAR #77 (FR) — 219mm (+3) @ 15.62 kg/mm (-0.08).'
+      },
+      {
+        id: 'spr_F9',
+        code: 'F9',
+        end: 'F',
+        partNo: '5608',
+        origin: '#71',
+        heightNormalMm: 215,
+        deltaHeightMm: -1,
+        rateKgMm: 15.48,
+        deltaRateKgMm: 0.91,
+        rateNmm: 15.48,
+        heightMm: 215,
+        locationTag: 'TRAILER SPARE',
+        pairTag: 'Paired F9-F10 — FL Option',
+        status: 'available',
+        notes: 'TRAILER SPARE — Paired F9-F10 (FL option) • 215mm (-1) @ 15.48 kg/mm (+0.91).'
+      },
+      {
+        id: 'spr_F10',
+        code: 'F10',
+        end: 'F',
+        partNo: '5608',
+        origin: '#71',
+        heightNormalMm: 216,
+        deltaHeightMm: 0,
+        rateKgMm: 15.98,
+        deltaRateKgMm: 0.50,
+        rateNmm: 15.98,
+        heightMm: 216,
+        locationTag: 'TRAILER SPARE',
+        pairTag: 'Paired F9-F10 — FR Option',
+        status: 'available',
+        notes: 'TRAILER SPARE — Paired F9-F10 (FR option) • 216mm (0) @ 15.98 kg/mm (+0.50).'
+      },
+      {
+        id: 'spr_F13',
+        code: 'F13',
+        end: 'F',
+        partNo: '5608',
+        origin: '#71',
+        heightNormalMm: 219,
+        deltaHeightMm: 3,
+        rateKgMm: 15.94,
+        deltaRateKgMm: 0.32,
+        rateNmm: 15.94,
+        heightMm: 219,
+        locationTag: 'SHED SPARE',
+        pairTag: 'Odd Spare (Matches F12 height, F10 rate)',
+        status: 'available',
+        notes: 'SHED SPARE — 219mm (+3) @ 15.94 kg/mm (+0.32).'
+      },
+      {
+        id: 'spr_F_unk',
+        code: 'F??',
+        end: 'F',
+        partNo: '5608',
+        origin: '#71',
+        heightNormalMm: null,
+        deltaHeightMm: null,
+        rateKgMm: null,
+        deltaRateKgMm: null,
+        rateNmm: null,
+        heightMm: null,
+        locationTag: 'UNTESTED',
+        pairTag: 'Unmarked Front Coil',
+        status: 'available',
+        notes: 'UNTESTED — Unmarked front spring.'
+      },
+      // Rear Springs (7 units, Pedders 5609 — Nominal: 170 mm @ 2.54 kg/mm)
+      {
+        id: 'spr_R6',
+        code: 'R6',
+        end: 'R',
+        partNo: '5609',
+        origin: '#77',
+        heightNormalMm: 174,
+        deltaHeightMm: -2,
+        rateKgMm: 2.68,
+        deltaRateKgMm: -0.02,
+        rateNmm: 2.68,
+        heightMm: 174,
+        locationTag: 'ON CAR #77',
+        pairTag: 'ON CAR #77 (RL) • Paired R6-R5',
+        status: 'available',
+        notes: 'ON CAR #77 (RL) — 174mm (-2) @ 2.68 kg/mm (-0.02).'
+      },
+      {
+        id: 'spr_R5',
+        code: 'R5',
+        end: 'R',
+        partNo: '5609',
+        origin: '#77',
+        heightNormalMm: 176,
+        deltaHeightMm: 6,
+        rateKgMm: 2.70,
+        deltaRateKgMm: 0.16,
+        rateNmm: 2.70,
+        heightMm: 176,
+        locationTag: 'ON CAR #77',
+        pairTag: 'ON CAR #77 (RR +20mm Spacer) • Paired R6-R5',
+        status: 'available',
+        notes: 'ON CAR #77 (RR + 20mm Spacer) — 176mm (+6) @ 2.70 kg/mm (+0.16).'
+      },
+      {
+        id: 'spr_R12',
+        code: 'R12',
+        end: 'R',
+        partNo: '5609',
+        origin: '#71',
+        heightNormalMm: 179,
+        deltaHeightMm: 0,
+        rateKgMm: 2.76,
+        deltaRateKgMm: 0.02,
+        rateNmm: 2.76,
+        heightMm: 179,
+        locationTag: 'TRAILER SPARE',
+        pairTag: 'Paired R12-D2 — RL Option',
+        status: 'available',
+        notes: 'TRAILER SPARE — Paired R12-D2 (RL option) • 179mm (0) @ 2.76 kg/mm (+0.02).'
+      },
+      {
+        id: 'spr_D2',
+        code: 'D2',
+        end: 'R',
+        partNo: '5609',
+        origin: '#71',
+        heightNormalMm: 180,
+        deltaHeightMm: 1,
+        rateKgMm: 2.80,
+        deltaRateKgMm: 0.04,
+        rateNmm: 2.80,
+        heightMm: 180,
+        locationTag: 'TRAILER SPARE',
+        pairTag: 'Paired R12-D2 — RR Option (Sheet Code "D")',
+        status: 'available',
+        notes: 'TRAILER SPARE — Paired R12-D2 (RR option; labelled "D" on Pedders sheet) • 180mm (+1) @ 2.80 kg/mm (+0.04).'
+      },
+      {
+        id: 'spr_R9',
+        code: 'R9',
+        end: 'R',
+        partNo: '5609',
+        origin: '#71',
+        heightNormalMm: 182,
+        deltaHeightMm: 8,
+        rateKgMm: 2.76,
+        deltaRateKgMm: 0.08,
+        rateNmm: 2.76,
+        heightMm: 182,
+        locationTag: 'SHED SPARE',
+        pairTag: 'Tallest Rear Coil (182mm)',
+        status: 'available',
+        notes: 'SHED SPARE — Tallest coil • 182mm (+8) @ 2.76 kg/mm (+0.08).'
+      },
+      {
+        id: 'spr_R10',
+        code: 'R10',
+        end: 'R',
+        partNo: '5609',
+        origin: '#71',
+        heightNormalMm: 179,
+        deltaHeightMm: -3,
+        rateKgMm: 2.74,
+        deltaRateKgMm: -0.02,
+        rateNmm: 2.74,
+        heightMm: 179,
+        locationTag: 'SHED SPARE',
+        pairTag: 'Exact Match Pair R10-R11 (179mm @ 2.74 kg/mm)',
+        status: 'available',
+        notes: 'SHED SPARE — Exact match to R11 • 179mm (-3) @ 2.74 kg/mm (-0.02).'
+      },
+      {
+        id: 'spr_R11',
+        code: 'R11',
+        end: 'R',
+        partNo: '5609',
+        origin: '#71',
+        heightNormalMm: 179,
+        deltaHeightMm: 0,
+        rateKgMm: 2.74,
+        deltaRateKgMm: 0.00,
+        rateNmm: 2.74,
+        heightMm: 179,
+        locationTag: 'SHED SPARE',
+        pairTag: 'Exact Match Pair R10-R11 (179mm @ 2.74 kg/mm)',
+        status: 'available',
+        notes: 'SHED SPARE — Exact match to R10 • 179mm (0) @ 2.74 kg/mm (0.00).'
+      }
     ];
   }
 
@@ -2913,10 +3603,11 @@
       ex.onCar = ex.id === candidate.activeExhaustId;
     });
 
-    // Hydrate Shocks & Springs Inventory + suspensionSeededV2 repair migration
+    // Hydrate Shocks & Springs Inventory + suspensionSeededV2 + peddersDynoAuditV1 migration
     const defShocks = createDefaultShocks();
     const defSprings = createDefaultSprings();
     const needsV2Repair = !candidate.suspensionSeededV2;
+    const needsPeddersAudit = !candidate.peddersDynoAuditV1;
     if (!candidate.suspensionSeededV1 || !Array.isArray(candidate.shocks) || candidate.shocks.length === 0) {
       candidate.shocks = defShocks;
       candidate.springs = defSprings;
@@ -2925,6 +3616,7 @@
       candidate.mountedSpacers = { ...DEFAULT_MOUNTED_SPACERS };
       candidate.suspensionSeededV1 = true;
       candidate.suspensionSeededV2 = true;
+      candidate.peddersDynoAuditV1 = true;
     } else {
       const seenShockIds = new Set();
       candidate.shocks = candidate.shocks
@@ -2937,22 +3629,75 @@
           const seedSh = defShocks.find(
             (ds) => ds.id.toLowerCase() === id.toLowerCase() || ds.code.toLowerCase() === code.toLowerCase()
           );
-          const compMmS = needsV2Repair && seedSh
+          const compN =
+            (needsPeddersAudit && seedSh ? seedSh.compN : parsePeddersCurveInput(sh.compN)) ||
+            (seedSh ? seedSh.compN : null);
+          const rebN =
+            (needsPeddersAudit && seedSh ? seedSh.rebN : parsePeddersCurveInput(sh.rebN)) ||
+            (seedSh ? seedSh.rebN : null);
+          const diffPctVsNom =
+            needsPeddersAudit && seedSh
+              ? seedSh.diffPctVsNom
+              : pickOptNum(sh.diffPctVsNom !== undefined ? sh.diffPctVsNom : seedSh ? seedSh.diffPctVsNom : null);
+          const compMmS = (needsV2Repair || needsPeddersAudit) && seedSh
             ? seedSh.compMmS
             : pickOptNum(sh.compMmS !== undefined ? sh.compMmS : sh.kingComp);
-          const rebMmS = needsV2Repair && seedSh
+          const rebMmS = (needsV2Repair || needsPeddersAudit) && seedSh
             ? seedSh.rebMmS
             : pickOptNum(sh.rebMmS !== undefined ? sh.rebMmS : sh.kingReb);
+          const isQuarantinedBin =
+            code.toUpperCase() === 'F7' ||
+            sh.status === 'bin' ||
+            sh.locationTag === 'BIN / DO NOT USE' ||
+            (seedSh && seedSh.status === 'bin');
+          const resolvedStatus = isQuarantinedBin
+            ? 'bin'
+            : sh.status === 'other_car' || ((needsV2Repair || needsPeddersAudit) && seedSh && seedSh.status === 'other_car')
+            ? 'other_car'
+            : 'available';
+          const resolvedLocationTag = isQuarantinedBin
+            ? 'BIN / DO NOT USE'
+            : needsPeddersAudit && seedSh
+            ? seedSh.locationTag
+            : typeof sh.locationTag === 'string' && sh.locationTag.trim()
+            ? sh.locationTag.trim()
+            : seedSh
+            ? seedSh.locationTag
+            : resolvedStatus === 'other_car'
+            ? 'IN LS RAILS'
+            : 'SHED SPARE';
+          const resolvedPairTag =
+            needsPeddersAudit && seedSh
+              ? seedSh.pairTag
+              : typeof sh.pairTag === 'string' && sh.pairTag.trim()
+              ? sh.pairTag.trim()
+              : seedSh
+              ? seedSh.pairTag
+              : '';
+          const resolvedNotes =
+            needsPeddersAudit && seedSh
+              ? seedSh.notes
+              : typeof sh.notes === 'string' && sh.notes.trim()
+              ? sh.notes.trim()
+              : seedSh
+              ? seedSh.notes
+              : '';
+
           return {
             id: seedSh ? seedSh.id : id,
             code: seedSh ? seedSh.code : code,
             end,
             partNo,
             origin: typeof sh.origin === 'string' && sh.origin.trim() ? sh.origin.trim() : seedSh ? seedSh.origin : '',
+            compN: Array.isArray(compN) ? [...compN] : null,
+            rebN: Array.isArray(rebN) ? [...rebN] : null,
+            diffPctVsNom,
+            locationTag: resolvedLocationTag,
+            pairTag: resolvedPairTag,
             compMmS,
             rebMmS,
-            status: sh.status === 'other_car' || (needsV2Repair && seedSh && seedSh.status === 'other_car') ? 'other_car' : 'available',
-            notes: typeof sh.notes === 'string' && sh.notes.trim() ? sh.notes.trim() : seedSh ? seedSh.notes : ''
+            status: resolvedStatus,
+            notes: resolvedNotes
           };
         })
         .filter((sh) => {
@@ -2961,41 +3706,97 @@
           return true;
         });
 
-      if (needsV2Repair) {
-        defShocks.forEach((ds) => {
-          if (!candidate.shocks.some((s) => s.id.toLowerCase() === ds.id.toLowerCase() || s.code.toLowerCase() === ds.code.toLowerCase())) {
-            candidate.shocks.push({ ...ds });
-          }
-        });
-      }
+      defShocks.forEach((ds) => {
+        if (!candidate.shocks.some((s) => s.id.toLowerCase() === ds.id.toLowerCase() || s.code.toLowerCase() === ds.code.toLowerCase())) {
+          candidate.shocks.push({
+            ...ds,
+            compN: Array.isArray(ds.compN) ? [...ds.compN] : null,
+            rebN: Array.isArray(ds.rebN) ? [...ds.rebN] : null
+          });
+        }
+      });
 
+      const dummySpringCodes = new Set(['F-SP7', 'F-SP8', 'R-SP8']);
+      const dummySpringIds = new Set(['spr_f_sp7', 'spr_f_sp8', 'spr_r_sp8']);
       const seenSpringIds = new Set();
       candidate.springs = (Array.isArray(candidate.springs) && candidate.springs.length > 0 ? candidate.springs : defSprings)
+        .filter((sp) => {
+          if (!sp) return false;
+          const cUp = String(sp.code || '').trim().toUpperCase();
+          const idLow = String(sp.id || '').trim().toLowerCase();
+          if (dummySpringCodes.has(cUp) || dummySpringIds.has(idLow)) return false;
+          return true;
+        })
         .map((sp, idx) => {
           const code = String(sp.code || sp.label || sp.id || `SP${idx + 1}`).trim();
           const id = String(sp.id || `spr_${code}`).trim();
-          const isFront = /^F/i.test(code) || (sp.end === 'F' || sp.end === 'front') && !/^(R|D2)/i.test(code);
+          const isFront = /^F/i.test(code) || ((sp.end === 'F' || sp.end === 'front') && !/^(R|D2)/i.test(code));
           const end = isFront ? 'F' : 'R';
           const partNo = end === 'F' ? '5608' : '5609';
           const seedSp = defSprings.find(
             (dsp) => dsp.id.toLowerCase() === id.toLowerCase() || dsp.code.toLowerCase() === code.toLowerCase()
           );
-          const rateNmm = needsV2Repair && seedSp
-            ? seedSp.rateNmm
-            : pickOptNum(sp.rateNmm !== undefined ? sp.rateNmm : sp.kingRate);
-          const heightMm = needsV2Repair && seedSp
-            ? seedSp.heightMm
-            : pickOptNum(sp.heightMm !== undefined ? sp.heightMm : sp.kingHeight);
+          const heightNormalMm =
+            (needsV2Repair || needsPeddersAudit) && seedSp
+              ? seedSp.heightNormalMm
+              : pickOptNum(sp.heightNormalMm ?? sp.heightMm ?? sp.kingHeight ?? (seedSp ? seedSp.heightNormalMm : null));
+          const deltaHeightMm =
+            (needsV2Repair || needsPeddersAudit) && seedSp
+              ? seedSp.deltaHeightMm
+              : pickOptNum(sp.deltaHeightMm !== undefined ? sp.deltaHeightMm : seedSp ? seedSp.deltaHeightMm : null);
+          const rateKgMm =
+            (needsV2Repair || needsPeddersAudit) && seedSp
+              ? seedSp.rateKgMm
+              : pickOptNum(sp.rateKgMm ?? sp.rateNmm ?? sp.kingRate ?? (seedSp ? seedSp.rateKgMm : null));
+          const deltaRateKgMm =
+            (needsV2Repair || needsPeddersAudit) && seedSp
+              ? seedSp.deltaRateKgMm
+              : pickOptNum(sp.deltaRateKgMm !== undefined ? sp.deltaRateKgMm : seedSp ? seedSp.deltaRateKgMm : null);
+          const resolvedStatus =
+            sp.status === 'other_car' || ((needsV2Repair || needsPeddersAudit) && seedSp && seedSp.status === 'other_car')
+              ? 'other_car'
+              : 'available';
+          const resolvedLocationTag =
+            needsPeddersAudit && seedSp
+              ? seedSp.locationTag
+              : typeof sp.locationTag === 'string' && sp.locationTag.trim()
+              ? sp.locationTag.trim()
+              : seedSp
+              ? seedSp.locationTag
+              : 'SHED SPARE';
+          const resolvedPairTag =
+            needsPeddersAudit && seedSp
+              ? seedSp.pairTag
+              : typeof sp.pairTag === 'string' && sp.pairTag.trim()
+              ? sp.pairTag.trim()
+              : seedSp
+              ? seedSp.pairTag
+              : '';
+          const resolvedNotes =
+            needsPeddersAudit && seedSp
+              ? seedSp.notes
+              : typeof sp.notes === 'string' && sp.notes.trim()
+              ? sp.notes.trim()
+              : seedSp
+              ? seedSp.notes
+              : '';
+
           return {
             id: seedSp ? seedSp.id : id,
             code: seedSp ? seedSp.code : code,
             end,
             partNo,
             origin: typeof sp.origin === 'string' && sp.origin.trim() ? sp.origin.trim() : seedSp ? seedSp.origin : '',
-            rateNmm,
-            heightMm,
-            status: sp.status === 'other_car' || (needsV2Repair && seedSp && seedSp.status === 'other_car') ? 'other_car' : 'available',
-            notes: typeof sp.notes === 'string' && sp.notes.trim() ? sp.notes.trim() : seedSp ? seedSp.notes : ''
+            heightNormalMm,
+            deltaHeightMm,
+            rateKgMm,
+            deltaRateKgMm,
+            rateNmm: rateKgMm,
+            heightMm: heightNormalMm,
+            locationTag: resolvedLocationTag,
+            pairTag: resolvedPairTag,
+            status: resolvedStatus,
+            notes: resolvedNotes
           };
         })
         .filter((sp) => {
@@ -3004,16 +3805,16 @@
           return true;
         });
 
-      if (needsV2Repair) {
-        defSprings.forEach((dsp) => {
-          if (!candidate.springs.some((s) => s.id.toLowerCase() === dsp.id.toLowerCase() || s.code.toLowerCase() === dsp.code.toLowerCase())) {
-            candidate.springs.push({ ...dsp });
-          }
-        });
-      }
+      defSprings.forEach((dsp) => {
+        if (!candidate.springs.some((s) => s.id.toLowerCase() === dsp.id.toLowerCase() || s.code.toLowerCase() === dsp.code.toLowerCase())) {
+          candidate.springs.push({ ...dsp });
+        }
+      });
 
-      // Enforce One-Spot-Per-Unit & end matching on mountedShocks and mountedSprings
-      const rawMs = normalizeCornerUnitMap(candidate.mountedShocks, DEFAULT_MOUNTED_SHOCKS);
+      // Migrate Car #77 active mounted setup to Matt's setup (FL: F14/F11, FR: F16/F12, RL: R13/R6, RR: R14/R5) on peddersDynoAuditV1
+      const rawMs = needsPeddersAudit
+        ? { ...DEFAULT_MOUNTED_SHOCKS }
+        : normalizeCornerUnitMap(candidate.mountedShocks, DEFAULT_MOUNTED_SHOCKS);
       const usedShocks = new Set();
       candidate.mountedShocks = { FL: '', FR: '', RL: '', RR: '' };
       ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
@@ -3021,13 +3822,22 @@
         const sid = rawMs[c];
         if (!sid || usedShocks.has(sid)) return;
         const shObj = candidate.shocks.find((sh) => sh.id === sid || sh.code === sid);
-        if (shObj && shObj.end === reqEnd && shObj.status !== 'other_car' && !usedShocks.has(shObj.id)) {
+        if (
+          shObj &&
+          shObj.end === reqEnd &&
+          shObj.status !== 'other_car' &&
+          shObj.status !== 'bin' &&
+          shObj.locationTag !== 'BIN / DO NOT USE' &&
+          !usedShocks.has(shObj.id)
+        ) {
           usedShocks.add(shObj.id);
           candidate.mountedShocks[c] = shObj.id;
         }
       });
 
-      const rawMsp = normalizeCornerUnitMap(candidate.mountedSprings, DEFAULT_MOUNTED_SPRINGS);
+      const rawMsp = needsPeddersAudit
+        ? { ...DEFAULT_MOUNTED_SPRINGS }
+        : normalizeCornerUnitMap(candidate.mountedSprings, DEFAULT_MOUNTED_SPRINGS);
       const usedSprings = new Set();
       candidate.mountedSprings = { FL: '', FR: '', RL: '', RR: '' };
       ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
@@ -3043,6 +3853,7 @@
 
       candidate.suspensionSeededV1 = true;
       candidate.suspensionSeededV2 = true;
+      candidate.peddersDynoAuditV1 = true;
     }
 
     // Safely backfill Car #77 default active rear spacers (RL: 0mm, RR: 20mm), cornerWeights, and brakes without touching existing logs
@@ -3828,6 +4639,8 @@
       seedInitializedV1: false,
       eventArchitectureV1: true,
       suspensionSeededV1: true,
+      suspensionSeededV2: true,
+      peddersDynoAuditV1: true,
       carbyJetAuditV1: true,
       manifoldAudit2012V2: true,
       jetLocationsV1: true,
@@ -3863,9 +4676,10 @@
   }
 
   let state = loadState();
-  // Persist the one-time seedInitializedV1 / eventArchitectureV1 / suspensionSeededV1 / carbyJetAuditV1 / manifoldAudit2012V2 / jetLocationsV1 / spacerKitSeededV1 / calder2024CwSeededV1 migration immediately
+  // Persist the one-time seedInitializedV1 / eventArchitectureV1 / suspensionSeededV1 / peddersDynoAuditV1 / carbyJetAuditV1 / manifoldAudit2012V2 / jetLocationsV1 / spacerKitSeededV1 / calder2024CwSeededV1 migration immediately
   try {
     state.seedInitializedV1 = true;
+    state.peddersDynoAuditV1 = true;
     state.carbyJetAuditV1 = true;
     state.spacerKitSeededV1 = true;
     state.calder2024CwSeededV1 = true;
@@ -3897,6 +4711,7 @@
     expandedEventId: null,
     expandedSessionId: null,
     expandedEventIds: new Set(),
+    expandedShockDynoIds: new Set(),
     openFleetSectionId: null,
     pendingActionAfterNewEvent: null,
     tyreStockFilter: 'all', // 'all' | 'buffed' | 'wet'
@@ -3918,13 +4733,14 @@
     selectedFleetBrassId: 'idle_69',
     selectedFleetManifoldId: state.activeManifoldId || 'MAN_B',
     selectedFleetExhaustId: state.activeExhaustId || 'Macca',
-    selectedFleetShockId: (state.mountedShocks && state.mountedShocks.FL) || 'shk_F29',
+    selectedFleetShockId: (state.mountedShocks && state.mountedShocks.FL) || 'shk_F14',
     selectedFleetSpringId: (state.mountedSprings && state.mountedSprings.FL) || 'spr_F11',
     dynoScrubRpm: 5000
   };
 
   function saveState() {
     state.seedInitializedV1 = true;
+    state.peddersDynoAuditV1 = true;
     state.carbyJetAuditV1 = true;
     state.manifoldAudit2012V2 = true;
     state.jetLocationsV1 = true;
@@ -8556,8 +9372,41 @@
     return Number.isInteger(num) ? String(num) : String(Number(num.toFixed(2)));
   }
 
+  function isShockQuarantinedBin(shObj) {
+    if (!shObj) return false;
+    return (
+      shObj.status === 'bin' ||
+      String(shObj.locationTag || '').toUpperCase().includes('BIN') ||
+      String(shObj.code || '').toUpperCase() === 'F7'
+    );
+  }
+
+  function formatSignedPct(val) {
+    if (!isFiniteSpecNum(val)) return '—';
+    const num = Number(val);
+    return `${num >= 0 ? '+' : ''}${num.toFixed(2)}%`;
+  }
+
+  function formatSignedDeltaNum(val, decimals = 2, unitSuffix = '') {
+    if (!isFiniteSpecNum(val)) return '—';
+    const num = Number(val);
+    const str = decimals === 0 ? String(Math.round(num)) : num.toFixed(decimals);
+    return `${num > 0 ? '+' : ''}${str}${unitSuffix}`;
+  }
+
   function formatShockKingBadge(shObj) {
     if (!shObj) return '— Unmounted —';
+    if (isShockQuarantinedBin(shObj)) {
+      return '⛔ BIN / DO NOT USE';
+    }
+    if (Array.isArray(shObj.compN) && shObj.compN.length === 5 && Array.isArray(shObj.rebN) && shObj.rebN.length === 5) {
+      const c03 = Math.round(Number(shObj.compN[2]));
+      const r03 = Math.round(Number(shObj.rebN[2]));
+      const diffStr = isFiniteSpecNum(shObj.diffPctVsNom)
+        ? ` (${Number(shObj.diffPctVsNom) >= 0 ? '+' : ''}${Number(shObj.diffPctVsNom).toFixed(1)}%)`
+        : '';
+      return `+${c03} / ${r03}N @0.3${diffStr}`;
+    }
     const comp = shObj.compMmS !== undefined ? shObj.compMmS : shObj.kingComp;
     const reb = shObj.rebMmS !== undefined ? shObj.rebMmS : shObj.kingReb;
     if (isFiniteSpecNum(comp) && isFiniteSpecNum(reb)) {
@@ -8568,18 +9417,18 @@
 
   function formatSpringKingBadge(spObj) {
     if (!spObj) return '— Unmounted —';
-    const rate = spObj.rateNmm !== undefined ? spObj.rateNmm : spObj.kingRate;
-    const ht = spObj.heightMm !== undefined ? spObj.heightMm : spObj.kingHeight;
+    const rate = spObj.rateKgMm !== undefined && spObj.rateKgMm !== null ? spObj.rateKgMm : (spObj.rateNmm !== undefined ? spObj.rateNmm : spObj.kingRate);
+    const ht = spObj.heightNormalMm !== undefined && spObj.heightNormalMm !== null ? spObj.heightNormalMm : (spObj.heightMm !== undefined ? spObj.heightMm : spObj.kingHeight);
     const hasRate = isFiniteSpecNum(rate);
     const hasHt = isFiniteSpecNum(ht);
     if (hasRate && hasHt) {
-      return `${formatSpringMetricNum(rate)} N/mm • ${formatSpringMetricNum(ht)} mm`;
+      return `${Number(rate).toFixed(2)} kg/mm • ${Math.round(Number(ht))} mm`;
     }
     if (hasRate) {
-      return `${formatSpringMetricNum(rate)} N/mm • Ht —`;
+      return `${Number(rate).toFixed(2)} kg/mm • Ht —`;
     }
     if (hasHt) {
-      return `Rate — • ${formatSpringMetricNum(ht)} mm`;
+      return `Rate — • ${Math.round(Number(ht))} mm`;
     }
     return 'Untested';
   }
@@ -8612,15 +9461,27 @@
               ([cKey, sId]) => cKey !== corner && sId === sh.id
             );
             const isMountedHere = sh.id === curShockId;
+            const isBin = isShockQuarantinedBin(sh);
             const isOtherCar = sh.status === 'other_car' && !isMountedHere;
-            const isDisabled = Boolean(otherCornerEntry || isOtherCar);
+            const isDisabled = Boolean(otherCornerEntry || isOtherCar || isBin);
             const specPart = formatShockKingBadge(sh);
+            const locUpper = String(sh.locationTag || '').toUpperCase();
+            const spareSuffix =
+              !isMountedHere && !isBin && !isOtherCar
+                ? locUpper.includes('TRAILER')
+                  ? ' [TRAILER]'
+                  : locUpper.includes('SHED')
+                  ? ' [SHED]'
+                  : ''
+                : '';
 
-            let labelTxt = `${sh.code} — ${specPart}${isMountedHere ? ` ★ ON CAR (${corner})` : ''}`;
-            if (otherCornerEntry) {
+            let labelTxt = `${sh.code} — ${specPart}${isMountedHere ? ` ★ ON CAR (${corner})` : spareSuffix}`;
+            if (isBin) {
+              labelTxt = `${sh.code} — ⛔ BIN / DO NOT USE (Quarantined: -610N Reb / 2477N Comp)`;
+            } else if (otherCornerEntry) {
               labelTxt = `${sh.code} — Mounted on ${otherCornerEntry[0]} (Remove first)`;
             } else if (isOtherCar) {
-              const noteShort = sh.notes ? sh.notes.split('—')[0].trim() : 'in Other Car';
+              const noteShort = sh.notes ? sh.notes.split('—')[0].trim() : 'in LS Rails';
               labelTxt = `${sh.code} — ${specPart} (${noteShort})`;
             }
             return `<option value="${escapeHtml(sh.id)}" ${isDisabled ? 'disabled' : ''}>${escapeHtml(labelTxt)}</option>`;
@@ -8657,8 +9518,17 @@
             const isOtherCar = sp.status === 'other_car' && !isMountedHere;
             const isDisabled = Boolean(otherCornerEntry || isOtherCar);
             const specPart = formatSpringKingBadge(sp);
+            const locUpper = String(sp.locationTag || '').toUpperCase();
+            const spareSuffix =
+              !isMountedHere && !isOtherCar
+                ? locUpper.includes('TRAILER')
+                  ? ' [TRAILER]'
+                  : locUpper.includes('SHED')
+                  ? ' [SHED]'
+                  : ''
+                : '';
 
-            let labelTxt = `${sp.code} — ${specPart}${isMountedHere ? ` ★ ON CAR (${corner})` : ''}`;
+            let labelTxt = `${sp.code} — ${specPart}${isMountedHere ? ` ★ ON CAR (${corner})` : spareSuffix}`;
             if (otherCornerEntry) {
               labelTxt = `${sp.code} — Mounted on ${otherCornerEntry[0]} (Remove first)`;
             } else if (isOtherCar) {
@@ -8711,6 +9581,11 @@
     }
 
     const chosen = getShockById(cleanId);
+    if (chosen && isShockQuarantinedBin(chosen)) {
+      renderCornerSuspensionSelectors();
+      showToast(`⛔ Shock ${chosen.code} is QUARANTINED (BIN / DO NOT USE) — collapsed -610N rebound & 2477N comp spike!`);
+      return;
+    }
     if (chosen && chosen.status === 'other_car') {
       renderCornerSuspensionSelectors();
       showToast(`${chosen.code} is marked In Other Car / Unavailable — edit status in Fleet & Kit first`);
@@ -8853,10 +9728,10 @@
     const mountedSprings = ensureMountedSpringsState();
     const rlObj = getSpringById(mountedSprings.RL);
     const rrObj = getSpringById(mountedSprings.RR);
-    const rlRate = rlObj && isFiniteSpecNum(rlObj.rateNmm) ? Number(rlObj.rateNmm) : 138;
-    const rrRate = rrObj && isFiniteSpecNum(rrObj.rateNmm) ? Number(rrObj.rateNmm) : 141;
-    const rlHt = rlObj && isFiniteSpecNum(rlObj.heightMm) ? Number(rlObj.heightMm) : 184;
-    const rrHt = rrObj && isFiniteSpecNum(rrObj.heightMm) ? Number(rrObj.heightMm) : 185;
+    const rlRate = rlObj && isFiniteSpecNum(rlObj.rateKgMm ?? rlObj.rateNmm) ? Number(rlObj.rateKgMm ?? rlObj.rateNmm) : 2.68;
+    const rrRate = rrObj && isFiniteSpecNum(rrObj.rateKgMm ?? rrObj.rateNmm) ? Number(rrObj.rateKgMm ?? rrObj.rateNmm) : 2.70;
+    const rlHt = rlObj && isFiniteSpecNum(rlObj.heightNormalMm ?? rlObj.heightMm) ? Number(rlObj.heightNormalMm ?? rlObj.heightMm) : 174;
+    const rrHt = rrObj && isFiniteSpecNum(rrObj.heightNormalMm ?? rrObj.heightMm) ? Number(rrObj.heightNormalMm ?? rrObj.heightMm) : 176;
     const avgRate = (rlRate + rrRate) / 2;
     return {
       rlCode: rlObj ? rlObj.code : 'R6',
@@ -8866,7 +9741,7 @@
       rlHt,
       rrHt,
       avgRate,
-      rateScaleFactor: clamp(avgRate / 140, 0.85, 1.15)
+      rateScaleFactor: clamp(avgRate / 2.69, 0.85, 1.15)
     };
   }
 
@@ -13907,6 +14782,112 @@
     return sp.end === 'R' || sp.end === 'rear' ? 'R' : 'F';
   }
 
+  function getShockLocationPillMeta(sh, mountedCorner) {
+    if (isShockQuarantinedBin(sh)) {
+      return { text: '⛔ BIN / DO NOT USE', cls: 'bin' };
+    }
+    if (mountedCorner) {
+      return { text: `★ ON CAR #77 (${mountedCorner})`, cls: 'on-car' };
+    }
+    if (sh && sh.status === 'other_car') {
+      return { text: sh.locationTag || 'IN LS RAILS', cls: 'other-car' };
+    }
+    const loc = String((sh && sh.locationTag) || '').toUpperCase();
+    if (loc.includes('TRAILER')) {
+      return { text: 'TRAILER SPARE', cls: 'trailer' };
+    }
+    if (loc.includes('UNTESTED')) {
+      return { text: 'UNTESTED', cls: 'untested' };
+    }
+    return { text: 'SHED SPARE', cls: 'shed' };
+  }
+
+  function getSpringLocationPillMeta(sp, mountedCorner, activeSpacers) {
+    if (mountedCorner) {
+      const spMm =
+        (mountedCorner === 'RL' || mountedCorner === 'RR') && activeSpacers && activeSpacers[mountedCorner] > 0
+          ? ` +${activeSpacers[mountedCorner]}mm`
+          : '';
+      return { text: `★ ON CAR #77 (${mountedCorner}${spMm})`, cls: 'on-car' };
+    }
+    if (sp && sp.status === 'other_car') {
+      return { text: sp.locationTag || 'IN OTHER CAR', cls: 'other-car' };
+    }
+    const loc = String((sp && sp.locationTag) || '').toUpperCase();
+    if (loc.includes('TRAILER')) {
+      return { text: 'TRAILER SPARE', cls: 'trailer' };
+    }
+    if (loc.includes('UNTESTED')) {
+      return { text: 'UNTESTED', cls: 'untested' };
+    }
+    return { text: 'SHED SPARE', cls: 'shed' };
+  }
+
+  function renderPedders5VelocityTableHtml(sh, normEnd) {
+    const nom = PEDDERS_SHOCK_NOMINAL[normEnd] || PEDDERS_SHOCK_NOMINAL.F;
+    const hasCurve = Array.isArray(sh.compN) && sh.compN.length === 5 && Array.isArray(sh.rebN) && sh.rebN.length === 5;
+    if (!hasCurve) {
+      const comp200 = sh.compMmS !== undefined ? sh.compMmS : sh.kingComp;
+      const reb200 = sh.rebMmS !== undefined ? sh.rebMmS : sh.kingReb;
+      const benchStr =
+        isFiniteSpecNum(comp200) && isFiniteSpecNum(reb200)
+          ? `Bench @ 200mm/s: Comp ${Math.round(Number(comp200))} / Reb ${Math.round(Number(reb200))} mm/s`
+          : 'No Pedders 5-velocity dyno sheet recorded for this unit.';
+      return `
+        <div class="pedders-dyno-table-wrap">
+          <div class="pedders-dyno-table-head">
+            <span>PEDDERS GSR ${escapeHtml(nom.partNo)} 5-VELOCITY DYNO</span>
+            <span class="mono">${escapeHtml(benchStr)}</span>
+          </div>
+        </div>
+      `;
+    }
+    const diffBadge = isFiniteSpecNum(sh.diffPctVsNom)
+      ? `${formatSignedPct(sh.diffPctVsNom)} vs Nominal`
+      : isShockQuarantinedBin(sh)
+      ? 'QUARANTINED CURVE'
+      : 'Pedders Dyno Sheet';
+
+    return `
+      <div class="pedders-dyno-table-wrap">
+        <div class="pedders-dyno-table-head">
+          <span>PEDDERS GSR ${escapeHtml(nom.partNo)} FORCE CURVE (NEWTONS @ M/S)</span>
+          <span class="mono ${isShockQuarantinedBin(sh) ? 'txt-red' : 'txt-emerald'}">${escapeHtml(diffBadge)}</span>
+        </div>
+        <table class="pedders-dyno-table mono">
+          <thead>
+            <tr>
+              <th>CURVE (N)</th>
+              <th>0.05 m/s</th>
+              <th>0.10 m/s</th>
+              <th>0.30 m/s</th>
+              <th>0.60 m/s</th>
+              <th>1.00 m/s</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="txt-emerald">${escapeHtml(sh.code)} Comp (+)</td>
+              ${sh.compN.map((v, i) => `<td class="${isShockQuarantinedBin(sh) && i === 4 ? 'txt-red' : 'txt-emerald'}">+${Math.round(Number(v))}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="color: #64748B;">Nom ${escapeHtml(nom.partNo)} Comp</td>
+              ${nom.compN.map((v) => `<td style="color: #64748B;">+${v}</td>`).join('')}
+            </tr>
+            <tr>
+              <td class="txt-amber">${escapeHtml(sh.code)} Reb (&minus;)</td>
+              ${sh.rebN.map((v, i) => `<td class="${isShockQuarantinedBin(sh) && i === 0 ? 'txt-red' : 'txt-amber'}">${Math.round(Number(v))}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="color: #64748B;">Nom ${escapeHtml(nom.partNo)} Reb</td>
+              ${nom.rebN.map((v) => `<td style="color: #64748B;">${v}</td>`).join('')}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
   function renderShockFleet() {
     const container = $('shockFleetContainer');
     const selectEl = $('selectFleetShock');
@@ -13959,7 +14940,8 @@
 
     const poolForSelect = filteredList.length > 0 ? filteredList : state.shocks;
     if (!ui.selectedFleetShockId || !poolForSelect.some((sh) => sh.id === ui.selectedFleetShockId)) {
-      ui.selectedFleetShockId = poolForSelect[0].id;
+      const flMounted = mounted.FL && poolForSelect.find((sh) => sh.id === mounted.FL);
+      ui.selectedFleetShockId = flMounted ? flMounted.id : poolForSelect[0].id;
     }
 
     if (badgeEl) {
@@ -13973,11 +14955,10 @@
     if (selectEl) {
       selectEl.innerHTML = poolForSelect
         .map((sh) => {
-          const mountedCorner = Object.entries(mounted).find(([, sId]) => sId === sh.id);
-          const noteSuffix = sh.status === 'other_car' ? ` (${sh.notes || 'Other Car'})` : '';
-          const cornerTag = mountedCorner ? ` ★ ON CAR (${mountedCorner[0]})` : noteSuffix;
+          const mountedEntry = Object.entries(mounted).find(([, sId]) => sId === sh.id);
+          const pillMeta = getShockLocationPillMeta(sh, mountedEntry ? mountedEntry[0] : null);
           const specTxt = formatShockKingBadge(sh);
-          return `<option value="${escapeHtml(sh.id)}">${escapeHtml(sh.code)} — ${escapeHtml(specTxt)}${escapeHtml(cornerTag)}</option>`;
+          return `<option value="${escapeHtml(sh.id)}">${escapeHtml(sh.code)} — ${escapeHtml(specTxt)} [${escapeHtml(pillMeta.text)}]</option>`;
         })
         .join('');
       selectEl.value = ui.selectedFleetShockId;
@@ -13987,35 +14968,102 @@
     if (!sh) return;
     const normEnd = getNormShockEnd(sh);
     const partNo = normEnd === 'F' ? '9033' : '9067';
+    const nomSpec = PEDDERS_SHOCK_NOMINAL[normEnd] || PEDDERS_SHOCK_NOMINAL.F;
     const mountedEntry = Object.entries(mounted).find(([, sId]) => sId === sh.id);
     const isMounted = Boolean(mountedEntry);
     const mountedCorner = mountedEntry ? mountedEntry[0] : null;
+    const isBin = isShockQuarantinedBin(sh);
+    const pillMeta = getShockLocationPillMeta(sh, mountedCorner);
     const endLabel = normEnd === 'F' ? 'Front Damper' : 'Rear Damper';
+    const hasCurve = Array.isArray(sh.compN) && sh.compN.length === 5 && Array.isArray(sh.rebN) && sh.rebN.length === 5;
     const compVal = sh.compMmS !== undefined ? sh.compMmS : sh.kingComp;
     const rebVal = sh.rebMmS !== undefined ? sh.rebMmS : sh.kingReb;
-    const hasComp = isFiniteSpecNum(compVal);
-    const hasReb = isFiniteSpecNum(rebVal);
+    const hasCompMmS = isFiniteSpecNum(compVal);
+    const hasRebMmS = isFiniteSpecNum(rebVal);
     const isConfirmingDel = ui.confirmDeleteShockId === sh.id;
 
-    let statusText = 'Available (#77 Pool)';
-    let statusClass = 'txt-emerald';
-    if (isMounted) {
-      statusText = `★ Mounted on ${mountedCorner}`;
-      statusClass = 'txt-emerald';
-    } else if (sh.status === 'other_car') {
-      statusText = sh.notes ? `Other Car (${sh.notes})` : 'In Other Car';
-      statusClass = 'txt-amber';
+    const compSummaryVal = hasCurve
+      ? `+${sh.compN[1]} / +${sh.compN[2]} / +${sh.compN[4]} N`
+      : hasCompMmS
+      ? `${Math.round(Number(compVal))} mm/s`
+      : 'Untested';
+    const compSummarySub = hasCurve
+      ? `0.1 / 0.3 / 1.0 m/s (Nom +${nomSpec.compN[1]}/+${nomSpec.compN[2]}/+${nomSpec.compN[4]}N)`
+      : `Pedders GSR ${partNo}`;
+
+    const rebSummaryVal = hasCurve
+      ? `${sh.rebN[1]} / ${sh.rebN[2]} / ${sh.rebN[4]} N`
+      : hasRebMmS
+      ? `${Math.round(Number(rebVal))} mm/s`
+      : 'Untested';
+    const rebSummarySub = hasCurve
+      ? `0.1 / 0.3 / 1.0 m/s (Nom ${nomSpec.rebN[1]}/${nomSpec.rebN[2]}/${nomSpec.rebN[4]}N)`
+      : `Pedders GSR ${partNo}`;
+
+    const diffValStr = isBin
+      ? '⛔ QUARANTINED'
+      : isFiniteSpecNum(sh.diffPctVsNom)
+      ? `${formatSignedPct(sh.diffPctVsNom)} vs Nom`
+      : hasCurve
+      ? 'Pedders Tested'
+      : '—';
+
+    if (!(ui.expandedShockDynoIds instanceof Set)) {
+      ui.expandedShockDynoIds = new Set();
     }
+
+    const matrixRowsHtml = poolForSelect
+      .map((item) => {
+        const itemEnd = getNormShockEnd(item);
+        const itemCornerEntry = Object.entries(mounted).find(([, sId]) => sId === item.id);
+        const itemCorner = itemCornerEntry ? itemCornerEntry[0] : null;
+        const itemBin = isShockQuarantinedBin(item);
+        const itemPill = getShockLocationPillMeta(item, itemCorner);
+        const itemHasCurve = Array.isArray(item.compN) && item.compN.length === 5 && Array.isArray(item.rebN) && item.rebN.length === 5;
+        const isSelected = item.id === sh.id;
+        const isExpanded = ui.expandedShockDynoIds.has(item.id);
+        const compactCurveStr = itemHasCurve
+          ? `Comp 0.1/0.3/1.0: +${item.compN[1]}/+${item.compN[2]}/+${item.compN[4]}N • Reb: ${item.rebN[1]}/${item.rebN[2]}/${item.rebN[4]}N`
+          : formatShockKingBadge(item);
+        const diffChip = isFiniteSpecNum(item.diffPctVsNom)
+          ? `<span class="mono ${Number(item.diffPctVsNom) > 20 ? 'txt-amber' : 'txt-emerald'}" style="font-size: 0.68rem; font-weight: 800;">${escapeHtml(formatSignedPct(item.diffPctVsNom))}</span>`
+          : '';
+
+        return `
+          <div class="pedders-shock-row ${isSelected ? 'is-selected' : ''} ${itemCorner ? 'is-on-car' : ''} ${itemBin ? 'is-bin' : ''}">
+            <div class="pedders-shock-row-summary" data-toggle-shock-dyno-row="${escapeHtml(item.id)}">
+              <div class="pedders-shock-row-left">
+                <span class="locked-badge mono" style="font-size: 0.66rem; padding: 2px 7px;">${escapeHtml(item.code)}</span>
+                <span class="mono" style="font-size: 0.7rem; color: #E2E8F0;">${escapeHtml(compactCurveStr)}</span>
+                ${diffChip}
+              </div>
+              <div class="pedders-shock-row-right">
+                <span class="pedders-loc-pill ${itemPill.cls}">${escapeHtml(itemPill.text)}</span>
+                <span class="mono" style="font-size: 0.68rem; color: #94A3B8;">${isExpanded ? '&#9660;' : '&#9654;'}</span>
+              </div>
+            </div>
+            ${
+              isExpanded
+                ? `<div class="pedders-shock-row-drawer">
+                    ${item.pairTag ? `<div style="font-size: 0.69rem; font-weight: 800; color: #7DD3FC; margin-bottom: 4px;">${escapeHtml(item.pairTag)}</div>` : ''}
+                    ${renderPedders5VelocityTableHtml(item, itemEnd)}
+                  </div>`
+                : ''
+            }
+          </div>
+        `;
+      })
+      .join('');
 
     container.innerHTML = `
       <div class="carby-card" style="margin-bottom: 0;">
         <div class="session-head" style="margin-bottom: 6px;">
           <div>
-            <div class="session-title-line">
-              Shock ${escapeHtml(sh.code)}
-              ${isMounted ? `<span class="locked-badge" style="margin-left: 6px;">★ ON CAR (${escapeHtml(mountedCorner)})</span>` : ''}
+            <div class="session-title-line" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
+              <span>Shock ${escapeHtml(sh.code)}</span>
+              <span class="pedders-loc-pill ${pillMeta.cls}">${escapeHtml(pillMeta.text)}</span>
             </div>
-            <div class="session-meta-line">${escapeHtml(endLabel)} &bull; Pedders GSR ${escapeHtml(partNo)}${sh.origin ? ` &bull; Origin ${escapeHtml(sh.origin)}` : ''}</div>
+            <div class="session-meta-line">${escapeHtml(endLabel)} &bull; Pedders GSR ${escapeHtml(partNo)}${sh.origin ? ` &bull; Origin ${escapeHtml(sh.origin)}` : ''}${sh.pairTag ? ` &bull; ${escapeHtml(sh.pairTag)}` : ''}</div>
           </div>
           <div style="display: flex; align-items: center; gap: 6px;">
             <span class="locked-badge">${normEnd === 'F' ? 'FRONT 9033' : 'REAR 9067'}</span>
@@ -14027,30 +15075,40 @@
           </div>
         </div>
 
+        ${
+          isBin
+            ? `<div class="pedders-quarantine-banner">
+                &#9940; <strong>QUARANTINED (BIN / DO NOT USE):</strong> Collapsed <strong>&minus;610 N</strong> low-speed rebound @ 0.05 m/s (vs &minus;1600 N nominal) &amp; <strong>+2477 N</strong> high-speed compression spike @ 1.0 m/s (vs +1330 N nominal). Locked out from corner assignment!
+              </div>`
+            : ''
+        }
+
         <div class="carby-specs-grid">
           <div class="telem-cell">
-            <span class="telem-label">COMPRESSION @ 200 MM/S</span>
-            <span class="telem-val ${hasComp ? 'txt-emerald' : 'txt-amber'}">${hasComp ? `${Math.round(Number(compVal))} mm/s` : 'Untested'}</span>
-            <span class="telem-sub">Pedders GSR ${escapeHtml(partNo)}</span>
+            <span class="telem-label">COMP (0.1 / 0.3 / 1.0 M/S)</span>
+            <span class="telem-val ${isBin ? 'txt-red' : hasCurve || hasCompMmS ? 'txt-emerald' : 'txt-amber'} mono">${escapeHtml(compSummaryVal)}</span>
+            <span class="telem-sub">${escapeHtml(compSummarySub)}</span>
           </div>
           <div class="telem-cell">
-            <span class="telem-label">REBOUND @ 200 MM/S</span>
-            <span class="telem-val ${hasReb ? 'txt-emerald' : 'txt-amber'}">${hasReb ? `${Math.round(Number(rebVal))} mm/s` : 'Untested'}</span>
-            <span class="telem-sub">Pedders GSR ${escapeHtml(partNo)}</span>
+            <span class="telem-label">REB (0.1 / 0.3 / 1.0 M/S)</span>
+            <span class="telem-val ${isBin ? 'txt-red' : hasCurve || hasRebMmS ? 'txt-amber' : ''} mono">${escapeHtml(rebSummaryVal)}</span>
+            <span class="telem-sub">${escapeHtml(rebSummarySub)}</span>
           </div>
           <div class="telem-cell">
-            <span class="telem-label">ORIGIN / BATCH</span>
-            <span class="telem-val">${sh.origin ? escapeHtml(sh.origin) : '&mdash;'}</span>
-            <span class="telem-sub">Unit ${escapeHtml(sh.code)}</span>
+            <span class="telem-label">PEDDERS % VS NOMINAL</span>
+            <span class="telem-val ${isBin ? 'txt-red' : 'txt-emerald'} mono">${escapeHtml(diffValStr)}</span>
+            <span class="telem-sub">${escapeHtml(sh.pairTag || `Unit ${sh.code}`)}</span>
           </div>
           <div class="telem-cell">
-            <span class="telem-label">AVAILABILITY / CORNER</span>
-            <span class="telem-val ${statusClass}">${escapeHtml(statusText)}</span>
-            <span class="telem-sub">${isMounted ? 'Change corner in Tyres / Springs' : 'Selectable in Tyres / Springs'}</span>
+            <span class="telem-label">STATUS / LOCATION</span>
+            <span class="telem-val ${isBin ? 'txt-red' : isMounted ? 'txt-emerald' : 'txt-amber'}">${escapeHtml(pillMeta.text)}</span>
+            <span class="telem-sub">${isBin ? 'Locked Out in Corner Dropdowns' : isMounted ? 'Active on Car #77' : 'Selectable in Tyres / Springs'}</span>
           </div>
         </div>
 
-        ${sh.notes ? `<p style="margin: 6px 0 10px; font-size: 0.78rem; color: var(--text-secondary);">${escapeHtml(sh.notes)}</p>` : ''}
+        ${renderPedders5VelocityTableHtml(sh, normEnd)}
+
+        ${sh.notes ? `<p style="margin: 6px 0 10px; font-size: 0.76rem; color: var(--text-secondary);">${escapeHtml(sh.notes)}</p>` : ''}
 
         <div class="form-grid-2">
           <button type="button" class="btn btn-secondary" data-edit-shock="${escapeHtml(sh.id)}">
@@ -14059,6 +15117,18 @@
           <button type="button" class="btn btn-amber-outline" data-open-tyres-from-fleet="1">
             Assign Corners in Tyres / Springs
           </button>
+        </div>
+
+        <div class="pedders-dyno-matrix-section">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+            <span style="font-size: 0.69rem; font-weight: 900; letter-spacing: 0.05em; color: #94A3B8; text-transform: uppercase;">
+              PEDDERS DYNO SHEET MATRIX (${poolForSelect.length} SHOWN &bull; TAP ROW FOR ALL 5 VELOCITIES)
+            </span>
+            <span class="mono" style="font-size: 0.66rem; color: #64748B;">v = 0.05, 0.1, 0.3, 0.6, 1.0 m/s</span>
+          </div>
+          <div class="pedders-dyno-matrix-list">
+            ${matrixRowsHtml}
+          </div>
         </div>
       </div>
     `;
@@ -14074,6 +15144,11 @@
           end: defaultEnd,
           partNo: defaultEnd === 'R' ? '9067' : '9033',
           origin: '#77',
+          compN: null,
+          rebN: null,
+          diffPctVsNom: null,
+          locationTag: 'SHED SPARE',
+          pairTag: '',
           compMmS: null,
           rebMmS: null,
           status: 'available',
@@ -14096,8 +15171,25 @@
     if ($('editShockCode')) $('editShockCode').value = isNew ? '' : sh.code || '';
     if ($('editShockEnd')) $('editShockEnd').value = normEnd;
     if ($('editShockOrigin')) $('editShockOrigin').value = sh.origin || '';
-    if ($('editShockStatus')) {
-      $('editShockStatus').value = sh.status === 'other_car' ? 'other_car' : 'available';
+    if ($('editShockLocationTag')) {
+      const locVal = isShockQuarantinedBin(sh)
+        ? 'BIN / DO NOT USE'
+        : sh.status === 'other_car'
+        ? 'IN LS RAILS'
+        : sh.locationTag || 'SHED SPARE';
+      $('editShockLocationTag').value = locVal;
+    }
+    if ($('editShockDiffPct')) {
+      $('editShockDiffPct').value = isFiniteSpecNum(sh.diffPctVsNom) ? String(Number(sh.diffPctVsNom)) : '';
+    }
+    if ($('editShockPairTag')) {
+      $('editShockPairTag').value = sh.pairTag || '';
+    }
+    if ($('editShockCompCurve')) {
+      $('editShockCompCurve').value = Array.isArray(sh.compN) && sh.compN.length === 5 ? sh.compN.join(', ') : '';
+    }
+    if ($('editShockRebCurve')) {
+      $('editShockRebCurve').value = Array.isArray(sh.rebN) && sh.rebN.length === 5 ? sh.rebN.join(', ') : '';
     }
     if ($('editShockKingComp')) {
       $('editShockKingComp').value = isFiniteSpecNum(compVal) ? String(Math.round(Number(compVal))) : '';
@@ -14115,7 +15207,7 @@
     const isNew = !id || id === '__NEW__';
     const rawCode = ($('editShockCode') ? $('editShockCode').value : '').trim().toUpperCase();
     if (!rawCode) {
-      showToast('Enter a Shock Unit Code (e.g. F29 or R26)');
+      showToast('Enter a Shock Unit Code (e.g. F14 or R13)');
       return;
     }
 
@@ -14123,7 +15215,18 @@
     const endVal = /^F/i.test(rawCode) ? 'F' : /^R/i.test(rawCode) ? 'R' : selectEnd === 'R' ? 'R' : 'F';
     const partNo = endVal === 'R' ? '9067' : '9033';
     const origin = $('editShockOrigin') ? $('editShockOrigin').value.trim() : '';
-    const statusVal = $('editShockStatus') && $('editShockStatus').value === 'other_car' ? 'other_car' : 'available';
+    const locationTag = $('editShockLocationTag') ? $('editShockLocationTag').value.trim() : 'SHED SPARE';
+    const statusVal =
+      locationTag === 'BIN / DO NOT USE' || rawCode === 'F7'
+        ? 'bin'
+        : locationTag === 'IN LS RAILS'
+        ? 'other_car'
+        : 'available';
+    const rawDiff = $('editShockDiffPct') ? $('editShockDiffPct').value.trim() : '';
+    const diffPctVsNom = rawDiff !== '' && Number.isFinite(parseFloat(rawDiff)) ? Number(parseFloat(rawDiff).toFixed(2)) : null;
+    const pairTag = $('editShockPairTag') ? $('editShockPairTag').value.trim() : '';
+    const compN = parsePeddersCurveInput($('editShockCompCurve') ? $('editShockCompCurve').value : '');
+    const rebN = parsePeddersCurveInput($('editShockRebCurve') ? $('editShockRebCurve').value : '');
     const rawComp = $('editShockKingComp') ? $('editShockKingComp').value.trim() : '';
     const rawReb = $('editShockKingReb') ? $('editShockKingReb').value.trim() : '';
     const compMmS = rawComp !== '' && Number.isFinite(parseFloat(rawComp)) ? Math.round(parseFloat(rawComp)) : null;
@@ -14143,6 +15246,11 @@
         end: endVal,
         partNo,
         origin,
+        compN,
+        rebN,
+        diffPctVsNom,
+        locationTag: statusVal === 'bin' ? 'BIN / DO NOT USE' : locationTag,
+        pairTag,
         compMmS,
         rebMmS,
         status: statusVal,
@@ -14155,12 +15263,27 @@
       sh.end = endVal;
       sh.partNo = partNo;
       sh.origin = origin;
+      sh.compN = compN;
+      sh.rebN = rebN;
+      sh.diffPctVsNom = diffPctVsNom;
+      sh.locationTag = statusVal === 'bin' ? 'BIN / DO NOT USE' : locationTag;
+      sh.pairTag = pairTag;
       sh.compMmS = compMmS;
       sh.rebMmS = rebMmS;
       sh.status = statusVal;
       sh.notes = notes;
     }
     if (!sh) return;
+
+    // If unit was set to BIN or Other Car while mounted, unmount it safely
+    if (sh.status === 'bin' || sh.status === 'other_car') {
+      const mounted = ensureMountedShocksState();
+      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+        if (mounted[c] === sh.id) {
+          mounted[c] = '';
+        }
+      });
+    }
 
     saveState();
     closeModal('modalEditShock');
@@ -14205,6 +15328,7 @@
     }
     state.springs = sortByNameOrCodeAZ(state.springs);
     const mounted = ensureMountedSpringsState();
+    const activeSpacers = ensureMountedSpacersState();
 
     // Update filter counts
     const allCount = state.springs.length;
@@ -14215,7 +15339,7 @@
     if ($('countFilterSpringsFront')) $('countFilterSpringsFront').textContent = String(frontCount);
     if ($('countFilterSpringsRear')) $('countFilterSpringsRear').textContent = String(rearCount);
     if ($('countFilterSpringsMounted')) $('countFilterSpringsMounted').textContent = String(mountedCount);
-    if ($('fleetSpringCountBadge')) $('fleetSpringCountBadge').textContent = `${allCount} UNITS`;
+    if ($('fleetSpringCountBadge')) $('fleetSpringCountBadge').textContent = `${allCount} COILS + 10 SPACERS`;
 
     // Normalize filter value ('all' | 'F' | 'R' | 'oncar')
     let filterMode = ui.springFleetFilter || 'all';
@@ -14245,11 +15369,11 @@
 
     const poolForSelect = filteredList.length > 0 ? filteredList : state.springs;
     if (!ui.selectedFleetSpringId || !poolForSelect.some((sp) => sp.id === ui.selectedFleetSpringId)) {
-      ui.selectedFleetSpringId = poolForSelect[0].id;
+      const flMounted = mounted.FL && poolForSelect.find((sp) => sp.id === mounted.FL);
+      ui.selectedFleetSpringId = flMounted ? flMounted.id : poolForSelect[0].id;
     }
 
     if (badgeEl) {
-      const activeSpacers = ensureMountedSpacersState();
       const flCode = (getSpringById(mounted.FL) && getSpringById(mounted.FL).code) || '—';
       const frCode = (getSpringById(mounted.FR) && getSpringById(mounted.FR).code) || '—';
       const rlCode = (getSpringById(mounted.RL) && getSpringById(mounted.RL).code) || '—';
@@ -14262,11 +15386,10 @@
     if (selectEl) {
       selectEl.innerHTML = poolForSelect
         .map((sp) => {
-          const mountedCorner = Object.entries(mounted).find(([, spId]) => spId === sp.id);
-          const noteSuffix = sp.status === 'other_car' ? ` (${sp.notes || 'Other Car'})` : '';
-          const cornerTag = mountedCorner ? ` ★ ON CAR (${mountedCorner[0]})` : noteSuffix;
+          const mountedEntry = Object.entries(mounted).find(([, spId]) => spId === sp.id);
+          const pillMeta = getSpringLocationPillMeta(sp, mountedEntry ? mountedEntry[0] : null, activeSpacers);
           const specTxt = formatSpringKingBadge(sp);
-          return `<option value="${escapeHtml(sp.id)}">${escapeHtml(sp.code)} — ${escapeHtml(specTxt)}${escapeHtml(cornerTag)}</option>`;
+          return `<option value="${escapeHtml(sp.id)}">${escapeHtml(sp.code)} — ${escapeHtml(specTxt)} [${escapeHtml(pillMeta.text)}]</option>`;
         })
         .join('');
       selectEl.value = ui.selectedFleetSpringId;
@@ -14276,35 +15399,61 @@
     if (!sp) return;
     const normEnd = getNormSpringEnd(sp);
     const partNo = normEnd === 'F' ? '5608' : '5609';
+    const nomSpring = PEDDERS_SPRING_NOMINAL[normEnd] || PEDDERS_SPRING_NOMINAL.F;
     const mountedEntry = Object.entries(mounted).find(([, spId]) => spId === sp.id);
     const isMounted = Boolean(mountedEntry);
     const mountedCorner = mountedEntry ? mountedEntry[0] : null;
-    const endLabel = normEnd === 'F' ? 'Front Spring' : 'Rear Spring';
-    const rateVal = sp.rateNmm !== undefined ? sp.rateNmm : sp.kingRate;
-    const htVal = sp.heightMm !== undefined ? sp.heightMm : sp.kingHeight;
+    const pillMeta = getSpringLocationPillMeta(sp, mountedCorner, activeSpacers);
+    const endLabel = normEnd === 'F' ? 'Front Coil' : 'Rear Coil';
+    const rateVal = sp.rateKgMm ?? sp.rateNmm ?? sp.kingRate;
+    const htVal = sp.heightNormalMm ?? sp.heightMm ?? sp.kingHeight;
     const hasRate = isFiniteSpecNum(rateVal);
     const hasHt = isFiniteSpecNum(htVal);
+    const hasDeltaHt = isFiniteSpecNum(sp.deltaHeightMm);
+    const hasDeltaRate = isFiniteSpecNum(sp.deltaRateKgMm);
     const isConfirmingDel = ui.confirmDeleteSpringId === sp.id;
 
-    let statusText = 'Available (#77 Pool)';
-    let statusClass = 'txt-emerald';
-    if (isMounted) {
-      statusText = `★ Mounted on ${mountedCorner}`;
-      statusClass = 'txt-emerald';
-    } else if (sp.status === 'other_car') {
-      statusText = sp.notes ? `Other Car (${sp.notes})` : 'In Other Car';
-      statusClass = 'txt-amber';
-    }
+    const springMatrixRowsHtml = poolForSelect
+      .map((item) => {
+        const itemCornerEntry = Object.entries(mounted).find(([, spId]) => spId === item.id);
+        const itemCorner = itemCornerEntry ? itemCornerEntry[0] : null;
+        const itemPill = getSpringLocationPillMeta(item, itemCorner, activeSpacers);
+        const itemRate = item.rateKgMm ?? item.rateNmm;
+        const itemHt = item.heightNormalMm ?? item.heightMm;
+        const isSel = item.id === sp.id;
+        const htStr = isFiniteSpecNum(itemHt)
+          ? `${Math.round(Number(itemHt))}mm (${formatSignedDeltaNum(item.deltaHeightMm, 0)})`
+          : 'Untested';
+        const rateStr = isFiniteSpecNum(itemRate)
+          ? `${Number(itemRate).toFixed(2)} kg/mm (${formatSignedDeltaNum(item.deltaRateKgMm, 2)})`
+          : 'Untested';
+        return `
+          <div class="pedders-shock-row ${isSel ? 'is-selected' : ''} ${itemCorner ? 'is-on-car' : ''}" data-select-spring-row="${escapeHtml(item.id)}">
+            <div class="pedders-shock-row-summary">
+              <div class="pedders-shock-row-left">
+                <span class="locked-badge mono" style="font-size: 0.66rem; padding: 2px 7px;">${escapeHtml(item.code)}</span>
+                <span class="mono txt-amber" style="font-size: 0.71rem; font-weight: 800;">${escapeHtml(htStr)}</span>
+                <span class="mono txt-emerald" style="font-size: 0.71rem; font-weight: 800;">${escapeHtml(rateStr)}</span>
+                ${item.pairTag ? `<span style="font-size: 0.67rem; color: #94A3B8;">&bull; ${escapeHtml(item.pairTag)}</span>` : ''}
+              </div>
+              <div class="pedders-shock-row-right">
+                <span class="pedders-loc-pill ${itemPill.cls}">${escapeHtml(itemPill.text)}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      })
+      .join('');
 
     container.innerHTML = `
       <div class="carby-card" style="margin-bottom: 0;">
         <div class="session-head" style="margin-bottom: 6px;">
           <div>
-            <div class="session-title-line">
-              Spring ${escapeHtml(sp.code)}
-              ${isMounted ? `<span class="locked-badge" style="margin-left: 6px;">★ ON CAR (${escapeHtml(mountedCorner)})</span>` : ''}
+            <div class="session-title-line" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
+              <span>Spring ${escapeHtml(sp.code)}</span>
+              <span class="pedders-loc-pill ${pillMeta.cls}">${escapeHtml(pillMeta.text)}</span>
             </div>
-            <div class="session-meta-line">${escapeHtml(endLabel)} &bull; Pedders ${escapeHtml(partNo)}${sp.origin ? ` &bull; Origin ${escapeHtml(sp.origin)}` : ''}</div>
+            <div class="session-meta-line">${escapeHtml(endLabel)} &bull; Pedders ${escapeHtml(partNo)} (Nom: ${nomSpring.heightNormalMm}mm @ ${nomSpring.rateKgMm.toFixed(2)} kg/mm)${sp.origin ? ` &bull; Origin ${escapeHtml(sp.origin)}` : ''}</div>
           </div>
           <div style="display: flex; align-items: center; gap: 6px;">
             <span class="locked-badge">${normEnd === 'F' ? 'FRONT 5608' : 'REAR 5609'}</span>
@@ -14318,28 +15467,28 @@
 
         <div class="carby-specs-grid">
           <div class="telem-cell">
-            <span class="telem-label">RATE (N/MM)</span>
-            <span class="telem-val ${hasRate ? 'txt-emerald' : 'txt-amber'}">${hasRate ? `${formatSpringMetricNum(rateVal)} N/mm` : 'Untested'}</span>
-            <span class="telem-sub">Pedders ${escapeHtml(partNo)}</span>
+            <span class="telem-label">HEIGHT @ NORMAL LOAD</span>
+            <span class="telem-val ${hasHt ? 'txt-amber' : ''} mono">${hasHt ? `${Math.round(Number(htVal))} mm (${hasDeltaHt ? formatSignedDeltaNum(sp.deltaHeightMm, 0) : '0'})` : 'Untested'}</span>
+            <span class="telem-sub">Nominal ${escapeHtml(partNo)}: ${nomSpring.heightNormalMm} mm</span>
           </div>
           <div class="telem-cell">
-            <span class="telem-label">HEIGHT (MM)</span>
-            <span class="telem-val ${hasHt ? 'txt-amber' : ''}">${hasHt ? `${formatSpringMetricNum(htVal)} mm` : '&mdash;'}</span>
-            <span class="telem-sub">Unloaded Free Length</span>
+            <span class="telem-label">SPRING RATE (KG/MM)</span>
+            <span class="telem-val ${hasRate ? 'txt-emerald' : 'txt-amber'} mono">${hasRate ? `${Number(rateVal).toFixed(2)} kg/mm (${hasDeltaRate ? formatSignedDeltaNum(sp.deltaRateKgMm, 2) : '0.00'})` : 'Untested'}</span>
+            <span class="telem-sub">Nominal ${escapeHtml(partNo)}: ${nomSpring.rateKgMm.toFixed(2)} kg/mm</span>
           </div>
           <div class="telem-cell">
-            <span class="telem-label">ORIGIN / BATCH</span>
-            <span class="telem-val">${sp.origin ? escapeHtml(sp.origin) : '&mdash;'}</span>
-            <span class="telem-sub">Unit ${escapeHtml(sp.code)}</span>
+            <span class="telem-label">PAIRED WITH / OPTION</span>
+            <span class="telem-val" style="font-size: 0.78rem;">${sp.pairTag ? escapeHtml(sp.pairTag) : `Unit ${escapeHtml(sp.code)}`}</span>
+            <span class="telem-sub">Origin ${sp.origin ? escapeHtml(sp.origin) : '—'}</span>
           </div>
           <div class="telem-cell">
-            <span class="telem-label">AVAILABILITY / CORNER</span>
-            <span class="telem-val ${statusClass}">${escapeHtml(statusText)}</span>
+            <span class="telem-label">STATUS / LOCATION</span>
+            <span class="telem-val ${isMounted ? 'txt-emerald' : 'txt-amber'}">${escapeHtml(pillMeta.text)}</span>
             <span class="telem-sub">${isMounted ? 'Change corner in Tyres / Springs' : 'Selectable in Tyres / Springs'}</span>
           </div>
         </div>
 
-        ${sp.notes ? `<p style="margin: 6px 0 10px; font-size: 0.78rem; color: var(--text-secondary);">${escapeHtml(sp.notes)}</p>` : ''}
+        ${sp.notes ? `<p style="margin: 6px 0 10px; font-size: 0.76rem; color: var(--text-secondary);">${escapeHtml(sp.notes)}</p>` : ''}
 
         <div class="form-grid-2">
           <button type="button" class="btn btn-secondary" data-edit-spring="${escapeHtml(sp.id)}">
@@ -14348,6 +15497,18 @@
           <button type="button" class="btn btn-amber-outline" data-open-tyres-from-fleet="1">
             Assign Corners in Tyres / Springs
           </button>
+        </div>
+
+        <div class="pedders-dyno-matrix-section">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+            <span style="font-size: 0.69rem; font-weight: 900; letter-spacing: 0.05em; color: #94A3B8; text-transform: uppercase;">
+              PEDDERS SPRING LOAD TEST SHEET (${poolForSelect.length} COILS SHOWN)
+            </span>
+            <span class="mono" style="font-size: 0.66rem; color: #64748B;">5608F: 216mm @ 14.57 kg/mm &bull; 5609R: 170mm @ 2.54 kg/mm</span>
+          </div>
+          <div class="pedders-dyno-matrix-list">
+            ${springMatrixRowsHtml}
+          </div>
         </div>
       </div>
     `;
@@ -14462,8 +15623,14 @@
           end: defaultEnd,
           partNo: defaultEnd === 'R' ? '5609' : '5608',
           origin: '#77',
+          heightNormalMm: null,
+          deltaHeightMm: null,
+          rateKgMm: null,
+          deltaRateKgMm: null,
           rateNmm: null,
           heightMm: null,
+          locationTag: 'SHED SPARE',
+          pairTag: '',
           status: 'available',
           notes: ''
         }
@@ -14472,8 +15639,8 @@
 
     const normEnd = getNormSpringEnd(sp);
     const partNo = normEnd === 'F' ? '5608' : '5609';
-    const rateVal = sp.rateNmm !== undefined ? sp.rateNmm : sp.kingRate;
-    const htVal = sp.heightMm !== undefined ? sp.heightMm : sp.kingHeight;
+    const rateVal = sp.rateKgMm ?? sp.rateNmm ?? sp.kingRate;
+    const htVal = sp.heightNormalMm ?? sp.heightMm ?? sp.kingHeight;
 
     if ($('editSpringIdHidden')) $('editSpringIdHidden').value = isNew ? '__NEW__' : sp.id;
     if ($('modalEditSpringTitle')) {
@@ -14484,14 +15651,24 @@
     if ($('editSpringCode')) $('editSpringCode').value = isNew ? '' : sp.code || '';
     if ($('editSpringEnd')) $('editSpringEnd').value = normEnd;
     if ($('editSpringOrigin')) $('editSpringOrigin').value = sp.origin || '';
-    if ($('editSpringStatus')) {
-      $('editSpringStatus').value = sp.status === 'other_car' ? 'other_car' : 'available';
+    if ($('editSpringLocationTag')) {
+      $('editSpringLocationTag').value =
+        sp.status === 'other_car' ? 'IN OTHER CAR' : sp.locationTag || 'SHED SPARE';
     }
-    if ($('editSpringKingRate')) {
-      $('editSpringKingRate').value = isFiniteSpecNum(rateVal) ? String(formatSpringMetricNum(rateVal)) : '';
+    if ($('editSpringPairTag')) {
+      $('editSpringPairTag').value = sp.pairTag || '';
     }
     if ($('editSpringKingHeight')) {
-      $('editSpringKingHeight').value = isFiniteSpecNum(htVal) ? String(formatSpringMetricNum(htVal)) : '';
+      $('editSpringKingHeight').value = isFiniteSpecNum(htVal) ? String(Math.round(Number(htVal))) : '';
+    }
+    if ($('editSpringDeltaHeight')) {
+      $('editSpringDeltaHeight').value = isFiniteSpecNum(sp.deltaHeightMm) ? String(Math.round(Number(sp.deltaHeightMm))) : '';
+    }
+    if ($('editSpringKingRate')) {
+      $('editSpringKingRate').value = isFiniteSpecNum(rateVal) ? String(Number(rateVal).toFixed(2)) : '';
+    }
+    if ($('editSpringDeltaRate')) {
+      $('editSpringDeltaRate').value = isFiniteSpecNum(sp.deltaRateKgMm) ? String(Number(sp.deltaRateKgMm).toFixed(2)) : '';
     }
     if ($('editSpringNotes')) $('editSpringNotes').value = sp.notes || '';
 
@@ -14511,12 +15688,18 @@
     const endVal = /^F/i.test(rawCode) ? 'F' : /^(R|D2)/i.test(rawCode) ? 'R' : selectEnd === 'R' ? 'R' : 'F';
     const partNo = endVal === 'R' ? '5609' : '5608';
     const origin = $('editSpringOrigin') ? $('editSpringOrigin').value.trim() : '';
-    const statusVal = $('editSpringStatus') && $('editSpringStatus').value === 'other_car' ? 'other_car' : 'available';
-    const rawRate = $('editSpringKingRate') ? $('editSpringKingRate').value.trim() : '';
+    const locationTag = $('editSpringLocationTag') ? $('editSpringLocationTag').value.trim() : 'SHED SPARE';
+    const statusVal = locationTag === 'IN OTHER CAR' ? 'other_car' : 'available';
+    const pairTag = $('editSpringPairTag') ? $('editSpringPairTag').value.trim() : '';
     const rawHt = $('editSpringKingHeight') ? $('editSpringKingHeight').value.trim() : '';
+    const rawDeltaHt = $('editSpringDeltaHeight') ? $('editSpringDeltaHeight').value.trim() : '';
+    const rawRate = $('editSpringKingRate') ? $('editSpringKingRate').value.trim() : '';
+    const rawDeltaRate = $('editSpringDeltaRate') ? $('editSpringDeltaRate').value.trim() : '';
 
-    const rateNmm = rawRate !== '' && Number.isFinite(parseFloat(rawRate)) ? Number(parseFloat(rawRate).toFixed(2)) : null;
-    const heightMm = rawHt !== '' && Number.isFinite(parseFloat(rawHt)) ? Number(parseFloat(rawHt).toFixed(2)) : null;
+    const heightNormalMm = rawHt !== '' && Number.isFinite(parseFloat(rawHt)) ? Math.round(parseFloat(rawHt)) : null;
+    const deltaHeightMm = rawDeltaHt !== '' && Number.isFinite(parseFloat(rawDeltaHt)) ? Math.round(parseFloat(rawDeltaHt)) : null;
+    const rateKgMm = rawRate !== '' && Number.isFinite(parseFloat(rawRate)) ? Number(parseFloat(rawRate).toFixed(2)) : null;
+    const deltaRateKgMm = rawDeltaRate !== '' && Number.isFinite(parseFloat(rawDeltaRate)) ? Number(parseFloat(rawDeltaRate).toFixed(2)) : null;
     const notes = $('editSpringNotes') ? $('editSpringNotes').value.trim() : '';
 
     let sp = isNew ? null : getSpringById(id);
@@ -14532,8 +15715,14 @@
         end: endVal,
         partNo,
         origin,
-        rateNmm,
-        heightMm,
+        heightNormalMm,
+        deltaHeightMm,
+        rateKgMm,
+        deltaRateKgMm,
+        rateNmm: rateKgMm,
+        heightMm: heightNormalMm,
+        locationTag,
+        pairTag,
         status: statusVal,
         notes
       };
@@ -14544,8 +15733,14 @@
       sp.end = endVal;
       sp.partNo = partNo;
       sp.origin = origin;
-      sp.rateNmm = rateNmm;
-      sp.heightMm = heightMm;
+      sp.heightNormalMm = heightNormalMm;
+      sp.deltaHeightMm = deltaHeightMm;
+      sp.rateKgMm = rateKgMm;
+      sp.deltaRateKgMm = deltaRateKgMm;
+      sp.rateNmm = rateKgMm;
+      sp.heightMm = heightNormalMm;
+      sp.locationTag = locationTag;
+      sp.pairTag = pairTag;
       sp.status = statusVal;
       sp.notes = notes;
     }
@@ -14677,7 +15872,7 @@
 
     const lines = [];
     lines.push('====================================================================');
-    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.9.1)');
+    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.9.2)');
     lines.push(`Exported: ${new Date().toISOString()}`);
     lines.push('====================================================================');
     lines.push('');
@@ -14804,8 +15999,8 @@
     });
     lines.push('');
 
-    // 5. Brakes, Shocks, Springs & 10-Piece Measured Spacer Inventory Summary
-    lines.push('[5] BRAKES HARDWARE SPEC SHEET, PEDDERS GSR SHOCKS (9033F/9067R), SPRINGS (5608F/5609R) & 10-PIECE MEASURED SPACER KIT');
+    // 5. Brakes, Pedders 5-Velocity Shocks, Pedders Spring Load Test & 10-Piece Measured Spacer Inventory Summary
+    lines.push('[5] BRAKES HARDWARE SPEC SHEET, PEDDERS FACTORY SHOCK DYNO (9033F/9067R @ 0.05..1.0 M/S), PEDDERS SPRING LOAD TEST (5608F/5609R) & 10-PIECE MEASURED SPACER KIT');
     const rearCylMeta = REAR_WHEEL_CYLINDER_SPECS[brk.rearCylinder] || REAR_WHEEL_CYLINDER_SPECS['9/16"'];
     lines.push(
       `- Brakes Hydraulic Bias & Master: Master="${brk.masterCylinder}" | Prop_Valve="${brk.propValve}" (${brk.propValveCurve}) | Rear_Wheel_Cylinders=${brk.rearCylinder} (${rearCylMeta.partNo}, ${rearCylMeta.forceDelta})`
@@ -14819,28 +16014,41 @@
     lines.push(
       `- Thermal Paint Reference Key: DBA 4014 Front Rotors (Green->White 430°C • Orange->Yellow 560°C • Red->White 610°C) | PBR Front Calipers (121->280°C) | DBA Rear Drums (Linings 121->280°C, 242-254°C un-ducted ref • Housing 160->199°C)`
     );
-    const fmtDumpShock = (s) => {
-      const comp = s.compMmS !== undefined ? s.compMmS : s.kingComp;
-      const reb = s.rebMmS !== undefined ? s.rebMmS : s.kingReb;
-      const spec = isFiniteSpecNum(comp) && isFiniteSpecNum(reb) ? `${Math.round(Number(comp))}/${Math.round(Number(reb))}mm/s` : 'Untested';
-      return `${s.code}:${spec}${s.status === 'other_car' ? '[OtherCar]' : ''}`;
-    };
-    const fmtDumpSpring = (s) => {
-      const rate = s.rateNmm !== undefined ? s.rateNmm : s.kingRate;
-      const ht = s.heightMm !== undefined ? s.heightMm : s.kingHeight;
-      const spec = isFiniteSpecNum(rate)
-        ? `${formatSpringMetricNum(rate)}N/mm${isFiniteSpecNum(ht) ? `/${formatSpringMetricNum(ht)}mm` : ''}`
+    lines.push(
+      `- Pedders Front Shock Nominal (GSR 9033 @ v=[0.05,0.1,0.3,0.6,1.0] m/s): Comp=[${PEDDERS_SHOCK_NOMINAL.F.compN.join(',')}] N | Reb=[${PEDDERS_SHOCK_NOMINAL.F.rebN.join(',')}] N`
+    );
+    lines.push(
+      `- Pedders Rear Shock Nominal (GSR 9067 @ v=[0.05,0.1,0.3,0.6,1.0] m/s): Comp=[${PEDDERS_SHOCK_NOMINAL.R.compN.join(',')}] N | Reb=[${PEDDERS_SHOCK_NOMINAL.R.rebN.join(',')}] N`
+    );
+    (state.shocks || []).forEach((s) => {
+      const mEntry = Object.entries(mountedShocks).find(([, sId]) => sId === s.id);
+      const pill = getShockLocationPillMeta(s, mEntry ? mEntry[0] : null);
+      const hasC = Array.isArray(s.compN) && s.compN.length === 5 && Array.isArray(s.rebN) && s.rebN.length === 5;
+      const curveTxt = hasC
+        ? `Comp=[${s.compN.join(',')}]N | Reb=[${s.rebN.join(',')}]N${isFiniteSpecNum(s.diffPctVsNom) ? ` | vs_Nom=${formatSignedPct(s.diffPctVsNom)}` : ''}`
+        : isFiniteSpecNum(s.compMmS) && isFiniteSpecNum(s.rebMmS)
+        ? `Bench_200mm/s=${Math.round(Number(s.compMmS))}/${Math.round(Number(s.rebMmS))}mm/s`
         : 'Untested';
-      return `${s.code}:${spec}`;
-    };
-    const frontShocks = (state.shocks || []).filter((s) => getNormShockEnd(s) === 'F').map(fmtDumpShock).join(', ');
-    const rearShocks = (state.shocks || []).filter((s) => getNormShockEnd(s) === 'R').map(fmtDumpShock).join(', ');
-    const frontSprings = (state.springs || []).filter((s) => getNormSpringEnd(s) === 'F').map(fmtDumpSpring).join(', ');
-    const rearSprings = (state.springs || []).filter((s) => getNormSpringEnd(s) === 'R').map(fmtDumpSpring).join(', ');
-    lines.push(`- Front Shocks (9033): ${frontShocks}`);
-    lines.push(`- Rear Shocks (9067): ${rearShocks}`);
-    lines.push(`- Front Springs (5608): ${frontSprings}`);
-    lines.push(`- Rear Springs (5609): ${rearSprings}`);
+      lines.push(
+        `  * Shock ${s.code} (GSR ${getNormShockEnd(s) === 'F' ? '9033F' : '9067R'} | [${pill.text}]${s.pairTag ? ` | ${s.pairTag}` : ''}): ${curveTxt}${s.notes ? ` — ${s.notes}` : ''}`
+      );
+    });
+    lines.push(
+      `- Pedders Spring Nominals: Front 5608 = ${PEDDERS_SPRING_NOMINAL.F.heightNormalMm}mm @ ${PEDDERS_SPRING_NOMINAL.F.rateKgMm.toFixed(2)} kg/mm | Rear 5609 = ${PEDDERS_SPRING_NOMINAL.R.heightNormalMm}mm @ ${PEDDERS_SPRING_NOMINAL.R.rateKgMm.toFixed(2)} kg/mm`
+    );
+    (state.springs || []).forEach((sp) => {
+      const mEntry = Object.entries(mountedSprings).find(([, spId]) => spId === sp.id);
+      const pill = getSpringLocationPillMeta(sp, mEntry ? mEntry[0] : null, mountedSpacers);
+      const ht = sp.heightNormalMm ?? sp.heightMm;
+      const rate = sp.rateKgMm ?? sp.rateNmm;
+      const specTxt =
+        isFiniteSpecNum(ht) && isFiniteSpecNum(rate)
+          ? `Height=${Math.round(Number(ht))}mm (${formatSignedDeltaNum(sp.deltaHeightMm, 0)}) | Rate=${Number(rate).toFixed(2)} kg/mm (${formatSignedDeltaNum(sp.deltaRateKgMm, 2)})`
+          : 'Untested';
+      lines.push(
+        `  * Spring ${sp.code} (Pedders ${getNormSpringEnd(sp) === 'F' ? '5608F' : '5609R'} | [${pill.text}]${sp.pairTag ? ` | ${sp.pairTag}` : ''}): ${specTxt}${sp.notes ? ` — ${sp.notes}` : ''}`
+      );
+    });
     normalizeSpacerKit(state.spacerKit).forEach((spItem) => {
       lines.push(
         `- Spacer ${spItem.code} (${spItem.name} | ${spItem.end} | Qty ${spItem.qty} | ${spItem.thicknessMm.toFixed(2)}mm | Lift ${spItem.liftMmEst}): ${spItem.status}`
@@ -17543,6 +18751,18 @@
         return;
       }
 
+      const toggleShockDynoRow = e.target.closest('[data-toggle-shock-dyno-row]');
+      if (toggleShockDynoRow) {
+        const sid = toggleShockDynoRow.getAttribute('data-toggle-shock-dyno-row');
+        if (sid) {
+          ui.selectedFleetShockId = sid;
+          if (!ui.expandedShockDynoIds) ui.expandedShockDynoIds = {};
+          ui.expandedShockDynoIds[sid] = !ui.expandedShockDynoIds[sid];
+          renderShockFleet();
+        }
+        return;
+      }
+
       const editShockBtn = e.target.closest('[data-edit-shock]');
       if (editShockBtn) {
         openEditShockModal(editShockBtn.getAttribute('data-edit-shock'));
@@ -17562,6 +18782,16 @@
           springFilterBtn.getAttribute('data-spring-filter') ||
           'all';
         renderSpringFleet();
+        return;
+      }
+
+      const selectSpringRow = e.target.closest('[data-select-spring-row]');
+      if (selectSpringRow) {
+        const spid = selectSpringRow.getAttribute('data-select-spring-row');
+        if (spid) {
+          ui.selectedFleetSpringId = spid;
+          renderSpringFleet();
+        }
         return;
       }
 
