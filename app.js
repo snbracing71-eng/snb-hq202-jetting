@@ -21,38 +21,82 @@
   /* ------------------------------------------------------------------------
      1. FACTORY SEED DATA (Group 3H HQ Holden 202 — Calder Park & BXUV-3 Kit)
      ------------------------------------------------------------------------ */
-  function createDefaultJets() {
-    const jets = [];
-    for (let num = 68; num <= 80; num++) {
-      const inch = num * 0.001;
-      const mm = Number((inch * MM_PER_INCH).toFixed(4));
-      jets.push({
-        id: `m1_${num}`,
-        label: `#${num}`,
-        stamp: `#${num} M1`,
-        mm,
-        custom: false,
-        inToolbox: true
-      });
-    }
-    // Custom precision metric drills specified for HQ 202 kit
-    jets.push({
-      id: 'drill_1950',
-      label: '1.950 mm Drill',
-      stamp: 'Custom 1.950 mm',
-      mm: 1.9500,
-      custom: true,
-      inToolbox: true
-    });
-    jets.push({
-      id: 'drill_2000',
-      label: 'Jet #77 / 2.000 mm',
-      stamp: '#77 Body / 2.000 mm Drill',
-      mm: 2.0000,
-      custom: true,
-      inToolbox: true
-    });
+  const TACTIX_BOX_MM_SIZES = [1.70, 1.73, 1.75, 1.80, 1.85, 1.87, 1.89, 1.92, 1.94, 2.00, 2.03];
 
+  function formatMmNumber(mmVal) {
+    const n = Number(mmVal);
+    if (!Number.isFinite(n) || n <= 0) return '1.85';
+    const round3 = Math.round(n * 1000) / 1000;
+    const thirdDec = Math.round(round3 * 1000) % 10;
+    return thirdDec === 0 ? round3.toFixed(2) : round3.toFixed(3);
+  }
+
+  function formatJetPureMm(jetOrMm, includeUnit = true) {
+    if (jetOrMm && typeof jetOrMm === 'object') {
+      const n = Number(jetOrMm.mm ?? jetOrMm.jetMm);
+      if (Number.isFinite(n) && n > 0) {
+        return includeUnit ? `${formatMmNumber(n)} mm` : formatMmNumber(n);
+      }
+    }
+    const directNum = Number(jetOrMm);
+    if (Number.isFinite(directNum) && directNum > 0) {
+      return includeUnit ? `${formatMmNumber(directNum)} mm` : formatMmNumber(directNum);
+    }
+    const str = String(jetOrMm || '');
+    const mmMatch = str.match(/(\d+\.\d+)\s*mm/i) || str.match(/^(\d+\.\d+)$/);
+    if (mmMatch) {
+      const parsed = Number(mmMatch[1]);
+      if (Number.isFinite(parsed) && parsed > 0) {
+        return includeUnit ? `${formatMmNumber(parsed)} mm` : formatMmNumber(parsed);
+      }
+    }
+    return includeUnit ? '1.85 mm' : '1.85';
+  }
+
+  function makeMmJetId(mmVal) {
+    const n = Number(mmVal);
+    if (!Number.isFinite(n) || n <= 0) return 'mm_185';
+    const thousandths = Math.round(n * 1000);
+    return thousandths % 10 === 0 ? `mm_${Math.round(n * 100)}` : `mm_${thousandths}`;
+  }
+
+  function normalizeCarbyIdAlias(rawId) {
+    const str = String(rawId || '').trim();
+    if (!str) return 'DME1';
+    const up = str.toUpperCase();
+    if (up === '1 DME' || up === 'DME #1' || up === 'DME 1' || up === 'DME1') return 'DME1';
+    if (up === '2 DME' || up === 'DME #2' || up === 'DME 2' || up === 'DME2') return 'DME2';
+    if (up === 'SNB CARBY' || up === 'SNB' || up === 'SNB #1') return 'SNB';
+    return str;
+  }
+
+  function createDefaultJets() {
+    const stampNotes = {
+      '1.70': 'Tactix Slot 1 • Lean Extreme Reserve',
+      '1.73': 'Tactix Slot 2 • Lean Track Step',
+      '1.75': 'Tactix Slot 3 • Lean Calibration',
+      '1.80': 'Tactix Slot 4 • High-Altitude / Hot RAD',
+      '1.85': 'Tactix Slot 5 • DME #1 Active Baseline (Bellmouthed)',
+      '1.87': 'Tactix Slot 6 • DME #2 Recommended Start Spec',
+      '1.89': 'Tactix Slot 7 • Richer Mid-Range / SNB Check',
+      '1.92': 'Tactix Slot 8 • Cold Morning / Dense Air Step',
+      '1.94': 'Tactix Slot 9 • High-Speed Slipstream Step',
+      '2.00': 'Tactix Slot 10 • Heavy Load / E3 Emulsion Step',
+      '2.03': 'Tactix Slot 11 • Rich Extreme Reserve'
+    };
+    const jets = TACTIX_BOX_MM_SIZES.map((mm) => {
+      const mmFixed = Number(mm.toFixed(2));
+      const key = mmFixed.toFixed(2);
+      return {
+        id: makeMmJetId(mmFixed),
+        label: `${key} mm`,
+        stamp: stampNotes[key] || 'Tactix Metric Drill-Gauge Box',
+        mm: mmFixed,
+        custom: false,
+        inBox: true,
+        inToolbox: true
+      };
+    });
     return sortJetsByDiameter(jets);
   }
 
@@ -60,76 +104,293 @@
     return [...jets].sort((a, b) => a.mm - b.mm);
   }
 
+  function createDefaultEmulsions() {
+    return [
+      {
+        id: 'E1',
+        code: 'Type #1',
+        qty: 3,
+        collar: 'Single/Twin',
+        pattern: '2 Large Holes Only (1 collar, 1 base • solid mid-barrel)',
+        vsBase5: 'Less mid-range air bleed -> heavier fuel column & punchier mid-range torque hit out of tight 2nd/3rd-gear corners.',
+        status: 'Untested Stock'
+      },
+      {
+        id: 'E2',
+        code: 'Type #2',
+        qty: 1,
+        collar: 'Single',
+        pattern: '6 Large Holes + Cross-Slot in Venturi Snout',
+        vsBase5: 'Snout slot shears droplets in booster & bleeds extra air at high airflow -> leans top-end RPM faster than #5 (ideal test for rich-top-end SNB carby).',
+        status: 'Untested Stock'
+      },
+      {
+        id: 'E3',
+        code: 'Type #3',
+        qty: 1,
+        collar: 'Twin',
+        pattern: 'Full-Length Milled Vertical Slot + Collar Hole',
+        vsBase5: 'Massive continuous emulsion air bleed -> runs much leaner than #5 (needs larger main jet); soft-throttle / wet experiment.',
+        status: 'Untested Stock'
+      },
+      {
+        id: 'E4',
+        code: 'Type #4',
+        qty: 1,
+        collar: 'Single',
+        pattern: '6-Hole (#5 style) with Bottom 2 Jet-End Holes Soldered Shut (4 open)',
+        vsBase5: 'Blocks bottom air gulping at sustained 5600+ RPM -> richer/safer high-speed WOT protection (PI / Sandown / Calder) while keeping #5 exit response.',
+        status: 'Untested Stock'
+      },
+      {
+        id: 'E5_DME',
+        code: 'Type #5-DME',
+        qty: 1,
+        collar: 'Single',
+        pattern: '6 Open Holes (2 upper + 4 spaced) • DME Angled Jet Entry, Polished Shank & Thin-Wall Tip',
+        vsBase5: 'ACTIVE BASELINE (in DME #1): Proven linear all-rounder with smoothed jet entry & strong booster signal on 1.85 mm jet.',
+        status: 'Fitted in DME #1'
+      },
+      {
+        id: 'E5_STD',
+        code: 'Type #5-STD',
+        qty: 3,
+        collar: 'Single & Twin Factory Variants',
+        pattern: '6 Open Holes (2 close upper + 4 evenly spaced)',
+        vsBase5: 'Standard factory linear #5 reference curve.',
+        status: 'Baseline Stock'
+      },
+      {
+        id: 'E6',
+        code: 'Type #6',
+        qty: 1,
+        collar: 'Single',
+        pattern: '6 Holes — Enlarged 1st Upper & Lowest Jet-End Holes',
+        vsBase5: 'Softens initial main-circuit tip-in slightly and trims peak-RPM fuel while keeping mid-range pull.',
+        status: 'Untested Stock'
+      },
+      {
+        id: 'E7',
+        code: 'Type #7',
+        qty: 2,
+        collar: 'Single (Matched Pair)',
+        pattern: '6 Open Holes (2 upper + 4 spaced • uniform larger drill on #2)',
+        vsBase5: 'Matched single-collar baseline pair — ideal for setting up DME #2 to mirror DME #1.',
+        status: 'Untested Stock'
+      },
+      {
+        id: 'E8',
+        code: 'Type #8 (Cannon)',
+        qty: 1,
+        collar: 'Single',
+        pattern: '6 Exterior Holes • Straight-Through Wide-Open "Cannon" Bore (No Tip Restriction)',
+        vsBase5: 'Removes internal nozzle flow ceiling when power valve is blanked -> 100% of WOT fuel follows Main Jet on high-density / slipstream tracks.',
+        status: 'Untested Stock'
+      }
+    ];
+  }
+
+  function createDefaultBrassJets() {
+    return [
+      {
+        id: 'idle_69',
+        type: 'Idle Tube',
+        stamp: '#69',
+        mm: 0.74,
+        inch: 0.0292,
+        qty: 1,
+        notes: 'Leaner idle & slow-hairpin progression; cleans up low-RPM richness.'
+      },
+      {
+        id: 'idle_67',
+        type: 'Idle Tube',
+        stamp: '#67',
+        mm: 0.81,
+        inch: 0.0320,
+        qty: 1,
+        notes: '~20% more area than #69; richer idle-to-main transition if slight mid-corner hesitation.'
+      },
+      {
+        id: 'pb_67',
+        type: 'Power Bypass',
+        stamp: '#67',
+        mm: 0.81,
+        inch: 0.0320,
+        qty: 1,
+        notes: 'Mildest vacuum-piston WOT enrichment top-up (when power circuit not blanked).'
+      },
+      {
+        id: 'pb_62',
+        type: 'Power Bypass',
+        stamp: '#62',
+        mm: 0.97,
+        inch: 0.0380,
+        qty: 1,
+        notes: 'Medium WOT enrichment (+43% area vs #67).'
+      },
+      {
+        id: 'pb_57',
+        type: 'Power Bypass',
+        stamp: '#57',
+        mm: 1.09,
+        inch: 0.0430,
+        qty: 1,
+        notes: 'Heavy WOT enrichment (+82% area vs #67).'
+      },
+      {
+        id: 'pb_53',
+        type: 'Power Bypass',
+        stamp: '#53',
+        mm: 1.51,
+        inch: 0.0595,
+        qty: 1,
+        notes: 'Huge WOT dump (~3.5x #67 area) — only for tiny cruise main jets; causes 11.x rich WOT otherwise.'
+      }
+    ];
+  }
+
+  function createDefaultFuelSystem() {
+    return {
+      tankSpec: '74.0 L Tank w/ Polyurethane Foam Baffling (12.0 L Surge Floor)',
+      preFilter: 'Sakura FS-8002 Disposable Inline Pre-Filter (Boot — inspect for foam shedding)',
+      fuelPump: 'Holley 12-427 Mighty Mite Electric Pump (4.0–7.0 psi rated • 32 GPH)',
+      safetyCutoff: 'Tachometric Safety Relay (Auto Shut-Off < 300 RPM)',
+      linesAndDryBreak: '5/16" (8 mm) Steel Underbody Hardline + Engine Bay Quick-Connect Dry-Break',
+      pressureGauge: '0–15 psi Liquid-Filled Mechanical Gauge (at Carby Inlet • ~4.3 psi WOT)',
+      runningPsi: 4.3,
+      inductionSpec: '50 mm (2") Reusable Pleated Filter + Custom Aluminium HQRA Radiant Heat Shield',
+      serviceNotes: 'Inspect Sakura FS-8002 clear pre-filter regularly for aged tank foam particles before they reach the Holley Mighty Mite pump or BXUV-3 needle & seat.'
+    };
+  }
+
   function createDefaultCarbies() {
     return [
       {
-        id: '1 DME',
-        name: '1 DME',
+        id: 'DME1',
+        name: 'DME #1',
+        onCar: true,
         bodyType: 'Late-Base 40.00 mm Stromberg BXUV-3',
+        bodyCode: '23-3052 (<213> Horn • Boss 30)',
+        baseCasting: '2376876 BXUV-3 (Profiled Shaft)',
         studsMm: 75.0,
-        venturiMm: 30.90,
-        exitMm: 39.98,
+        throttleBoreMm: 39.81,
+        exitMm: 39.81,
+        mainVenturiMm: null,
+        venturiMm: null,
+        fittedJetMm: 1.85,
+        fittedJetId: 'mm_185',
+        recommendedStartJetMm: 1.85,
+        emulsionId: 'E5_DME',
+        needleSeat: 'V8 High-Flow Brass + Viton Tip',
+        spillHeightMm: 15.0,
         spillMm: 15.0,
+        spillDisplay: '15.0 mm (incl. gasket • baffled bowl)',
+        floatWeightG: null,
+        floatWeightDisplay: 'TBD (DME modified for 0.74 SG)',
+        idleTube: 'TBD',
+        powerBypass: 'TBD (DME modified)',
+        highSpeedBleed: 'TBD (12 o-clock brass dome)',
+        pumpCircuit: 'TBD (DME modified in/out • potted vac port)',
+        airCleaner: '50 mm (2") Reusable Pleated + HQRA Shield',
         gasketStack: 'HQRA heat shield between 2x std 40mm gaskets',
-        fittedJetId: 'drill_2000',
         baselineAnchor: {
           sourceLabel: 'Calder Race 1',
-          jetId: 'drill_2000',
-          jetLabel: 'Jet #77 / 2.000 mm',
-          jetMm: 2.000,
+          jetId: 'mm_185',
+          jetLabel: '1.85 mm',
+          jetMm: 1.85,
           rad: 94.3,
           fuelSg: 0.740,
           verifiedAfr: 12.50,
           timing: 33.0,
-          fuelPsi: 5.0
+          fuelPsi: 4.3,
+          emulsionId: 'E5_DME'
         },
-        notes: 'Primary race unit — crisp booster signal, Calder Race 1 verified baseline.'
+        notes: 'Last raced on 1.85 mm bellmouthed jet + #5-DME emulsion. Built by DM Engines (#73/1.85mm spec) for 4 psi @ 0.74 SG BP 98.'
       },
       {
-        id: '2 DME',
-        name: '2 DME',
+        id: 'DME2',
+        name: 'DME #2',
+        onCar: false,
         bodyType: 'Late-Base 40.00 mm Stromberg BXUV-3',
+        bodyCode: '23-3092 5-15 (<213> Horn • Bar A)',
+        baseCasting: '2376878 BXUV-3 (#14 Plate • Profiled Shaft)',
         studsMm: 75.0,
-        venturiMm: 30.88,
-        exitMm: 39.95,
+        throttleBoreMm: 39.70,
+        exitMm: 39.70,
+        mainVenturiMm: null,
+        venturiMm: null,
+        fittedJetMm: null,
+        fittedJetId: '',
+        recommendedStartJetMm: 1.87,
+        emulsionId: 'TBD',
+        needleSeat: 'V8 High-Flow Brass + Viton Tip',
+        spillHeightMm: 15.0,
         spillMm: 15.0,
+        spillDisplay: '15.0 mm (incl. gasket • baffled bowl)',
+        floatWeightG: null,
+        floatWeightDisplay: 'TBD (DME modified for 0.74 SG)',
+        idleTube: 'TBD',
+        powerBypass: 'TBD (DME modified)',
+        highSpeedBleed: 'TBD',
+        pumpCircuit: 'TBD (DME modified in/out • plugged choke bosses)',
+        airCleaner: '50 mm (2") Reusable Pleated + HQRA Shield',
         gasketStack: 'HQRA heat shield between 2x std 40mm gaskets',
-        fittedJetId: 'm1_74',
         baselineAnchor: {
           sourceLabel: 'Untested / DME Build Sheet',
-          jetId: 'm1_74',
-          jetLabel: '#74 DME Spec / 1.880 mm',
-          jetMm: 1.880,
+          jetId: 'mm_187',
+          jetLabel: '1.87 mm',
+          jetMm: 1.87,
           rad: 100.0,
           fuelSg: 0.740,
           verifiedAfr: null,
           timing: 33.0,
-          fuelPsi: 5.0
+          fuelPsi: 4.3,
+          emulsionId: 'TBD'
         },
-        notes: 'Untested DME build-sheet unit — #74 (1.880 mm) @ 100.0% RAD, Weather-Only until run.'
+        notes: 'NO MAIN JET CURRENTLY FITTED. DME Carby 2 built around 1.88mm (#74) for richer mid-range/off-corner driveability curve — fit 1.87 mm or 1.89 mm before running.'
       },
       {
-        id: 'SNB Carby',
-        name: 'SNB Carby',
+        id: 'SNB',
+        name: 'SNB',
+        onCar: false,
         bodyType: 'Late-Base 40.00 mm Stromberg BXUV-3',
+        bodyCode: '23-3052 3-10 (<213> Horn • 1.9 on Top Bar)',
+        baseCasting: '2376878 BXUV-3 (Gold Linkage • Flush Screws)',
         studsMm: 75.0,
-        venturiMm: 30.92,
+        throttleBoreMm: 40.00,
         exitMm: 40.00,
-        spillMm: 15.0,
+        mainVenturiMm: null,
+        venturiMm: null,
+        fittedJetMm: null,
+        fittedJetId: '',
+        fittedJetDisplay: 'TBD (1.9 marked on top bar — verify internal jet)',
+        recommendedStartJetMm: 1.89,
+        emulsionId: 'TBD',
+        needleSeat: 'V8 High-Flow Brass + Viton Tip',
+        spillHeightMm: null,
+        spillMm: null,
+        spillDisplay: 'TBD',
+        floatWeightG: null,
+        floatWeightDisplay: 'TBD',
+        idleTube: 'TBD',
+        powerBypass: 'TBD (Check if active — ran 11.9 WOT AFR previously)',
+        highSpeedBleed: 'TBD',
+        pumpCircuit: 'TBD',
+        airCleaner: '50 mm (2") Reusable Pleated + HQRA Shield',
         gasketStack: 'HQRA heat shield between 2x std 40mm gaskets',
-        fittedJetId: 'm1_70',
         baselineAnchor: {
-          sourceLabel: 'Calder P2',
-          jetId: 'm1_70',
-          jetLabel: '#70 / 1.788 mm',
-          jetMm: 1.788,
+          sourceLabel: 'Calder P2 (Verify Internal Jet)',
+          jetId: 'mm_189',
+          jetLabel: '1.89 mm',
+          jetMm: 1.89,
           rad: 96.0,
           fuelSg: 0.740,
           verifiedAfr: 11.90,
           timing: 33.0,
-          fuelPsi: 5.0
+          fuelPsi: 4.3,
+          emulsionId: 'TBD'
         },
-        notes: 'Development 40mm BXUV-3 — 15.0 mm spill, #70 (1.788 mm) verified 11.90 AFR at Calder P2.'
+        notes: '40.00 mm exact base bore. Marked 1.9 on top bar; previously ran rich 11.9:1 WOT AFR — inspect power bypass & air bleed on teardown.'
       }
     ];
   }
@@ -240,10 +501,11 @@
       sessionDateIso: todayIso,
       sessionDate: formatIsoDateDisplay(todayIso),
       sessionName: 'Race 1',
-      carbyId: '1 DME',
-      jetId: 'drill_2000',
-      jetLabel: 'Jet #77 / 2.000 mm',
-      jetMm: 2.000,
+      carbyId: 'DME1',
+      emulsionId: 'E5_DME',
+      jetId: 'mm_185',
+      jetLabel: '1.85 mm',
+      jetMm: 1.85,
       rad: 94.3,
       fuelSg: 0.740,
       wotAfr: 12.50,
@@ -251,7 +513,7 @@
       afrStatus: 'verified', // 'verified' | 'estimated' | 'untested'
       weatherOnly: false,
       timing: 33.0,
-      fuelPsi: 5.0,
+      fuelPsi: 4.3,
       waterTempC: 84,
       linkedSessionId: 'calder_r1'
     };
@@ -282,17 +544,18 @@
             sessionDate: calderDisp,
             sessionName: 'Practice 1',
             timestamp: 'Sat 09:10',
-            carbyId: '1 DME',
+            carbyId: 'DME1',
+            emulsionId: 'E5_DME',
             manifoldId: 'Macca',
             exhaustId: 'Macca',
-            jetId: 'm1_78',
-            jetLabel: '#78',
-            jetMm: 1.9812,
+            jetId: 'mm_185',
+            jetLabel: '1.85 mm',
+            jetMm: 1.85,
             rad: 97.4,
             fuelSg: 0.740,
             fuelTempC: 18.0,
             timing: 33.0,
-            fuelPsi: 5.0,
+            fuelPsi: 4.3,
             waterTempC: 82,
             afr3500: 12.94,
             afr4000: 12.88,
@@ -327,9 +590,9 @@
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
-            preRaceNotes: 'Mounted KB1-KB4 @ 30.0 psi cold square (22°C track), #78 jet in 1 DME for morning shakedown.',
-            postRaceNotes: 'Crisp morning air at Calder; 1 DME + Macca manifold/exhaust baseline shakedown.',
-            notes: 'Crisp morning air at Calder; 1 DME + Macca manifold/exhaust baseline shakedown.'
+            preRaceNotes: 'Mounted KB1-KB4 @ 30.0 psi cold square (22°C track), 1.85 mm jet + #5-DME emulsion in DME #1.',
+            postRaceNotes: 'Crisp morning air at Calder; DME #1 + Macca manifold/exhaust baseline shakedown.',
+            notes: 'Crisp morning air at Calder; DME #1 + Macca manifold/exhaust baseline shakedown.'
           },
           {
             id: 'calder_q1',
@@ -341,17 +604,18 @@
             sessionDate: calderDisp,
             sessionName: 'Qualifying',
             timestamp: 'Sat 11:45',
-            carbyId: '1 DME',
+            carbyId: 'DME1',
+            emulsionId: 'E5_DME',
             manifoldId: 'Macca',
             exhaustId: 'Macca',
-            jetId: 'm1_78',
-            jetLabel: '#78',
-            jetMm: 1.9812,
+            jetId: 'mm_185',
+            jetLabel: '1.85 mm',
+            jetMm: 1.85,
             rad: 95.2,
             fuelSg: 0.740,
             fuelTempC: 19.5,
             timing: 33.5,
-            fuelPsi: 5.0,
+            fuelPsi: 4.3,
             waterTempC: 85,
             afr3500: 12.86,
             afr4000: 12.80,
@@ -400,17 +664,18 @@
             sessionDate: calderDisp,
             sessionName: 'Race 1',
             timestamp: 'Sun 10:35',
-            carbyId: '1 DME',
+            carbyId: 'DME1',
+            emulsionId: 'E5_DME',
             manifoldId: 'Macca',
             exhaustId: 'Macca',
-            jetId: 'drill_2000',
-            jetLabel: 'Jet #77 / 2.000 mm',
-            jetMm: 2.0000,
+            jetId: 'mm_185',
+            jetLabel: '1.85 mm',
+            jetMm: 1.85,
             rad: 94.3,
             fuelSg: 0.740,
             fuelTempC: 20.0,
             timing: 33.0,
-            fuelPsi: 5.0,
+            fuelPsi: 4.3,
             waterTempC: 84,
             afr3500: 12.68,
             afr4000: 12.60,
@@ -445,9 +710,9 @@
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
-            preRaceNotes: 'Stepped richer to #77 / 2.000 mm for pack slipstream protection; 36.0 L fuel in.',
-            postRaceNotes: 'Safe rich slipstream setup (2.000mm drill in #77 body); 5.0 psi steady at block boss.',
-            notes: 'Safe rich slipstream setup (2.000mm drill in #77 body); 5.0 psi steady at block boss.'
+            preRaceNotes: 'Verified 1.85 mm bellmouthed jet + #5-DME emulsion for pack slipstream protection; 36.0 L fuel in.',
+            postRaceNotes: 'Safe rich slipstream setup (1.85 mm bellmouthed jet + #5-DME); 4.3 psi steady at carby inlet.',
+            notes: 'Safe rich slipstream setup (1.85 mm bellmouthed jet + #5-DME); 4.3 psi steady at carby inlet.'
           },
           {
             id: 'calder_r2',
@@ -459,17 +724,18 @@
             sessionDate: calderDisp,
             sessionName: 'Race 2',
             timestamp: 'Sun 14:20',
-            carbyId: '1 DME',
+            carbyId: 'DME1',
+            emulsionId: 'E5_DME',
             manifoldId: 'Macca',
             exhaustId: 'Macca',
-            jetId: 'm1_78',
-            jetLabel: '#78',
-            jetMm: 1.9812,
+            jetId: 'mm_180',
+            jetLabel: '1.80 mm',
+            jetMm: 1.80,
             rad: 93.9,
             fuelSg: 0.740,
             fuelTempC: 21.0,
             timing: 33.0,
-            fuelPsi: 5.0,
+            fuelPsi: 4.3,
             waterTempC: 87,
             afr3500: 12.92,
             afr4000: 12.88,
@@ -504,9 +770,9 @@
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
-            preRaceNotes: 'Dropped to #78 jet for 93.9% RAD; hot-bled paddock set targeting 44.0 psi square (32°C track).',
-            postRaceNotes: 'Stepped leaner to #78 — dead in 12.8-12.9 HQ 202 sweet spot, P1 finish.',
-            notes: 'Stepped leaner to #78 — dead in 12.8-12.9 HQ 202 sweet spot, P1 finish.'
+            preRaceNotes: 'Stepped leaner for 93.9% RAD; hot-bled paddock set targeting 44.0 psi square (32°C track).',
+            postRaceNotes: 'Dead in 12.8-12.9 HQ 202 sweet spot, P1 finish.',
+            notes: 'Dead in 12.8-12.9 HQ 202 sweet spot, P1 finish.'
           }
         ]
       },
@@ -528,17 +794,18 @@
             sessionDate: wintonDisp,
             sessionName: 'Practice 1',
             timestamp: 'Sat 09:30',
-            carbyId: 'SNB Carby',
+            carbyId: 'SNB',
+            emulsionId: 'TBD',
             manifoldId: 'Macca',
             exhaustId: 'Macca',
-            jetId: 'm1_78',
-            jetLabel: '#78',
-            jetMm: 1.9812,
+            jetId: 'mm_189',
+            jetLabel: '1.89 mm',
+            jetMm: 1.89,
             rad: 98.2,
             fuelSg: 0.740,
             fuelTempC: 16.5,
             timing: 33.0,
-            fuelPsi: 5.0,
+            fuelPsi: 4.3,
             waterTempC: 81,
             afr3500: 13.02,
             afr4000: 12.96,
@@ -573,7 +840,7 @@
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
-            preRaceNotes: 'Bolted on SNB Carby (#78 jet) + Winton CW cold stagger (FL 29.6, RL 29.8 @ 19°C track).',
+            preRaceNotes: 'Bolted on SNB Carby (1.89 mm jet) + Winton CW cold stagger (FL 29.6, RL 29.8 @ 19°C track).',
             postRaceNotes: 'Cold Winton morning; SNB Carby crisp off the sweeper.',
             notes: 'Cold Winton morning; SNB Carby crisp off the sweeper.'
           },
@@ -587,17 +854,18 @@
             sessionDate: wintonDisp,
             sessionName: 'Qualifying',
             timestamp: 'Sat 12:15',
-            carbyId: 'SNB Carby',
+            carbyId: 'SNB',
+            emulsionId: 'TBD',
             manifoldId: 'Macca',
             exhaustId: 'Macca',
-            jetId: 'm1_78',
-            jetLabel: '#78',
-            jetMm: 1.9812,
+            jetId: 'mm_189',
+            jetLabel: '1.89 mm',
+            jetMm: 1.89,
             rad: 96.4,
             fuelSg: 0.740,
             fuelTempC: 18.0,
             timing: 33.5,
-            fuelPsi: 5.0,
+            fuelPsi: 4.3,
             waterTempC: 84,
             afr3500: 12.95,
             afr4000: 12.90,
@@ -632,7 +900,7 @@
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
-            preRaceNotes: 'Hot-cycled paddock tyres from Practice 1 targeting 44.0 psi square; kept #78 jet & bumped timing to 33.5°.',
+            preRaceNotes: 'Hot-cycled paddock tyres from Practice 1 targeting 44.0 psi square; kept 1.89 mm jet & bumped timing to 33.5°.',
             postRaceNotes: 'Front-row qualifying lap; 1.44 L/lap verified on pump-out.',
             notes: 'Front-row qualifying lap; 1.44 L/lap verified on pump-out.'
           },
@@ -646,17 +914,18 @@
             sessionDate: wintonDisp,
             sessionName: 'Race 1',
             timestamp: 'Sun 13:40',
-            carbyId: 'SNB Carby',
+            carbyId: 'SNB',
+            emulsionId: 'TBD',
             manifoldId: 'Macca',
             exhaustId: 'Macca',
-            jetId: 'm1_78',
-            jetLabel: '#78',
-            jetMm: 1.9812,
+            jetId: 'mm_189',
+            jetLabel: '1.89 mm',
+            jetMm: 1.89,
             rad: 95.8,
             fuelSg: 0.740,
             fuelTempC: 19.0,
             timing: 33.0,
-            fuelPsi: 5.0,
+            fuelPsi: 4.3,
             waterTempC: 85,
             afr3500: 12.92,
             afr4000: 12.87,
@@ -1638,27 +1907,261 @@
      ------------------------------------------------------------------------ */
   function hydrateState(candidate) {
     const defaultCarbies = createDefaultCarbies();
+    const defaultJets = createDefaultJets();
+    const defaultEmulsions = createDefaultEmulsions();
+    const defaultBrassJets = createDefaultBrassJets();
+    const defaultFuelSystem = createDefaultFuelSystem();
     const todayIso = getLocalTodayIso();
     const todayDisp = formatIsoDateDisplay(todayIso);
     const pickOptNum = (v) => (v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v)) ? Number(v) : null);
+    const needsCarbyJetAuditV1 = !candidate.carbyJetAuditV1;
 
-    candidate.jets = sortJetsByDiameter(candidate.jets || createDefaultJets());
+    // 1) Hydrate & Migrate Pure "mm" 11-Slot Tactix Drill-Gauge Matrix
+    if (needsCarbyJetAuditV1 || !Array.isArray(candidate.jets) || candidate.jets.length === 0) {
+      const customExtras = [];
+      if (Array.isArray(candidate.jets)) {
+        candidate.jets.forEach((oldJ) => {
+          if (!oldJ || typeof oldJ !== 'object') return;
+          const oldId = String(oldJ.id || '');
+          // Skip legacy factory M1 #68-#80 and legacy seed drills 1.950/2.000
+          if (/^m1_\d+$/i.test(oldId) || oldId === 'drill_1950' || oldId === 'drill_2000') return;
+          const mmVal = Number(oldJ.mm);
+          if (!Number.isFinite(mmVal) || mmVal <= 0) return;
+          if (TACTIX_BOX_MM_SIZES.some((stdMm) => Math.abs(stdMm - mmVal) < 0.002)) return;
+          customExtras.push({
+            id: makeMmJetId(mmVal),
+            label: formatJetPureMm(mmVal),
+            stamp: typeof oldJ.stamp === 'string' && oldJ.stamp.trim()
+              ? oldJ.stamp.replace(/#\d+\s*\/?\s*/g, '').trim() || 'Custom Metric Drill'
+              : 'Custom Metric Drill',
+            mm: Number(mmVal.toFixed(3)),
+            custom: true,
+            inBox: Boolean(oldJ.inBox ?? oldJ.inToolbox ?? true),
+            inToolbox: Boolean(oldJ.inBox ?? oldJ.inToolbox ?? true)
+          });
+        });
+      }
+      candidate.jets = sortJetsByDiameter([...defaultJets, ...customExtras]);
+    } else {
+      const normalizedJets = [];
+      const seenMm = new Set();
+      candidate.jets.forEach((j) => {
+        if (!j || typeof j !== 'object') return;
+        const mmVal = Number(j.mm);
+        if (!Number.isFinite(mmVal) || mmVal <= 0) return;
+        const mmKey = mmVal.toFixed(3);
+        if (seenMm.has(mmKey)) return;
+        seenMm.add(mmKey);
+        const stdMatch = defaultJets.find((dj) => Math.abs(dj.mm - mmVal) < 0.002);
+        const inBoxVal = Boolean(j.inBox ?? j.inToolbox ?? true);
+        normalizedJets.push({
+          id: stdMatch ? stdMatch.id : (j.id || makeMmJetId(mmVal)),
+          label: formatJetPureMm(stdMatch ? stdMatch.mm : mmVal),
+          stamp: stdMatch
+            ? stdMatch.stamp
+            : (typeof j.stamp === 'string' && j.stamp.trim() ? j.stamp.replace(/#\d+\s*\/?\s*/g, '').trim() : 'Custom Metric Drill'),
+          mm: stdMatch ? stdMatch.mm : Number(mmVal.toFixed(3)),
+          custom: stdMatch ? false : Boolean(j.custom ?? true),
+          inBox: inBoxVal,
+          inToolbox: inBoxVal
+        });
+      });
+      defaultJets.forEach((dj) => {
+        if (!normalizedJets.some((nj) => Math.abs(nj.mm - dj.mm) < 0.002)) {
+          normalizedJets.push({ ...dj });
+        }
+      });
+      candidate.jets = sortJetsByDiameter(normalizedJets);
+    }
 
-    if (!Array.isArray(candidate.carbies) || candidate.carbies.length === 0) {
-      candidate.carbies = defaultCarbies;
+    // 2) Hydrate & Migrate 3 Audited Carburettor Profiles (DME #1, DME #2, SNB)
+    if (needsCarbyJetAuditV1 || !Array.isArray(candidate.carbies) || candidate.carbies.length === 0) {
+      const extraUserCarbies = [];
+      const prevLearnedByAlias = {};
+      if (Array.isArray(candidate.carbies)) {
+        candidate.carbies.forEach((oldC) => {
+          if (!oldC || typeof oldC !== 'object') return;
+          const alias = normalizeCarbyIdAlias(oldC.id || oldC.name);
+          if (oldC.learnedFlowFactor !== undefined) {
+            prevLearnedByAlias[alias] = oldC.learnedFlowFactor;
+          }
+          if (!['DME1', 'DME2', 'SNB'].includes(alias)) {
+            const fittedMm = pickOptNum(oldC.fittedJetMm);
+            extraUserCarbies.push({
+              ...oldC,
+              id: String(oldC.id || oldC.name).trim(),
+              name: String(oldC.name || oldC.id).trim(),
+              onCar: false,
+              bodyCode: oldC.bodyCode || 'TBD',
+              baseCasting: oldC.baseCasting || 'BXUV-3 (75mm Studs)',
+              throttleBoreMm: pickOptNum(oldC.throttleBoreMm ?? oldC.exitMm) ?? 39.95,
+              exitMm: pickOptNum(oldC.throttleBoreMm ?? oldC.exitMm) ?? 39.95,
+              mainVenturiMm: pickOptNum(oldC.mainVenturiMm ?? oldC.venturiMm),
+              venturiMm: pickOptNum(oldC.mainVenturiMm ?? oldC.venturiMm),
+              fittedJetMm: fittedMm,
+              fittedJetId: fittedMm ? makeMmJetId(fittedMm) : '',
+              recommendedStartJetMm: pickOptNum(oldC.recommendedStartJetMm) ?? 1.85,
+              emulsionId: oldC.emulsionId || 'TBD',
+              needleSeat: oldC.needleSeat || 'V8 High-Flow Brass + Viton Tip',
+              spillHeightMm: pickOptNum(oldC.spillHeightMm ?? oldC.spillMm),
+              spillMm: pickOptNum(oldC.spillHeightMm ?? oldC.spillMm),
+              floatWeightG: pickOptNum(oldC.floatWeightG),
+              idleTube: oldC.idleTube || 'TBD',
+              powerBypass: oldC.powerBypass || 'TBD',
+              highSpeedBleed: oldC.highSpeedBleed || 'TBD',
+              pumpCircuit: oldC.pumpCircuit || 'TBD',
+              airCleaner: oldC.airCleaner || '50 mm (2") Reusable Pleated + HQRA Shield'
+            });
+          }
+        });
+      }
+      candidate.carbies = [
+        ...defaultCarbies.map((dc) => ({
+          ...dc,
+          ...(prevLearnedByAlias[dc.id] !== undefined ? { learnedFlowFactor: prevLearnedByAlias[dc.id] } : {})
+        })),
+        ...extraUserCarbies
+      ];
     } else {
       candidate.carbies = candidate.carbies.map((c) => {
-        const def = defaultCarbies.find((d) => d.id === c.id);
-        if (!c.baselineAnchor && def) {
-          return {
-            ...c,
-            fittedJetId: c.id === '2 DME' && c.fittedJetId === 'm1_76' ? 'm1_74' : c.fittedJetId,
-            baselineAnchor: { ...def.baselineAnchor },
-            notes: def.notes
-          };
-        }
-        return c;
+        const alias = normalizeCarbyIdAlias(c.id || c.name);
+        const def = defaultCarbies.find((d) => d.id === alias);
+        const boreMm = pickOptNum(c.throttleBoreMm ?? c.exitMm) ?? (def ? def.throttleBoreMm : 39.90);
+        const ventMm = c.mainVenturiMm !== undefined ? pickOptNum(c.mainVenturiMm) : (def ? def.mainVenturiMm : pickOptNum(c.venturiMm));
+        const fitMm = c.fittedJetMm !== undefined ? pickOptNum(c.fittedJetMm) : (def ? def.fittedJetMm : null);
+        const spillVal = c.spillHeightMm !== undefined ? pickOptNum(c.spillHeightMm) : (def ? def.spillHeightMm : pickOptNum(c.spillMm));
+        const floatWt = c.floatWeightG !== undefined ? pickOptNum(c.floatWeightG) : (def ? def.floatWeightG : null);
+        const fitJetObj = fitMm !== null
+          ? candidate.jets.find((j) => Math.abs(j.mm - fitMm) < 0.002)
+          : null;
+        const anchorBase = c.baselineAnchor || (def && def.baselineAnchor) || {
+          sourceLabel: 'Bench Baseline',
+          jetId: fitJetObj ? fitJetObj.id : 'mm_185',
+          jetLabel: formatJetPureMm(fitMm || 1.85),
+          jetMm: fitMm || 1.85,
+          rad: 94.3,
+          fuelSg: 0.740,
+          verifiedAfr: 12.50,
+          timing: 33.0,
+          fuelPsi: 4.3,
+          emulsionId: c.emulsionId || (def ? def.emulsionId : 'TBD')
+        };
+        return {
+          ...(def || {}),
+          ...c,
+          id: def ? def.id : String(c.id || c.name).trim(),
+          name: typeof c.name === 'string' && c.name.trim() ? c.name.trim() : (def ? def.name : 'Carby'),
+          onCar: Boolean(c.onCar),
+          bodyCode: typeof c.bodyCode === 'string' && c.bodyCode.trim() ? c.bodyCode.trim() : (def ? def.bodyCode : 'TBD'),
+          baseCasting: typeof c.baseCasting === 'string' && c.baseCasting.trim() ? c.baseCasting.trim() : (def ? def.baseCasting : 'BXUV-3 (75mm Studs)'),
+          throttleBoreMm: boreMm,
+          exitMm: boreMm,
+          mainVenturiMm: ventMm,
+          venturiMm: ventMm,
+          fittedJetMm: fitMm,
+          fittedJetId: fitMm !== null ? (fitJetObj ? fitJetObj.id : makeMmJetId(fitMm)) : '',
+          recommendedStartJetMm: pickOptNum(c.recommendedStartJetMm) ?? (def ? def.recommendedStartJetMm : 1.85),
+          emulsionId: typeof c.emulsionId === 'string' && c.emulsionId.trim() ? c.emulsionId.trim() : (def ? def.emulsionId : 'TBD'),
+          needleSeat: typeof c.needleSeat === 'string' && c.needleSeat.trim() ? c.needleSeat.trim() : (def ? def.needleSeat : 'V8 High-Flow Brass + Viton Tip'),
+          spillHeightMm: spillVal,
+          spillMm: spillVal,
+          floatWeightG: floatWt,
+          idleTube: typeof c.idleTube === 'string' && c.idleTube.trim() ? c.idleTube.trim() : (def ? def.idleTube : 'TBD'),
+          powerBypass: typeof c.powerBypass === 'string' && c.powerBypass.trim() ? c.powerBypass.trim() : (def ? def.powerBypass : 'TBD'),
+          highSpeedBleed: typeof c.highSpeedBleed === 'string' && c.highSpeedBleed.trim() ? c.highSpeedBleed.trim() : (def ? def.highSpeedBleed : 'TBD'),
+          pumpCircuit: typeof c.pumpCircuit === 'string' && c.pumpCircuit.trim() ? c.pumpCircuit.trim() : (def ? def.pumpCircuit : 'TBD'),
+          airCleaner: typeof c.airCleaner === 'string' && c.airCleaner.trim() ? c.airCleaner.trim() : (def ? def.airCleaner : '50 mm (2") Reusable Pleated + HQRA Shield'),
+          baselineAnchor: {
+            ...anchorBase,
+            jetLabel: formatJetPureMm(anchorBase.jetMm || fitMm || 1.85),
+            fuelPsi: Number.isFinite(Number(anchorBase.fuelPsi)) ? Number(anchorBase.fuelPsi) : 4.3
+          },
+          notes: typeof c.notes === 'string' ? c.notes : (def ? def.notes : '')
+        };
       });
+    }
+    if (!candidate.carbies.some((c) => c.onCar) && candidate.carbies.length > 0) {
+      candidate.carbies[0].onCar = true;
+    }
+
+    // 3) Hydrate Emulsion Tubes (#1–#8: 9 profiles = 14 physical tubes) & Brass Kit (2 Idle + 4 Power Bypass)
+    if (needsCarbyJetAuditV1 || !Array.isArray(candidate.emulsions) || candidate.emulsions.length === 0) {
+      candidate.emulsions = defaultEmulsions;
+    } else {
+      const seenEmul = new Set();
+      candidate.emulsions = candidate.emulsions
+        .map((em, idx) => {
+          const id = String(em.id || `E_CUSTOM_${idx + 1}`).trim();
+          const defE = defaultEmulsions.find((de) => de.id === id);
+          return {
+            id,
+            code: typeof em.code === 'string' && em.code.trim() ? em.code.trim() : (defE ? defE.code : id),
+            qty: Number.isFinite(Number(em.qty)) ? Math.max(0, Math.round(Number(em.qty))) : (defE ? defE.qty : 1),
+            collar: typeof em.collar === 'string' && em.collar.trim() ? em.collar.trim() : (defE ? defE.collar : 'Single'),
+            pattern: typeof em.pattern === 'string' && em.pattern.trim() ? em.pattern.trim() : (defE ? defE.pattern : 'TBD'),
+            vsBase5: typeof em.vsBase5 === 'string' && em.vsBase5.trim() ? em.vsBase5.trim() : (defE ? defE.vsBase5 : ''),
+            status: typeof em.status === 'string' && em.status.trim() ? em.status.trim() : (defE ? defE.status : 'Untested Stock')
+          };
+        })
+        .filter((em) => {
+          if (seenEmul.has(em.id)) return false;
+          seenEmul.add(em.id);
+          return true;
+        });
+      defaultEmulsions.forEach((de) => {
+        if (!candidate.emulsions.some((em) => em.id === de.id)) {
+          candidate.emulsions.push({ ...de });
+        }
+      });
+    }
+
+    if (needsCarbyJetAuditV1 || !Array.isArray(candidate.brassJets) || candidate.brassJets.length === 0) {
+      candidate.brassJets = defaultBrassJets;
+    } else {
+      const seenBrass = new Set();
+      candidate.brassJets = candidate.brassJets
+        .map((br, idx) => {
+          const id = String(br.id || `br_${idx + 1}`).trim();
+          const defB = defaultBrassJets.find((db) => db.id === id);
+          const mm = Number.isFinite(Number(br.mm)) ? Number(Number(br.mm).toFixed(2)) : (defB ? defB.mm : 0.81);
+          return {
+            id,
+            type: br.type === 'Idle Tube' ? 'Idle Tube' : 'Power Bypass',
+            stamp: typeof br.stamp === 'string' && br.stamp.trim() ? br.stamp.trim() : (defB ? defB.stamp : '#67'),
+            mm,
+            inch: Number((mm / MM_PER_INCH).toFixed(4)),
+            qty: Number.isFinite(Number(br.qty)) ? Math.max(0, Math.round(Number(br.qty))) : (defB ? defB.qty : 1),
+            notes: typeof br.notes === 'string' ? br.notes : (defB ? defB.notes : '')
+          };
+        })
+        .filter((br) => {
+          if (seenBrass.has(br.id)) return false;
+          seenBrass.add(br.id);
+          return true;
+        });
+      defaultBrassJets.forEach((db) => {
+        if (!candidate.brassJets.some((br) => br.id === db.id)) {
+          candidate.brassJets.push({ ...db });
+        }
+      });
+    }
+
+    // 4) Hydrate In-Car Fuel System Hardware Profile (4.3 psi Baseline)
+    if (needsCarbyJetAuditV1 || !candidate.fuelSystem || typeof candidate.fuelSystem !== 'object') {
+      candidate.fuelSystem = { ...defaultFuelSystem };
+    } else {
+      const fs = candidate.fuelSystem;
+      candidate.fuelSystem = {
+        tankSpec: typeof fs.tankSpec === 'string' && fs.tankSpec.trim() ? fs.tankSpec.trim() : defaultFuelSystem.tankSpec,
+        preFilter: typeof fs.preFilter === 'string' && fs.preFilter.trim() ? fs.preFilter.trim() : defaultFuelSystem.preFilter,
+        fuelPump: typeof fs.fuelPump === 'string' && fs.fuelPump.trim() ? fs.fuelPump.trim() : defaultFuelSystem.fuelPump,
+        safetyCutoff: typeof fs.safetyCutoff === 'string' && fs.safetyCutoff.trim() ? fs.safetyCutoff.trim() : defaultFuelSystem.safetyCutoff,
+        linesAndDryBreak: typeof fs.linesAndDryBreak === 'string' && fs.linesAndDryBreak.trim() ? fs.linesAndDryBreak.trim() : defaultFuelSystem.linesAndDryBreak,
+        pressureGauge: typeof fs.pressureGauge === 'string' && fs.pressureGauge.trim() ? fs.pressureGauge.trim() : defaultFuelSystem.pressureGauge,
+        runningPsi: Number.isFinite(Number(fs.runningPsi)) ? Number(Number(fs.runningPsi).toFixed(1)) : 4.3,
+        inductionSpec: typeof fs.inductionSpec === 'string' && fs.inductionSpec.trim() ? fs.inductionSpec.trim() : defaultFuelSystem.inductionSpec,
+        serviceNotes: typeof fs.serviceNotes === 'string' && fs.serviceNotes.trim() ? fs.serviceNotes.trim() : defaultFuelSystem.serviceNotes
+      };
     }
 
     // Hydrate Inlet Manifolds ("Macca" ON CAR & "SNB" seeded at 155 CFM across all 3 ports)
@@ -1965,6 +2468,25 @@
     if (!b.sessionDate) {
       b.sessionDate = formatIsoDateDisplay(baseIso) || todayDisp;
     }
+    b.carbyId = normalizeCarbyIdAlias(b.carbyId || 'DME1');
+    if (needsCarbyJetAuditV1) {
+      if (b.carbyId === 'DME1' && (b.jetId === 'drill_2000' || Math.abs(Number(b.jetMm) - 2.0) < 0.005)) {
+        b.jetId = 'mm_185';
+        b.jetMm = 1.85;
+      }
+      if (!b.fuelPsi || Math.abs(Number(b.fuelPsi) - 5.0) < 0.05) {
+        b.fuelPsi = 4.3;
+      }
+      if (!b.emulsionId) {
+        b.emulsionId = 'E5_DME';
+      }
+    }
+    b.jetMm = Number.isFinite(Number(b.jetMm)) && Number(b.jetMm) > 0 ? Number(b.jetMm) : 1.85;
+    b.jetLabel = formatJetPureMm(b.jetMm);
+    const matchedBaseJet = candidate.jets.find((j) => Math.abs(j.mm - b.jetMm) < 0.002);
+    b.jetId = matchedBaseJet ? matchedBaseJet.id : makeMmJetId(b.jetMm);
+    b.emulsionId = b.emulsionId || (b.carbyId === 'DME1' ? 'E5_DME' : 'TBD');
+    b.fuelPsi = Number.isFinite(Number(b.fuelPsi)) && Number(b.fuelPsi) > 0 ? Number(Number(b.fuelPsi).toFixed(1)) : 4.3;
     if (!b.manifoldId) {
       b.manifoldId = candidate.activeManifoldId || 'Macca';
     }
@@ -2139,6 +2661,17 @@
         s.handlingTags !== undefined ? s.handlingTags : defMatch && defMatch.handlingTags ? defMatch.handlingTags : []
       );
 
+      const normCarbyId = normalizeCarbyIdAlias(s.carbyId || (defMatch && defMatch.carbyId) || 'DME1');
+      const carbyObj = candidate.carbies.find((c) => c.id === normCarbyId);
+      const emulsionId =
+        typeof s.emulsionId === 'string' && s.emulsionId.trim()
+          ? s.emulsionId.trim()
+          : (defMatch && defMatch.emulsionId) || (carbyObj && carbyObj.emulsionId) || (normCarbyId === 'DME1' ? 'E5_DME' : 'TBD');
+      const sessionJetMm = Number.isFinite(Number(s.jetMm)) && Number(s.jetMm) > 0
+        ? Number(s.jetMm)
+        : (defMatch && Number.isFinite(Number(defMatch.jetMm)) ? Number(defMatch.jetMm) : 1.85);
+      const sessionJetLabel = formatJetPureMm(sessionJetMm);
+
       return {
         ...s,
         status: s.status === 'active' ? 'active' : 'completed',
@@ -2146,6 +2679,10 @@
         sessionDateIso,
         sessionIsoDate,
         sessionDate,
+        carbyId: normCarbyId,
+        emulsionId,
+        jetMm: sessionJetMm,
+        jetLabel: sessionJetLabel,
         manifoldId: s.manifoldId || 'Macca',
         exhaustId: s.exhaustId || 'Macca',
         fuelTempC,
@@ -2558,6 +3095,7 @@
       t.totalLaps = (Number(t.baseLaps) || 0) + sessLaps;
     });
 
+    candidate.carbyJetAuditV1 = true;
     return candidate;
   }
 
@@ -2587,6 +3125,7 @@
       seedInitializedV1: false,
       eventArchitectureV1: true,
       suspensionSeededV1: true,
+      carbyJetAuditV1: true,
       activeEventId: null,
       activeSessionId: null,
       events: createDefaultEvents(),
@@ -2594,6 +3133,9 @@
       targetAfr: 12.75,
       awaitingPostRaceId: null,
       jets: createDefaultJets(),
+      emulsions: createDefaultEmulsions(),
+      brassJets: createDefaultBrassJets(),
+      fuelSystem: createDefaultFuelSystem(),
       carbies: createDefaultCarbies(),
       manifolds: createDefaultManifolds(),
       exhausts: createDefaultExhausts(),
@@ -2614,9 +3156,10 @@
   }
 
   let state = loadState();
-  // Persist the one-time seedInitializedV1 / eventArchitectureV1 / suspensionSeededV1 migration immediately
+  // Persist the one-time seedInitializedV1 / eventArchitectureV1 / suspensionSeededV1 / carbyJetAuditV1 migration immediately
   try {
     state.seedInitializedV1 = true;
+    state.carbyJetAuditV1 = true;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (_) {}
 
@@ -2654,7 +3197,12 @@
     logSearchTrack: 'ALL',
     logSearchYear: 'ALL',
     logSearchQuery: '',
-    selectedFleetCarbyId: state.baseline.carbyId || '1 DME',
+    selectedFleetCarbyId: state.baseline.carbyId || 'DME1',
+    selectedFleetEmulsionId:
+      (state.baseline && state.baseline.emulsionId && state.baseline.emulsionId !== 'TBD')
+        ? state.baseline.emulsionId
+        : 'E5_DME',
+    selectedFleetBrassId: 'idle_69',
     selectedFleetManifoldId: state.activeManifoldId || 'Macca',
     selectedFleetExhaustId: state.activeExhaustId || 'Macca',
     selectedFleetShockId: (state.mountedShocks && state.mountedShocks.FL) || 'shk_F29',
@@ -2664,6 +3212,7 @@
 
   function saveState() {
     state.seedInitializedV1 = true;
+    state.carbyJetAuditV1 = true;
     syncFlatSessionsFromEvents(state);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -2847,8 +3396,45 @@
     return best;
   }
 
+  function getCarbyById(carbyId) {
+    if (!carbyId) return null;
+    const norm = normalizeCarbyIdAlias(carbyId);
+    return (state.carbies || []).find((c) => c && (c.id === norm || c.id === carbyId || c.name === carbyId)) || null;
+  }
+
+  function getCarbyDisplayName(carbyId) {
+    const c = getCarbyById(carbyId);
+    return c ? c.name : String(carbyId || 'DME #1');
+  }
+
+  function getEmulsionById(emulsionId) {
+    if (!emulsionId || emulsionId === 'TBD') return null;
+    if (!Array.isArray(state.emulsions) || state.emulsions.length === 0) {
+      state.emulsions = createDefaultEmulsions();
+    }
+    return state.emulsions.find((e) => e && e.id === emulsionId) || null;
+  }
+
+  function formatEmulsionShort(emulsionId) {
+    if (!emulsionId || emulsionId === 'TBD') return 'Emulsion TBD';
+    const em = getEmulsionById(emulsionId);
+    if (!em) return String(emulsionId);
+    return em.code.replace(/^Type\s+/i, '');
+  }
+
   function getActiveCalcPhysics() {
     const base = state.baseline;
+    const selectedCarbyId = ($('selectCalcCarby') && $('selectCalcCarby').value) || base.carbyId || 'DME1';
+    const selectedCarby = getCarbyById(selectedCarbyId);
+    const fallbackPreviewMm =
+      selectedCarby && Number.isFinite(Number(selectedCarby.recommendedStartJetMm)) && Number(selectedCarby.recommendedStartJetMm) > 0
+        ? Number(selectedCarby.recommendedStartJetMm)
+        : 1.85;
+    const effectiveBaseJetMm =
+      Number.isFinite(Number(base.jetMm)) && Number(base.jetMm) > 0
+        ? Number(base.jetMm)
+        : fallbackPreviewMm;
+
     const targetAfr = readNum('inputTargetAfr', 12.75);
     const sgNew = readNum('inputFuelSg', 0.740);
     const fuelTempC = readNum('inputFuelTempC', 20.0);
@@ -2883,7 +3469,7 @@
     }
 
     const idealJetMm = calculateIdealJetMm(
-      base.jetMm,
+      effectiveBaseJetMm,
       rhoRatio,
       base.wotAfr,
       targetAfr,
@@ -2895,14 +3481,18 @@
     const unchangedAfr = calculatePredictedAfr(
       effectiveBaseAfr,
       rhoRatio,
-      base.jetMm,
-      base.jetMm,
+      effectiveBaseJetMm,
+      effectiveBaseJetMm,
       base.fuelSg,
       sgNew
     );
 
     return {
-      base,
+      base: {
+        ...base,
+        jetMm: effectiveBaseJetMm,
+        jetLabel: formatJetPureMm(effectiveBaseJetMm)
+      },
       hasNumericBaseAfr,
       isWeatherOnly,
       effectiveBaseAfr,
@@ -2925,15 +3515,15 @@
   }
 
   /**
-   * Finds the Recommended Safe Mid-Point Jet from active toolbox jets (sorted smallest-to-largest mm):
+   * Finds the Recommended Safe Mid-Point Jet from active Tactix Box mm jets (sorted smallest-to-largest mm):
    * 1) Calculates exact idealJetMm for targetAfr using fourth-root RAD & SG physics.
-   * 2) Picks the jet closest to idealJetMm, THEN checks its predictedAfr:
+   * 2) Picks the active inBox/inToolbox mm jet closest to idealJetMm, THEN checks its predictedAfr:
    *    if that jet's predictedAfr triggers red lean danger (endCylAfr >= 13.25 or predictedAfr > targetAfr + 0.12),
    *    automatically steps 1 index RICHER (midIdx + 1) so the center Recommended Mid-Point Jet is ALWAYS safe!
    * 3) Returns the 3-Jet Comparison Bracket centered around safeMidJet:
-   *    - Left Card: 1 STEP LEANER (sortedJets[midIdx - 1])
-   *    - Center Card: SAFE MID-POINT (RECOMMENDED) (sortedJets[midIdx])
-   *    - Right Card: 1 STEP RICHER (sortedJets[midIdx + 1])
+   *    - Left Card: 1 STEP LEANER (MM) (sortedJets[midIdx - 1])
+   *    - Center Card: SAFE MID-POINT RECOMMENDED (MM) (sortedJets[midIdx])
+   *    - Right Card: 1 STEP RICHER (MM) (sortedJets[midIdx + 1])
    */
   function findRecommendedSafeMidJet(physOpt, activeJetsOpt) {
     const phys = physOpt && typeof physOpt === 'object' && Number.isFinite(physOpt.idealJetMm)
@@ -2941,7 +3531,7 @@
       : getActiveCalcPhysics();
     const toolboxJets = Array.isArray(activeJetsOpt) && activeJetsOpt.length > 0
       ? sortJetsByDiameter(activeJetsOpt)
-      : sortJetsByDiameter(state.jets.filter((j) => j.inToolbox));
+      : sortJetsByDiameter(state.jets.filter((j) => Boolean(j.inToolbox || j.inBox)));
     const sortedJets = toolboxJets.length > 0 ? toolboxJets : sortJetsByDiameter(state.jets);
 
     let midIdx = 0;
@@ -3011,9 +3601,23 @@
     const b = state.baseline;
     const venueStr = b.venue || 'Calder Park Raceway';
     const dateStr = b.sessionDate || formatIsoDateDisplay(b.sessionDateIso || getLocalTodayIso());
-    $('baseSessionCarbyLabel').textContent = `${venueStr} • ${dateStr} • ${b.sessionName} • ${b.carbyId}`;
-    $('baseJetLabel').textContent = b.jetLabel;
-    $('baseJetSub').textContent = `${b.jetMm.toFixed(3)} mm • ${orificeAreaMm2(b.jetMm).toFixed(3)} mm² (${mmToInch(b.jetMm).toFixed(4)}")`;
+    const carbyObj = getCarbyById(b.carbyId);
+    const carbyName = carbyObj ? carbyObj.name : getCarbyDisplayName(b.carbyId);
+    const effectiveJetMm =
+      Number.isFinite(Number(b.jetMm)) && Number(b.jetMm) > 0
+        ? Number(b.jetMm)
+        : (carbyObj && Number(carbyObj.recommendedStartJetMm)) || 1.85;
+    const emId = b.emulsionId || (carbyObj && carbyObj.emulsionId) || 'E5_DME';
+    const emObj = getEmulsionById(emId);
+    const emShort = emObj ? emObj.code : 'Emulsion TBD';
+    const boreMm =
+      carbyObj && Number.isFinite(Number(carbyObj.throttleBoreMm ?? carbyObj.exitMm))
+        ? Number(carbyObj.throttleBoreMm ?? carbyObj.exitMm).toFixed(2)
+        : '39.81';
+
+    $('baseSessionCarbyLabel').textContent = `${venueStr} • ${dateStr} • ${b.sessionName} • ${carbyName}`;
+    $('baseJetLabel').textContent = formatJetPureMm(effectiveJetMm);
+    $('baseJetSub').textContent = `${orificeAreaMm2(effectiveJetMm).toFixed(3)} mm² • Tactix Box`;
     $('baseRadLabel').textContent = `${b.rad.toFixed(1)}% RAD`;
     $('baseSgLabel').textContent = `SG ${b.fuelSg.toFixed(3)} kg/L`;
 
@@ -3058,9 +3662,9 @@
       endCylEl.className = endCyl >= 13.25 ? 'telem-sub txt-danger' : 'telem-sub';
     }
 
-    $('baseCarbyOnly').textContent = b.carbyId;
-    $('baseTimingLabel').textContent = `${b.timing.toFixed(1)}° BTDC`;
-    $('baseFuelPsiLabel').textContent = `${b.fuelPsi.toFixed(1)} psi`;
+    $('baseCarbyOnly').textContent = carbyName;
+    $('baseTimingLabel').textContent = `${emShort} • ${boreMm}mm • ${b.timing.toFixed(1)}°`;
+    $('baseFuelPsiLabel').textContent = `${Number(b.fuelPsi ?? 4.3).toFixed(1)} psi`;
   }
 
   function populateCarbySelects() {
@@ -3068,11 +3672,18 @@
     selects.forEach((id) => {
       const sel = $(id);
       if (!sel) return;
-      const prev = sel.value;
+      const prev = sel.value ? normalizeCarbyIdAlias(sel.value) : '';
       sel.innerHTML = state.carbies
         .map((c) => {
           const onCarTag = c.id === state.baseline.carbyId ? ' ★ ON CAR' : '';
-          return `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}${onCarTag} (40mm BXUV-3)</option>`;
+          const boreStr = Number.isFinite(Number(c.throttleBoreMm ?? c.exitMm))
+            ? `${Number(c.throttleBoreMm ?? c.exitMm).toFixed(2)}mm`
+            : '40mm';
+          const jetStr =
+            c.fittedJetMm !== null && c.fittedJetMm !== undefined && Number.isFinite(Number(c.fittedJetMm))
+              ? formatJetPureMm(c.fittedJetMm)
+              : '⚠️ NO JET';
+          return `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}${onCarTag} (${jetStr} • ${boreStr})</option>`;
         })
         .join('');
       if (prev && state.carbies.some((c) => c.id === prev)) {
@@ -3081,6 +3692,35 @@
         sel.value = state.baseline.carbyId;
       }
     });
+
+    const calcEmSel = $('selectCalcEmulsion');
+    if (calcEmSel) {
+      if (!Array.isArray(state.emulsions) || state.emulsions.length === 0) {
+        state.emulsions = createDefaultEmulsions();
+      }
+      const activeCarbyId = ($('selectCalcCarby') && $('selectCalcCarby').value) || state.baseline.carbyId || 'DME1';
+      const activeCarby = getCarbyById(activeCarbyId);
+      const targetEmId =
+        (activeCarby && activeCarby.emulsionId) ||
+        (state.baseline && state.baseline.emulsionId) ||
+        'E5_DME';
+      calcEmSel.innerHTML = [
+        ...state.emulsions.map((em) => {
+          const inCarTag = em.id === (activeCarby && activeCarby.emulsionId) ? ' ★ FITTED' : '';
+          return `<option value="${escapeHtml(em.id)}">${escapeHtml(em.code)}${inCarTag} (Qty ${em.qty})</option>`;
+        }),
+        `<option value="TBD">TBD (Inspect on Teardown)</option>`
+      ].join('');
+      calcEmSel.value =
+        state.emulsions.some((em) => em.id === targetEmId) || targetEmId === 'TBD'
+          ? targetEmId
+          : 'E5_DME';
+      if ($('calcEmulsionHint')) {
+        const emObj = getEmulsionById(calcEmSel.value);
+        $('calcEmulsionHint').textContent = emObj ? emObj.code : 'TBD (Teardown)';
+        $('calcEmulsionHint').className = emObj ? 'field-hint emerald' : 'field-hint amber';
+      }
+    }
 
     const calcManSel = $('selectCalcManifold');
     if (calcManSel && Array.isArray(state.manifolds)) {
@@ -3662,7 +4302,9 @@
       b.wotAfr !== null && b.wotAfr !== undefined && Number.isFinite(Number(b.wotAfr))
         ? `${Number(b.wotAfr).toFixed(2)} WOT AFR`
         : 'Weather-Only';
-    const tuneMain = `${b.carbyId} • ${b.jetLabel} (${Number(b.jetMm).toFixed(3)} mm)`;
+    const carbyDisp = getCarbyDisplayName(b.carbyId);
+    const emulShort = formatEmulsionShort(b.emulsionId || 'E5_DME');
+    const tuneMain = `${carbyDisp} • ${formatJetPureMm(b.jetMm)} (${emulShort})`;
     const tuneSub = `${Number(b.rad).toFixed(1)}% RAD • ${Number(b.fuelSg).toFixed(3)} SG • ${afrTxt}`;
     const tuneStr = `${tuneMain} @ ${tuneSub}`;
 
@@ -3985,6 +4627,7 @@
     setPreRaceControlsLocked(
       [
         'selectCalcCarby',
+        'selectCalcEmulsion',
         'selectCalcManifold',
         'selectCalcExhaust',
         'inputPreRaceNotes',
@@ -4356,10 +4999,15 @@
       $('inputTrackBurnLPerLap').value = Number(prof.burnLPerLap).toFixed(2);
     }
 
-    const activeCarbyId = (prevSess && prevSess.carbyId) || base.carbyId || '1 DME';
+    const activeCarbyId = normalizeCarbyIdAlias((prevSess && prevSess.carbyId) || base.carbyId || 'DME1');
     const activeManifoldId = (prevSess && prevSess.manifoldId) || state.activeManifoldId || 'Macca';
     const activeExhaustId = (prevSess && prevSess.exhaustId) || state.activeExhaustId || 'Macca';
     const carbyObj = state.carbies.find((c) => c.id === activeCarbyId);
+    const activeEmulsionId =
+      (prevSess && prevSess.emulsionId) ||
+      (carbyObj && carbyObj.emulsionId) ||
+      base.emulsionId ||
+      'E5_DME';
     const fallbackJet =
       (prevSess && findJetById(prevSess.jetId)) ||
       (carbyObj && findJetById(carbyObj.fittedJetId)) ||
@@ -4367,13 +5015,14 @@
       state.jets[0];
 
     if ($('selectCalcCarby')) $('selectCalcCarby').value = activeCarbyId;
+    if ($('selectCalcEmulsion')) $('selectCalcEmulsion').value = activeEmulsionId;
     if ($('selectCalcManifold')) $('selectCalcManifold').value = activeManifoldId;
     if ($('selectCalcExhaust')) $('selectCalcExhaust').value = activeExhaustId;
 
     const radVal = prevSess ? Number(prevSess.rad) : Number(readNum('inputRadPct', base.rad).toFixed(1));
     const sgVal = prevSess ? Number(prevSess.fuelSg) : Number(readNum('inputFuelSg', base.fuelSg).toFixed(3));
     const timingVal = prevSess ? Number(prevSess.timing) : Number(readNum('inputTotalTiming', base.timing).toFixed(1));
-    const fuelPsiVal = prevSess && Number.isFinite(Number(prevSess.fuelPsi)) ? Number(prevSess.fuelPsi) : Number(base.fuelPsi || 5.0);
+    const fuelPsiVal = prevSess && Number.isFinite(Number(prevSess.fuelPsi)) ? Number(prevSess.fuelPsi) : Number(base.fuelPsi || 4.3);
 
     if ($('inputRadPct')) $('inputRadPct').value = radVal.toFixed(1);
     if ($('inputFuelSg')) $('inputFuelSg').value = sgVal.toFixed(3);
@@ -4470,6 +5119,7 @@
       };
     });
 
+    const resolvedJetMm = fallbackJet ? fallbackJet.mm : base.jetMm;
     const created = {
       id: `run_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       status: 'active',
@@ -4483,11 +5133,12 @@
       sessionName: cleanName,
       timestamp: formatPitDayTimeLabel(new Date()),
       carbyId: activeCarbyId,
+      emulsionId: activeEmulsionId,
       manifoldId: activeManifoldId,
       exhaustId: activeExhaustId,
       jetId: fallbackJet ? fallbackJet.id : base.jetId,
-      jetLabel: fallbackJet ? fallbackJet.label : base.jetLabel,
-      jetMm: fallbackJet ? fallbackJet.mm : base.jetMm,
+      jetLabel: formatJetPureMm(resolvedJetMm),
+      jetMm: resolvedJetMm,
       rad: radVal,
       fuelSg: sgVal,
       fuelTempC: Number(readNum('inputFuelTempC', 20.0).toFixed(1)),
@@ -4973,6 +5624,9 @@
     existing.sessionIsoDate = existing.sessionDateIso;
     existing.sessionDate = formatIsoDateDisplay(existing.sessionDateIso) || existing.sessionDateIso;
 
+    if (!existing.emulsionId) {
+      existing.emulsionId = ($('selectCalcEmulsion') && $('selectCalcEmulsion').value) || state.baseline.emulsionId || 'E5_DME';
+    }
     if (!existing.manifoldId) {
       existing.manifoldId = ($('selectCalcManifold') && $('selectCalcManifold').value) || state.activeManifoldId || 'Macca';
     }
@@ -4992,8 +5646,29 @@
     return existing;
   }
 
+  function renderNoJetSafetyGuard(carby) {
+    const banner = $('noJetSafetyBanner');
+    const titleEl = $('noJetSafetyTitle');
+    const descEl = $('noJetSafetyDesc');
+    if (!banner) return;
+    if (!carby || (carby.fittedJetMm !== null && carby.fittedJetMm !== undefined && Number.isFinite(Number(carby.fittedJetMm)))) {
+      banner.style.display = 'none';
+      return;
+    }
+    const startMm = Number(carby.recommendedStartJetMm || (carby.baselineAnchor && carby.baselineAnchor.jetMm) || 1.87);
+    const startLabel = formatJetPureMm(startMm);
+    if (titleEl) {
+      titleEl.textContent = `⚠️ ${carby.name} HAS NO MAIN JET FITTED`;
+    }
+    if (descEl) {
+      descEl.textContent = `${carby.name} has NO Main Jet fitted — select a starting mm jet from Tactix Box, e.g. ${startLabel} (using ${startLabel} for preview math until locked).`;
+    }
+    banner.style.display = 'block';
+  }
+
   function applyCarbyBaselineAnchor(carbyId) {
-    const carby = state.carbies.find((c) => c.id === carbyId);
+    const normId = normalizeCarbyIdAlias(carbyId);
+    const carby = state.carbies.find((c) => c.id === normId);
     if (!carby || !carby.baselineAnchor) return;
 
     const venue = getSelectedTrackVenue();
@@ -5001,6 +5676,15 @@
     const a = carby.baselineAnchor;
     const hasVerified =
       a.verifiedAfr !== null && a.verifiedAfr !== undefined && Number.isFinite(Number(a.verifiedAfr));
+    const previewJetMm = Number(
+      carby.fittedJetMm !== null && carby.fittedJetMm !== undefined
+        ? carby.fittedJetMm
+        : carby.recommendedStartJetMm || a.jetMm || 1.85
+    );
+
+    state.carbies.forEach((c) => {
+      c.onCar = c.id === carby.id;
+    });
 
     state.baseline = {
       venue,
@@ -5008,11 +5692,12 @@
       sessionDate,
       sessionName: a.sourceLabel || `${carby.name} Anchor`,
       carbyId: carby.id,
+      emulsionId: carby.emulsionId || 'TBD',
       manifoldId: state.activeManifoldId || 'Macca',
       exhaustId: state.activeExhaustId || 'Macca',
-      jetId: a.jetId || carby.fittedJetId,
-      jetLabel: a.jetLabel || `#Jet (${Number(a.jetMm).toFixed(3)} mm)`,
-      jetMm: Number(a.jetMm),
+      jetId: makeMmJetId(previewJetMm),
+      jetLabel: formatJetPureMm(previewJetMm),
+      jetMm: previewJetMm,
       rad: Number(a.rad),
       fuelSg: Number(a.fuelSg),
       wotAfr: hasVerified ? Number(a.verifiedAfr) : null,
@@ -5020,7 +5705,7 @@
       afrStatus: hasVerified ? 'verified' : 'untested',
       weatherOnly: !hasVerified,
       timing: Number(a.timing || 33.0),
-      fuelPsi: Number(a.fuelPsi || 5.0),
+      fuelPsi: Number(a.fuelPsi || (state.fuelSystem && state.fuelSystem.runningPsi) || 4.3),
       waterTempC: normalizeOptionalWaterTemp(a.waterTempC),
       linkedSessionId: null
     };
@@ -5032,6 +5717,9 @@
     if ($('selectCalcCarby')) {
       $('selectCalcCarby').value = carby.id;
     }
+    if ($('selectCalcEmulsion')) {
+      $('selectCalcEmulsion').value = carby.emulsionId || 'TBD';
+    }
     if ($('inputFuelSg')) {
       $('inputFuelSg').value = state.baseline.fuelSg.toFixed(3);
     }
@@ -5039,14 +5727,21 @@
       $('inputTotalTiming').value = state.baseline.timing.toFixed(1);
     }
 
+    renderNoJetSafetyGuard(carby);
     saveState();
     renderAll();
     if (ui.calcStep === 2) {
       renderStep2Calculator(true);
     }
-    showToast(
-      `Loaded ${carby.name} anchor (${state.baseline.jetMm.toFixed(3)} mm @ ${state.baseline.rad.toFixed(1)}% RAD)`
-    );
+    if (carby.fittedJetMm === null || carby.fittedJetMm === undefined) {
+      showToast(
+        `⚠️ ${carby.name} has NO Main Jet fitted — select a starting mm jet from Tactix Box, e.g. ${formatJetPureMm(previewJetMm)}`
+      );
+    } else {
+      showToast(
+        `Loaded ${carby.name} anchor (${formatJetPureMm(state.baseline.jetMm)} @ ${state.baseline.rad.toFixed(1)}% RAD)`
+      );
+    }
   }
 
   function updateCarbySwapHint() {
@@ -5056,6 +5751,16 @@
     const banner2 = $('step2CarbyMismatchBanner');
     if (!sel || !hint) return;
 
+    const targetCarby = state.carbies.find((c) => c.id === sel.value) || getCarbyById(sel.value);
+    renderNoJetSafetyGuard(targetCarby);
+
+    const emulHint = $('emulsionTuneHint');
+    if (emulHint && $('selectCalcEmulsion')) {
+      const em = getEmulsionById($('selectCalcEmulsion').value);
+      emulHint.textContent = em ? `${em.code} (${em.collar})` : 'TBD (Inspect on Teardown)';
+      emulHint.className = em ? 'field-hint emerald' : 'field-hint amber';
+    }
+
     if (sel.value === state.baseline.carbyId) {
       hint.textContent = 'Matches Baseline';
       hint.className = 'field-hint emerald';
@@ -5064,10 +5769,10 @@
       return;
     }
 
-    hint.textContent = `Baseline is ${state.baseline.carbyId}`;
+    const baseDisp = getCarbyDisplayName(state.baseline.carbyId);
+    hint.textContent = `Baseline is ${baseDisp}`;
     hint.className = 'field-hint amber';
 
-    const targetCarby = state.carbies.find((c) => c.id === sel.value);
     if (!targetCarby || !targetCarby.baselineAnchor) return;
 
     const a = targetCarby.baselineAnchor;
@@ -5076,9 +5781,18 @@
     const afrSummary = hasVerified
       ? `${Number(a.verifiedAfr).toFixed(2)} Verified AFR (${a.sourceLabel})`
       : `Untested / DME Build Sheet (Weather-Only)`;
+    const previewMm = Number(
+      targetCarby.fittedJetMm !== null && targetCarby.fittedJetMm !== undefined
+        ? targetCarby.fittedJetMm
+        : targetCarby.recommendedStartJetMm || a.jetMm || 1.87
+    );
+    const noJetNotice =
+      targetCarby.fittedJetMm === null || targetCarby.fittedJetMm === undefined
+        ? ` [⚠️ NO MAIN JET FITTED — preview uses ${formatJetPureMm(previewMm)}]`
+        : '';
 
     const titleText = `Switched to ${targetCarby.name} — Load ${targetCarby.name}'s saved baseline anchor?`;
-    const descText = `Active Locked Baseline is still ${state.baseline.carbyId} (${state.baseline.jetMm.toFixed(3)} mm @ ${state.baseline.rad.toFixed(1)}% RAD). Tap below to load ${targetCarby.name}: ${a.jetLabel} (${Number(a.jetMm).toFixed(3)} mm), ${Number(a.rad).toFixed(1)}% RAD, ${Number(a.fuelSg).toFixed(3)} SG • ${afrSummary}.`;
+    const descText = `Active Locked Baseline is still ${baseDisp} (${formatJetPureMm(state.baseline.jetMm)} @ ${state.baseline.rad.toFixed(1)}% RAD). Tap below to load ${targetCarby.name}: ${formatJetPureMm(previewMm)}, ${Number(a.rad).toFixed(1)}% RAD, ${Number(a.fuelSg).toFixed(3)} SG • ${afrSummary}${noJetNotice}.`;
     const btnText = `LOAD ${targetCarby.name.toUpperCase()} SAVED BASELINE ANCHOR`;
 
     if (banner1) {
@@ -5150,12 +5864,12 @@
         : 'telem-val txt-emerald';
 
     $('outDensitySub').textContent = `${phys.base.rad.toFixed(1)}% → ${phys.effectiveNewRad.toFixed(1)}% RAD`;
-    $('outIdealOrifice').textContent = `${phys.idealJetMm.toFixed(3)} mm (${phys.idealJetInch.toFixed(4)}")`;
+    $('outIdealOrifice').textContent = `${phys.idealJetMm.toFixed(3)} mm (${phys.idealAreaMm2.toFixed(3)} mm²)`;
     $('outIdealInchArea').textContent = phys.isWeatherOnly
       ? `${phys.idealAreaMm2.toFixed(3)} mm² • Weather-Only (1.000× AFR)`
       : `${phys.idealAreaMm2.toFixed(3)} mm² • √AFR ${phys.afrMultiplier.toFixed(3)}×`;
 
-    $('unchangedJetName').textContent = phys.base.jetLabel;
+    $('unchangedJetName').textContent = `${formatJetPureMm(phys.base.jetMm)} (${orificeAreaMm2(phys.base.jetMm).toFixed(3)} mm²)`;
     $('unchangedPredAfr').textContent = phys.unchangedAfr.toFixed(2);
     $('unchangedPredAfr').className =
       phys.unchangedEndCyl >= 13.25
@@ -5167,13 +5881,13 @@
       ? `#1 & #6 End-Cyl Est: ${phys.unchangedEndCyl.toFixed(2)} AFR`
       : `Weather-Only Est (#1/#6: ${phys.unchangedEndCyl.toFixed(2)} AFR)`;
 
-    const activeCount = state.jets.filter((j) => j.inToolbox).length;
-    $('activeToolboxCountHint').textContent = `${activeCount} active in toolbox`;
+    const activeCount = state.jets.filter((j) => Boolean(j.inBox !== undefined ? j.inBox : j.inToolbox)).length;
+    $('activeToolboxCountHint').textContent = `${activeCount} active in Tactix Box`;
 
     const slots = [
-      { role: '1 STEP LEANER', jet: triplet.leaner, isRec: false },
-      { role: 'SAFE MID-POINT (RECOMMENDED)', jet: safeMidJet, isRec: true },
-      { role: '1 STEP RICHER', jet: triplet.richer, isRec: false }
+      { role: '1 STEP LEANER (MM)', jet: triplet.leaner, isRec: false },
+      { role: 'SAFE MID-POINT RECOMMENDED (MM)', jet: safeMidJet, isRec: true },
+      { role: '1 STEP RICHER (MM)', jet: triplet.richer, isRec: false }
     ];
 
     const afrUnitLabel = phys.hasNumericBaseAfr ? 'AFR' : 'Est AFR';
@@ -5187,8 +5901,8 @@
               <div class="jet-card-top">
                 <span class="jet-role-tag">${escapeHtml(slot.role)}</span>
               </div>
-              <div class="jet-name-big">End of Toolbox Range</div>
-              <div class="jet-card-meta"><span>Enable more jets in Tab 5</span></div>
+              <div class="jet-name-big">End of Tactix Box Range</div>
+              <div class="jet-card-meta"><span>Enable more mm jets in Fleet &amp; Kit</span></div>
             </div>
           `;
         }
@@ -5220,6 +5934,8 @@
         ]
           .filter(Boolean)
           .join(' ');
+        const pureMmName = formatJetPureMm(slot.jet.mm);
+        const areaMm2 = orificeAreaMm2(slot.jet.mm);
 
         return `
           <button
@@ -5231,23 +5947,23 @@
             <div class="jet-card-top">
               <span class="jet-role-tag">${escapeHtml(slot.role)}</span>
               <span class="mono" style="font-size: 15px; font-weight: 700; color: var(--text-secondary);">
-                ${slot.jet.mm.toFixed(3)} mm (${mmToInch(slot.jet.mm).toFixed(4)}")
+                ${areaMm2.toFixed(3)} mm&sup2;
               </span>
             </div>
             <div class="jet-card-main">
-              <span class="jet-name-big">${escapeHtml(slot.jet.label)}</span>
+              <span class="jet-name-big">${escapeHtml(pureMmName)}</span>
               <span class="jet-afr-big ${afrColorClass}">${predAfr.toFixed(2)} <small style="font-size: 15px;">${afrUnitLabel}</small></span>
             </div>
             <div class="jet-card-meta">
               <span class="${prot.endCylAfr >= 13.25 ? 'txt-danger' : ''}">#1/#6 Est: ${prot.endCylAfr.toFixed(2)}</span>
-              <span>${orificeAreaMm2(slot.jet.mm).toFixed(3)} mm² • ${deltaStr}</span>
+              <span>${areaMm2.toFixed(3)} mm&sup2; &bull; ${deltaStr}</span>
             </div>
           </button>
         `;
       })
       .join('');
 
-    // Populate Full-Kit Dropdown
+    // Populate Full-Kit Dropdown strictly in mm + mm²
     const fullSelect = $('selectFullJetKit');
     fullSelect.innerHTML = sortJetsByDiameter(state.jets)
       .map((j) => {
@@ -5259,8 +5975,9 @@
           phys.base.fuelSg,
           phys.sgNew
         );
-        const boxTag = j.inToolbox ? 'Box' : 'Out';
-        return `<option value="${escapeHtml(j.id)}">${escapeHtml(j.label)} (${j.mm.toFixed(3)}mm) ${pred.toFixed(2)} AFR [${boxTag}]</option>`;
+        const inBox = Boolean(j.inBox !== undefined ? j.inBox : j.inToolbox);
+        const boxTag = inBox ? 'Tactix Box' : 'Out';
+        return `<option value="${escapeHtml(j.id)}">${escapeHtml(formatJetPureMm(j.mm))} (${orificeAreaMm2(j.mm).toFixed(3)} mm²) — ${pred.toFixed(2)} AFR [${boxTag}]</option>`;
       })
       .join('');
     fullSelect.value = ui.selectedJetId;
@@ -5282,8 +5999,9 @@
       phys.sgNew
     );
     const prot = evaluateManifoldProtection(predAfr, phys.totalTiming);
+    const pureMmName = formatJetPureMm(chosenJet.mm);
 
-    $('selectedJetQuickSummary').textContent = `Selected: ${chosenJet.label} (${predAfr.toFixed(2)} ${phys.hasNumericBaseAfr ? 'AFR' : 'Est AFR'})`;
+    $('selectedJetQuickSummary').textContent = `Selected: ${pureMmName} (${orificeAreaMm2(chosenJet.mm).toFixed(3)} mm² • ${predAfr.toFixed(2)} ${phys.hasNumericBaseAfr ? 'AFR' : 'Est AFR'})`;
     const banner = $('manifoldProtectionAlert');
     banner.className = `manifold-alert ${prot.level}`;
     $('manifoldAlertTitle').textContent = prot.title;
@@ -5346,12 +6064,14 @@
     const sessionDateIso = liveEvt.eventDate;
     const sessionDate = formatIsoDateDisplay(sessionDateIso) || sessionDateIso;
     const sessionName = activeSess.sessionName;
-    const carbyId = $('selectCalcCarby').value || state.baseline.carbyId;
+    const carbyId = normalizeCarbyIdAlias($('selectCalcCarby').value || state.baseline.carbyId);
+    const emulsionId = ($('selectCalcEmulsion') && $('selectCalcEmulsion').value) || state.baseline.emulsionId || 'E5_DME';
     const manifoldId = ($('selectCalcManifold') && $('selectCalcManifold').value) || state.activeManifoldId || 'Macca';
     const exhaustId = ($('selectCalcExhaust') && $('selectCalcExhaust').value) || state.activeExhaustId || 'Macca';
     const preNotesFromStep2 = ($('inputRunNotes') && $('inputRunNotes').value.trim()) || '';
     const preNotesFromStep1 = ($('inputPreRaceNotes') && $('inputPreRaceNotes').value.trim()) || '';
     const userPreNotes = preNotesFromStep2 || preNotesFromStep1 || activeSess.preRaceNotes || '';
+    const pureJetLabel = formatJetPureMm(chosenJet.mm);
 
     const predWot = Number(
       calculatePredictedAfr(
@@ -5371,16 +6091,17 @@
       sessionDate,
       sessionName,
       carbyId,
+      emulsionId,
       manifoldId,
       exhaustId,
       jetId: chosenJet.id,
-      jetLabel: chosenJet.label,
+      jetLabel: pureJetLabel,
       jetMm: chosenJet.mm,
       rad: Number(phys.effectiveNewRad.toFixed(1)),
       fuelSg: Number(phys.sgNew.toFixed(3)),
       fuelTempC: Number(phys.fuelTempC.toFixed(1)),
       timing: Number(phys.totalTiming.toFixed(1)),
-      fuelPsi: state.baseline.fuelPsi,
+      fuelPsi: state.baseline.fuelPsi || 4.3,
       afrWot: predWot,
       peakRpm: activeSess.peakRpm || 5900,
       afrStatus: 'estimated',
@@ -5391,10 +6112,14 @@
 
     state.awaitingPostRaceId = unifiedSession.id;
 
-    // Update fitted jet on carby fleet record too
+    // Update fitted jet & emulsion on carby fleet record too
     const carbyObj = state.carbies.find((c) => c.id === carbyId);
     if (carbyObj) {
       carbyObj.fittedJetId = chosenJet.id;
+      carbyObj.fittedJetMm = chosenJet.mm;
+      if (emulsionId) {
+        carbyObj.emulsionId = emulsionId;
+      }
     }
 
     // If Baseline was untested, update Baseline to this pre-race setup;
@@ -5410,10 +6135,11 @@
         sessionDate,
         sessionName,
         carbyId,
+        emulsionId,
         manifoldId,
         exhaustId,
         jetId: chosenJet.id,
-        jetLabel: chosenJet.label,
+        jetLabel: pureJetLabel,
         jetMm: chosenJet.mm,
         rad: Number(phys.effectiveNewRad.toFixed(1)),
         fuelSg: Number(phys.sgNew.toFixed(3)),
@@ -5422,7 +6148,7 @@
         afrStatus: 'estimated',
         weatherOnly: false,
         timing: Number(phys.totalTiming.toFixed(1)),
-        fuelPsi: state.baseline.fuelPsi,
+        fuelPsi: state.baseline.fuelPsi || 4.3,
         waterTempC: null,
         linkedSessionId: unifiedSession.id
       };
@@ -5446,7 +6172,7 @@
       switchTab('tab-fuel');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       showToast(
-        `✓ 1. Pre-Session Tune Locked (${chosenJet.label}) — Step 2: Check & Lock Pre-Session Fuel & Weight!`
+        `✓ 1. Pre-Session Tune Locked (${pureJetLabel}) — Step 2: Check & Lock Pre-Session Fuel & Weight!`
       );
     } else if (nextStep === 3) {
       switchTab('tab-tyres');
@@ -9689,7 +10415,7 @@
     if (hTags.length > 0) {
       tyreParts.push(...hTags);
     }
-    const jetMmStr = Number.isFinite(Number(s.jetMm)) ? Number(s.jetMm).toFixed(3) : '';
+    const jetMmStr = Number.isFinite(Number(s.jetMm)) ? formatMmNumber(s.jetMm) : '';
     const radStr = Number.isFinite(Number(s.rad)) ? Number(s.rad).toFixed(1) : '';
     const sgStr = Number.isFinite(Number(s.fuelSg)) ? Number(s.fuelSg).toFixed(3) : '';
     const timingStr = Number.isFinite(Number(s.timing)) ? Number(s.timing).toFixed(1) : '';
@@ -9707,9 +10433,12 @@
       s.sessionIsoDate || s.sessionDateIso || '',
       s.timestamp || '',
       s.carbyId || '',
+      getCarbyDisplayName(s.carbyId),
+      s.emulsionId || '',
+      formatEmulsionShort(s.emulsionId || 'E5_DME'),
       s.manifoldId || 'Macca',
       s.exhaustId || 'Macca',
-      s.jetLabel || '',
+      formatJetPureMm(s.jetMm),
       jetMmStr,
       `${jetMmStr}mm`,
       radStr,
@@ -9757,6 +10486,10 @@
         ? `<span class="${waterTemp >= 98 ? 'txt-danger' : waterTemp >= 92 ? 'txt-amber' : ''}">${waterTemp}&deg;C H&#8322;O</span>`
         : `<span>&mdash;&deg;C H&#8322;O</span>`;
     const fuelTempVal = Number.isFinite(Number(s.fuelTempC)) ? Number(s.fuelTempC) : 20.0;
+    const carbyDisp = getCarbyDisplayName(s.carbyId);
+    const emulDisp = formatEmulsionShort(s.emulsionId || 'E5_DME');
+    const pureJetText = formatJetPureMm(s.jetMm);
+    const jetAreaText = `${orificeAreaMm2(s.jetMm).toFixed(3)} mm²`;
 
     const stages = [
       { rpm: '3500', val: normalizeOptionalAfr(s.afr3500) },
@@ -9837,11 +10570,11 @@
         <div class="session-head">
           <div>
             <div class="session-title-line">
-              ${escapeHtml(s.sessionName)} &bull; <span class="txt-amber">${escapeHtml(s.carbyId)}</span> &bull; <span style="font-size: 0.82em; color: var(--text-secondary);">${escapeHtml(s.manifoldId || 'Macca')} Man / ${escapeHtml(s.exhaustId || 'Macca')} Exh</span>
+              ${escapeHtml(s.sessionName)} &bull; <span class="txt-amber">${escapeHtml(carbyDisp)} (${escapeHtml(emulDisp)})</span> &bull; <span style="font-size: 0.82em; color: var(--text-secondary);">${escapeHtml(s.manifoldId || 'Macca')} Man / ${escapeHtml(s.exhaustId || 'Macca')} Exh</span>
             </div>
             <div class="session-meta-line">
               <strong>${escapeHtml(venueLabel)}</strong> &bull; ${escapeHtml(dateLabel)}${escapeHtml(timePart)} &bull;
-              <strong>${escapeHtml(s.jetLabel)}</strong> (${s.jetMm.toFixed(3)}mm) &bull;
+              <strong>${escapeHtml(pureJetText)}</strong> (${escapeHtml(jetAreaText)}) &bull;
               ${s.rad.toFixed(1)}% RAD &bull; SG ${s.fuelSg.toFixed(3)} (${fuelTempVal.toFixed(0)}&deg;C) &bull; ${s.timing.toFixed(1)}&deg; &bull; ${s.fuelPsi.toFixed(1)} psi &bull; ${waterHtml}
             </div>
           </div>
@@ -9901,9 +10634,10 @@
     const isActiveRun = !isEventLocked && s.id === state.activeSessionId;
     const isSessOpen = ui.expandedSessionId === s.id;
 
-    const rawJet = String(s.jetLabel || '').replace(/^Jet\s+/i, '').split('/')[0].trim() || `${Number(s.jetMm || 1.98).toFixed(2)}mm`;
+    const carbyDisp = getCarbyDisplayName(s.carbyId || 'DME1');
+    const rawJet = formatJetPureMm(s.jetMm || 1.85);
     const wotAfrStr = Number.isFinite(Number(s.afrWot)) ? `${Number(s.afrWot).toFixed(2)} AFR` : '— AFR';
-    const quickGlanceStr = `${s.carbyId || '1 DME'} • ${rawJet} • ${wotAfrStr}`;
+    const quickGlanceStr = `${carbyDisp} • ${rawJet} • ${wotAfrStr}`;
 
     let statusPillHtml = '';
     if (isActiveRun && s.status !== 'completed') {
@@ -10228,7 +10962,7 @@
           <div class="num-stepper">
             <button type="button" class="stepper-btn" data-stepper-target="inlineFuelPsi_${escapeHtml(s.id)}" data-step="-0.1" aria-label="Decrease Session Fuel Pressure">&minus;</button>
             <div class="num-input-wrap">
-              <input type="number" id="inlineFuelPsi_${escapeHtml(s.id)}" class="num-input" value="${Number(s.fuelPsi ?? 5.0).toFixed(1)}" min="2.0" max="8.5" step="0.1" />
+              <input type="number" id="inlineFuelPsi_${escapeHtml(s.id)}" class="num-input" value="${Number(s.fuelPsi ?? 4.3).toFixed(1)}" min="2.0" max="8.5" step="0.1" />
               <span class="num-unit-badge">psi</span>
             </div>
             <button type="button" class="stepper-btn" data-stepper-target="inlineFuelPsi_${escapeHtml(s.id)}" data-step="0.1" aria-label="Increase Session Fuel Pressure">+</button>
@@ -10304,10 +11038,11 @@
       'Date',
       'Timestamp',
       'Carby_ID',
+      'Emulsion_Tube',
       'Manifold_ID',
       'Exhaust_ID',
-      'Jet_Label',
-      'Jet_mm',
+      'Main_Jet_mm',
+      'Main_Jet_Area_mm2',
       'RAD_Pct',
       'Fuel_SG',
       'Fuel_Temp_C',
@@ -10459,11 +11194,12 @@
         trackName,
         dateStr,
         s.timestamp || '',
-        s.carbyId,
+        getCarbyDisplayName(s.carbyId),
+        formatEmulsionShort(s.emulsionId || 'E5_DME'),
         s.manifoldId || 'Macca',
         s.exhaustId || 'Macca',
-        s.jetLabel,
-        s.jetMm.toFixed(4),
+        formatJetPureMm(s.jetMm),
+        orificeAreaMm2(s.jetMm).toFixed(3),
         s.rad.toFixed(1),
         s.fuelSg.toFixed(3),
         fuelTempVal.toFixed(1),
@@ -10554,7 +11290,7 @@
     }
     const payload = JSON.stringify(
       {
-        app: 'SNB Racing — HQ 202 Jetting & AFR (v0.8.5 A-Z Fleet Accordions & Corner Weights Drawer Edition)',
+        app: 'SNB Racing — HQ 202 Jetting & AFR (v0.8.6 Pure Metric mm Jets, Audited Carby Teardown & Emulsion/Fuel Fleet Edition)',
         exportedAt: new Date().toISOString(),
         state
       },
@@ -11014,7 +11750,7 @@
   /* ------------------------------------------------------------------------
      8. RENDERING: TAB 4 (CARBIES, INLET MANIFOLDS, EXHAUSTS & M1 JET KIT)
      ------------------------------------------------------------------------ */
-  const PROTECTED_CARBY_IDS = ['1 DME', '2 DME', 'SNB Carby'];
+  const PROTECTED_CARBY_IDS = ['DME1', 'DME2', 'SNB', '1 DME', '2 DME', 'SNB Carby'];
   const PROTECTED_MANIFOLD_IDS = ['Macca', 'SNB'];
   const PROTECTED_EXHAUST_IDS = ['Macca', 'DME', 'Pounder', 'Grunt'];
 
@@ -11038,7 +11774,9 @@
     }
     state.carbies = sortByNameOrCodeAZ(state.carbies);
 
-    const activeCarbyId = state.baseline && state.baseline.carbyId ? state.baseline.carbyId : state.carbies[0].id;
+    const activeCarbyId = normalizeCarbyIdAlias(
+      state.baseline && state.baseline.carbyId ? state.baseline.carbyId : state.carbies[0].id
+    );
     if (!ui.selectedFleetCarbyId || !state.carbies.some((c) => c.id === ui.selectedFleetCarbyId)) {
       ui.selectedFleetCarbyId = activeCarbyId;
     }
@@ -11047,15 +11785,23 @@
       selectEl.innerHTML = state.carbies
         .map((c) => {
           const isActive = c.id === activeCarbyId;
-          return `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}${isActive ? ' ★ ON CAR' : ''}</option>`;
+          const noJetTag = c.fittedJetMm === null || c.fittedJetMm === undefined ? ' [⚠️ NO JET]' : ` (${formatJetPureMm(c.fittedJetMm)})`;
+          return `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}${noJetTag}${isActive ? ' ★ ON CAR' : ''}</option>`;
         })
         .join('');
       selectEl.value = ui.selectedFleetCarbyId;
     }
 
+    const activeCarbyObj = state.carbies.find((item) => item.id === activeCarbyId) || state.carbies[0];
+    const activeJetStr =
+      activeCarbyObj && activeCarbyObj.fittedJetMm !== null && activeCarbyObj.fittedJetMm !== undefined
+        ? formatJetPureMm(activeCarbyObj.fittedJetMm)
+        : 'NO JET';
+    const activeEmulStr = formatEmulsionShort((activeCarbyObj && activeCarbyObj.emulsionId) || 'E5_DME');
+
     const activeBadge = $('fleetCarbyActiveBadge');
     if (activeBadge) {
-      activeBadge.textContent = `${activeCarbyId} ★ ON CAR`;
+      activeBadge.textContent = `${activeCarbyObj ? activeCarbyObj.name : 'DME #1'} ★ ON CAR • ${activeJetStr} • ${activeEmulStr}`;
     }
     const countBadge = $('fleetCarbyCountBadge');
     if (countBadge) {
@@ -11063,18 +11809,31 @@
     }
 
     const c = state.carbies.find((item) => item.id === ui.selectedFleetCarbyId) || state.carbies[0];
-    const fittedJet = findJetById(c.fittedJetId);
-    const jetText = fittedJet ? `${fittedJet.label} (${fittedJet.mm.toFixed(3)} mm)` : 'Unassigned';
-    const venturiLegal = c.venturiMm <= 30.94;
-    const exitLegal = c.exitMm <= 40.00;
-    const allLegal = venturiLegal && exitLegal && c.studsMm === 75.0;
+    const hasJetFitted = c.fittedJetMm !== null && c.fittedJetMm !== undefined && Number.isFinite(Number(c.fittedJetMm));
+    const fittedJetText = hasJetFitted
+      ? `${formatJetPureMm(c.fittedJetMm)} (${orificeAreaMm2(c.fittedJetMm).toFixed(3)} mm²)`
+      : c.id === 'SNB'
+      ? 'TBD (1.9 marked on top bar — verify internal jet)'
+      : '⚠️ NO MAIN JET FITTED!';
+    const emulObj = getEmulsionById(c.emulsionId);
+    const emulText = emulObj ? `${emulObj.code} (${emulObj.collar} Collar)` : 'TBD (Inspect on Teardown)';
+
+    const boreMm = Number(c.throttleBoreMm ?? c.exitMm ?? 39.81);
+    const hasVenturi = c.mainVenturiMm !== null && c.mainVenturiMm !== undefined && Number.isFinite(Number(c.mainVenturiMm));
+    const venturiMmVal = hasVenturi ? Number(c.mainVenturiMm) : null;
+    const venturiLegal = venturiMmVal === null || venturiMmVal <= 30.94;
+    const boreOverLimit = boreMm > 40.0001;
+    const boreExactLimit = Math.abs(boreMm - 40.00) <= 0.005;
+    const allLegal = venturiLegal && !boreOverLimit;
+
     const isOnCar = c.id === activeCarbyId;
     const canDelete = !isOnCar && state.carbies.length > 1;
 
+    const previewJetMm = hasJetFitted ? Number(c.fittedJetMm) : Number(c.recommendedStartJetMm || 1.87);
     const a = c.baselineAnchor || {
-      jetLabel: jetText,
-      jetMm: fittedJet ? fittedJet.mm : 2.000,
-      rad: 94.3,
+      jetLabel: formatJetPureMm(previewJetMm),
+      jetMm: previewJetMm,
+      rad: 98.4,
       fuelSg: 0.740,
       verifiedAfr: null,
       sourceLabel: 'Fleet Anchor'
@@ -11085,20 +11844,37 @@
       ? `${Number(a.verifiedAfr).toFixed(2)} Verified AFR (${a.sourceLabel})`
       : `Untested / Weather-Only (${a.sourceLabel})`;
 
+    const boreBadgeHtml = boreOverLimit
+      ? `<span class="bore-limit-badge over-limit">&#9888;&#65039; ${boreMm.toFixed(2)}MM OVER 40.00MM LIMIT</span>`
+      : boreExactLimit
+      ? `<span class="bore-limit-badge exact-limit">40.00MM EXACT LIMIT</span>`
+      : `<span class="locked-badge">${allLegal ? 'Grp 3H Legal' : 'Check Bore'}</span>`;
+
+    const noJetBadgeHtml = !hasJetFitted
+      ? `<span class="no-jet-badge">&#9888;&#65039; NO MAIN JET FITTED</span>`
+      : '';
+
+    const spillHasNum = c.spillHeightMm !== null && c.spillHeightMm !== undefined && Number.isFinite(Number(c.spillHeightMm));
+    const spillText = spillHasNum ? `${Number(c.spillHeightMm).toFixed(1)} mm (incl. gasket • baffled bowl)` : c.spillDisplay || 'TBD';
+    const floatHasNum = c.floatWeightG !== null && c.floatWeightG !== undefined && Number.isFinite(Number(c.floatWeightG));
+    const floatText = floatHasNum ? `${Number(c.floatWeightG).toFixed(1)} g` : c.floatDisplay || 'TBD';
+    const venturiText = hasVenturi ? `${venturiMmVal.toFixed(2)} mm` : c.mainVenturiDisplay || 'TBD (Max 30.94mm)';
+
+    const isTbdStr = (str) => !str || /^TBD/i.test(String(str).trim());
+
     container.innerHTML = `
       <div class="carby-card" style="margin-bottom: 0;">
         <div class="session-head" style="margin-bottom: 6px;">
           <div>
-            <div class="session-title-line">
-              ${escapeHtml(c.name)}
-              ${isOnCar ? '<span class="locked-badge" style="margin-left: 6px;">★ ON CAR</span>' : ''}
+            <div class="session-title-line" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
+              <span>${escapeHtml(c.name)}</span>
+              ${isOnCar ? '<span class="locked-badge">★ ON CAR</span>' : ''}
+              ${noJetBadgeHtml}
             </div>
-            <div class="session-meta-line">${escapeHtml(c.bodyType || 'Stromberg BXUV-3 40mm')} &bull; ${(c.studsMm || 75).toFixed(0)} mm Studs</div>
+            <div class="session-meta-line">${escapeHtml(c.bodyCode || '23-3052 (<213> Horn)')} &bull; ${escapeHtml(c.baseCasting || '2376876 BXUV-3')}</div>
           </div>
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <span class="locked-badge" style="${allLegal ? '' : 'color: var(--danger); background: var(--danger-dim);'}">
-              ${allLegal ? 'Grp 3H Legal' : 'Check Bore'}
-            </span>
+          <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
+            ${boreBadgeHtml}
             ${
               canDelete
                 ? `<button type="button" class="btn-icon-delete" data-delete-fleet-carby="${escapeHtml(c.id)}" title="Remove ${escapeHtml(c.name)}" aria-label="Remove ${escapeHtml(c.name)}">&#10005;</button>`
@@ -11109,19 +11885,19 @@
 
         <div class="carby-specs-grid">
           <div class="telem-cell">
-            <span class="telem-label">Venturi</span>
-            <span class="telem-val">${c.venturiMm.toFixed(2)} mm</span>
-            <span class="telem-sub">&le; 30.94 mm limit</span>
+            <span class="telem-label">Throttle Bore (Base)</span>
+            <span class="telem-val ${boreOverLimit ? 'txt-danger' : boreExactLimit ? 'txt-emerald' : ''}">${boreMm.toFixed(2)} mm</span>
+            <span class="telem-sub">${boreExactLimit ? '40.00 mm Exact Grp 3H Limit' : '&le; 40.00 mm Group 3H limit'}</span>
           </div>
           <div class="telem-cell">
-            <span class="telem-label">Throttle Bore</span>
-            <span class="telem-val">${c.exitMm.toFixed(2)} mm</span>
-            <span class="telem-sub">&le; 40.00 mm exit</span>
+            <span class="telem-label">Main Venturi</span>
+            <span class="telem-val ${hasVenturi ? '' : 'txt-amber'}">${escapeHtml(venturiText)}</span>
+            <span class="telem-sub">&le; 30.94 mm (1.218&quot;) max</span>
           </div>
           <div class="telem-cell">
-            <span class="telem-label">Spill / Fitted Jet</span>
-            <span class="telem-val txt-amber">${c.spillMm.toFixed(1)} mm &bull; ${Number(a.jetMm).toFixed(3)} mm</span>
-            <span class="telem-sub">${escapeHtml(a.jetLabel)}</span>
+            <span class="telem-label">Fitted Main Jet (mm)</span>
+            <span class="telem-val ${hasJetFitted ? 'txt-emerald' : 'txt-amber'}">${escapeHtml(fittedJetText)}</span>
+            <span class="telem-sub">${hasJetFitted ? 'Pure Metric Orifice' : `Rec Start: ${formatJetPureMm(previewJetMm)}`}</span>
           </div>
           <div class="telem-cell">
             <span class="telem-label">Anchor AFR / RAD</span>
@@ -11130,14 +11906,220 @@
           </div>
         </div>
 
-        ${c.notes ? `<p style="margin: 6px 0 10px; font-size: 0.78rem; color: var(--text-secondary);">${escapeHtml(c.notes)}</p>` : ''}
+        <div class="carby-teardown-grid">
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Body Code &amp; Air Horn</span>
+            <span class="carby-teardown-val">${escapeHtml(c.bodyCode || 'TBD')}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Base Casting &amp; Shaft</span>
+            <span class="carby-teardown-val">${escapeHtml(c.baseCasting || 'TBD')}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Fitted Emulsion Tube</span>
+            <span class="carby-teardown-val ${emulObj ? '' : 'is-tbd'}">${escapeHtml(emulText)}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Needle &amp; Seat</span>
+            <span class="carby-teardown-val ${isTbdStr(c.needleSeat) ? 'is-tbd' : ''}">${escapeHtml(c.needleSeat || 'TBD')}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Fuel Spill Level</span>
+            <span class="carby-teardown-val ${spillHasNum ? '' : 'is-tbd'}">${escapeHtml(spillText)}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Float Weight (g)</span>
+            <span class="carby-teardown-val ${floatHasNum ? '' : 'is-tbd'}">${escapeHtml(floatText)}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Idle Tube</span>
+            <span class="carby-teardown-val ${isTbdStr(c.idleTube) ? 'is-tbd' : ''}">${escapeHtml(c.idleTube || 'TBD')}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Power Bypass Valve</span>
+            <span class="carby-teardown-val ${isTbdStr(c.powerBypass) ? 'is-tbd' : ''}">${escapeHtml(c.powerBypass || 'TBD')}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">High-Speed Air Bleed</span>
+            <span class="carby-teardown-val ${isTbdStr(c.highSpeedBleed) ? 'is-tbd' : ''}">${escapeHtml(c.highSpeedBleed || 'TBD')}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Pump Circuit / Vac Port</span>
+            <span class="carby-teardown-val ${isTbdStr(c.pumpCircuit) ? 'is-tbd' : ''}">${escapeHtml(c.pumpCircuit || 'TBD')}</span>
+          </div>
+        </div>
+
+        ${c.notes ? `<p style="margin: 8px 0 10px; font-size: 0.78rem; color: var(--text-secondary);">${escapeHtml(c.notes)}</p>` : ''}
 
         <div class="form-grid-2">
           <button type="button" class="btn ${isOnCar ? 'btn-confirm' : 'btn-amber-outline'}" data-load-carby-anchor="${escapeHtml(c.id)}">
             ${isOnCar ? `${escapeHtml(c.name)} Active on Car` : `Set ${escapeHtml(c.name)} on Car`}
           </button>
           <button type="button" class="btn btn-secondary" data-edit-carby="${escapeHtml(c.id)}">
-            Edit Selected Carby
+            Edit Carby &amp; Teardown Specs
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderEmulsionBrassFleet() {
+    const emulContainer = $('emulsionFleetContainer');
+    const emulSelect = $('selectFleetEmulsion');
+    const brassContainer = $('brassFleetContainer');
+    const brassSelect = $('selectFleetBrass');
+
+    if (!Array.isArray(state.emulsions) || state.emulsions.length === 0) {
+      state.emulsions = createDefaultEmulsions();
+    }
+    if (!Array.isArray(state.brassJets) || state.brassJets.length === 0) {
+      state.brassJets = createDefaultBrassJets();
+    }
+
+    const totalTubes = state.emulsions.reduce((sum, e) => sum + (Number(e.qty) || 0), 0);
+    const totalBrass = state.brassJets.reduce((sum, b) => sum + (Number(b.qty) || 0), 0);
+    const activeEmulShort = formatEmulsionShort((state.baseline && state.baseline.emulsionId) || 'E5_DME');
+
+    if ($('fleetEmulsionActiveBadge')) {
+      $('fleetEmulsionActiveBadge').textContent = `${activeEmulShort} IN CAR • ${totalTubes} TUBES + ${totalBrass} BRASS`;
+    }
+    if ($('fleetEmulsionCountBadge')) {
+      $('fleetEmulsionCountBadge').textContent = `${state.emulsions.length} PROFILES`;
+    }
+
+    if (!ui.selectedFleetEmulsionId || !state.emulsions.some((e) => e.id === ui.selectedFleetEmulsionId)) {
+      ui.selectedFleetEmulsionId = 'E5_DME';
+    }
+    if (emulSelect) {
+      emulSelect.innerHTML = state.emulsions
+        .map(
+          (e) =>
+            `<option value="${escapeHtml(e.id)}">${escapeHtml(e.code)} — Qty ${e.qty} (${escapeHtml(e.collar)}) [${escapeHtml(e.status)}]</option>`
+        )
+        .join('');
+      emulSelect.value = ui.selectedFleetEmulsionId;
+    }
+
+    if (emulContainer) {
+      const em = state.emulsions.find((e) => e.id === ui.selectedFleetEmulsionId) || state.emulsions[0];
+      const isActiveEmul = (state.baseline && state.baseline.emulsionId) === em.id;
+      emulContainer.innerHTML = `
+        <div class="emulsion-card">
+          <div class="session-head" style="margin-bottom: 6px;">
+            <div>
+              <div class="session-title-line">
+                ${escapeHtml(em.code)}
+                ${isActiveEmul ? '<span class="locked-badge" style="margin-left: 6px;">★ IN DME #1 BASELINE</span>' : ''}
+              </div>
+              <div class="session-meta-line">Collar: <strong>${escapeHtml(em.collar)}</strong> &bull; Physical Tubes in Kit: <strong>${em.qty}</strong></div>
+            </div>
+            <span class="locked-badge">${escapeHtml(em.status || 'Stock')}</span>
+          </div>
+          <div class="carby-teardown-grid" style="margin-top: 6px;">
+            <div class="carby-teardown-cell">
+              <span class="carby-teardown-label">Drill &amp; Slot Pattern</span>
+              <span class="carby-teardown-val">${escapeHtml(em.pattern)}</span>
+            </div>
+            <div class="carby-teardown-cell">
+              <span class="carby-teardown-label">Fuel Curve vs #5-DME Baseline</span>
+              <span class="carby-teardown-val" style="color: var(--emerald);">${escapeHtml(em.vsBase5)}</span>
+            </div>
+          </div>
+          <div style="margin-top: 8px; display: flex; justify-content: flex-end;">
+            <button type="button" class="btn btn-secondary btn-xs" data-edit-emulsion="${escapeHtml(em.id)}">
+              Edit ${escapeHtml(em.code)} Profile
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    if (!ui.selectedFleetBrassId || !state.brassJets.some((b) => b.id === ui.selectedFleetBrassId)) {
+      ui.selectedFleetBrassId = state.brassJets[0].id;
+    }
+    if (brassSelect) {
+      brassSelect.innerHTML = state.brassJets
+        .map(
+          (b) =>
+            `<option value="${escapeHtml(b.id)}">${escapeHtml(b.type)} ${escapeHtml(b.stamp)} (${Number(b.mm).toFixed(2)} mm) — Qty ${b.qty}</option>`
+        )
+        .join('');
+      brassSelect.value = ui.selectedFleetBrassId;
+    }
+
+    if (brassContainer) {
+      const br = state.brassJets.find((b) => b.id === ui.selectedFleetBrassId) || state.brassJets[0];
+      const brArea = orificeAreaMm2(br.mm);
+      brassContainer.innerHTML = `
+        <div class="brass-card">
+          <div class="session-head" style="margin-bottom: 6px;">
+            <div>
+              <div class="session-title-line">${escapeHtml(br.type)} ${escapeHtml(br.stamp)}</div>
+              <div class="session-meta-line">Orifice: <strong>${Number(br.mm).toFixed(2)} mm</strong> (${brArea.toFixed(3)} mm&sup2;${br.inch ? ` • ${Number(br.inch).toFixed(4)}&quot;` : ''}) &bull; Qty: <strong>${br.qty}</strong></div>
+            </div>
+            <span class="locked-badge">${escapeHtml(br.stamp)} STAMP</span>
+          </div>
+          <p style="margin: 4px 0 8px; font-size: 0.78rem; color: var(--text-secondary);">${escapeHtml(br.notes || '')}</p>
+          <div style="display: flex; justify-content: flex-end;">
+            <button type="button" class="btn btn-secondary btn-xs" data-edit-brass="${escapeHtml(br.id)}">
+              Edit ${escapeHtml(br.type)} ${escapeHtml(br.stamp)}
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  function renderFuelSystemFleet() {
+    const container = $('fuelSystemFleetContainer');
+    if (!container) return;
+    if (!state.fuelSystem || typeof state.fuelSystem !== 'object') {
+      state.fuelSystem = createDefaultFuelSystem();
+    }
+    const fs = state.fuelSystem;
+    const psiVal = Number.isFinite(Number(fs.runningPsi)) ? Number(fs.runningPsi) : 4.3;
+
+    if ($('fleetFuelSystemActiveBadge')) {
+      $('fleetFuelSystemActiveBadge').textContent = `Holley 12-427 • Sakura FS-8002 • ${psiVal.toFixed(1)} psi`;
+    }
+    if ($('fleetFuelSystemPsiBadge')) {
+      $('fleetFuelSystemPsiBadge').textContent = `${psiVal.toFixed(1)} PSI`;
+    }
+
+    container.innerHTML = `
+      <div class="fuel-sys-card">
+        <div class="session-head" style="margin-bottom: 6px;">
+          <div>
+            <div class="session-title-line">HQ #71 Race Fuel Delivery System</div>
+            <div class="session-meta-line">${escapeHtml(fs.pumpModel)}</div>
+          </div>
+          <span class="locked-badge">${psiVal.toFixed(1)} PSI RUNNING</span>
+        </div>
+
+        <div class="carby-teardown-grid">
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Fuel Tank &amp; Baffling</span>
+            <span class="carby-teardown-val">${escapeHtml(fs.tankSpec)}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Electric Fuel Pump</span>
+            <span class="carby-teardown-val">${escapeHtml(fs.pumpModel)}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Pre-Filter &amp; Line Routing</span>
+            <span class="carby-teardown-val">${escapeHtml(fs.filterModel)} &bull; ${escapeHtml(fs.lineRouting)}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Regulator &amp; Running Pressure</span>
+            <span class="carby-teardown-val" style="color: var(--emerald);">${escapeHtml(fs.regulator)} &bull; ${psiVal.toFixed(1)} psi</span>
+          </div>
+        </div>
+
+        ${fs.notes ? `<p style="margin: 8px 0 10px; font-size: 0.78rem; color: var(--text-secondary);">${escapeHtml(fs.notes)}</p>` : ''}
+
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="button" class="btn btn-secondary" data-edit-fuel-system="1">
+            Edit Fuel System Hardware &amp; Running PSI
           </button>
         </div>
       </div>
@@ -12024,10 +13006,11 @@
   }
 
   function getCarbyLearnedFlowStats(carbyId) {
-    const carby = (state.carbies || []).find((c) => c && c.id === carbyId);
+    const normTarget = normalizeCarbyIdAlias(carbyId);
+    const carby = (state.carbies || []).find((c) => c && c.id === normTarget);
     const anchor = (carby && carby.baselineAnchor) || {
-      jetMm: 2.000,
-      rad: 94.3,
+      jetMm: 1.85,
+      rad: 98.4,
       fuelSg: 0.740,
       verifiedAfr: 12.80
     };
@@ -12035,13 +13018,13 @@
       anchor.verifiedAfr !== null && anchor.verifiedAfr !== undefined && Number.isFinite(Number(anchor.verifiedAfr))
         ? Number(anchor.verifiedAfr)
         : 12.80;
-    const anchorJetMm = Number(anchor.jetMm) || 2.000;
-    const anchorRad = Number(anchor.rad) || 94.3;
+    const anchorJetMm = Number(anchor.jetMm) || 1.85;
+    const anchorRad = Number(anchor.rad) || 98.4;
     const anchorSg = Number(anchor.fuelSg) || 0.740;
 
     const ratios = [];
     (state.sessions || []).forEach((s) => {
-      if (!s || s.carbyId !== carbyId || s.afrStatus !== 'verified') return;
+      if (!s || normalizeCarbyIdAlias(s.carbyId) !== normTarget || s.afrStatus !== 'verified') return;
       const wot = Number(s.afrWot);
       const jMm = Number(s.jetMm);
       const rad = Number(s.rad);
@@ -12094,6 +13077,7 @@
     syncFlatSessionsFromEvents(state);
     const ch = state.chassis || createDefaultChassisState();
     const b = state.baseline || createDefaultBaseline();
+    const fs = state.fuelSystem || createDefaultFuelSystem();
     const mountedTyres = ensureMountedTyresState();
     const mountedShocks = ensureMountedShocksState();
     const mountedSprings = ensureMountedSpringsState();
@@ -12114,7 +13098,7 @@
 
     const lines = [];
     lines.push('====================================================================');
-    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.8.5)');
+    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.8.6)');
     lines.push(`Exported: ${new Date().toISOString()}`);
     lines.push('====================================================================');
     lines.push('');
@@ -12122,8 +13106,8 @@
     // 1. Active Baseline & Scale Fact Anchor
     lines.push('[1] LOCKED BASELINE & TRACK-SCALE FACT ANCHOR');
     lines.push(`- Active Baseline: ${b.venue} | ${b.sessionDate} | ${b.sessionName}`);
-    lines.push(`- Carby / Man / Exh: ${b.carbyId} | ${b.manifoldId || state.activeManifoldId || 'Macca'} Manifold | ${b.exhaustId || state.activeExhaustId || 'Macca'} Exhaust`);
-    lines.push(`- Baseline Jet: ${b.jetLabel} (${Number(b.jetMm).toFixed(3)} mm) @ ${Number(b.rad).toFixed(1)}% RAD, SG ${Number(b.fuelSg).toFixed(3)}, Timing ${Number(b.timing).toFixed(1)} deg, Fuel ${Number(b.fuelPsi).toFixed(1)} psi`);
+    lines.push(`- Carby / Emulsion / Man / Exh: ${getCarbyDisplayName(b.carbyId)} | Emulsion ${formatEmulsionShort(b.emulsionId || 'E5_DME')} | ${b.manifoldId || state.activeManifoldId || 'Macca'} Manifold | ${b.exhaustId || state.activeExhaustId || 'Macca'} Exhaust`);
+    lines.push(`- Baseline Main Jet: ${formatJetPureMm(b.jetMm)} (${orificeAreaMm2(b.jetMm).toFixed(3)} mm²) @ ${Number(b.rad).toFixed(1)}% RAD, SG ${Number(b.fuelSg).toFixed(3)}, Timing ${Number(b.timing).toFixed(1)} deg, Fuel ${Number(b.fuelPsi ?? 4.3).toFixed(1)} psi`);
     lines.push(`- Baseline WOT AFR: ${b.wotAfr !== null && b.wotAfr !== undefined ? Number(b.wotAfr).toFixed(2) : 'Weather-Only'} (${b.afrStatus})`);
     lines.push(`- Scale Fact Anchor: ${Number(ch.scaleCheckKg).toFixed(1)} kg Official Scale Wt w/ ${Number(ch.scaleCheckFuelL).toFixed(1)} L in tank = ${dryCarKg.toFixed(1)} kg Dry Car + Driver`);
     lines.push(`- Scale Fact Source: ${ch.scaleFactSource || 'Anchored to Official Track Scale Check'}`);
@@ -12183,15 +13167,41 @@
     });
     lines.push('');
 
-    // 4. Carby Fleet + Learned Flow Correction
-    lines.push('[4] CARBY, MANIFOLD & EXHAUST FLEET + SELF-LEARNED FLOW FACTORS');
+    // 4. Carby Fleet + Teardown Audit + Emulsions + Brass + Fuel System
+    lines.push('[4] AUDITED CARBY FLEET, EMULSION TUBE LIBRARY (14 TUBES), BRASS & IN-CAR FUEL SYSTEM');
     (state.carbies || []).forEach((c) => {
       const flowStat = getCarbyLearnedFlowStats(c.id);
       const a = c.baselineAnchor || {};
+      const boreMm = Number(c.throttleBoreMm ?? c.exitMm ?? 39.81);
+      const ventStr = c.mainVenturiMm !== null && c.mainVenturiMm !== undefined ? `${Number(c.mainVenturiMm).toFixed(2)}mm` : 'TBD (Max 30.94mm)';
+      const jetStr =
+        c.fittedJetMm !== null && c.fittedJetMm !== undefined
+          ? `${formatJetPureMm(c.fittedJetMm)} (${orificeAreaMm2(c.fittedJetMm).toFixed(3)} mm²)`
+          : `⚠️ NO MAIN JET FITTED (Rec Start: ${formatJetPureMm(c.recommendedStartJetMm || 1.87)})`;
+      const spillStr = c.spillHeightMm !== null && c.spillHeightMm !== undefined ? `${Number(c.spillHeightMm).toFixed(1)}mm` : 'TBD';
+      const floatStr = c.floatWeightG !== null && c.floatWeightG !== undefined ? `${Number(c.floatWeightG).toFixed(1)}g` : c.floatDisplay || 'TBD';
       lines.push(
-        `- Carby "${c.name}": Venturi ${Number(c.venturiMm).toFixed(2)}mm, Throttle ${Number(c.exitMm).toFixed(2)}mm, Spill ${Number(c.spillMm).toFixed(1)}mm | Anchor ${Number(a.jetMm || 2.0).toFixed(3)}mm @ ${Number(a.rad || 94.3).toFixed(1)}% RAD = ${a.verifiedAfr ?? 'Untested'} AFR | Learned Flow Factor: ${flowStat.factor.toFixed(4)}x (${flowStat.avgBiasPct >= 0 ? '+' : ''}${flowStat.avgBiasPct.toFixed(2)}% vs 4th-root theory across ${flowStat.count} verified runs)`
+        `- Carby "${c.name}" (${c.id})${c.id === b.carbyId ? ' [ON CAR]' : ''}: Body="${c.bodyCode || 'TBD'}" | Base="${c.baseCasting || 'TBD'}" | Bore=${boreMm.toFixed(2)}mm | Venturi=${ventStr} | Fitted_Jet=${jetStr} | Emulsion=${formatEmulsionShort(c.emulsionId || 'TBD')} | Needle/Seat="${c.needleSeat || 'TBD'}" | Spill=${spillStr} | Float=${floatStr} | Idle_Tube="${c.idleTube || 'TBD'}" | Power_Bypass="${c.powerBypass || 'TBD'}" | HS_Bleed="${c.highSpeedBleed || 'TBD'}" | Pump="${c.pumpCircuit || 'TBD'}" | Anchor ${formatJetPureMm(a.jetMm || 1.85)} @ ${Number(a.rad || 98.4).toFixed(1)}% RAD = ${a.verifiedAfr ?? 'Untested'} AFR | Learned Flow Factor: ${flowStat.factor.toFixed(4)}x (${flowStat.avgBiasPct >= 0 ? '+' : ''}${flowStat.avgBiasPct.toFixed(2)}% across ${flowStat.count} verified runs) | Notes: ${c.notes || ''}`
       );
     });
+    const activeTactixJets = sortJetsByDiameter(state.jets || [])
+      .filter((j) => Boolean(j.inBox !== undefined ? j.inBox : j.inToolbox))
+      .map((j) => `${formatJetPureMm(j.mm)} (${orificeAreaMm2(j.mm).toFixed(3)}mm²)`)
+      .join(', ');
+    lines.push(`- Active Tactix Drill-Gauge Box Jets (mm): ${activeTactixJets}`);
+    (state.emulsions || []).forEach((em) => {
+      lines.push(
+        `- Emulsion ${em.code} (${em.id}, Qty ${em.qty}, Collar: ${em.collar}, Status: ${em.status}): Pattern="${em.pattern}" | vs #5-DME: ${em.vsBase5}`
+      );
+    });
+    (state.brassJets || []).forEach((br) => {
+      lines.push(
+        `- Brass ${br.type} ${br.stamp} (${Number(br.mm).toFixed(2)} mm / ${orificeAreaMm2(br.mm).toFixed(3)} mm², Qty ${br.qty}): ${br.notes}`
+      );
+    });
+    lines.push(
+      `- In-Car Fuel System: Tank="${fs.tankSpec}" | Pump="${fs.pumpModel}" | Filter="${fs.filterModel}" | Regulator="${fs.regulator}" @ ${Number(fs.runningPsi ?? 4.3).toFixed(1)} psi | Lines="${fs.lineRouting}" | Notes: ${fs.notes || ''}`
+    );
     (state.manifolds || []).forEach((m) => {
       const pf = m.portFlowCfm || {};
       lines.push(
@@ -12291,7 +13301,7 @@
           return `${c}:Shk=${shCode}/Spr=${spCode}`;
         };
         lines.push(
-          `  * ${s.sessionName} (${s.timestamp || ''}) [${s.afrStatus}]: ${s.carbyId} + ${s.manifoldId || 'Macca'} + ${s.exhaustId || 'Macca'} | Jet ${s.jetLabel} (${Number(s.jetMm).toFixed(3)}mm) | RAD ${Number(s.rad).toFixed(1)}% | SG ${Number(s.fuelSg).toFixed(3)} | Timing ${Number(s.timing).toFixed(1)}° | Fuel ${Number(s.fuelPsi).toFixed(1)}psi | H2O ${s.waterTempC ?? '—'}°C | WOT AFR ${Number(s.afrWot).toFixed(2)} @ ${s.peakRpm || 5900} RPM (#1/#6 ${(Number(s.afrWot) + END_CYL_LEAN_OFFSET).toFixed(2)})`
+          `  * ${s.sessionName} (${s.timestamp || ''}) [${s.afrStatus}]: ${getCarbyDisplayName(s.carbyId)} (${formatEmulsionShort(s.emulsionId || 'E5_DME')}) + ${s.manifoldId || 'Macca'} + ${s.exhaustId || 'Macca'} | Main Jet ${formatJetPureMm(s.jetMm)} (${orificeAreaMm2(s.jetMm).toFixed(3)} mm²) | RAD ${Number(s.rad).toFixed(1)}% | SG ${Number(s.fuelSg).toFixed(3)} | Timing ${Number(s.timing).toFixed(1)}° | Fuel ${Number(s.fuelPsi ?? 4.3).toFixed(1)}psi | H2O ${s.waterTempC ?? '—'}°C | WOT AFR ${Number(s.afrWot).toFixed(2)} @ ${s.peakRpm || 5900} RPM (#1/#6 ${(Number(s.afrWot) + END_CYL_LEAN_OFFSET).toFixed(2)})`
         );
         lines.push(
           `    Fuel/Wt: Pour ${s.litresToPourL ?? '—'}L | In ${s.fuelInL ?? '—'}L -> Out ${s.fuelOutL ?? '—'}L | Used ${s.fuelUsedL ?? '—'}L (${s.racedLaps ?? '—'} laps = ${s.measuredBurnLPerLap ?? '—'} L/lap) | Scale/Est Wt: ${s.scaleWeightKg ?? '—'} / ${s.postRaceEstKg ?? '—'} kg`
@@ -12317,7 +13327,7 @@
     }
     const badge = $('aiDumpSummaryBadge');
     if (badge) {
-      badge.textContent = `${(state.events || []).length} Events • ${(state.sessions || []).length} Runs • ${(state.shocks || []).length} Shocks • ${(state.springs || []).length} Springs`;
+      badge.textContent = `${(state.events || []).length} Events • ${(state.sessions || []).length} Runs • ${(state.carbies || []).length} Carbies • ${(state.emulsions || []).length} Emulsions`;
     }
     openModal('modalAiDataDump');
   }
@@ -12348,20 +13358,25 @@
     if (!listEl) return;
 
     const sorted = sortJetsByDiameter(state.jets);
-    const inBoxCount = sorted.filter((j) => j.inToolbox).length;
+    const activeJets = sorted.filter((j) => Boolean(j.inBox !== undefined ? j.inBox : j.inToolbox));
+    const inBoxCount = activeJets.length;
+    const minActiveMm = activeJets.length > 0 ? formatMmNumber(activeJets[0].mm) : '1.70';
+    const maxActiveMm = activeJets.length > 0 ? formatMmNumber(activeJets[activeJets.length - 1].mm) : '2.03';
+
     const tbBadge = $('toolboxSummaryBadge');
-    if (tbBadge) tbBadge.textContent = `${inBoxCount} / ${sorted.length} In Box`;
+    if (tbBadge) tbBadge.textContent = `${minActiveMm}–${maxActiveMm} mm • ${inBoxCount} IN TACTIX BOX`;
     const jetsCountBadge = $('fleetJetsCountBadge');
     if (jetsCountBadge) jetsCountBadge.textContent = `${sorted.length} JETS`;
 
     listEl.innerHTML = sorted
       .map((j) => {
-        const inch = mmToInch(j.mm);
         const area = orificeAreaMm2(j.mm);
+        const inBox = Boolean(j.inBox !== undefined ? j.inBox : j.inToolbox);
+        const pureMm = formatJetPureMm(j.mm);
         const rowClass = [
           'jet-inv-row',
           j.custom ? 'custom-drill' : '',
-          j.inToolbox ? '' : 'out-of-box'
+          inBox ? '' : 'out-of-box'
         ]
           .filter(Boolean)
           .join(' ');
@@ -12370,25 +13385,25 @@
           <div class="${rowClass}">
             <div>
               <div style="font-size: 0.92rem; font-weight: 800; color: var(--text);">
-                ${escapeHtml(j.label)}
+                ${escapeHtml(pureMm)}
               </div>
               <div style="font-size: 0.69rem; color: ${j.custom ? 'var(--amber)' : 'var(--text-muted)'};">
-                ${escapeHtml(j.stamp || (j.custom ? 'Custom Drill' : 'M1 .001" Series'))}
+                ${escapeHtml(j.custom ? 'Custom Metric Drill (mm)' : inBox ? 'Tactix Drill-Gauge Box' : 'Spare Metric Size')}
               </div>
             </div>
 
             <div class="mono" style="font-size: 0.76rem; color: var(--text-secondary);">
-              <div><strong>${j.mm.toFixed(3)} mm</strong> (${inch.toFixed(4)}")</div>
+              <div><strong>${escapeHtml(pureMm)}</strong></div>
               <div style="color: var(--text-muted);">${area.toFixed(3)} mm&sup2; area</div>
             </div>
 
             <button
               type="button"
-              class="toggle-box-btn ${j.inToolbox ? 'in-box' : 'out-box'}"
+              class="toggle-box-btn ${inBox ? 'in-box' : 'out-box'}"
               data-toggle-jet-box="${escapeHtml(j.id)}"
-              aria-pressed="${j.inToolbox ? 'true' : 'false'}"
+              aria-pressed="${inBox ? 'true' : 'false'}"
             >
-              ${j.inToolbox ? 'In Toolbox' : 'Out'}
+              ${inBox ? 'In Tactix Box' : 'Out'}
             </button>
           </div>
         `;
@@ -12397,23 +13412,23 @@
   }
 
   function updateOrificeConverter(source) {
-    let mmVal = readNum('convMmInput', 1.981);
-    let inchVal = readNum('convInchInput', 0.0780);
+    let mmVal = readNum('convMmInput', 1.850);
+    let inchVal = readNum('convInchInput', 0.0728);
 
     if (source === 'inch') {
       mmVal = inchToMm(inchVal);
-      $('convMmInput').value = mmVal.toFixed(3);
+      if ($('convMmInput')) $('convMmInput').value = mmVal.toFixed(3);
     } else {
       inchVal = mmToInch(mmVal);
-      $('convInchInput').value = inchVal.toFixed(4);
+      if ($('convInchInput')) $('convInchInput').value = inchVal.toFixed(4);
     }
 
     const area = orificeAreaMm2(mmVal);
-    const baseArea = orificeAreaMm2(2.000);
+    const baseArea = orificeAreaMm2(1.85);
     const areaPct = ((area - baseArea) / baseArea) * 100;
 
-    $('convAreaOut').textContent = `${area.toFixed(3)} mm²`;
-    $('convVsBaseOut').textContent = `${areaPct >= 0 ? '+' : ''}${areaPct.toFixed(2)}% area vs 2.000 mm`;
+    if ($('convAreaOut')) $('convAreaOut').textContent = `${area.toFixed(3)} mm²`;
+    if ($('convVsBaseOut')) $('convVsBaseOut').textContent = `${areaPct >= 0 ? '+' : ''}${areaPct.toFixed(2)}% area vs 1.85 mm`;
 
     const sorted = sortJetsByDiameter(state.jets);
     let nearest = sorted[0];
@@ -12426,8 +13441,8 @@
       }
     });
     if (nearest) {
-      $('convNearestJetOut').textContent = `${nearest.label} (${nearest.mm.toFixed(3)} mm)`;
-      $('convStampHint').textContent = `Δ ${(mmVal - nearest.mm >= 0 ? '+' : '')}${(mmVal - nearest.mm).toFixed(3)} mm`;
+      if ($('convNearestJetOut')) $('convNearestJetOut').textContent = `${formatJetPureMm(nearest.mm)} (${orificeAreaMm2(nearest.mm).toFixed(3)} mm²)`;
+      if ($('convStampHint')) $('convStampHint').textContent = `Δ ${(mmVal - nearest.mm >= 0 ? '+' : '')}${(mmVal - nearest.mm).toFixed(3)} mm`;
     }
   }
 
@@ -12581,8 +13596,8 @@
     const b = state.baseline;
     const sessionLabelName = linked.sessionName || b.sessionName;
     const sessionVenue = liveEvt.venue || linked.venue || b.venue || 'Calder Park Raceway';
-    const sessionCarby = linked.carbyId || b.carbyId;
-    const sessionJet = linked.jetLabel || b.jetLabel;
+    const sessionCarby = getCarbyDisplayName(linked.carbyId || b.carbyId);
+    const sessionJet = formatJetPureMm(linked.jetMm || b.jetMm);
 
     const refAfr =
       linked && Number.isFinite(Number(linked.afrWot))
@@ -12603,7 +13618,7 @@
         ? Number(linked.fuelPsi)
         : Number.isFinite(Number(b.fuelPsi))
         ? Number(b.fuelPsi)
-        : 5.0;
+        : 4.3;
 
     const waterTemp =
       linked && normalizeOptionalWaterTemp(linked.waterTempC) !== null
@@ -12693,7 +13708,7 @@
     const skipAfr = Boolean($('modalPostSkipAfr') && $('modalPostSkipAfr').checked);
     const peakRpm = Math.round(readNum('modalPostPeakRpm', 5900));
     const wot = skipAfr ? fallbackAfr : Number(readNum('modalPostWotAfr', fallbackAfr).toFixed(2));
-    const fuelPsi = Number(readNum('modalPostFuelPsi', state.baseline.fuelPsi || 5.0).toFixed(1));
+    const fuelPsi = Number(readNum('modalPostFuelPsi', state.baseline.fuelPsi || 4.3).toFixed(1));
     const waterTempC = readOptionalWaterTemp('modalPostWaterTemp');
     const postNotesVal = ($('modalPostNotes') && $('modalPostNotes').value.trim()) || '';
 
@@ -13149,10 +14164,11 @@
       sessionDate: linked.sessionDate || formatIsoDateDisplay(iso),
       sessionName: linked.sessionName,
       carbyId: linked.carbyId,
+      emulsionId: linked.emulsionId || state.baseline.emulsionId || 'E5_DME',
       manifoldId: linked.manifoldId || state.activeManifoldId || 'Macca',
       exhaustId: linked.exhaustId || state.activeExhaustId || 'Macca',
       jetId: linked.jetId,
-      jetLabel: linked.jetLabel,
+      jetLabel: formatJetPureMm(linked.jetMm),
       jetMm: linked.jetMm,
       rad: linked.rad,
       fuelSg: linked.fuelSg,
@@ -13167,20 +14183,27 @@
     };
     ui.weatherOnly = state.baseline.weatherOnly;
 
-    // Update the matching carby's saved baseline anchor with the newly verified track reading
+    // Update the matching carby's saved baseline anchor and fitted jet with the newly verified track reading
     const carby = state.carbies.find((c) => c.id === state.baseline.carbyId);
-    if (carby && carby.baselineAnchor) {
-      carby.baselineAnchor.jetId = state.baseline.jetId;
-      carby.baselineAnchor.jetLabel = state.baseline.jetLabel;
-      carby.baselineAnchor.jetMm = state.baseline.jetMm;
-      carby.baselineAnchor.rad = state.baseline.rad;
-      carby.baselineAnchor.fuelSg = state.baseline.fuelSg;
-      if (!skipAfr && state.baseline.wotAfr !== null) {
-        carby.baselineAnchor.verifiedAfr = state.baseline.wotAfr;
+    if (carby) {
+      carby.fittedJetMm = state.baseline.jetMm;
+      carby.fittedJetId = state.baseline.jetId;
+      if (state.baseline.emulsionId) {
+        carby.emulsionId = state.baseline.emulsionId;
       }
-      carby.baselineAnchor.fuelPsi = state.baseline.fuelPsi;
-      carby.baselineAnchor.waterTempC = state.baseline.waterTempC;
-      carby.baselineAnchor.sourceLabel = state.baseline.sessionName;
+      if (carby.baselineAnchor) {
+        carby.baselineAnchor.jetId = state.baseline.jetId;
+        carby.baselineAnchor.jetLabel = formatJetPureMm(state.baseline.jetMm);
+        carby.baselineAnchor.jetMm = state.baseline.jetMm;
+        carby.baselineAnchor.rad = state.baseline.rad;
+        carby.baselineAnchor.fuelSg = state.baseline.fuelSg;
+        if (!skipAfr && state.baseline.wotAfr !== null) {
+          carby.baselineAnchor.verifiedAfr = state.baseline.wotAfr;
+        }
+        carby.baselineAnchor.fuelPsi = state.baseline.fuelPsi;
+        carby.baselineAnchor.waterTempC = state.baseline.waterTempC;
+        carby.baselineAnchor.sourceLabel = state.baseline.sessionName;
+      }
     }
 
     // Prepare live chassis state for the next session in this event (which is now Session 2+ Hot-Cycled!)
@@ -13235,6 +14258,9 @@
     if ($('selectCalcCarby')) {
       $('selectCalcCarby').value = state.baseline.carbyId;
     }
+    if ($('selectCalcEmulsion') && state.baseline.emulsionId) {
+      $('selectCalcEmulsion').value = state.baseline.emulsionId;
+    }
     if ($('inputRadPct')) {
       $('inputRadPct').value = state.baseline.rad.toFixed(1);
     }
@@ -13270,7 +14296,7 @@
     ui.confirmDeleteSessionId = sid;
     const venueLabel = normalizeVenueName(sess.venue || 'Calder Park Raceway');
     if ($('deleteSessionTargetLabel')) {
-      $('deleteSessionTargetLabel').textContent = `${sess.sessionName} • ${venueLabel} (${sess.carbyId} • ${sess.jetLabel})`;
+      $('deleteSessionTargetLabel').textContent = `${sess.sessionName} • ${venueLabel} (${getCarbyDisplayName(sess.carbyId)} • ${formatJetPureMm(sess.jetMm)})`;
     }
     if ($('deleteSessionStep1')) $('deleteSessionStep1').style.display = 'block';
     if ($('deleteSessionStep2')) $('deleteSessionStep2').style.display = 'none';
@@ -13447,7 +14473,7 @@
     populateCarbySelects();
     const jetSel = $('editBaseJet');
     jetSel.innerHTML = sortJetsByDiameter(state.jets)
-      .map((j) => `<option value="${escapeHtml(j.id)}">${escapeHtml(j.label)} (${j.mm.toFixed(3)} mm)</option>`)
+      .map((j) => `<option value="${escapeHtml(j.id)}">${escapeHtml(formatJetPureMm(j.mm))} (${jetAreaMm2(j.mm).toFixed(3)} mm²)</option>`)
       .join('');
 
     $('editBaseSession').value = b.sessionName;
@@ -13465,7 +14491,7 @@
       if (near) jetSel.value = near.id;
     }
     if ($('editBaseJetMm')) {
-      $('editBaseJetMm').value = Number(b.jetMm).toFixed(3);
+      $('editBaseJetMm').value = Number(b.jetMm).toFixed(2);
     }
     $('editBaseRad').value = b.rad.toFixed(1);
     $('editBaseSg').value = b.fuelSg.toFixed(3);
@@ -13477,7 +14503,7 @@
     syncEditBaselineModalWeatherOnlyUi();
 
     $('editBaseTiming').value = b.timing.toFixed(1);
-    $('editBaseFuelPsi').value = b.fuelPsi.toFixed(1);
+    $('editBaseFuelPsi').value = Number(b.fuelPsi ?? 4.3).toFixed(1);
     if ($('editBaseWaterTemp')) {
       const wt = normalizeOptionalWaterTemp(b.waterTempC);
       $('editBaseWaterTemp').value = wt !== null ? String(wt) : '';
@@ -13488,11 +14514,8 @@
 
   function saveEditBaselineModal() {
     const jet = findJetById($('editBaseJet').value) || state.jets[0];
-    const jetMm = Number(readNum('editBaseJetMm', jet.mm).toFixed(4));
-    const isCustomMm = Math.abs(jetMm - jet.mm) > 0.0015;
-    const jetLabel = isCustomMm
-      ? `${jet.label.split('/')[0].trim()} / ${jetMm.toFixed(3)} mm`
-      : jet.label;
+    const jetMm = Number(readNum('editBaseJetMm', jet.mm).toFixed(3));
+    const jetLabel = formatJetPureMm(jetMm);
 
     const isWo = Boolean(ui.editBaseWeatherOnly);
     const wotAfrVal = isWo ? null : Number(readNum('editBaseWotAfr', 12.50).toFixed(2));
@@ -13505,13 +14528,16 @@
       state.baseline.sessionDateIso ||
       getLocalTodayIso();
     const waterTempC = readOptionalWaterTemp('editBaseWaterTemp');
+    const selectedCarbyId = normalizeCarbyId($('editBaseCarby').value || 'DME1');
+    const selectedCarbyObj = findCarbyById(selectedCarbyId);
 
     state.baseline = {
       sessionName: ($('editBaseSession').value || '').trim() || 'Baseline',
       venue: venueVal,
       sessionDateIso: dateIsoVal,
       sessionDate: formatIsoDateDisplay(dateIsoVal),
-      carbyId: $('editBaseCarby').value || '1 DME',
+      carbyId: selectedCarbyId,
+      emulsionId: (selectedCarbyObj && selectedCarbyObj.emulsionId) || state.baseline.emulsionId || 'E5_DME',
       jetId: jet.id,
       jetLabel,
       jetMm,
@@ -13522,7 +14548,7 @@
       afrStatus: isWo ? 'untested' : 'verified',
       weatherOnly: isWo,
       timing: Number(readNum('editBaseTiming', 33.0).toFixed(1)),
-      fuelPsi: Number(readNum('editBaseFuelPsi', 5.0).toFixed(1)),
+      fuelPsi: Number(readNum('editBaseFuelPsi', 4.3).toFixed(1)),
       waterTempC,
       linkedSessionId: null
     };
@@ -13537,7 +14563,7 @@
     syncSessionSelectFromBaseline();
     renderAll();
     showToast(
-      `Locked ${state.baseline.sessionName} • ${state.baseline.venue} (${state.baseline.jetMm.toFixed(3)} mm${isWo ? ' • Weather-Only' : ''})`
+      `Locked ${state.baseline.sessionName} • ${state.baseline.venue} (${formatJetPureMm(state.baseline.jetMm)}${isWo ? ' • Weather-Only' : ''})`
     );
   }
 
@@ -13564,86 +14590,184 @@
       ? {
           id: '__NEW__',
           name: '',
-          venturiMm: 30.88,
-          exitMm: 39.95,
+          bodyCode: '23-3052 (<213> Horn)',
+          baseCasting: '2376878 BXUV-3 (Profiled Shaft)',
+          throttleBoreMm: 39.81,
+          exitMm: 39.81,
+          mainVenturiMm: null,
+          venturiMm: null,
+          fittedJetMm: 1.85,
+          fittedJetId: 'mm_185',
+          recommendedStartJetMm: 1.85,
+          emulsionId: 'E5_STD',
+          needleSeat: 'V8 High-Flow Brass + Viton Tip',
+          spillHeightMm: 15.0,
           spillMm: 15.0,
-          fittedJetId: 'm1_0800',
+          floatWeightG: null,
+          idleTube: 'TBD',
+          powerBypass: 'TBD',
+          highSpeedBleed: 'TBD',
+          pumpCircuit: 'TBD',
+          airCleaner: '50 mm (2") Reusable Pleated + HQRA Shield',
           notes: '',
           baselineAnchor: {
-            jetMm: 2.032,
+            jetMm: 1.85,
             rad: 94.3,
             fuelSg: 0.740,
             verifiedAfr: null,
             sourceLabel: 'Untested Anchor'
           }
         }
-      : state.carbies.find((c) => c.id === carbyId);
+      : findCarbyById(carbyId);
     if (!carby) return;
 
-    $('editCarbyIdHidden').value = isNew ? '__NEW__' : carby.id;
+    if ($('editCarbyIdHidden')) $('editCarbyIdHidden').value = isNew ? '__NEW__' : carby.id;
     if ($('editCarbyName')) {
       $('editCarbyName').value = isNew ? '' : carby.name || carby.id;
     }
-    $('modalEditCarbyTitle').textContent = isNew
-      ? 'Add New Carburettor (40mm BXUV-3)'
-      : `Edit ${carby.name} (40mm BXUV-3)`;
-    $('editCarbyVenturi').value = Number(carby.venturiMm ?? 30.88).toFixed(2);
-    $('editCarbyExit').value = Number(carby.exitMm ?? 39.95).toFixed(2);
-    $('editCarbySpill').value = Number(carby.spillMm ?? 15.0).toFixed(1);
-    $('editCarbyNotes').value = carby.notes || '';
+    if ($('modalEditCarbyTitle')) {
+      $('modalEditCarbyTitle').textContent = isNew
+        ? 'Add New Carburettor (40mm BXUV-3)'
+        : `Edit ${carby.name} (40mm BXUV-3)`;
+    }
+    if ($('editCarbyBodyCode')) {
+      $('editCarbyBodyCode').value = carby.bodyCode || carby.bodyType || '23-3052 (<213> Horn)';
+    }
+    if ($('editCarbyBaseCasting')) {
+      $('editCarbyBaseCasting').value = carby.baseCasting || '2376878 BXUV-3';
+    }
+
+    const boreVal = Number(carby.throttleBoreMm ?? carby.exitMm ?? 39.81);
+    if ($('editCarbyExit')) {
+      $('editCarbyExit').value = Number.isFinite(boreVal) ? boreVal.toFixed(2) : '39.81';
+    }
+
+    const ventVal = carby.mainVenturiMm !== undefined ? carby.mainVenturiMm : carby.venturiMm;
+    if ($('editCarbyVenturi')) {
+      $('editCarbyVenturi').value =
+        ventVal !== null && ventVal !== undefined && Number.isFinite(Number(ventVal)) && Number(ventVal) > 0
+          ? Number(ventVal).toFixed(2)
+          : '';
+    }
+
+    const spillVal = carby.spillHeightMm !== undefined ? carby.spillHeightMm : carby.spillMm;
+    if ($('editCarbySpill')) {
+      $('editCarbySpill').value =
+        spillVal !== null && spillVal !== undefined && Number.isFinite(Number(spillVal)) && Number(spillVal) > 0
+          ? Number(spillVal).toFixed(1)
+          : '';
+    }
+
+    if ($('editCarbyFloatWeight')) {
+      $('editCarbyFloatWeight').value =
+        carby.floatWeightG !== null && carby.floatWeightG !== undefined && Number.isFinite(Number(carby.floatWeightG)) && Number(carby.floatWeightG) > 0
+          ? Number(carby.floatWeightG).toFixed(1)
+          : '';
+    }
+
+    if ($('editCarbyNeedleSeat')) {
+      $('editCarbyNeedleSeat').value = carby.needleSeat || 'V8 High-Flow Brass + Viton Tip';
+    }
+    if ($('editCarbyIdleTube')) {
+      $('editCarbyIdleTube').value = carby.idleTube || 'TBD';
+    }
+    if ($('editCarbyPowerBypass')) {
+      $('editCarbyPowerBypass').value = carby.powerBypass || 'TBD';
+    }
+    if ($('editCarbyHighSpeedBleed')) {
+      $('editCarbyHighSpeedBleed').value = carby.highSpeedBleed || 'TBD';
+    }
+    if ($('editCarbyPumpCircuit')) {
+      $('editCarbyPumpCircuit').value = carby.pumpCircuit || 'TBD';
+    }
+    if ($('editCarbyAirCleaner')) {
+      $('editCarbyAirCleaner').value = carby.airCleaner || '50 mm (2") Reusable Pleated + HQRA Shield';
+    }
+    if ($('editCarbyNotes')) {
+      $('editCarbyNotes').value = carby.notes || '';
+    }
 
     const jetSel = $('editCarbyJet');
-    jetSel.innerHTML = sortJetsByDiameter(state.jets)
-      .map((j) => `<option value="${escapeHtml(j.id)}">${escapeHtml(j.label)} (${j.mm.toFixed(3)} mm)</option>`)
-      .join('');
-    jetSel.value = carby.fittedJetId || 'm1_0800';
+    if (jetSel) {
+      const jetOptsHtml = [
+        `<option value="__NO_JET__">⚠️ NO MAIN JET FITTED (Null / Unverified)</option>`,
+        ...sortJetsByDiameter(state.jets).map(
+          (j) =>
+            `<option value="${escapeHtml(j.id)}">${escapeHtml(formatJetPureMm(j.mm))} (${jetAreaMm2(j.mm).toFixed(3)} mm²${j.inBox || j.inToolbox ? ' • Tactix Box' : ''})</option>`
+        )
+      ].join('');
+      jetSel.innerHTML = jetOptsHtml;
+      const hasJetMm =
+        carby.fittedJetMm !== null &&
+        carby.fittedJetMm !== undefined &&
+        Number.isFinite(Number(carby.fittedJetMm)) &&
+        Number(carby.fittedJetMm) > 0;
+      if (!hasJetMm || !carby.fittedJetId) {
+        jetSel.value = '__NO_JET__';
+      } else if (state.jets.some((j) => j.id === carby.fittedJetId)) {
+        jetSel.value = carby.fittedJetId;
+      } else {
+        const near = findNearestJetByMm(carby.fittedJetMm);
+        jetSel.value = near ? near.id : '__NO_JET__';
+      }
+    }
+
+    const emSel = $('editCarbyEmulsion');
+    if (emSel) {
+      const emulsions = Array.isArray(state.emulsions) ? state.emulsions : createDefaultEmulsions();
+      emSel.innerHTML = [
+        `<option value="TBD">TBD (Unverified on Teardown)</option>`,
+        ...emulsions.map(
+          (e) => `<option value="${escapeHtml(e.id)}">${escapeHtml(e.code)} — ${escapeHtml(e.collar)} (${escapeHtml(e.status)})</option>`
+        )
+      ].join('');
+      emSel.value = carby.emulsionId && emulsions.some((e) => e.id === carby.emulsionId) ? carby.emulsionId : 'TBD';
+    }
 
     const a = carby.baselineAnchor || {
-      jetMm: 2.000,
+      jetMm: carby.fittedJetMm || carby.recommendedStartJetMm || 1.85,
       rad: 94.3,
       fuelSg: 0.740,
       verifiedAfr: null,
       sourceLabel: 'Fleet Anchor'
     };
-    $('editCarbyAnchorJetMm').value = Number(a.jetMm).toFixed(3);
-    $('editCarbyAnchorRad').value = Number(a.rad).toFixed(1);
-    $('editCarbyAnchorSg').value = Number(a.fuelSg).toFixed(3);
-    $('editCarbyAnchorSource').value = a.sourceLabel || '';
+    if ($('editCarbyAnchorJetMm')) $('editCarbyAnchorJetMm').value = Number(a.jetMm || 1.85).toFixed(2);
+    if ($('editCarbyAnchorRad')) $('editCarbyAnchorRad').value = Number(a.rad || 94.3).toFixed(1);
+    if ($('editCarbyAnchorSg')) $('editCarbyAnchorSg').value = Number(a.fuelSg || 0.740).toFixed(3);
+    if ($('editCarbyAnchorSource')) $('editCarbyAnchorSource').value = a.sourceLabel || '';
 
     const hasVerified =
       a.verifiedAfr !== null && a.verifiedAfr !== undefined && Number.isFinite(Number(a.verifiedAfr));
     ui.editCarbyAnchorUntested = !hasVerified;
-    $('editCarbyAnchorAfr').value = hasVerified ? Number(a.verifiedAfr).toFixed(2) : '12.50';
+    if ($('editCarbyAnchorAfr')) {
+      $('editCarbyAnchorAfr').value = hasVerified ? Number(a.verifiedAfr).toFixed(2) : '12.50';
+    }
     syncEditCarbyAnchorUntestedUi();
 
     openModal('modalEditCarby');
   }
 
   function saveEditCarbyModal() {
-    const id = $('editCarbyIdHidden').value;
+    const id = $('editCarbyIdHidden') ? $('editCarbyIdHidden').value : '';
     const isNew = !id || id === '__NEW__';
     const rawName = ($('editCarbyName') ? $('editCarbyName').value : '').trim();
 
-    let carby = isNew ? null : state.carbies.find((c) => c.id === id);
+    let carby = isNew ? null : findCarbyById(id);
     if (isNew) {
       if (!rawName) {
         showToast('Enter a Carby Name / ID');
         return;
       }
-      if (state.carbies.some((c) => c.id.toLowerCase() === rawName.toLowerCase())) {
+      if (state.carbies.some((c) => c.id.toLowerCase() === rawName.toLowerCase() || (c.name && c.name.toLowerCase() === rawName.toLowerCase()))) {
         showToast(`${rawName} is already in Carby Fleet`);
         return;
       }
       carby = {
-        id: rawName,
+        id: rawName.replace(/\s+/g, '_').toUpperCase(),
         name: rawName,
+        onCar: false,
         bodyType: 'Stromberg BXUV-3 40mm',
-        studsMm: 75.0,
-        venturiMm: 30.88,
-        exitMm: 39.95,
-        spillMm: 15.0,
-        fittedJetId: 'm1_0800',
-        notes: ''
+        studsMm: 75.0
       };
       state.carbies.push(carby);
       ui.selectedFleetCarbyId = carby.id;
@@ -13652,38 +14776,205 @@
     }
     if (!carby) return;
 
-    // Enforce Group 3H 40mm late-base Stromberg BXUV-3 maximum limits
-    const venturi = Math.min(30.94, Math.max(28.0, readNum('editCarbyVenturi', 30.90)));
-    const exitBore = Math.min(40.00, Math.max(38.0, readNum('editCarbyExit', 40.00)));
-    const spill = Math.min(20.0, Math.max(11.0, readNum('editCarbySpill', 15.0)));
+    carby.bodyCode = ($('editCarbyBodyCode') ? $('editCarbyBodyCode').value.trim() : '') || '23-3052 (<213> Horn)';
+    carby.baseCasting = ($('editCarbyBaseCasting') ? $('editCarbyBaseCasting').value.trim() : '') || '2376878 BXUV-3';
 
-    carby.venturiMm = Number(venturi.toFixed(2));
+    const rawBore = readNum('editCarbyExit', 39.81);
+    const exitBore = Math.max(36.0, Math.min(42.0, rawBore));
+    carby.throttleBoreMm = Number(exitBore.toFixed(2));
     carby.exitMm = Number(exitBore.toFixed(2));
-    carby.spillMm = Number(spill.toFixed(1));
-    carby.fittedJetId = $('editCarbyJet').value;
-    carby.notes = ($('editCarbyNotes').value || '').trim();
 
-    const fittedJet = findJetById(carby.fittedJetId);
-    const anchorJetMm = Number(readNum('editCarbyAnchorJetMm', fittedJet ? fittedJet.mm : 2.000).toFixed(4));
-    const nearestJet = findNearestJetByMm(anchorJetMm) || fittedJet || state.jets[0];
+    const rawVentStr = $('editCarbyVenturi') ? String($('editCarbyVenturi').value || '').trim() : '';
+    const parsedVent = rawVentStr !== '' ? parseFloat(rawVentStr) : NaN;
+    if (Number.isFinite(parsedVent) && parsedVent > 20) {
+      const clampedVent = Number(Math.min(32.0, Math.max(26.0, parsedVent)).toFixed(2));
+      carby.mainVenturiMm = clampedVent;
+      carby.venturiMm = clampedVent;
+    } else {
+      carby.mainVenturiMm = null;
+      carby.venturiMm = null;
+    }
+
+    const rawSpillStr = $('editCarbySpill') ? String($('editCarbySpill').value || '').trim() : '';
+    const parsedSpill = rawSpillStr !== '' ? parseFloat(rawSpillStr) : NaN;
+    if (Number.isFinite(parsedSpill) && parsedSpill > 5) {
+      const clampedSpill = Number(Math.min(25.0, Math.max(10.0, parsedSpill)).toFixed(1));
+      carby.spillHeightMm = clampedSpill;
+      carby.spillMm = clampedSpill;
+      carby.spillHeightLabel = `${clampedSpill.toFixed(1)} mm (incl. gasket • baffled bowl)`;
+    } else {
+      carby.spillHeightMm = null;
+      carby.spillMm = null;
+      carby.spillHeightLabel = 'TBD';
+    }
+
+    const rawFloatStr = $('editCarbyFloatWeight') ? String($('editCarbyFloatWeight').value || '').trim() : '';
+    const parsedFloat = rawFloatStr !== '' ? parseFloat(rawFloatStr) : NaN;
+    if (Number.isFinite(parsedFloat) && parsedFloat > 0) {
+      carby.floatWeightG = Number(parsedFloat.toFixed(1));
+      carby.floatWeightLabel = `${carby.floatWeightG.toFixed(1)} g`;
+    } else {
+      carby.floatWeightG = null;
+      if (!carby.floatWeightLabel || !carby.floatWeightLabel.includes('TBD')) {
+        carby.floatWeightLabel = 'TBD';
+      }
+    }
+
+    carby.needleSeat = ($('editCarbyNeedleSeat') ? $('editCarbyNeedleSeat').value.trim() : '') || 'V8 High-Flow Brass + Viton Tip';
+    carby.idleTube = ($('editCarbyIdleTube') ? $('editCarbyIdleTube').value.trim() : '') || 'TBD';
+    carby.powerBypass = ($('editCarbyPowerBypass') ? $('editCarbyPowerBypass').value.trim() : '') || 'TBD';
+    carby.highSpeedBleed = ($('editCarbyHighSpeedBleed') ? $('editCarbyHighSpeedBleed').value.trim() : '') || 'TBD';
+    carby.pumpCircuit = ($('editCarbyPumpCircuit') ? $('editCarbyPumpCircuit').value.trim() : '') || 'TBD';
+    carby.airCleaner = ($('editCarbyAirCleaner') ? $('editCarbyAirCleaner').value.trim() : '') || '50 mm (2") Reusable Pleated + HQRA Shield';
+    carby.notes = ($('editCarbyNotes') ? $('editCarbyNotes').value.trim() : '');
+
+    const selectedEmId = $('editCarbyEmulsion') ? $('editCarbyEmulsion').value : 'TBD';
+    carby.emulsionId = selectedEmId || 'TBD';
+
+    const selectedJetVal = $('editCarbyJet') ? $('editCarbyJet').value : '__NO_JET__';
+    if (!selectedJetVal || selectedJetVal === '__NO_JET__') {
+      carby.fittedJetId = null;
+      carby.fittedJetMm = null;
+      if (!carby.recommendedStartJetMm) {
+        carby.recommendedStartJetMm = carby.id === 'DME2' ? 1.87 : 1.85;
+      }
+    } else {
+      const fittedJet = findJetById(selectedJetVal);
+      if (fittedJet) {
+        carby.fittedJetId = fittedJet.id;
+        carby.fittedJetMm = Number(fittedJet.mm.toFixed(3));
+      }
+    }
+
+    const fallbackAnchorMm = carby.fittedJetMm || carby.recommendedStartJetMm || 1.85;
+    const anchorJetMm = Number(readNum('editCarbyAnchorJetMm', fallbackAnchorMm).toFixed(3));
+    const nearestJet = findNearestJetByMm(anchorJetMm) || state.jets[0];
     const untested = Boolean(ui.editCarbyAnchorUntested);
 
     carby.baselineAnchor = {
       jetId: nearestJet.id,
-      jetLabel: `${nearestJet.label.split('/')[0].trim()} / ${anchorJetMm.toFixed(3)} mm`,
+      jetLabel: formatJetPureMm(anchorJetMm),
       jetMm: anchorJetMm,
       rad: Number(readNum('editCarbyAnchorRad', 94.3).toFixed(1)),
       fuelSg: Number(readNum('editCarbyAnchorSg', 0.740).toFixed(3)),
       verifiedAfr: untested ? null : Number(readNum('editCarbyAnchorAfr', 12.50).toFixed(2)),
-      sourceLabel: ($('editCarbyAnchorSource').value || '').trim() || `${carby.name} Anchor`,
+      sourceLabel: ($('editCarbyAnchorSource') ? $('editCarbyAnchorSource').value.trim() : '') || `${carby.name} Anchor`,
       timing: carby.baselineAnchor && carby.baselineAnchor.timing ? carby.baselineAnchor.timing : 33.0,
-      fuelPsi: carby.baselineAnchor && carby.baselineAnchor.fuelPsi ? carby.baselineAnchor.fuelPsi : 5.0
+      fuelPsi: carby.baselineAnchor && carby.baselineAnchor.fuelPsi ? carby.baselineAnchor.fuelPsi : 4.3
     };
 
     saveState();
     closeModal('modalEditCarby');
     renderAll();
-    showToast(`${isNew ? 'Added' : 'Saved'} ${carby.name} specs & baseline anchor`);
+    showToast(`${isNew ? 'Added' : 'Saved'} ${carby.name} teardown specs & anchor`);
+  }
+
+  function openEditEmulsionModal(emulsionId) {
+    const emulsions = Array.isArray(state.emulsions) ? state.emulsions : [];
+    const targetId = emulsionId || ui.selectedFleetEmulsionId || (emulsions[0] && emulsions[0].id);
+    const em = emulsions.find((e) => e && e.id === targetId);
+    if (!em) return;
+
+    if ($('editEmulsionIdHidden')) $('editEmulsionIdHidden').value = em.id;
+    if ($('modalEditEmulsionTitle')) $('modalEditEmulsionTitle').textContent = `Edit ${em.code} Emulsion Tube`;
+    if ($('editEmulsionCode')) $('editEmulsionCode').value = em.code || em.id;
+    if ($('editEmulsionQty')) $('editEmulsionQty').value = String(em.qty ?? 1);
+    if ($('editEmulsionCollar')) $('editEmulsionCollar').value = em.collar || 'Single';
+    if ($('editEmulsionStatus')) $('editEmulsionStatus').value = em.status || 'Untested Stock';
+    if ($('editEmulsionPattern')) $('editEmulsionPattern').value = em.pattern || '';
+    if ($('editEmulsionVsBase')) $('editEmulsionVsBase').value = em.vsBase5 || '';
+
+    openModal('modalEditEmulsion');
+  }
+
+  function saveEditEmulsionModal() {
+    const id = $('editEmulsionIdHidden') ? $('editEmulsionIdHidden').value : '';
+    const emulsions = Array.isArray(state.emulsions) ? state.emulsions : [];
+    const em = emulsions.find((e) => e && e.id === id);
+    if (!em) return;
+
+    em.code = ($('editEmulsionCode') ? $('editEmulsionCode').value.trim() : '') || em.code;
+    em.qty = Math.max(0, Math.round(readNum('editEmulsionQty', em.qty ?? 1)));
+    em.collar = ($('editEmulsionCollar') ? $('editEmulsionCollar').value.trim() : '') || 'Single';
+    em.status = ($('editEmulsionStatus') ? $('editEmulsionStatus').value.trim() : '') || 'Untested Stock';
+    em.pattern = ($('editEmulsionPattern') ? $('editEmulsionPattern').value.trim() : '') || em.pattern;
+    em.vsBase5 = ($('editEmulsionVsBase') ? $('editEmulsionVsBase').value.trim() : '') || em.vsBase5;
+
+    saveState();
+    closeModal('modalEditEmulsion');
+    renderAll();
+    showToast(`Saved ${em.code} Emulsion Tube (${em.qty} in kit)`);
+  }
+
+  function openEditBrassModal(brassId) {
+    const brassList = Array.isArray(state.brassJets) ? state.brassJets : [];
+    const targetId = brassId || ui.selectedFleetBrassId || (brassList[0] && brassList[0].id);
+    const br = brassList.find((b) => b && b.id === targetId);
+    if (!br) return;
+
+    if ($('editBrassIdHidden')) $('editBrassIdHidden').value = br.id;
+    if ($('modalEditBrassTitle')) $('modalEditBrassTitle').textContent = `Edit ${br.category} ${br.stamp}`;
+    if ($('editBrassCategory')) $('editBrassCategory').value = br.category || 'Idle Tube';
+    if ($('editBrassStamp')) $('editBrassStamp').value = br.stamp || '#67';
+    if ($('editBrassMm')) $('editBrassMm').value = Number(br.mm || 0.81).toFixed(2);
+    if ($('editBrassQty')) $('editBrassQty').value = String(br.qty ?? 1);
+    if ($('editBrassNotes')) $('editBrassNotes').value = br.notes || '';
+
+    openModal('modalEditBrass');
+  }
+
+  function saveEditBrassModal() {
+    const id = $('editBrassIdHidden') ? $('editBrassIdHidden').value : '';
+    const brassList = Array.isArray(state.brassJets) ? state.brassJets : [];
+    const br = brassList.find((b) => b && b.id === id);
+    if (!br) return;
+
+    br.category = ($('editBrassCategory') ? $('editBrassCategory').value.trim() : '') || br.category;
+    br.stamp = ($('editBrassStamp') ? $('editBrassStamp').value.trim() : '') || br.stamp;
+    br.mm = Number(Math.max(0.3, readNum('editBrassMm', br.mm || 0.81)).toFixed(2));
+    br.inch = Number((br.mm / MM_PER_INCH).toFixed(4));
+    br.qty = Math.max(0, Math.round(readNum('editBrassQty', br.qty ?? 1)));
+    br.notes = ($('editBrassNotes') ? $('editBrassNotes').value.trim() : '') || br.notes;
+
+    saveState();
+    closeModal('modalEditBrass');
+    renderAll();
+    showToast(`Saved ${br.category} ${br.stamp} (${br.mm.toFixed(2)} mm)`);
+  }
+
+  function openEditFuelSystemModal() {
+    if (!state.fuelSystem) state.fuelSystem = createDefaultFuelSystem();
+    const fs = state.fuelSystem;
+
+    if ($('editFsRunningPsi')) $('editFsRunningPsi').value = Number(fs.runningPsi ?? 4.3).toFixed(1);
+    if ($('editFsSeatLimitPsi')) $('editFsSeatLimitPsi').value = Number(fs.seatCeilingPsi ?? 5.5).toFixed(1);
+    if ($('editFsTankSpec')) $('editFsTankSpec').value = fs.tankSpec || '';
+    if ($('editFsPumpSpec')) $('editFsPumpSpec').value = fs.pumpSpec || '';
+    if ($('editFsRegulatorSpec')) $('editFsRegulatorSpec').value = fs.regulatorSpec || '';
+    if ($('editFsFilterSpec')) $('editFsFilterSpec').value = fs.filterSpec || '';
+    if ($('editFsHeatMgmt')) $('editFsHeatMgmt').value = fs.heatManagement || '';
+    if ($('editFsNotes')) $('editFsNotes').value = fs.notes || '';
+
+    openModal('modalEditFuelSystem');
+  }
+
+  function saveEditFuelSystemModal() {
+    if (!state.fuelSystem) state.fuelSystem = createDefaultFuelSystem();
+    const fs = state.fuelSystem;
+
+    fs.runningPsi = Number(Math.max(2.0, Math.min(8.0, readNum('editFsRunningPsi', 4.3))).toFixed(1));
+    fs.seatCeilingPsi = Number(Math.max(3.5, Math.min(9.0, readNum('editFsSeatLimitPsi', 5.5))).toFixed(1));
+    fs.tankSpec = ($('editFsTankSpec') ? $('editFsTankSpec').value.trim() : '') || fs.tankSpec;
+    fs.pumpSpec = ($('editFsPumpSpec') ? $('editFsPumpSpec').value.trim() : '') || fs.pumpSpec;
+    fs.regulatorSpec = ($('editFsRegulatorSpec') ? $('editFsRegulatorSpec').value.trim() : '') || fs.regulatorSpec;
+    fs.filterSpec = ($('editFsFilterSpec') ? $('editFsFilterSpec').value.trim() : '') || fs.filterSpec;
+    fs.heatManagement = ($('editFsHeatMgmt') ? $('editFsHeatMgmt').value.trim() : '') || fs.heatManagement;
+    fs.notes = ($('editFsNotes') ? $('editFsNotes').value.trim() : '');
+
+    saveState();
+    closeModal('modalEditFuelSystem');
+    renderAll();
+    showToast(`Saved Fuel System Hardware (${fs.runningPsi.toFixed(1)} psi regulated)`);
   }
 
   function openEditManifoldModal(manifoldId) {
@@ -14036,12 +15327,14 @@
     });
     safeRun('renderFleet', () => {
       renderCarbyFleet();
-      renderManifoldFleet();
+      renderCornerWeightBaselineCard();
+      renderEmulsionBrassFleet();
       renderExhaustFleet();
+      renderFuelSystemFleet();
+      renderJetInventory();
+      renderManifoldFleet();
       renderShockFleet();
       renderSpringFleet();
-      renderCornerWeightBaselineCard();
-      renderJetInventory();
       updateOrificeConverter('mm');
       syncFleetAccordionUi();
     });
@@ -14324,7 +15617,7 @@
           sess.afr5500 = readOptionalAfr(`inlineAfr_${sid}_5500`);
           sess.afrWot = Number(readNum(`inlineAfr_${sid}_Wot`, sess.afrWot ?? 12.80).toFixed(2));
           sess.peakRpm = Math.round(readNum(`inlinePeakRpm_${sid}`, sess.peakRpm || 5900));
-          sess.fuelPsi = Number(readNum(`inlineFuelPsi_${sid}`, sess.fuelPsi ?? 5.0).toFixed(1));
+          sess.fuelPsi = Number(readNum(`inlineFuelPsi_${sid}`, sess.fuelPsi ?? 4.3).toFixed(1));
           sess.waterTempC = readOptionalWaterTemp(`inlineWaterTemp_${sid}`);
           sess.afrStatus = 'verified';
 
@@ -14364,8 +15657,9 @@
             sessionDateIso: iso,
             sessionDate: sess.sessionDate || formatIsoDateDisplay(iso),
             carbyId: sess.carbyId,
+            emulsionId: sess.emulsionId || state.baseline.emulsionId || 'E5_DME',
             jetId: sess.jetId,
-            jetLabel: sess.jetLabel,
+            jetLabel: formatJetPureMm(sess.jetMm),
             jetMm: sess.jetMm,
             rad: sess.rad,
             fuelSg: sess.fuelSg,
@@ -14374,7 +15668,7 @@
             afrStatus: sess.afrStatus || 'verified',
             weatherOnly: false,
             timing: sess.timing,
-            fuelPsi: sess.fuelPsi,
+            fuelPsi: sess.fuelPsi ?? 4.3,
             waterTempC: normalizeOptionalWaterTemp(sess.waterTempC),
             linkedSessionId: sess.id
           };
@@ -14389,10 +15683,13 @@
           if ($('selectCalcCarby')) {
             $('selectCalcCarby').value = sess.carbyId;
           }
+          if ($('selectCalcEmulsion') && state.baseline.emulsionId) {
+            $('selectCalcEmulsion').value = state.baseline.emulsionId;
+          }
           saveState();
           syncSessionSelectFromBaseline(sess.sessionName);
           renderAll();
-          showToast(`Locked ${sess.sessionName} • ${state.baseline.venue} (${sess.jetLabel}) as Baseline`);
+          showToast(`Locked ${sess.sessionName} • ${state.baseline.venue} (${formatJetPureMm(sess.jetMm)}) as Baseline`);
         }
         return;
       }
@@ -14427,6 +15724,24 @@
       const delFleetCarbyBtn = e.target.closest('[data-delete-fleet-carby]');
       if (delFleetCarbyBtn) {
         deleteFleetCarbyById(delFleetCarbyBtn.getAttribute('data-delete-fleet-carby'));
+        return;
+      }
+
+      const editEmulsionBtn = e.target.closest('[data-edit-emulsion]');
+      if (editEmulsionBtn) {
+        openEditEmulsionModal(editEmulsionBtn.getAttribute('data-edit-emulsion'));
+        return;
+      }
+
+      const editBrassBtn = e.target.closest('[data-edit-brass]');
+      if (editBrassBtn) {
+        openEditBrassModal(editBrassBtn.getAttribute('data-edit-brass'));
+        return;
+      }
+
+      const editFuelSystemBtn = e.target.closest('[data-edit-fuel-system]');
+      if (editFuelSystemBtn) {
+        openEditFuelSystemModal();
         return;
       }
 
@@ -14521,7 +15836,9 @@
         const jid = toggleJetBtn.getAttribute('data-toggle-jet-box');
         const jet = findJetById(jid);
         if (jet) {
-          jet.inToolbox = !jet.inToolbox;
+          const nextInBox = !(jet.inBox !== undefined ? Boolean(jet.inBox) : Boolean(jet.inToolbox));
+          jet.inBox = nextInBox;
+          jet.inToolbox = nextInBox;
           saveState();
           renderJetInventory();
           if (ui.calcStep === 2) renderStep2Calculator(false);
@@ -15146,7 +16463,34 @@
     }
 
     if ($('selectCalcCarby')) {
-      $('selectCalcCarby').addEventListener('change', updateCarbySwapHint);
+      $('selectCalcCarby').addEventListener('change', () => {
+        const cid = $('selectCalcCarby').value;
+        const cObj = findCarbyById(cid);
+        if (cObj && cObj.emulsionId && $('selectCalcEmulsion')) {
+          $('selectCalcEmulsion').value = cObj.emulsionId;
+        }
+        updateCarbySwapHint();
+        renderNoJetSafetyGuard();
+      });
+    }
+
+    if ($('selectCalcEmulsion')) {
+      $('selectCalcEmulsion').addEventListener('change', () => {
+        const emId = $('selectCalcEmulsion').value || 'TBD';
+        const cid = $('selectCalcCarby') ? $('selectCalcCarby').value : state.baseline.carbyId;
+        const cObj = findCarbyById(cid);
+        if (cObj) {
+          cObj.emulsionId = emId;
+        }
+        const activeSess = getActiveSession();
+        if (activeSess && !activeSess.tunePreLocked) {
+          activeSess.emulsionId = emId;
+        }
+        saveState();
+        updateCarbySwapHint();
+        renderCarbyFleet();
+        renderEmulsionBrassFleet();
+      });
     }
 
     if ($('selectCalcManifold')) {
@@ -15178,7 +16522,7 @@
       });
     }
 
-    // Tab 4 (Carbies, Inlet Manifolds, Exhausts, Shocks & Springs) unified selector + modal controls
+    // Tab 4 (Carbies, Emulsion & Brass, Fuel System, Inlet Manifolds, Exhausts, Shocks & Springs) unified selector + modal controls
     if ($('selectFleetCarby')) {
       $('selectFleetCarby').addEventListener('change', () => {
         ui.selectedFleetCarbyId = $('selectFleetCarby').value;
@@ -15189,6 +16533,43 @@
       $('btnAddNewCarby').addEventListener('click', () => {
         openEditCarbyModal('__NEW__');
       });
+    }
+
+    if ($('selectFleetEmulsion')) {
+      $('selectFleetEmulsion').addEventListener('change', () => {
+        ui.selectedFleetEmulsionId = $('selectFleetEmulsion').value;
+        renderEmulsionBrassFleet();
+      });
+    }
+    if ($('btnEditSelectedEmulsion')) {
+      $('btnEditSelectedEmulsion').addEventListener('click', () => {
+        openEditEmulsionModal(ui.selectedFleetEmulsionId);
+      });
+    }
+    if ($('btnSaveEmulsionModal')) {
+      $('btnSaveEmulsionModal').addEventListener('click', saveEditEmulsionModal);
+    }
+
+    if ($('selectFleetBrass')) {
+      $('selectFleetBrass').addEventListener('change', () => {
+        ui.selectedFleetBrassId = $('selectFleetBrass').value;
+        renderEmulsionBrassFleet();
+      });
+    }
+    if ($('btnEditSelectedBrass')) {
+      $('btnEditSelectedBrass').addEventListener('click', () => {
+        openEditBrassModal(ui.selectedFleetBrassId);
+      });
+    }
+    if ($('btnSaveBrassModal')) {
+      $('btnSaveBrassModal').addEventListener('click', saveEditBrassModal);
+    }
+
+    if ($('btnEditFuelSystem')) {
+      $('btnEditFuelSystem').addEventListener('click', openEditFuelSystemModal);
+    }
+    if ($('btnSaveFuelSystemModal')) {
+      $('btnSaveFuelSystemModal').addEventListener('click', saveEditFuelSystemModal);
     }
 
     if ($('selectFleetManifold')) {
@@ -15556,14 +16937,14 @@
       $('editBaseJet').addEventListener('change', () => {
         const j = findJetById($('editBaseJet').value);
         if (j && $('editBaseJetMm')) {
-          $('editBaseJetMm').value = j.mm.toFixed(3);
+          $('editBaseJetMm').value = j.mm.toFixed(2);
         }
       });
     }
     if ($('btnEditModalLoadAnchor')) {
       $('btnEditModalLoadAnchor').addEventListener('click', () => {
         const carbyId = $('editBaseCarby').value;
-        const carby = state.carbies.find((c) => c.id === carbyId);
+        const carby = findCarbyById(carbyId);
         if (!carby || !carby.baselineAnchor) return;
         const a = carby.baselineAnchor;
         if ($('editBaseSession')) $('editBaseSession').value = a.sourceLabel || `${carby.name} Anchor`;
@@ -15571,7 +16952,7 @@
           $('editBaseJet').value = a.jetId;
         }
         if ($('editBaseJetMm')) {
-          $('editBaseJetMm').value = Number(a.jetMm).toFixed(3);
+          $('editBaseJetMm').value = Number(a.jetMm).toFixed(2);
         }
         if ($('editBaseRad')) $('editBaseRad').value = Number(a.rad).toFixed(1);
         if ($('editBaseSg')) $('editBaseSg').value = Number(a.fuelSg).toFixed(3);
@@ -15656,6 +17037,7 @@
           eventArchitectureV1: true,
           suspensionSeededV1: true,
           suspensionSeededV2: true,
+          carbyJetAuditV1: true,
           activeEventId: null,
           activeSessionId: null,
           targetAfr: 12.75,
@@ -15663,6 +17045,9 @@
           baseline: createDefaultBaseline(),
           awaitingPostRaceId: null,
           jets: createDefaultJets(),
+          emulsions: createDefaultEmulsions(),
+          brassJets: createDefaultBrassJets(),
+          fuelSystem: createDefaultFuelSystem(),
           carbies: createDefaultCarbies(),
           manifolds: createDefaultManifolds(),
           exhausts: createDefaultExhausts(),
@@ -15696,6 +17081,9 @@
         if ($('selectCalcCarby')) {
           $('selectCalcCarby').value = state.baseline.carbyId;
         }
+        if ($('selectCalcEmulsion') && state.baseline.emulsionId) {
+          $('selectCalcEmulsion').value = state.baseline.emulsionId;
+        }
         saveState();
         syncSessionSelectFromBaseline();
         hydrateFuelAndTyreInputs();
@@ -15723,7 +17111,7 @@
           afr: readNum(`dynoAfr_${rpm}`, 12.85)
         }));
         const name = (($('dynoPullName') && $('dynoPullName').value) || '').trim() || `Pull ${state.dynoPulls.length + 1}`;
-        const carbyId = ($('dynoPullCarby') && $('dynoPullCarby').value) || '1 DME';
+        const carbyId = ($('dynoPullCarby') && $('dynoPullCarby').value) || 'DME1';
         const color = DYNO_COLORS[state.dynoPulls.length % DYNO_COLORS.length];
 
         state.dynoPulls.push({
@@ -15792,7 +17180,7 @@
       });
     }
 
-    // Tab 5 Orifice Converter & Custom Jet Builder
+    // Tab 5 Orifice Converter & Custom Jet Builder (Pure Metric mm)
     if ($('convInchInput')) {
       $('convInchInput').addEventListener('input', () => updateOrificeConverter('inch'));
     }
@@ -15802,23 +17190,23 @@
 
     if ($('btnAddCustomJet')) {
       $('btnAddCustomJet').addEventListener('click', () => {
-        const mmVal = Number(readNum('convMmInput', 1.970).toFixed(4));
-        const customLabel =
-          (($('customJetLabelInput') && $('customJetLabelInput').value) || '').trim() ||
-          `Custom ${mmVal.toFixed(3)} mm Drill`;
+        const mmVal = Number(readNum('convMmInput', 1.85).toFixed(3));
+        const customNotes = (($('customJetLabelInput') && $('customJetLabelInput').value) || '').trim();
+        const pureLabel = formatJetPureMm(mmVal);
         const newJet = {
           id: `custom_${Date.now()}`,
-          label: customLabel,
-          stamp: `Custom ${mmVal.toFixed(3)} mm (${mmToInch(mmVal).toFixed(4)}")`,
+          label: pureLabel,
+          stamp: customNotes ? `${pureLabel} (${customNotes})` : `${pureLabel} Custom Drill`,
           mm: mmVal,
           custom: true,
+          inBox: true,
           inToolbox: true
         };
         state.jets = sortJetsByDiameter([...state.jets, newJet]);
         if ($('customJetLabelInput')) $('customJetLabelInput').value = '';
         saveState();
         renderAll();
-        showToast(`Added ${customLabel} to Active Toolbox`);
+        showToast(`Added ${pureLabel} (${jetAreaMm2(mmVal).toFixed(3)} mm²) to Tactix Box`);
       });
     }
 

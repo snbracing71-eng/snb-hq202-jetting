@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.8.5" />
+  <link rel="stylesheet" href="./styles.css?v=0.8.6" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -286,14 +286,14 @@
             </svg>
             Locked Baseline
           </span>
-          <span class="baseline-session-tag tabular" id="baseSessionCarbyLabel">Race 1 &bull; 1 DME</span>
+          <span class="baseline-session-tag tabular" id="baseSessionCarbyLabel">Race 1 &bull; DME #1</span>
         </div>
 
         <div class="baseline-grid">
           <div class="telem-cell">
-            <span class="telem-label">Main Jet</span>
-            <span class="telem-val" id="baseJetLabel">Jet #77 / 2.000 mm</span>
-            <span class="telem-sub" id="baseJetSub">3.142 mm&sup2; (.0787&quot;)</span>
+            <span class="telem-label">Main Jet (mm)</span>
+            <span class="telem-val" id="baseJetLabel">1.85 mm</span>
+            <span class="telem-sub" id="baseJetSub">2.688 mm&sup2;</span>
           </div>
           <div class="telem-cell">
             <span class="telem-label">Baseline RAD</span>
@@ -308,8 +308,8 @@
           </div>
           <div class="telem-cell">
             <span class="telem-label">Carby Body</span>
-            <span class="telem-val" id="baseCarbyOnly">1 DME</span>
-            <span class="telem-sub">40mm BXUV-3</span>
+            <span class="telem-val" id="baseCarbyOnly">DME #1</span>
+            <span class="telem-sub" id="baseCarbyEmulSub">Type #5-DME &bull; 39.81mm</span>
           </div>
           <div class="telem-cell">
             <span class="telem-label">Total Timing</span>
@@ -318,8 +318,8 @@
           </div>
           <div class="telem-cell">
             <span class="telem-label">Fuel Pressure</span>
-            <span class="telem-val" id="baseFuelPsiLabel">5.0 psi</span>
-            <span class="telem-sub">Block pump boss</span>
+            <span class="telem-val" id="baseFuelPsiLabel">4.3 psi</span>
+            <span class="telem-sub">Holley 12-427</span>
           </div>
         </div>
 
@@ -350,13 +350,33 @@
             </div>
           </div>
 
-          <!-- 1) Active Carby ID (Full-Width, Track/Date/Session Locked in Event Header) -->
-          <div class="field-group" style="margin-bottom: 12px;">
-            <div class="field-label-row">
-              <label class="field-label" for="selectCalcCarby">Carby ID (40mm BXUV-3)</label>
-              <span class="field-hint emerald" id="carbySwapHint">Matches Baseline</span>
+          <!-- 1) Active Carby ID + Fitted Emulsion Tube (#1–#8) -->
+          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 12px;">
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="selectCalcCarby">Carby ID (BXUV-3)</label>
+                <span class="field-hint emerald" id="carbySwapHint">Matches Baseline</span>
+              </div>
+              <select id="selectCalcCarby" class="select-input" aria-label="Select 40mm BXUV-3 Carby"></select>
             </div>
-            <select id="selectCalcCarby" class="select-input" aria-label="Select 40mm BXUV-3 Carby"></select>
+
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="selectCalcEmulsion">Emulsion Tube</label>
+                <span class="field-hint emerald" id="calcEmulsionHint">Type #5-DME</span>
+              </div>
+              <select id="selectCalcEmulsion" class="select-input" aria-label="Select Active Emulsion Tube"></select>
+            </div>
+          </div>
+
+          <!-- No-Jet Safety Guard Banner (Shown whenever selected carby has fittedJetMm === null) -->
+          <div id="noJetSafetyBanner" class="no-jet-safety-banner" style="display: none;" role="alert" aria-live="polite">
+            <div class="no-jet-safety-title" id="noJetSafetyTitle">
+              &#9888;&#65039; NO MAIN JET FITTED IN DME #2
+            </div>
+            <p class="no-jet-safety-desc" id="noJetSafetyDesc">
+              DME #2 has NO Main Jet fitted &mdash; select a starting mm jet from Tactix Box (e.g. 1.87 mm) in Step 2 before running! Preview math uses 1.87 mm until a jet is locked.
+            </p>
           </div>
 
           <!-- 2) Active Hardware Pair: Inlet Manifold + Exhaust / Headers -->
@@ -381,7 +401,7 @@
           <!-- Carby-Switch Safety Prompt Banner (1-tap Load Saved Baseline Anchor) -->
           <div id="carbySwitchBanner" class="carby-switch-banner" style="display: none;" role="region" aria-live="polite">
             <div class="carby-switch-banner-title" id="carbySwitchBannerTitle">
-              Switched to 2 DME &mdash; Load 2 DME's saved baseline anchor?
+              Switched to DME #2 &mdash; Load DME #2's saved baseline anchor?
             </div>
             <p class="carby-switch-banner-desc" id="carbySwitchBannerDesc"></p>
             <button type="button" id="btnLoadSwitchedCarbyAnchor" class="btn btn-primary btn-full">
@@ -399,7 +419,7 @@
               type="text"
               id="inputPreRaceNotes"
               class="text-input"
-              placeholder="e.g. Dropped to #78 jet, +0.5 psi cold FR"
+              placeholder="e.g. Fitted 1.85 mm jet + #5-DME emulsion, +0.5 psi cold FR"
               autocomplete="off"
             />
           </div>
@@ -591,8 +611,8 @@
 
           <div class="section-head">
             <div>
-              <div class="section-eyebrow">Step 2 of 2 &bull; Venturi 4th-Root Physics</div>
-              <h2 class="section-title">Orifice Demand &amp; Toolbox Selection</h2>
+              <div class="section-eyebrow">Step 2 of 2 &bull; Venturi 4th-Root Physics (mm)</div>
+              <h2 class="section-title">Orifice Demand &amp; Tactix Box Selection</h2>
             </div>
           </div>
 
@@ -605,15 +625,15 @@
             </div>
             <div class="telem-cell">
               <span class="telem-label">Exact Ideal Orifice</span>
-              <span class="telem-val txt-amber" id="outIdealOrifice">1.973 mm</span>
-              <span class="telem-sub" id="outIdealInchArea">0.0777&quot; &bull; 3.056 mm&sup2;</span>
+              <span class="telem-val txt-amber" id="outIdealOrifice">1.832 mm</span>
+              <span class="telem-sub" id="outIdealInchArea">2.636 mm&sup2; Orifice Area</span>
             </div>
           </div>
 
           <!-- If Current Jet Left in Car -->
           <div class="unchanged-jet-banner" id="unchangedJetBanner">
             <div>
-              <span class="telem-label">If Current Jet Left in Car (<span id="unchangedJetName">Jet #77 / 2.000 mm</span>)</span>
+              <span class="telem-label">If Current Jet Left in Car (<span id="unchangedJetName">1.85 mm</span>)</span>
               <span class="telem-sub" id="unchangedEndCylText">#1 &amp; #6 End-Cyl Est: 12.77 AFR</span>
             </div>
             <div style="text-align: right; flex-shrink: 0;">
@@ -624,8 +644,8 @@
 
           <!-- 3 Tappable Toolbox Jet Cards -->
           <div class="field-label-row" style="margin-bottom: 10px;">
-            <span class="field-label">3-Jet Comparison Bracket (Centered on Safe Mid-Point)</span>
-            <span class="field-hint" id="activeToolboxCountHint">15 in toolbox</span>
+            <span class="field-label">3-Jet Comparison Bracket (Centered on Safe Mid-Point mm)</span>
+            <span class="field-hint" id="activeToolboxCountHint">11 in Tactix Box</span>
           </div>
 
           <div class="jet-cards-stack" id="toolboxJetCardsContainer"></div>
@@ -633,8 +653,8 @@
           <!-- Full-Kit Dropdown -->
           <div class="field-group" style="margin-bottom: 14px;">
             <div class="field-label-row">
-              <label class="field-label" for="selectFullJetKit">Full M1 Jet Kit &amp; Custom Drills</label>
-              <span class="field-hint" id="selectedJetQuickSummary">Selected: #78</span>
+              <label class="field-label" for="selectFullJetKit">Tactix Metric Drill-Gauge Box (mm) &amp; Custom Drills</label>
+              <span class="field-hint" id="selectedJetQuickSummary">Selected: 1.85 mm</span>
             </div>
             <select id="selectFullJetKit" class="select-input"></select>
           </div>
@@ -655,7 +675,7 @@
               type="text"
               id="inputRunNotes"
               class="text-input"
-              placeholder="e.g. Dropped to #78 jet, +0.5 psi cold FR"
+              placeholder="e.g. Fitted 1.85 mm jet + #5-DME emulsion, +0.5 psi cold FR"
               autocomplete="off"
             />
           </div>
@@ -1980,7 +2000,7 @@
 
     <!-- =========================================================
          TAB 5: FLEET & KIT (A–Z 1-LINE COLLAPSIBLE ACCORDION BARS)
-         1) Carburettors | 2) Corner Weights | 3) Exhausts | 4) Jets | 5) Manifolds | 6) Shocks | 7) Springs
+         1) Carburettors | 2) Corner Weights | 3) Emulsion & Brass Kit | 4) Exhausts | 5) Fuel System | 6) Jets (mm Toolbox) | 7) Manifolds | 8) Shocks | 9) Springs
          ========================================================= -->
     <section id="tab-fleet" class="tab-panel" aria-labelledby="navTabFleet">
       <!-- 1) CARBURETTORS (data-fleet-acc="carburettors") -->
@@ -1993,10 +2013,10 @@
         >
           <div class="fleet-acc-left">
             <div class="fleet-acc-title">Carburettors</div>
-            <div class="fleet-acc-sub">40mm Late-Base Stromberg BXUV-3 &bull; Homologation Locked</div>
+            <div class="fleet-acc-sub">40.00 mm Late-Base Stromberg BXUV-3 &bull; Audited Teardown &amp; Jet Spec</div>
           </div>
           <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill emerald" id="fleetCarbyActiveBadge">1 DME &#9733; ON CAR</span>
+            <span class="fleet-acc-status-pill emerald" id="fleetCarbyActiveBadge">DME #1 &#9733; ON CAR &bull; 1.85 mm &bull; #5-DME</span>
             <span class="fleet-acc-count-pill" id="fleetCarbyCountBadge">3 UNITS</span>
             <span class="fleet-acc-chevron" data-fleet-acc-chevron="carburettors" aria-hidden="true">&#9654;</span>
           </div>
@@ -2005,10 +2025,10 @@
         <div class="fleet-acc-body" id="fleetAccBody_carburettors" style="display: none;">
           <div class="homologation-banner" style="margin-bottom: 12px;">
             <div style="font-size: 0.75rem; font-weight: 800; color: var(--amber); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px;">
-              Late-Base 40.00 mm Stromberg BXUV-3 Spec
+              Group 3H Late-Base 40.00 mm Stromberg BXUV-3 Homologation &amp; Teardown Spec
             </div>
             <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">
-              Studs: <strong>75.0 mm</strong> &bull; Venturi: <strong>&le; 30.94 mm</strong> &bull; Throttle Bore: <strong>&le; 40.00 mm</strong> &bull; Spill: <strong>15.0 mm</strong>
+              Studs: <strong>75.0 mm</strong> &bull; Venturi: <strong>&le; 30.94 mm</strong> &bull; Throttle Bore: <strong>&le; 40.00 mm Exact Ceiling</strong> &bull; Spill: <strong>15.0 mm (0.740 SG)</strong>
             </div>
           </div>
 
@@ -2277,7 +2297,46 @@
         </div>
       </article>
 
-      <!-- 3) EXHAUSTS (data-fleet-acc="exhausts") -->
+      <!-- 3) EMULSION & BRASS KIT (data-fleet-acc="emulsions") -->
+      <article class="fleet-acc-card" id="emulsionFleetCard" data-fleet-acc-card="emulsions">
+        <button
+          type="button"
+          class="fleet-acc-header"
+          data-fleet-acc="emulsions"
+          aria-expanded="false"
+        >
+          <div class="fleet-acc-left">
+            <div class="fleet-acc-title">Emulsion &amp; Brass Kit</div>
+            <div class="fleet-acc-sub">14 Emulsion Tubes (#1&ndash;#8) &bull; 2 Idle Tubes &bull; 4 Power Bypass</div>
+          </div>
+          <div class="fleet-acc-right">
+            <span class="fleet-acc-status-pill emerald" id="fleetEmulsionActiveBadge">#5-DME IN CAR &bull; 14 TUBES + 6 BRASS</span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="emulsions" aria-hidden="true">&#9654;</span>
+          </div>
+        </button>
+
+        <div class="fleet-acc-body" id="fleetAccBody_emulsions" style="display: none;">
+          <div class="fleet-selector-bar" style="margin-bottom: 10px;">
+            <div class="section-eyebrow" style="margin: 0; align-self: center;">Emulsion Tube Library (#1&ndash;#8 &bull; 9 Profiles / 14 Tubes)</div>
+            <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddEmulsion">
+              + Add Tube
+            </button>
+          </div>
+
+          <div id="emulsionFleetContainer" style="margin-bottom: 16px;"></div>
+
+          <div class="fleet-selector-bar" style="margin-bottom: 10px;">
+            <div class="section-eyebrow" style="margin: 0; align-self: center;">Idle Tubes (#67/#69) &amp; Power Bypass Valves (#53&ndash;#67)</div>
+            <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddBrassJet">
+              + Add Brass
+            </button>
+          </div>
+
+          <div id="brassFleetContainer"></div>
+        </div>
+      </article>
+
+      <!-- 4) EXHAUSTS (data-fleet-acc="exhausts") -->
       <article class="fleet-acc-card" id="exhaustFleetCard" data-fleet-acc-card="exhausts">
         <button
           type="button"
@@ -2291,7 +2350,7 @@
           </div>
           <div class="fleet-acc-right">
             <span class="fleet-acc-status-pill emerald" id="fleetExhaustActiveBadge">Macca &#9733; ON CAR</span>
-            <span class="fleet-acc-count-pill" id="fleetExhaustCountBadge">4 UNITS</span>
+            <span class="fleet-acc-count-pill" id="fleetExhaustCountBadge">4 SYSTEMS</span>
             <span class="fleet-acc-chevron" data-fleet-acc-chevron="exhausts" aria-hidden="true">&#9654;</span>
           </div>
         </button>
@@ -2309,7 +2368,30 @@
         </div>
       </article>
 
-      <!-- 4) JETS (data-fleet-acc="jets") -->
+      <!-- 5) FUEL SYSTEM (data-fleet-acc="fuel_system") -->
+      <article class="fleet-acc-card" id="fuelSystemFleetCard" data-fleet-acc-card="fuel_system">
+        <button
+          type="button"
+          class="fleet-acc-header"
+          data-fleet-acc="fuel_system"
+          aria-expanded="false"
+        >
+          <div class="fleet-acc-left">
+            <div class="fleet-acc-title">Fuel System</div>
+            <div class="fleet-acc-sub">74L Foam Tank &bull; Holley 12-427 Pump &bull; Sakura FS-8002 &bull; 4.3 psi</div>
+          </div>
+          <div class="fleet-acc-right">
+            <span class="fleet-acc-status-pill emerald" id="fleetFuelSystemActiveBadge">Holley 12-427 &bull; Sakura FS-8002 &bull; 4.3 psi</span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="fuel_system" aria-hidden="true">&#9654;</span>
+          </div>
+        </button>
+
+        <div class="fleet-acc-body" id="fleetAccBody_fuel_system" style="display: none;">
+          <div id="fuelSystemFleetContainer"></div>
+        </div>
+      </article>
+
+      <!-- 6) JETS (MM TOOLBOX) (data-fleet-acc="jets") -->
       <article class="fleet-acc-card" id="jetsFleetCard" data-fleet-acc-card="jets">
         <button
           type="button"
@@ -2318,48 +2400,48 @@
           aria-expanded="false"
         >
           <div class="fleet-acc-left">
-            <div class="fleet-acc-title">Jets</div>
-            <div class="fleet-acc-sub">M1 (.001&quot;) &amp; Metric Orifice Converter + Toolbox Inventory</div>
+            <div class="fleet-acc-title">Jets (mm Toolbox)</div>
+            <div class="fleet-acc-sub">11-Slot Tactix Drill-Gauge Matrix (1.70&ndash;2.03 mm) + Orifice Area (mm&sup2;)</div>
           </div>
           <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill emerald" id="toolboxSummaryBadge">15 / 15 IN BOX</span>
+            <span class="fleet-acc-status-pill emerald" id="toolboxSummaryBadge">1.70&ndash;2.03 mm &bull; 11 IN TACTIX BOX</span>
             <span class="fleet-acc-chevron" data-fleet-acc-chevron="jets" aria-hidden="true">&#9654;</span>
           </div>
         </button>
 
         <div class="fleet-acc-body" id="fleetAccBody_jets" style="display: none;">
-          <!-- Live Inch <-> mm <-> Area (mm^2) Orifice Converter -->
+          <!-- Live Metric Drill (mm) <-> Area (mm^2) Orifice Converter -->
           <div class="card-elevated" style="margin-bottom: 12px;">
-            <div class="section-eyebrow" style="margin-bottom: 8px;">Live Inch &harr; mm &amp; Area (mm&sup2;) Orifice Converter</div>
+            <div class="section-eyebrow" style="margin-bottom: 8px;">Live Metric Orifice (mm) &amp; Flow Area (mm&sup2;) Calculator</div>
 
             <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
               <div class="field-group" style="margin-bottom: 0;">
                 <div class="field-label-row">
-                  <label class="field-label" for="convInchInput">Imperial (.001&quot; M1)</label>
-                  <span class="field-hint">e.g. .078 = #78</span>
+                  <label class="field-label" for="convMmInput">Metric Drill Size (mm)</label>
+                  <span class="field-hint emerald">Pure mm Standard</span>
                 </div>
                 <div class="num-stepper">
-                  <button type="button" class="stepper-btn" data-stepper-target="convInchInput" data-step="-0.001" aria-label="Decrease Orifice Inch">&minus;</button>
+                  <button type="button" class="stepper-btn" data-stepper-target="convMmInput" data-step="-0.010" aria-label="Decrease Orifice mm">&minus;</button>
                   <div class="num-input-wrap">
-                    <input type="number" id="convInchInput" class="num-input" value="0.0780" min="0.050" max="0.100" step="0.0005" inputmode="decimal" />
-                    <span class="num-unit-badge">in</span>
+                    <input type="number" id="convMmInput" class="num-input" value="1.850" min="1.200" max="2.600" step="0.005" inputmode="decimal" />
+                    <span class="num-unit-badge">mm</span>
                   </div>
-                  <button type="button" class="stepper-btn" data-stepper-target="convInchInput" data-step="0.001" aria-label="Increase Orifice Inch">+</button>
+                  <button type="button" class="stepper-btn" data-stepper-target="convMmInput" data-step="0.010" aria-label="Increase Orifice mm">+</button>
                 </div>
               </div>
 
               <div class="field-group" style="margin-bottom: 0;">
                 <div class="field-label-row">
-                  <label class="field-label" for="convMmInput">Metric Drill (mm)</label>
+                  <label class="field-label" for="convInchInput">Ref Decimal Inch (Optional)</label>
                   <span class="field-hint">1 in = 25.400 mm</span>
                 </div>
                 <div class="num-stepper">
-                  <button type="button" class="stepper-btn" data-stepper-target="convMmInput" data-step="-0.010" aria-label="Decrease Orifice mm">&minus;</button>
+                  <button type="button" class="stepper-btn" data-stepper-target="convInchInput" data-step="-0.0005" aria-label="Decrease Orifice Inch">&minus;</button>
                   <div class="num-input-wrap">
-                    <input type="number" id="convMmInput" class="num-input" value="1.981" min="1.270" max="2.540" step="0.005" inputmode="decimal" />
-                    <span class="num-unit-badge">mm</span>
+                    <input type="number" id="convInchInput" class="num-input" value="0.0728" min="0.047" max="0.102" step="0.0005" inputmode="decimal" />
+                    <span class="num-unit-badge">in</span>
                   </div>
-                  <button type="button" class="stepper-btn" data-stepper-target="convMmInput" data-step="0.010" aria-label="Increase Orifice mm">+</button>
+                  <button type="button" class="stepper-btn" data-stepper-target="convInchInput" data-step="0.0005" aria-label="Increase Orifice Inch">+</button>
                 </div>
               </div>
             </div>
@@ -2367,13 +2449,13 @@
             <div class="physics-summary-grid" style="margin-bottom: 10px;">
               <div class="telem-cell">
                 <span class="telem-label">Orifice Flow Area</span>
-                <span class="telem-val txt-emerald" id="convAreaOut">3.083 mm&sup2;</span>
-                <span class="telem-sub" id="convVsBaseOut">-1.87% area vs 2.000 mm</span>
+                <span class="telem-val txt-emerald" id="convAreaOut">2.688 mm&sup2;</span>
+                <span class="telem-sub" id="convVsBaseOut">0.00% area vs 1.85 mm baseline</span>
               </div>
               <div class="telem-cell">
-                <span class="telem-label">Nearest Kit Jet</span>
-                <span class="telem-val txt-amber" id="convNearestJetOut">#78 (1.981 mm)</span>
-                <span class="telem-sub" id="convStampHint">M1 .0780&quot;</span>
+                <span class="telem-label">Nearest Tactix Box Jet</span>
+                <span class="telem-val txt-amber" id="convNearestJetOut">1.85 mm</span>
+                <span class="telem-sub" id="convStampHint">2.688 mm&sup2;</span>
               </div>
             </div>
 
@@ -2382,21 +2464,21 @@
                 type="text"
                 id="customJetLabelInput"
                 class="text-input"
-                placeholder="Custom stamp (e.g. #77 / 1.97mm Drill)"
+                placeholder="Custom note (e.g. Bellmouthed 1.86 mm Drill)"
               />
               <button type="button" class="btn btn-amber-outline" id="btnAddCustomJet">
-                + Add Custom Drill to Kit
+                + Add Custom mm Jet to Box
               </button>
             </div>
           </div>
 
-          <!-- M1 (.001" Increment) Main Jet Toolbox Inventory -->
-          <div class="section-eyebrow" style="margin-bottom: 8px;">Main Jet Toolbox Inventory (#68&ndash;#80+)</div>
+          <!-- 11-Slot Tactix Metric Drill-Gauge Main Jet Matrix -->
+          <div class="section-eyebrow" style="margin-bottom: 8px;">11-Slot Tactix Drill-Gauge Box (1.70&ndash;2.03 mm) &amp; Spare Metric Drills</div>
           <div class="jet-inventory-list" id="jetInventoryList"></div>
         </div>
       </article>
 
-      <!-- 5) MANIFOLDS (data-fleet-acc="manifolds") -->
+      <!-- 7) MANIFOLDS (data-fleet-acc="manifolds") -->
       <article class="fleet-acc-card" id="manifoldFleetCard" data-fleet-acc-card="manifolds">
         <button
           type="button"
@@ -2410,7 +2492,7 @@
           </div>
           <div class="fleet-acc-right">
             <span class="fleet-acc-status-pill emerald" id="fleetManifoldActiveBadge">Macca &#9733; ON CAR</span>
-            <span class="fleet-acc-count-pill" id="fleetManifoldCountBadge">2 UNITS</span>
+            <span class="fleet-acc-count-pill" id="fleetManifoldCountBadge">2 LOGS</span>
             <span class="fleet-acc-chevron" data-fleet-acc-chevron="manifolds" aria-hidden="true">&#9654;</span>
           </div>
         </button>
@@ -2634,12 +2716,12 @@
         <div class="field-group" style="margin-bottom: 10px;">
           <div class="field-label-row">
             <label class="field-label" for="modalPostFuelPsi">WOT Fuel Pressure (psi)</label>
-            <span class="field-hint emerald" id="modalPostFuelPsiHint">4.0&ndash;5.5 psi</span>
+            <span class="field-hint emerald" id="modalPostFuelPsiHint">4.3 psi Holley Baseline</span>
           </div>
           <div class="num-stepper">
             <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelPsi" data-step="-0.1" aria-label="Decrease Post-Race Fuel Pressure">&minus;</button>
             <div class="num-input-wrap">
-              <input type="number" id="modalPostFuelPsi" class="num-input" value="5.0" min="2.0" max="8.5" step="0.1" />
+              <input type="number" id="modalPostFuelPsi" class="num-input" value="4.3" min="2.0" max="8.5" step="0.1" />
               <span class="num-unit-badge">psi</span>
             </div>
             <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelPsi" data-step="0.1" aria-label="Increase Post-Race Fuel Pressure">+</button>
@@ -2939,15 +3021,15 @@
 
       <div class="form-grid-2 stack-mobile" style="margin-bottom: 12px;">
         <div class="field-group" style="margin-bottom: 0;">
-          <label class="field-label" for="editBaseJet">Fitted Main Jet</label>
+          <label class="field-label" for="editBaseJet">Fitted Main Jet (mm)</label>
           <select id="editBaseJet" class="select-input"></select>
         </div>
         <div class="field-group" style="margin-bottom: 0;">
-          <label class="field-label" for="editBaseJetMm">Exact Base Orifice</label>
+          <label class="field-label" for="editBaseJetMm">Exact Base Orifice (mm)</label>
           <div class="num-stepper">
             <button type="button" class="stepper-btn" data-stepper-target="editBaseJetMm" data-step="-0.005" aria-label="Decrease Base Jet Orifice">&minus;</button>
             <div class="num-input-wrap">
-              <input type="number" id="editBaseJetMm" class="num-input" value="2.000" min="1.500" max="2.400" step="0.001" />
+              <input type="number" id="editBaseJetMm" class="num-input" value="1.850" min="1.400" max="2.500" step="0.001" />
               <span class="num-unit-badge">mm</span>
             </div>
             <button type="button" class="stepper-btn" data-stepper-target="editBaseJetMm" data-step="0.005" aria-label="Increase Base Jet Orifice">+</button>
@@ -3029,11 +3111,11 @@
 
       <div class="form-grid-2 stack-mobile" style="margin-bottom: 14px;">
         <div class="field-group" style="margin-bottom: 0;">
-          <label class="field-label" for="editBaseFuelPsi">Fuel Pressure (Pump Boss)</label>
+          <label class="field-label" for="editBaseFuelPsi">Fuel Pressure (Carby Inlet)</label>
           <div class="num-stepper">
             <button type="button" class="stepper-btn" data-stepper-target="editBaseFuelPsi" data-step="-0.1" aria-label="Decrease Fuel Pressure">&minus;</button>
             <div class="num-input-wrap">
-              <input type="number" id="editBaseFuelPsi" class="num-input" value="5.0" min="2.0" max="8.5" step="0.1" />
+              <input type="number" id="editBaseFuelPsi" class="num-input" value="4.3" min="2.0" max="8.5" step="0.1" />
               <span class="num-unit-badge">psi</span>
             </div>
             <button type="button" class="stepper-btn" data-stepper-target="editBaseFuelPsi" data-step="0.1" aria-label="Increase Fuel Pressure">+</button>
@@ -3060,14 +3142,14 @@
   </div>
 
   <!-- =========================================================
-       MODAL 3: EDIT 40MM BXUV-3 CARBY SPECS & SAVED ANCHOR
+       MODAL 3: EDIT 40MM BXUV-3 CARBY SPECS, TEARDOWN & SAVED ANCHOR
        ========================================================= -->
   <div class="modal-backdrop" id="modalEditCarby" role="dialog" aria-modal="true" aria-labelledby="modalEditCarbyTitle">
     <div class="modal-sheet">
       <div class="modal-head">
         <div>
-          <div class="section-eyebrow">40.00 mm Late-Base BXUV-3</div>
-          <h2 class="section-title" id="modalEditCarbyTitle">Edit Carby Homologation Check</h2>
+          <div class="section-eyebrow">40.00 mm Late-Base BXUV-3 &bull; Full Teardown Sheet</div>
+          <h2 class="section-title" id="modalEditCarbyTitle">Edit Carby Teardown &amp; Spec</h2>
         </div>
         <button type="button" class="btn btn-danger" data-close-modal="modalEditCarby" aria-label="Close Carby Spec Modal">
           Close
@@ -3076,62 +3158,148 @@
 
       <input type="hidden" id="editCarbyIdHidden" />
 
-      <div class="field-group">
-        <div class="field-label-row">
-          <label class="field-label" for="editCarbyName">Carby Name / Stamp</label>
-          <span class="field-hint amber">40mm BXUV-3 Fleet</span>
-        </div>
-        <input type="text" id="editCarbyName" class="text-input" placeholder="e.g. 1 DME / 3 DME" autocomplete="off" />
-      </div>
-
-      <div class="field-group">
-        <div class="field-label-row">
-          <label class="field-label" for="editCarbyVenturi">Main Venturi Bore (&le; 30.94 mm Legal)</label>
-          <span class="field-hint emerald">Group 3H Max 30.94</span>
-        </div>
-        <div class="num-stepper">
-          <button type="button" class="stepper-btn" data-stepper-target="editCarbyVenturi" data-step="-0.01" aria-label="Decrease Venturi Bore">&minus;</button>
-          <div class="num-input-wrap">
-            <input type="number" id="editCarbyVenturi" class="num-input" value="30.90" min="29.50" max="30.94" step="0.01" />
-            <span class="num-unit-badge">mm</span>
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editCarbyName">Carby Name / Stamp</label>
+            <span class="field-hint amber">40mm BXUV-3 Fleet</span>
           </div>
-          <button type="button" class="stepper-btn" data-stepper-target="editCarbyVenturi" data-step="0.01" aria-label="Increase Venturi Bore">+</button>
+          <input type="text" id="editCarbyName" class="text-input" placeholder="e.g. DME #1 / DME #2 / SNB" autocomplete="off" />
         </div>
-      </div>
 
-      <div class="field-group">
-        <div class="field-label-row">
-          <label class="field-label" for="editCarbyExit">Exit Port / Throttle Bore (&le; 40.00 mm Legal)</label>
-          <span class="field-hint emerald">Group 3H Max 40.00</span>
-        </div>
-        <div class="num-stepper">
-          <button type="button" class="stepper-btn" data-stepper-target="editCarbyExit" data-step="-0.01" aria-label="Decrease Exit Port">&minus;</button>
-          <div class="num-input-wrap">
-            <input type="number" id="editCarbyExit" class="num-input" value="39.98" min="38.50" max="40.00" step="0.01" />
-            <span class="num-unit-badge">mm</span>
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editCarbyBodyCode">Upper Body / Air Horn Code</label>
+            <span class="field-hint">Casting &amp; Stamp</span>
           </div>
-          <button type="button" class="stepper-btn" data-stepper-target="editCarbyExit" data-step="0.01" aria-label="Increase Exit Port">+</button>
+          <input type="text" id="editCarbyBodyCode" class="text-input" placeholder="e.g. 23-3052 (<213> Horn • Boss 30)" autocomplete="off" />
         </div>
       </div>
 
-      <div class="field-group">
+      <div class="field-group" style="margin-bottom: 10px;">
         <div class="field-label-row">
-          <label class="field-label" for="editCarbySpill">Fuel Spill / Float Level Height</label>
-          <span class="field-hint">15.0 mm SNB std</span>
+          <label class="field-label" for="editCarbyBaseCasting">Throttle Base Casting &amp; Shaft</label>
+          <span class="field-hint">Late 75mm Stud Base</span>
         </div>
-        <div class="num-stepper">
-          <button type="button" class="stepper-btn" data-stepper-target="editCarbySpill" data-step="-0.1" aria-label="Decrease Spill Height">&minus;</button>
-          <div class="num-input-wrap">
-            <input type="number" id="editCarbySpill" class="num-input" value="15.0" min="12.0" max="19.0" step="0.1" />
-            <span class="num-unit-badge">mm</span>
+        <input type="text" id="editCarbyBaseCasting" class="text-input" placeholder="e.g. 2376876 BXUV-3 (Profiled Shaft)" autocomplete="off" />
+      </div>
+
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editCarbyExit">Base Throttle Bore (&le; 40.00 mm)</label>
+            <span class="field-hint emerald">Group 3H Max 40.00</span>
           </div>
-          <button type="button" class="stepper-btn" data-stepper-target="editCarbySpill" data-step="0.1" aria-label="Increase Spill Height">+</button>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="editCarbyExit" data-step="-0.01" aria-label="Decrease Base Bore">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="editCarbyExit" class="num-input" value="39.81" min="38.00" max="41.00" step="0.01" />
+              <span class="num-unit-badge">mm</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="editCarbyExit" data-step="0.01" aria-label="Increase Base Bore">+</button>
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editCarbyVenturi">Main Venturi mm (Blank = TBD)</label>
+            <span class="field-hint emerald">Max 30.94 mm</span>
+          </div>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="editCarbyVenturi" data-step="-0.01" aria-label="Decrease Venturi Bore">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="editCarbyVenturi" class="num-input" value="" placeholder="TBD (&le;30.94)" min="28.00" max="32.00" step="0.01" />
+              <span class="num-unit-badge">mm</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="editCarbyVenturi" data-step="0.01" aria-label="Increase Venturi Bore">+</button>
+          </div>
         </div>
       </div>
 
-      <div class="field-group">
-        <label class="field-label" for="editCarbyJet">Currently Fitted Bench Jet</label>
-        <select id="editCarbyJet" class="select-input"></select>
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editCarbyJet">Fitted Main Jet (mm)</label>
+            <span class="field-hint amber">Tactix mm or No Jet</span>
+          </div>
+          <select id="editCarbyJet" class="select-input"></select>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editCarbyEmulsion">Fitted Emulsion Tube</label>
+            <span class="field-hint emerald">#1&ndash;#8 or TBD</span>
+          </div>
+          <select id="editCarbyEmulsion" class="select-input"></select>
+        </div>
+      </div>
+
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editCarbySpill">Spill Height mm (Blank = TBD)</label>
+            <span class="field-hint">15.0 mm DME std</span>
+          </div>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="editCarbySpill" data-step="-0.1" aria-label="Decrease Spill Height">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="editCarbySpill" class="num-input" value="15.0" placeholder="TBD (15.0)" min="10.0" max="22.0" step="0.1" />
+              <span class="num-unit-badge">mm</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="editCarbySpill" data-step="0.1" aria-label="Increase Spill Height">+</button>
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editCarbyFloatWeight">Float Weight g (Blank = TBD)</label>
+            <span class="field-hint">0.740 SG Modified</span>
+          </div>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="editCarbyFloatWeight" data-step="-0.1" aria-label="Decrease Float Weight">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="editCarbyFloatWeight" class="num-input" value="" placeholder="TBD (g)" min="4.0" max="25.0" step="0.1" />
+              <span class="num-unit-badge">g</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="editCarbyFloatWeight" data-step="0.1" aria-label="Increase Float Weight">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editCarbyNeedleSeat">Needle &amp; Seat Assembly</label>
+          <input type="text" id="editCarbyNeedleSeat" class="text-input" placeholder="e.g. V8 High-Flow Brass + Viton Tip" autocomplete="off" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editCarbyIdleTube">Idle Tube (#67 / #69 / TBD)</label>
+          <input type="text" id="editCarbyIdleTube" class="text-input" placeholder="e.g. TBD or #69 (0.74 mm)" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editCarbyPowerBypass">Power Bypass Valve</label>
+          <input type="text" id="editCarbyPowerBypass" class="text-input" placeholder="e.g. TBD (DME modified)" autocomplete="off" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editCarbyHighSpeedBleed">High-Speed Air Bleed</label>
+          <input type="text" id="editCarbyHighSpeedBleed" class="text-input" placeholder="e.g. TBD (12 o-clock brass dome)" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editCarbyPumpCircuit">Accelerator Pump Circuit</label>
+          <input type="text" id="editCarbyPumpCircuit" class="text-input" placeholder="e.g. TBD (DME modified in/out • potted vac port)" autocomplete="off" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editCarbyAirCleaner">Air Cleaner &amp; Heat Shield</label>
+          <input type="text" id="editCarbyAirCleaner" class="text-input" placeholder="e.g. 50 mm (2&quot;) Reusable Pleated + HQRA Shield" autocomplete="off" />
+        </div>
       </div>
 
       <div class="card-elevated" style="margin-bottom: 14px;">
@@ -3140,12 +3308,12 @@
           <div class="field-group" style="margin-bottom: 0;">
             <label class="field-label" for="editCarbyAnchorJetMm">Anchor Jet (mm)</label>
             <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="editCarbyAnchorJetMm" data-step="-0.005" aria-label="Decrease Anchor Jet mm">&minus;</button>
+              <button type="button" class="stepper-btn" data-stepper-target="editCarbyAnchorJetMm" data-step="-0.01" aria-label="Decrease Anchor Jet mm">&minus;</button>
               <div class="num-input-wrap">
-                <input type="number" id="editCarbyAnchorJetMm" class="num-input" value="2.000" min="1.500" max="2.400" step="0.001" />
+                <input type="number" id="editCarbyAnchorJetMm" class="num-input" value="1.85" min="1.40" max="2.50" step="0.01" />
                 <span class="num-unit-badge">mm</span>
               </div>
-              <button type="button" class="stepper-btn" data-stepper-target="editCarbyAnchorJetMm" data-step="0.005" aria-label="Increase Anchor Jet mm">+</button>
+              <button type="button" class="stepper-btn" data-stepper-target="editCarbyAnchorJetMm" data-step="0.01" aria-label="Increase Anchor Jet mm">+</button>
             </div>
           </div>
 
@@ -3211,12 +3379,216 @@
       </div>
 
       <div class="field-group" style="margin-bottom: 14px;">
-        <label class="field-label" for="editCarbyNotes">Bench &amp; Track Notes</label>
-        <input type="text" id="editCarbyNotes" class="text-input" />
+        <label class="field-label" for="editCarbyNotes">Bench &amp; Track Teardown Notes</label>
+        <input type="text" id="editCarbyNotes" class="text-input" placeholder="e.g. Last raced on 1.85 mm bellmouthed jet + #5-DME emulsion..." />
       </div>
 
       <button type="button" class="btn btn-confirm btn-full" id="btnSaveCarbySpec">
-        Save 40mm BXUV-3 Carby Spec
+        Save BXUV-3 Carby &amp; Teardown Spec
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 3A-2: EDIT EMULSION TUBE PROFILE (#1–#8)
+       ========================================================= -->
+  <div class="modal-backdrop" id="modalEditEmulsion" role="dialog" aria-modal="true" aria-labelledby="modalEditEmulsionTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">Stromberg BXUV-3 Emulsion Library</div>
+          <h2 class="section-title" id="modalEditEmulsionTitle">Edit Emulsion Tube Profile</h2>
+        </div>
+        <button type="button" class="btn btn-danger" data-close-modal="modalEditEmulsion" aria-label="Close Emulsion Modal">
+          Close
+        </button>
+      </div>
+
+      <input type="hidden" id="editEmulsionIdHidden" />
+
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editEmulsionCode">Tube Code / Type</label>
+          <input type="text" id="editEmulsionCode" class="text-input" placeholder="e.g. Type #5-DME" />
+        </div>
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editEmulsionQty">Qty in Kit</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="editEmulsionQty" data-step="-1" aria-label="Decrease Tube Qty">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="editEmulsionQty" class="num-input" value="1" min="0" max="20" step="1" />
+              <span class="num-unit-badge">pcs</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="editEmulsionQty" data-step="1" aria-label="Increase Tube Qty">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editEmulsionCollar">Collar Style</label>
+          <input type="text" id="editEmulsionCollar" class="text-input" placeholder="e.g. Single / Twin" />
+        </div>
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editEmulsionStatus">Current Status</label>
+          <input type="text" id="editEmulsionStatus" class="text-input" placeholder="e.g. Fitted in DME #1 / Untested Stock" />
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom: 10px;">
+        <label class="field-label" for="editEmulsionPattern">Drill &amp; Slot Geometry Pattern</label>
+        <input type="text" id="editEmulsionPattern" class="text-input" placeholder="e.g. 6 Open Holes (2 upper + 4 spaced)" />
+      </div>
+
+      <div class="field-group" style="margin-bottom: 14px;">
+        <label class="field-label" for="editEmulsionVsBase5">Fuel Curve Behavior vs #5 Baseline</label>
+        <input type="text" id="editEmulsionVsBase5" class="text-input" placeholder="e.g. Less mid-range air bleed -> punchier corner exit" />
+      </div>
+
+      <button type="button" class="btn btn-confirm btn-full" id="btnSaveEmulsionSpec">
+        Save Emulsion Tube Profile
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 3A-3: EDIT IDLE TUBE / POWER BYPASS BRASS
+       ========================================================= -->
+  <div class="modal-backdrop" id="modalEditBrass" role="dialog" aria-modal="true" aria-labelledby="modalEditBrassTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">Stromberg BXUV-3 Brass Kit</div>
+          <h2 class="section-title" id="modalEditBrassTitle">Edit Idle Tube / Power Bypass</h2>
+        </div>
+        <button type="button" class="btn btn-danger" data-close-modal="modalEditBrass" aria-label="Close Brass Modal">
+          Close
+        </button>
+      </div>
+
+      <input type="hidden" id="editBrassIdHidden" />
+
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editBrassType">Circuit Type</label>
+          <select id="editBrassType" class="select-input">
+            <option value="Idle Tube">Idle Tube</option>
+            <option value="Power Bypass">Power Bypass</option>
+          </select>
+        </div>
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editBrassStamp">Wire-Gauge Stamp (#)</label>
+          <input type="text" id="editBrassStamp" class="text-input" placeholder="e.g. #69 or #67" />
+        </div>
+      </div>
+
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editBrassMm">Orifice Size (mm)</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="editBrassMm" data-step="-0.01" aria-label="Decrease Brass mm">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="editBrassMm" class="num-input" value="0.74" min="0.40" max="2.50" step="0.01" />
+              <span class="num-unit-badge">mm</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="editBrassMm" data-step="0.01" aria-label="Increase Brass mm">+</button>
+          </div>
+        </div>
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editBrassQty">Qty in Kit</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="editBrassQty" data-step="-1" aria-label="Decrease Brass Qty">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="editBrassQty" class="num-input" value="1" min="0" max="20" step="1" />
+              <span class="num-unit-badge">pcs</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="editBrassQty" data-step="1" aria-label="Increase Brass Qty">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom: 14px;">
+        <label class="field-label" for="editBrassNotes">Calibration &amp; Circuit Effect</label>
+        <input type="text" id="editBrassNotes" class="text-input" placeholder="e.g. Leaner idle & slow-hairpin progression" />
+      </div>
+
+      <button type="button" class="btn btn-confirm btn-full" id="btnSaveBrassSpec">
+        Save Brass Component
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 3A-4: EDIT IN-CAR FUEL SYSTEM HARDWARE PROFILE
+       ========================================================= -->
+  <div class="modal-backdrop" id="modalEditFuelSystem" role="dialog" aria-modal="true" aria-labelledby="modalEditFuelSystemTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">Car #77 Fuel &amp; Induction Architecture</div>
+          <h2 class="section-title" id="modalEditFuelSystemTitle">Edit Fuel System Hardware</h2>
+        </div>
+        <button type="button" class="btn btn-danger" data-close-modal="modalEditFuelSystem" aria-label="Close Fuel System Modal">
+          Close
+        </button>
+      </div>
+
+      <div class="field-group" style="margin-bottom: 10px;">
+        <label class="field-label" for="editFuelSysTank">Fuel Tank &amp; Baffling Spec</label>
+        <input type="text" id="editFuelSysTank" class="text-input" />
+      </div>
+
+      <div class="field-group" style="margin-bottom: 10px;">
+        <label class="field-label" for="editFuelSysPreFilter">Boot Pre-Filter Spec</label>
+        <input type="text" id="editFuelSysPreFilter" class="text-input" />
+      </div>
+
+      <div class="field-group" style="margin-bottom: 10px;">
+        <label class="field-label" for="editFuelSysPump">Electric Fuel Pump</label>
+        <input type="text" id="editFuelSysPump" class="text-input" />
+      </div>
+
+      <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editFuelSysRunningPsi">Baseline WOT Fuel Pressure (psi)</label>
+          <div class="num-stepper">
+            <button type="button" class="stepper-btn" data-stepper-target="editFuelSysRunningPsi" data-step="-0.1" aria-label="Decrease Baseline Fuel Psi">&minus;</button>
+            <div class="num-input-wrap">
+              <input type="number" id="editFuelSysRunningPsi" class="num-input" value="4.3" min="2.0" max="8.5" step="0.1" />
+              <span class="num-unit-badge">psi</span>
+            </div>
+            <button type="button" class="stepper-btn" data-stepper-target="editFuelSysRunningPsi" data-step="0.1" aria-label="Increase Baseline Fuel Psi">+</button>
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editFuelSysSafety">Safety Cutoff Relay</label>
+          <input type="text" id="editFuelSysSafety" class="text-input" />
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom: 10px;">
+        <label class="field-label" for="editFuelSysLines">Fuel Lines &amp; Dry-Break</label>
+        <input type="text" id="editFuelSysLines" class="text-input" />
+      </div>
+
+      <div class="field-group" style="margin-bottom: 10px;">
+        <label class="field-label" for="editFuelSysGauge">Pressure Gauge</label>
+        <input type="text" id="editFuelSysGauge" class="text-input" />
+      </div>
+
+      <div class="field-group" style="margin-bottom: 10px;">
+        <label class="field-label" for="editFuelSysInduction">Air Cleaner &amp; Heat Shield</label>
+        <input type="text" id="editFuelSysInduction" class="text-input" />
+      </div>
+
+      <div class="field-group" style="margin-bottom: 14px;">
+        <label class="field-label" for="editFuelSysNotes">Service &amp; Inspection Notes</label>
+        <input type="text" id="editFuelSysNotes" class="text-input" />
+      </div>
+
+      <button type="button" class="btn btn-confirm btn-full" id="btnSaveFuelSystemSpec">
+        Save Fuel System Hardware
       </button>
     </div>
   </div>
@@ -4115,6 +4487,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.8.5"></script>
+  <script src="./app.js?v=0.8.6"></script>
 </body>
 </html>

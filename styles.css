@@ -5721,3 +5721,225 @@ button:disabled.btn-stage-locked,
     display: none;
   }
 }
+
+/* =========================================================
+   V0.8.6 — NO-JET SAFETY GUARD, CARBY TEARDOWN, EMULSION & FUEL SYSTEM
+   ========================================================= */
+.no-jet-safety-banner {
+  margin-bottom: 12px;
+  padding: 11px 13px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.22) 0%, rgba(120, 53, 15, 0.32) 100%);
+  border: 1.5px solid #F59E0B;
+  box-shadow:
+    inset 0 1px 0 rgba(253, 224, 71, 0.28),
+    0 6px 14px rgba(0, 0, 0, 0.45);
+}
+
+.no-jet-safety-title {
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #FDE047;
+  margin-bottom: 4px;
+}
+
+.no-jet-safety-desc {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.42;
+  color: #FEF3C7;
+}
+
+.no-jet-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #FDE047;
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.28) 0%, rgba(146, 64, 14, 0.48) 100%);
+  border: 1px solid #F59E0B;
+  box-shadow: inset 0 1px 0 rgba(254, 240, 138, 0.25);
+}
+
+.bore-limit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.bore-limit-badge.emerald {
+  color: #6EE7B7;
+  background: rgba(16, 185, 129, 0.16);
+  border: 1px solid rgba(16, 185, 129, 0.48);
+}
+
+.bore-limit-badge.cyan {
+  color: #67E8F9;
+  background: rgba(6, 182, 212, 0.18);
+  border: 1px solid rgba(34, 211, 238, 0.55);
+}
+
+.bore-limit-badge.danger {
+  color: #FCA5A5;
+  background: rgba(239, 68, 68, 0.22);
+  border: 1px solid #EF4444;
+}
+
+.carby-teardown-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 8px;
+  margin-bottom: 10px;
+}
+
+.carby-teardown-cell {
+  padding: 7px 9px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #10151E 0%, #0A0E14 100%);
+  border: 1px solid #263142;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.65);
+}
+
+.carby-teardown-cell.full-span {
+  grid-column: 1 / -1;
+}
+
+.carby-teardown-lbl {
+  display: block;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #8B9BB1;
+  margin-bottom: 2px;
+}
+
+.carby-teardown-val {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #E2E8F0;
+  line-height: 1.35;
+}
+
+.carby-teardown-val.is-tbd {
+  color: #FBBF24;
+  font-style: italic;
+}
+
+.carby-teardown-val.is-no-jet {
+  color: #FDE047;
+  font-weight: 900;
+}
+
+.emulsion-stack,
+.brass-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.emulsion-card,
+.brass-card,
+.fuel-sys-card {
+  padding: 11px 12px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #1B2330 0%, #111721 55%, #0C1017 100%);
+  border: 1px solid #2F3C50;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 5px 12px rgba(0, 0, 0, 0.45);
+}
+
+.emulsion-card.active-in-car {
+  border-color: #10B981;
+  box-shadow:
+    inset 0 1px 0 rgba(110, 231, 183, 0.22),
+    0 0 0 1px rgba(16, 185, 129, 0.28),
+    0 6px 14px rgba(0, 0, 0, 0.5);
+}
+
+.emulsion-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.emulsion-code-pill {
+  font-size: 0.84rem;
+  font-weight: 900;
+  color: #F8FAFC;
+  letter-spacing: 0.02em;
+}
+
+.emulsion-meta-pills {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.emulsion-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: #101620;
+  border: 1px solid #334155;
+  color: #CBD5E1;
+}
+
+.emulsion-badge.emerald {
+  color: #6EE7B7;
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.45);
+}
+
+.emulsion-badge.amber {
+  color: #FDE047;
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(245, 158, 11, 0.45);
+}
+
+.emulsion-pattern-row {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #E2E8F0;
+  margin-bottom: 5px;
+}
+
+.emulsion-vs5-box {
+  padding: 6px 8px;
+  border-radius: 7px;
+  background: rgba(10, 14, 20, 0.72);
+  border: 1px solid #243042;
+  font-size: 0.72rem;
+  line-height: 1.38;
+  color: #94A3B8;
+}
+
+@media (max-width: 480px) {
+  .carby-teardown-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
