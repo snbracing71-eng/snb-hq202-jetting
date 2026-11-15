@@ -5943,3 +5943,36 @@ button:disabled.btn-stage-locked,
   }
 }
 
+/* =========================================================
+   v0.8.7 — AUDITED 2825951 MANIFOLD SPREAD & GASKET TELEMETRY
+   ========================================================= */
+.manifold-spread-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid #334155;
+}
+
+.manifold-spread-pill.emerald {
+  color: #34D399;
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.45);
+}
+
+.manifold-spread-pill.amber {
+  color: #38BDF8;
+  background: rgba(56, 189, 248, 0.14);
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+.manifold-spread-pill.danger {
+  color: #FCA5A5;
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(239, 68, 68, 0.5);
+}
