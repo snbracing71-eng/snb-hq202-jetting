@@ -5478,7 +5478,9 @@ button:disabled.btn-stage-locked,
   transition: border-color 0.16s ease, box-shadow 0.16s ease;
 }
 
-.fleet-acc-card.is-open {
+.fleet-acc-card.is-open,
+.fleet-acc-card.open {
+  overflow: visible;
   border-color: rgba(245, 158, 11, 0.55);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
@@ -5507,7 +5509,8 @@ button:disabled.btn-stage-locked,
   background: linear-gradient(180deg, #273345 0%, #18202D 52%, #111722 100%);
 }
 
-.fleet-acc-card.is-open > .fleet-acc-header {
+.fleet-acc-card.is-open > .fleet-acc-header,
+.fleet-acc-card.open > .fleet-acc-header {
   border-bottom-color: #2A364B;
   background: linear-gradient(180deg, #293548 0%, #18212F 55%, #111823 100%);
 }
@@ -5608,6 +5611,14 @@ button:disabled.btn-stage-locked,
   padding: 12px;
   background: linear-gradient(180deg, #121721 0%, #0C1017 100%);
   border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.fleet-acc-card.is-open .fleet-acc-body,
+.fleet-acc-card.open .fleet-acc-body {
+  display: block !important;
+  max-height: none !important;
+  overflow: visible !important;
+  opacity: 1 !important;
 }
 
 /* Corner Weights Drawer Extras */

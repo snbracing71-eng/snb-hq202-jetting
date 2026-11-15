@@ -308,19 +308,19 @@
   }
 
   const DEFAULT_SPECO_INDUCTION_SPEC =
-    'Speco HQ900AL (225x50mm Cotton Element — Set 5–6mm up on neck for flush bellmouth, bridge bar Front-to-Back) + HQRA Carby Shield + Dual Copper/Composite Head Gasket (<=3.0mm)';
+    'Speco HQ900AL 225x50mm + HQRA Shield (Cotton Element — Set 5–6mm up on neck for flush bellmouth, bridge bar Front-to-Back) + Dual Copper/Composite Head Gasket (<=3.0mm)';
 
   function createDefaultFuelSystem() {
     return {
-      tankSpec: '74.0 L Tank w/ Polyurethane Foam Baffling (12.0 L Surge Floor)',
-      preFilter: 'Sakura FS-8002 Disposable Inline Pre-Filter (Boot — inspect for foam shedding)',
-      fuelPump: 'Holley 12-427 Mighty Mite Electric Pump (4.0–7.0 psi rated • 32 GPH)',
-      safetyCutoff: 'Tachometric Safety Relay (Auto Shut-Off < 300 RPM)',
-      linesAndDryBreak: '5/16" (8 mm) Steel Underbody Hardline + Engine Bay Quick-Connect Dry-Break',
-      pressureGauge: '0–15 psi Liquid-Filled Mechanical Gauge (at Carby Inlet • ~4.3 psi WOT)',
+      tankSpec: '74L Foam Tank (74.0 L w/ Polyurethane Foam Baffling & 12.0 L Surge Floor)',
+      preFilter: 'Sakura FS-8002 Pre-Pump Surge Filter (Boot Inline — inspect for foam shedding)',
+      fuelPump: 'Holley 12-427 Pump (Mighty Mite Electric • 4.0–7.0 psi rated • 32 GPH)',
+      safetyCutoff: 'Peel CP30 Tachometric Safety Relay (Auto Shut-Off < 300 RPM)',
+      linesAndDryBreak: 'Dry-Break Sample Tee + 5/16" (8 mm) Steel Underbody Hardline',
+      pressureGauge: 'Stack 4.3 psi Gauge (0–15 psi at Carby Inlet • 4.3 psi WOT)',
       runningPsi: 4.3,
       inductionSpec: DEFAULT_SPECO_INDUCTION_SPEC,
-      serviceNotes: 'Inspect Sakura FS-8002 clear pre-filter regularly for aged tank foam particles before they reach the Holley Mighty Mite pump or BXUV-3 needle & seat.'
+      serviceNotes: 'Inspect Sakura FS-8002 Pre-Pump Surge Filter regularly for aged tank foam particles before they reach the Holley 12-427 Pump or BXUV-3 needle & seat.'
     };
   }
 
@@ -1682,8 +1682,8 @@
         totalCfm: 526.1,
         portFlowCfm: { front: 167.4, middle: 186.8, rear: 171.9 },
         gasketStack: 'Copper (head side) + Composite Insulator (<=3.0mm Rule 10o)',
-        onCar: true,
-        notes: 'ACTIVE ON CAR FOR SANDOWN. Highest outer-runner flow (167.4F / 171.9R) & tightest balance (+17.2 CFM / +10.1% mid-vs-end spread). Paired w/ dual copper + insulating gasket stack; expect ~+0.02–0.03mm richer main jet vs F.'
+        onCar: false,
+        notes: 'High-Flow Spare (#71). Highest outer-runner flow (167.4F / 171.9R) & tightest balance (+17.2 CFM / +10.1% mid-vs-end spread). Paired w/ dual copper + insulating gasket stack; expect ~+0.02–0.03mm richer main jet vs F.'
       },
       {
         id: 'MAN_D',
@@ -1709,9 +1709,9 @@
         rearCfm: 155.3,
         totalCfm: 494.6,
         portFlowCfm: { front: 155.5, middle: 183.8, rear: 155.3 },
-        gasketStack: 'Standard',
-        onCar: false,
-        notes: 'Previous Car Baseline (Shed Stock). Symmetrical 88-4 casting (155.5F / 155.3R, +18.3% spread).'
+        gasketStack: 'Copper (head side) + Composite Insulator (<=3.0mm Rule 10o)',
+        onCar: true,
+        notes: 'ACTIVE ON CAR (#77 BASELINE). Symmetrical 88-4 casting (155.5F / 183.8M / 155.3R = 494.6 CFM total, +18.3% spread).'
       },
       {
         id: 'MAN_G',
@@ -1725,7 +1725,7 @@
         portFlowCfm: { front: 164.4, middle: 192.8, rear: 155.5 },
         gasketStack: 'Standard',
         onCar: false,
-        notes: 'TRAILER SPARE #1. Strong untouched 88-4 casting (164.4F / 192.8M / 155.5R = 512.7 total, +20.5% spread). Ready trackside backup to B.'
+        notes: 'TRAILER SPARE #1. Strong untouched 88-4 casting (164.4F / 192.8M / 155.5R = 512.7 total, +20.5% spread). Ready trackside backup.'
       },
       {
         id: 'MAN_H',
@@ -1752,21 +1752,21 @@
       ? Number(m.cfmFront)
       : Number.isFinite(Number(pf.front))
       ? Number(pf.front)
-      : 167.4;
+      : 155.5;
     const midCfm = Number.isFinite(Number(m && m.midCfm))
       ? Number(m.midCfm)
       : Number.isFinite(Number(m && m.cfmMiddle))
       ? Number(m.cfmMiddle)
       : Number.isFinite(Number(pf.middle))
       ? Number(pf.middle)
-      : 186.8;
+      : 183.8;
     const rearCfm = Number.isFinite(Number(m && m.rearCfm))
       ? Number(m.rearCfm)
       : Number.isFinite(Number(m && m.cfmRear))
       ? Number(m.cfmRear)
       : Number.isFinite(Number(pf.rear))
       ? Number(pf.rear)
-      : 171.9;
+      : 155.3;
     const totalCfm = Number((frontCfm + midCfm + rearCfm).toFixed(1));
     const endAvg = (frontCfm + rearCfm) / 2;
     const spreadCfm = midCfm - endAvg;
@@ -1791,7 +1791,7 @@
 
   function getManifoldDisplayName(manifoldId) {
     const raw = String(manifoldId || '').trim();
-    if (!raw) return 'Manifold B (#71)';
+    if (!raw) return 'Manifold F';
     if (state && Array.isArray(state.manifolds)) {
       const match = state.manifolds.find((m) => m && m.id === raw);
       if (match && match.name) return match.name;
@@ -1891,9 +1891,14 @@
         qty: 2,
         thicknessMm: 7.49,
         liftMm: 12.7,
+        liftMmEst: '~12.7 mm solo / ~25.4 mm stacked (1.7x wishbone)',
+        liftText: '~12.7 mm (1.7x wishbone; mount TOP tower flat roof only)',
         motionRatio: '1.7x wishbone; mount TOP tower flat roof only',
+        motionRatioNote: '1.7x wishbone; mount TOP tower flat roof only',
         status: 'LEGAL SOLO (7.49mm) OR STACKED (14.98mm)',
+        legalityNote: 'LEGAL SOLO (7.49mm) OR STACKED (14.98mm <= 20.00mm)',
         statusLevel: 'safe',
+        statusType: 'legal',
         stackedMm: 14.98,
         notes: 'Mitutoyo-measured pair (7.49 mm each). Mount on TOP spring tower flat roof only; 1.7x front wishbone motion ratio yields ~12.7 mm wheel lift solo (~25.4 mm stacked 14.98 mm <= 20.00 mm Rule 6c).'
       },
@@ -1905,9 +1910,14 @@
         qty: 2,
         thicknessMm: 7.63,
         liftMm: 9.9,
+        liftMmEst: '~9.9 mm solo / ~19.8 mm paired (1.3x trailing arm)',
+        liftText: '~9.9 mm (1.3x trailing arm)',
         motionRatio: '1.3x trailing arm (0.92 kg/mm wedge shift)',
+        motionRatioNote: '1.3x trailing arm (0.92 kg/mm wedge shift)',
         status: 'LEGAL SOLO OR PAIRED (15.26mm)',
+        legalityNote: 'LEGAL SOLO OR PAIRED (15.26mm <= 20.00mm)',
         statusLevel: 'safe',
+        statusType: 'legal',
         stackedMm: 15.26,
         notes: 'Mitutoyo-measured pair (7.63 mm each). Used in Calder 2024 [BLUE] row test (+7.0 kg diagonal shift on RR @ 0.92 kg/mm). Legal solo (7.63 mm) or paired (15.26 mm <= 20.00 mm Rule 6c).'
       },
@@ -1919,9 +1929,14 @@
         qty: 2,
         thicknessMm: 8.03,
         liftMm: 10.4,
+        liftMmEst: '~10.4 mm solo / ~20.9 mm paired (1.3x trailing arm)',
+        liftText: '~10.4 mm (1.3x trailing arm)',
         motionRatio: '1.3x trailing arm (0.92 kg/mm wedge shift)',
+        motionRatioNote: '1.3x trailing arm (0.92 kg/mm wedge shift)',
         status: 'LEGAL SOLO OR PAIRED (16.06mm)',
+        legalityNote: 'LEGAL SOLO OR PAIRED (16.06mm <= 20.00mm)',
         statusLevel: 'safe',
+        statusType: 'legal',
         stackedMm: 16.06,
         notes: 'Mitutoyo-measured pair (8.03 mm each). Ideal ~10mm step option for CCW tracks (Sandown Turn 4 LH exit) to retain ~9.0 kg static load on inside RL vs 20mm RR.'
       },
@@ -1933,9 +1948,14 @@
         qty: 2,
         thicknessMm: 10.11,
         liftMm: 13.1,
+        liftMmEst: '~13.1 mm solo (1.3x trailing arm)',
+        liftText: '~13.1 mm (1.3x trailing arm)',
         motionRatio: '1.3x trailing arm (0.92 kg/mm wedge shift)',
+        motionRatioNote: '1.3x trailing arm (0.92 kg/mm wedge shift)',
         status: 'LEGAL SOLO — ILLEGAL STACKED x2 (20.22mm > 20.00mm!)',
+        legalityNote: 'LEGAL SOLO — ILLEGAL STACKED x2 (20.22mm > 20.00mm!)',
         statusLevel: 'danger',
+        statusType: 'danger',
         stackedMm: 20.22,
         notes: 'Mitutoyo-measured pair (10.11 mm each). Tested on RL in Calder 2024 [BLACK] row (FL 354 / FR 381 / RL 312 / RR 327). WARNING: Stacking 2x 10.11 mm = 20.22 mm EXCEEDS Rule 6c 20.00 mm max!'
       },
@@ -1947,9 +1967,14 @@
         qty: 2,
         thicknessMm: 19.46,
         liftMm: 25.3,
+        liftMmEst: '~25.3 mm solo (1.3x trailing arm)',
+        liftText: '~25.3 mm (1.3x trailing arm)',
         motionRatio: '1.3x trailing arm (0.92 kg/mm wedge shift)',
+        motionRatioNote: '1.3x trailing arm (0.92 kg/mm wedge shift)',
         status: 'LEGAL SOLO (0.54mm margin) — DO NOT STACK',
+        legalityNote: 'LEGAL SOLO (0.54mm margin) — DO NOT STACK',
         statusLevel: 'warn',
+        statusType: 'warn',
         stackedMm: 38.92,
         notes: 'Mitutoyo-measured pair (19.46 mm each — 0.54 mm under 20.00 mm Rule 6c ceiling). DO NOT stack with any other pad or ring!'
       }
@@ -1967,18 +1992,30 @@
       .map((item, idx) => {
         const id = String(item.id || item.code || `SP-${idx + 1}`).trim();
         const defItem = defs.find((d) => d.id.toUpperCase() === id.toUpperCase());
+        const end = item.end === 'FRONT' || item.end === 'F' ? 'FRONT' : (defItem ? defItem.end : 'REAR');
+        const thicknessMm = Number.isFinite(Number(item.thicknessMm)) ? Number(Number(item.thicknessMm).toFixed(2)) : (defItem ? defItem.thicknessMm : 10.0);
+        const liftMm = Number.isFinite(Number(item.liftMm)) ? Number(Number(item.liftMm).toFixed(1)) : (defItem ? defItem.liftMm : Number((thicknessMm * (end === 'FRONT' ? 1.7 : 1.3)).toFixed(1)));
+        const motionRatio = typeof item.motionRatio === 'string' && item.motionRatio.trim() ? item.motionRatio.trim() : (defItem ? defItem.motionRatio : '1.3x trailing arm');
+        const status = typeof item.status === 'string' && item.status.trim() ? item.status.trim() : (defItem ? defItem.status : 'LEGAL SOLO');
+        const statusLevel = item.statusLevel || (defItem ? defItem.statusLevel : 'safe');
+        const statusType = item.statusType || (defItem ? defItem.statusType : (statusLevel === 'danger' ? 'danger' : statusLevel === 'warn' ? 'warn' : 'legal'));
         return {
           id: defItem ? defItem.id : id,
           code: defItem ? defItem.code : String(item.code || id).trim(),
           name: typeof item.name === 'string' && item.name.trim() ? item.name.trim() : (defItem ? defItem.name : id),
-          end: item.end === 'FRONT' || item.end === 'F' ? 'FRONT' : (defItem ? defItem.end : 'REAR'),
+          end,
           qty: Number.isFinite(Number(item.qty)) ? Math.max(0, Math.round(Number(item.qty))) : (defItem ? defItem.qty : 2),
-          thicknessMm: Number.isFinite(Number(item.thicknessMm)) ? Number(Number(item.thicknessMm).toFixed(2)) : (defItem ? defItem.thicknessMm : 10.0),
-          liftMm: Number.isFinite(Number(item.liftMm)) ? Number(Number(item.liftMm).toFixed(1)) : (defItem ? defItem.liftMm : 13.0),
-          motionRatio: typeof item.motionRatio === 'string' && item.motionRatio.trim() ? item.motionRatio.trim() : (defItem ? defItem.motionRatio : '1.3x trailing arm'),
-          status: typeof item.status === 'string' && item.status.trim() ? item.status.trim() : (defItem ? defItem.status : 'LEGAL SOLO'),
-          statusLevel: item.statusLevel || (defItem ? defItem.statusLevel : 'safe'),
-          stackedMm: Number.isFinite(Number(item.stackedMm)) ? Number(Number(item.stackedMm).toFixed(2)) : (defItem ? defItem.stackedMm : 20.0),
+          thicknessMm,
+          liftMm,
+          liftMmEst: typeof item.liftMmEst === 'string' && item.liftMmEst.trim() ? item.liftMmEst.trim() : (defItem ? defItem.liftMmEst : `~${liftMm} mm (${motionRatio})`),
+          liftText: typeof item.liftText === 'string' && item.liftText.trim() ? item.liftText.trim() : (defItem ? defItem.liftText : `~${liftMm} mm (${motionRatio})`),
+          motionRatio,
+          motionRatioNote: typeof item.motionRatioNote === 'string' && item.motionRatioNote.trim() ? item.motionRatioNote.trim() : (defItem ? defItem.motionRatioNote : motionRatio),
+          status,
+          legalityNote: typeof item.legalityNote === 'string' && item.legalityNote.trim() ? item.legalityNote.trim() : (defItem ? defItem.legalityNote : status),
+          statusLevel,
+          statusType,
+          stackedMm: Number.isFinite(Number(item.stackedMm)) ? Number(Number(item.stackedMm).toFixed(2)) : (defItem ? defItem.stackedMm : Number((thicknessMm * 2).toFixed(2))),
           notes: typeof item.notes === 'string' && item.notes.trim() ? item.notes.trim() : (defItem ? defItem.notes : '')
         };
       })
@@ -1993,6 +2030,16 @@
       }
     });
     return out;
+  }
+
+  function ensureSpacerKitState() {
+    if (!state) return createDefaultSpacerKit();
+    if (!Array.isArray(state.spacerKit) || state.spacerKit.length === 0) {
+      state.spacerKit = createDefaultSpacerKit();
+    } else {
+      state.spacerKit = normalizeSpacerKit(state.spacerKit);
+    }
+    return state.spacerKit;
   }
 
   function createLockedCalder2024BaseSession() {
@@ -2155,31 +2202,68 @@
   }
 
   const REAR_WHEEL_CYLINDER_SPECS = {
-    '9/16"': { size: '9/16"', part: 'IBS-P5573', delta: '-58.7%', label: '9/16" (IBS-P5573, -58.7%)' },
-    '11/16"': { size: '11/16"', part: 'P10321', delta: '-38.3%', label: '11/16" (P10321, -38.3%)' },
-    '3/4"': { size: '3/4"', part: 'P7041', delta: '-26.5%', label: '3/4" (P7041, -26.5%)' },
-    '13/16"': { size: '13/16"', part: 'P10138', delta: '-14%', label: '13/16" (P10138, -14%)' },
-    '7/8"': { size: '7/8"', part: 'Std', delta: '0% Baseline', label: '7/8" Std' }
+    '9/16"': { size: '9/16"', part: 'IBS-P5573 / 10138', delta: '-58.7%', forceDelta: '-58.7%', label: '9/16" (IBS-P5573, -58.7%)' },
+    '11/16"': { size: '11/16"', part: 'P10321', delta: '-38.3%', forceDelta: '-38.3%', label: '11/16" (P10321, -38.3%)' },
+    '3/4"': { size: '3/4"', part: 'P7041', delta: '-26.5%', forceDelta: '-26.5%', label: '3/4" (P7041, -26.5%)' },
+    '13/16"': { size: '13/16"', part: 'P10138', delta: '-14%', forceDelta: '-14%', label: '13/16" (P10138, -14%)' },
+    '7/8"': { size: '7/8"', part: 'Std', delta: '0% Baseline', forceDelta: '0% Baseline', label: '7/8" Std' },
+    '7/8" Std': { size: '7/8" Std', part: 'Std', delta: '0% Baseline', forceDelta: '0% Baseline', label: '7/8" Std' }
   };
+
+  function getRearWheelCylinderSpec(sizeRaw) {
+    const key = String(sizeRaw || '').trim();
+    if (REAR_WHEEL_CYLINDER_SPECS[key]) return REAR_WHEEL_CYLINDER_SPECS[key];
+    const matchKey = Object.keys(REAR_WHEEL_CYLINDER_SPECS).find((k) => key.startsWith(k) || k.startsWith(key));
+    return (matchKey && REAR_WHEEL_CYLINDER_SPECS[matchKey]) || REAR_WHEEL_CYLINDER_SPECS['9/16"'];
+  }
+
+  function extractRearCylSizeShort(rawVal) {
+    const s = String(rawVal || '').trim();
+    if (!s || s === 'undefined' || s === 'null') return '9/16"';
+    const m = s.match(/(\d+\/\d+\s*"?)/);
+    if (m) {
+      const token = m[1].replace(/\s+/g, '');
+      return token.endsWith('"') ? token : `${token}"`;
+    }
+    return '9/16"';
+  }
 
   function createDefaultBrakes() {
     return {
+      // Required audited summary fields
+      rearCyl: '9/16" (10138)',
+      rearSetup: '9/16" Wheel Cyl Drums',
+      masterCyl: 'PBR 1" Bore',
+      propValve: 'MACCA Adjustable',
+      frontCalipers: 'PBR LH 9933233 / RH 9933234',
+      frontRotors: 'DBA 4014 (276mm Vent)',
+      frontPads: 'Porterfield R-4',
+      cooling: 'Braided Lines + Under-Bumper Centre-Eye Ducts',
+      // Interactive control & telemetry fields
       masterCylinder: 'PBR Master Vac 25.4mm (1") Firewall (Rule 7.3f)',
-      propValve: 'MACCA Fixed Valve (In Car) — 400F:250R | 1000F:450R',
+      propValveCurve: 'MACCA Fixed Valve (In Car) — 400F:250R | 1000F:450R',
       rearCylinder: '9/16"',
+      rearCylinderSize: '9/16"',
+      rearCylinderPart: 'IBS-P5573',
+      rearForceReduction: '-58.7%',
       calipers: 'PBR Cast Iron LH 9933233 / RH 9933234 (Unmodified • Braided Lines • Zero-Drag SS Piston)',
       rotorModel: 'DBA 4014 (4000 Series HD 276mm Vent)',
       rotorMmFL: 25.4,
       rotorMmFR: 25.4,
+      flRotorMm: 25.4,
+      frRotorMm: 25.4,
+      rotorThicknessMm: { FL: 25.4, FR: 25.4 },
+      frontPad: 'Porterfield R-4 Carbon Kevlar',
       frontPadCompound: 'Porterfield R-4 Carbon Kevlar (~0.50μ • 232–648°C • "30N" Plate)',
       frontDuctSpec: 'Under-Bumper Scoops + Centre-Eye Rotor Ducts',
       frontDuctState: '100% Open',
       rearDrumSpec: 'DBA 257mm (10.12") Cast Iron (Self-Adjusters Removed • Rule 7.2c)',
+      rearShoe: 'Porterfield R-4 Carbon Kevlar Riveted',
       rearShoeCompound: 'Porterfield R-4 Carbon Kevlar Riveted (Short Leading Shoe Forward)',
       rearDuctSpec: 'Meshed Under-Floor Scoops + 40mm Backing-Plate Tubes',
       rearDuctState: '100% Open',
       notes:
-        'PBR 1" Master + MACCA 400:250/1000:450 Prop Valve + 9/16" IBS-P5573 Rear Wheel Cylinders (-58.7% force vs 7/8" std). Porterfield R-4 F&R.'
+        'PBR 1" Master + MACCA 400:250/1000:450 Prop Valve + 9/16" (10138 / IBS-P5573) Rear Wheel Cylinders (-58.7% force vs 7/8" std). Porterfield R-4 F&R.'
     };
   }
 
@@ -2191,62 +2275,97 @@
       const n = Number(v);
       return Number.isFinite(n) && n >= 18.0 && n <= 28.0 ? Number(n.toFixed(1)) : fb;
     };
-    const validCyls = Object.keys(REAR_WHEEL_CYLINDER_SPECS);
+    const pickCleanStr = (v, fb) => {
+      if (typeof v !== 'string') return fb;
+      const t = v.trim();
+      if (!t || t === 'undefined' || t === 'null' || /undefined/i.test(t)) return fb;
+      return t;
+    };
     const validDucts = ['100% Open', '50% Taped', '100% Taped'];
-    const rawCyl = String(raw.rearCylinder || '').trim();
-    const rearCylinder = validCyls.includes(rawCyl) ? rawCyl : def.rearCylinder;
+    const rawCylCandidate = pickCleanStr(
+      raw.rearCylinderSize || raw.rearCylinder || raw.rearCyl,
+      def.rearCylinder
+    );
+    const shortCyl = extractRearCylSizeShort(rawCylCandidate);
+    const cylSpec = getRearWheelCylinderSpec(shortCyl);
+    const rearCylinder = cylSpec.size;
+    const rearCylinderSize = cylSpec.size === '7/8" Std' ? '7/8"' : cylSpec.size;
+
     const rawFDuct = String(raw.frontDuctState || '').trim();
     const frontDuctState = validDucts.includes(rawFDuct) ? rawFDuct : def.frontDuctState;
     const rawRDuct = String(raw.rearDuctState || '').trim();
     const rearDuctState = validDucts.includes(rawRDuct) ? rawRDuct : def.rearDuctState;
+
+    const rtObj = raw.rotorThicknessMm && typeof raw.rotorThicknessMm === 'object' ? raw.rotorThicknessMm : {};
+    const flRotorMm = pickRotorMm(raw.flRotorMm ?? raw.rotorMmFL ?? rtObj.FL, def.flRotorMm);
+    const frRotorMm = pickRotorMm(raw.frRotorMm ?? raw.rotorMmFR ?? rtObj.FR, def.frRotorMm);
+
+    const frontPadCompound = pickCleanStr(
+      raw.frontPadCompound || raw.frontPad || raw.frontPads || raw.padCompound,
+      def.frontPadCompound
+    );
+    const frontPad = /bendix/i.test(frontPadCompound)
+      ? 'Bendix Ultimate'
+      : 'Porterfield R-4 Carbon Kevlar';
+    const frontPads = pickCleanStr(
+      raw.frontPads,
+      /bendix/i.test(frontPadCompound) ? 'Bendix Ultimate' : 'Porterfield R-4'
+    );
+
+    const rearShoeCompound = pickCleanStr(
+      raw.rearShoeCompound || raw.rearShoe,
+      def.rearShoeCompound
+    );
+    const rearShoe = /r4-?s/i.test(rearShoeCompound)
+      ? 'Porterfield R4-S'
+      : 'Porterfield R-4 Carbon Kevlar Riveted';
+
+    const rearCyl = pickCleanStr(
+      raw.rearCyl,
+      rearCylinderSize === '9/16"' ? '9/16" (10138)' : `${rearCylinderSize} (${cylSpec.part})`
+    );
+    const rearSetup = pickCleanStr(
+      raw.rearSetup,
+      `${rearCylinderSize} Wheel Cyl Drums`
+    );
+    const masterCyl = pickCleanStr(raw.masterCyl, def.masterCyl);
+    const propValve = pickCleanStr(raw.propValve, def.propValve);
+    const frontCalipers = pickCleanStr(raw.frontCalipers, def.frontCalipers);
+    const frontRotors = pickCleanStr(raw.frontRotors, def.frontRotors);
+    const cooling = pickCleanStr(raw.cooling, def.cooling);
+
     return {
-      masterCylinder:
-        typeof raw.masterCylinder === 'string' && raw.masterCylinder.trim()
-          ? raw.masterCylinder.trim()
-          : def.masterCylinder,
-      propValve:
-        typeof raw.propValve === 'string' && raw.propValve.trim()
-          ? raw.propValve.trim()
-          : def.propValve,
+      rearCyl,
+      rearSetup,
+      masterCyl,
+      propValve,
+      frontCalipers,
+      frontRotors,
+      frontPads,
+      cooling,
+      masterCylinder: pickCleanStr(raw.masterCylinder, def.masterCylinder),
+      propValveCurve: pickCleanStr(raw.propValveCurve || raw.propValve, def.propValveCurve),
       rearCylinder,
-      calipers:
-        typeof raw.calipers === 'string' && raw.calipers.trim()
-          ? raw.calipers.trim()
-          : def.calipers,
-      rotorModel:
-        typeof raw.rotorModel === 'string' && raw.rotorModel.trim()
-          ? raw.rotorModel.trim()
-          : def.rotorModel,
-      rotorMmFL: pickRotorMm(raw.rotorMmFL, def.rotorMmFL),
-      rotorMmFR: pickRotorMm(raw.rotorMmFR, def.rotorMmFR),
-      frontPadCompound:
-        typeof raw.frontPadCompound === 'string' && raw.frontPadCompound.trim()
-          ? raw.frontPadCompound.trim()
-          : typeof raw.padCompound === 'string' && raw.padCompound.trim()
-          ? raw.padCompound.trim()
-          : def.frontPadCompound,
-      frontDuctSpec:
-        typeof raw.frontDuctSpec === 'string' && raw.frontDuctSpec.trim()
-          ? raw.frontDuctSpec.trim()
-          : def.frontDuctSpec,
+      rearCylinderSize,
+      rearCylinderPart: pickCleanStr(raw.rearCylinderPart, cylSpec.part),
+      rearForceReduction: pickCleanStr(raw.rearForceReduction, cylSpec.delta),
+      calipers: pickCleanStr(raw.calipers, def.calipers),
+      rotorModel: pickCleanStr(raw.rotorModel, def.rotorModel),
+      rotorMmFL: flRotorMm,
+      rotorMmFR: frRotorMm,
+      flRotorMm,
+      frRotorMm,
+      rotorThicknessMm: { FL: flRotorMm, FR: frRotorMm },
+      frontPad,
+      frontPadCompound,
+      frontDuctSpec: pickCleanStr(raw.frontDuctSpec, def.frontDuctSpec),
       frontDuctState,
-      rearDrumSpec:
-        typeof raw.rearDrumSpec === 'string' && raw.rearDrumSpec.trim()
-          ? raw.rearDrumSpec.trim()
-          : def.rearDrumSpec,
-      rearShoeCompound:
-        typeof raw.rearShoeCompound === 'string' && raw.rearShoeCompound.trim()
-          ? raw.rearShoeCompound.trim()
-          : def.rearShoeCompound,
-      rearDuctSpec:
-        typeof raw.rearDuctSpec === 'string' && raw.rearDuctSpec.trim()
-          ? raw.rearDuctSpec.trim()
-          : def.rearDuctSpec,
+      rearDrumSpec: pickCleanStr(raw.rearDrumSpec, def.rearDrumSpec),
+      rearShoe,
+      rearShoeCompound,
+      rearDuctSpec: pickCleanStr(raw.rearDuctSpec, def.rearDuctSpec),
       rearDuctState,
-      notes:
-        typeof raw.notes === 'string' && raw.notes.trim()
-          ? raw.notes.trim()
-          : def.notes
+      notes: pickCleanStr(raw.notes, def.notes)
     };
   }
 
@@ -2282,22 +2401,29 @@
 
   /**
    * AI Brake Cooling & Bias Diagnostics:
-   * Evaluates logged corner brake temps (FL/FR Rotor °C, RL/RR Drum °C), Brake Bias tag, and active Brakes hardware
-   * (Porterfield R-4 vs R4-S / Bendix Ultimate, 9/16" IBS-P5573 rear cylinders, front/rear ducting state).
+   * Evaluates logged corner brake temps (FL/FR Rotor °C, RL/RR Drum °C), Brake Bias tag, and active Brakes hardware.
+   * Supports both positional `(rawTemps, rawBiasTag, rawBrakesSnap)` and object `({ brakeTemps, brakeBiasTag, brakes })` calls.
    */
-  function evaluateSessionBrakeDiagnostics(rawTemps, rawBiasTag, rawBrakesSnap) {
+  function evaluateSessionBrakeDiagnostics(arg1, rawBiasTag, rawBrakesSnap) {
+    let rawTemps = arg1;
+    let biasArg = rawBiasTag;
+    let brakesArg = rawBrakesSnap;
+    if (arg1 && typeof arg1 === 'object' && ('brakeTemps' in arg1 || 'brakeBiasTag' in arg1 || 'brakes' in arg1)) {
+      rawTemps = arg1.brakeTemps;
+      biasArg = arg1.brakeBiasTag;
+      brakesArg = arg1.brakes;
+    }
     const bt = normalizeBrakeTemps(rawTemps);
-    const biasTag = normalizeBrakeBiasTag(rawBiasTag);
-    const br = normalizeBrakes(rawBrakesSnap || (typeof state !== 'undefined' && state ? state.brakes : null));
+    const biasTag = normalizeBrakeBiasTag(biasArg);
+    const br = normalizeBrakes(brakesArg || (typeof state !== 'undefined' && state ? state.brakes : null));
     const hasTemps = hasAnyBrakeTemps(bt);
     if (!hasTemps && !biasTag) {
-      return { hasData: false, tone: 'ok', text: '', lines: [] };
+      return { hasData: false, tone: 'ok', text: '', lines: [], headline: '', action: '' };
     }
 
     const frontVals = [bt.FL, bt.FR].filter((v) => v !== null && Number.isFinite(Number(v)));
     const rearVals = [bt.RL, bt.RR].filter((v) => v !== null && Number.isFinite(Number(v)));
     const maxFront = frontVals.length > 0 ? Math.max(...frontVals) : null;
-    const minFront = frontVals.length > 0 ? Math.min(...frontVals) : null;
     const avgFront = frontVals.length > 0 ? frontVals.reduce((a, b) => a + b, 0) / frontVals.length : null;
     const maxRear = rearVals.length > 0 ? Math.max(...rearVals) : null;
 
@@ -2348,9 +2474,10 @@
       }
       const rTempStr =
         maxRear !== null ? `RL/RR Drums ${bt.RL ?? '—'}/${bt.RR ?? '—'}°C (>230°C)` : 'Rear Lock Tagged';
+      const cylSpec = getRearWheelCylinderSpec(br.rearCylinderSize || br.rearCylinder);
       const compoundStep = isRearR4Full
         ? 'step rear shoes from Porterfield R-4 to R4-S'
-        : `verify ${br.rearCylinder} rear cylinder (${(REAR_WHEEL_CYLINDER_SPECS[br.rearCylinder] && REAR_WHEEL_CYLINDER_SPECS[br.rearCylinder].delta) || '-58.7%'})`;
+        : `verify ${br.rearCylinderSize} rear cylinder (${cylSpec.delta || '-58.7%'})`;
       diagParts.push(
         `⚠️ REAR THERMAL / BIAS SATURATION (${rTempStr}): Keep rear under-floor scoops 100% Open, verify star-wheel shoe clearance (Rule 7.2c zero drag), or ${compoundStep}.`
       );
@@ -2366,15 +2493,22 @@
       const biasSummary = biasTag ? `Bias: ${biasTag}` : '';
       const combined = [fSummary, rSummary, biasSummary].filter(Boolean).join(' • ');
       diagParts.push(
-        `✓ BRAKE THERMAL & BIAS WINDOW OPTIMAL (${combined}): Keep Front ${br.frontDuctState} / Rear ${br.rearDuctState} & ${br.rearCylinder} rear cylinders.`
+        `✓ BRAKE THERMAL & BIAS WINDOW OPTIMAL (${combined}): Keep Front ${br.frontDuctState} / Rear ${br.rearDuctState} & ${br.rearCylinderSize} rear cylinders.`
       );
     }
+
+    const firstLine = diagParts[0] || '';
+    const colonIdx = firstLine.indexOf(':');
+    const headline = colonIdx > 0 ? firstLine.slice(0, colonIdx).trim() : 'BRAKE THERMAL & BIAS DIAGNOSTIC';
+    const action = colonIdx > 0 ? firstLine.slice(colonIdx + 1).trim() : firstLine;
 
     return {
       hasData: true,
       tone,
       lines: diagParts,
-      text: diagParts.join(' | ')
+      text: diagParts.join(' | '),
+      headline,
+      action
     };
   }
 
@@ -3155,6 +3289,8 @@
     const needsCarbyJetAuditV1 = !candidate.carbyJetAuditV1;
     const needsManifoldAudit2012V2 = !candidate.manifoldAudit2012V2;
     const needsJetLocationsV1 = !candidate.jetLocationsV1;
+    const needsManifoldActiveF_V1 = !candidate.manifoldActiveF_V1;
+    const needsFuelSystemAuditV2 = !candidate.fuelSystemAuditV2;
 
     // 1) Hydrate & Migrate Pure "mm" 11-Slot Tactix Drill-Gauge Matrix + Spare 1.90 mm (In DME #2)
     if (needsCarbyJetAuditV1 || !Array.isArray(candidate.jets) || candidate.jets.length === 0) {
@@ -3465,7 +3601,7 @@
     }
 
     // 4) Hydrate In-Car Fuel System Hardware Profile (4.3 psi Baseline + Speco HQ900AL Induction Spec)
-    if (needsCarbyJetAuditV1 || !candidate.fuelSystem || typeof candidate.fuelSystem !== 'object') {
+    if (needsFuelSystemAuditV2 || needsCarbyJetAuditV1 || !candidate.fuelSystem || typeof candidate.fuelSystem !== 'object') {
       candidate.fuelSystem = { ...defaultFuelSystem };
     } else {
       const fs = candidate.fuelSystem;
@@ -3484,11 +3620,11 @@
       };
     }
 
-    // 5) Hydrate Audited 2825951 Inlet Manifolds: B (ON CAR), D, F, G (TRAILER SPARE), H ONLY
+    // 5) Hydrate Audited 2825951 Inlet Manifolds: B (#71), D, F (ON CAR), G (TRAILER SPARE), H
     const defManifolds = createDefaultManifolds();
     if (needsManifoldAudit2012V2 || !Array.isArray(candidate.manifolds) || candidate.manifolds.length === 0) {
       candidate.manifolds = defManifolds.map((dm) => ({ ...dm }));
-      candidate.activeManifoldId = 'MAN_B';
+      candidate.activeManifoldId = 'MAN_F';
     } else {
       const forbiddenLegacyIds = new Set(['macca', 'snb', 'man_a', 'man_c', 'man_e', 'manifold a', 'manifold c', 'manifold e']);
       const seenManIds = new Set();
@@ -3505,26 +3641,26 @@
             ? Number(Number(m.cfmFront).toFixed(1))
             : Number.isFinite(Number(pf.front))
             ? Number(Number(pf.front).toFixed(1))
-            : (defM ? defM.frontCfm : 167.4);
+            : (defM ? defM.frontCfm : 155.5);
           const midCfm = Number.isFinite(Number(m.midCfm))
             ? Number(Number(m.midCfm).toFixed(1))
             : Number.isFinite(Number(m.cfmMiddle))
             ? Number(Number(m.cfmMiddle).toFixed(1))
             : Number.isFinite(Number(pf.middle))
             ? Number(Number(pf.middle).toFixed(1))
-            : (defM ? defM.midCfm : 186.8);
+            : (defM ? defM.midCfm : 183.8);
           const rearCfm = Number.isFinite(Number(m.rearCfm))
             ? Number(Number(m.rearCfm).toFixed(1))
             : Number.isFinite(Number(m.cfmRear))
             ? Number(Number(m.cfmRear).toFixed(1))
             : Number.isFinite(Number(pf.rear))
             ? Number(Number(pf.rear).toFixed(1))
-            : (defM ? defM.rearCfm : 171.9);
+            : (defM ? defM.rearCfm : 155.3);
           const totalCfm = Number((frontCfm + midCfm + rearCfm).toFixed(1));
           return {
             id: defM ? defM.id : id,
             name,
-            casting: typeof m.casting === 'string' && m.casting.trim() ? m.casting.trim() : (defM ? defM.casting : '2825951 88/4'),
+            casting: typeof m.casting === 'string' && m.casting.trim() ? m.casting.trim() : (defM ? defM.casting : '2825951 88-4'),
             testDate: typeof m.testDate === 'string' && m.testDate.trim() ? m.testDate.trim() : (defM ? defM.testDate : '2012-12-29'),
             frontCfm,
             midCfm,
@@ -3533,7 +3669,7 @@
             portFlowCfm: { front: frontCfm, middle: midCfm, rear: rearCfm },
             gasketStack: typeof m.gasketStack === 'string' && m.gasketStack.trim() ? m.gasketStack.trim() : (defM ? defM.gasketStack : 'Standard'),
             onCar: Boolean(m.onCar),
-            notes: typeof m.notes === 'string' && m.notes.trim() ? m.notes.trim() : (defM ? defM.notes : '')
+            notes: (needsManifoldActiveF_V1 && defM) ? defM.notes : (typeof m.notes === 'string' && m.notes.trim() ? m.notes.trim() : (defM ? defM.notes : ''))
           };
         })
         .filter((m) => {
@@ -3548,12 +3684,15 @@
         }
       });
     }
+    if (needsManifoldActiveF_V1) {
+      candidate.activeManifoldId = 'MAN_F';
+    }
     const activeManifold =
       candidate.manifolds.find((m) => m.id === candidate.activeManifoldId) ||
       candidate.manifolds.find((m) => m.onCar) ||
-      candidate.manifolds.find((m) => m.id === 'MAN_B') ||
+      candidate.manifolds.find((m) => m.id === 'MAN_F') ||
       candidate.manifolds[0];
-    candidate.activeManifoldId = activeManifold ? activeManifold.id : 'MAN_B';
+    candidate.activeManifoldId = activeManifold ? activeManifold.id : 'MAN_F';
     candidate.manifolds.forEach((m) => {
       m.onCar = m.id === candidate.activeManifoldId;
     });
@@ -3856,7 +3995,8 @@
       candidate.peddersDynoAuditV1 = true;
     }
 
-    // Safely backfill Car #77 default active rear spacers (RL: 0mm, RR: 20mm), cornerWeights, and brakes without touching existing logs
+    // Safely backfill Car #77 default active rear spacers (RL: 0mm, RR: 20mm), spacerKit, cornerWeights, and brakes without touching existing logs
+    candidate.spacerKit = normalizeSpacerKit(candidate.spacerKit);
     candidate.mountedSpacers = normalizeRearSpacersMap(candidate.mountedSpacers, DEFAULT_MOUNTED_SPACERS);
     const normalizedCw = normalizeCornerWeightBaseline(candidate.cornerWeights || candidate.cornerWeightBaseline);
     candidate.cornerWeights = normalizedCw;
@@ -3959,8 +4099,8 @@
     b.jetId = matchedBaseJet ? matchedBaseJet.id : makeMmJetId(b.jetMm);
     b.emulsionId = b.emulsionId || (b.carbyId === 'DME1' ? 'E5_DME' : 'TBD');
     b.fuelPsi = Number.isFinite(Number(b.fuelPsi)) && Number(b.fuelPsi) > 0 ? Number(Number(b.fuelPsi).toFixed(1)) : 4.3;
-    if (!b.manifoldId) {
-      b.manifoldId = candidate.activeManifoldId || 'Macca';
+    if (!b.manifoldId || needsManifoldActiveF_V1) {
+      b.manifoldId = candidate.activeManifoldId || 'MAN_F';
     }
     if (!b.exhaustId) {
       b.exhaustId = candidate.activeExhaustId || 'Macca';
@@ -4609,6 +4749,9 @@
 
     candidate.carbyJetAuditV1 = true;
     candidate.manifoldAudit2012V2 = true;
+    candidate.manifoldActiveF_V1 = true;
+    candidate.fuelSystemAuditV2 = true;
+    candidate.brakesAuditV2 = true;
     candidate.jetLocationsV1 = true;
     return candidate;
   }
@@ -4628,7 +4771,7 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed && parsed.baseline && Array.isArray(parsed.jets)) {
+        if (parsed && typeof parsed === 'object') {
           return hydrateState(parsed);
         }
       }
@@ -4643,6 +4786,9 @@
       peddersDynoAuditV1: true,
       carbyJetAuditV1: true,
       manifoldAudit2012V2: true,
+      manifoldActiveF_V1: true,
+      fuelSystemAuditV2: true,
+      brakesAuditV2: true,
       jetLocationsV1: true,
       activeEventId: null,
       activeSessionId: null,
@@ -4665,7 +4811,7 @@
       mountedSpacers: { ...DEFAULT_MOUNTED_SPACERS },
       cornerWeights: createDefaultCornerWeightBaseline(),
       cornerWeightBaseline: createDefaultCornerWeightBaseline(),
-      activeManifoldId: 'MAN_B',
+      activeManifoldId: 'MAN_F',
       activeExhaustId: 'Macca',
       brakes: createDefaultBrakes(),
       tyrePool: createDefaultTyrePool(),
@@ -4676,7 +4822,7 @@
   }
 
   let state = loadState();
-  // Persist the one-time seedInitializedV1 / eventArchitectureV1 / suspensionSeededV1 / peddersDynoAuditV1 / carbyJetAuditV1 / manifoldAudit2012V2 / jetLocationsV1 / spacerKitSeededV1 / calder2024CwSeededV1 migration immediately
+  // Persist the one-time seedInitializedV1 / eventArchitectureV1 / suspensionSeededV1 / peddersDynoAuditV1 / carbyJetAuditV1 / manifoldAudit2012V2 / manifoldActiveF_V1 / fuelSystemAuditV2 / brakesAuditV2 / jetLocationsV1 / spacerKitSeededV1 / calder2024CwSeededV1 migration immediately
   try {
     state.seedInitializedV1 = true;
     state.peddersDynoAuditV1 = true;
@@ -4684,6 +4830,9 @@
     state.spacerKitSeededV1 = true;
     state.calder2024CwSeededV1 = true;
     state.manifoldAudit2012V2 = true;
+    state.manifoldActiveF_V1 = true;
+    state.fuelSystemAuditV2 = true;
+    state.brakesAuditV2 = true;
     state.jetLocationsV1 = true;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (_) {}
@@ -4731,7 +4880,7 @@
         ? state.baseline.emulsionId
         : 'E5_DME',
     selectedFleetBrassId: 'idle_69',
-    selectedFleetManifoldId: state.activeManifoldId || 'MAN_B',
+    selectedFleetManifoldId: state.activeManifoldId || 'MAN_F',
     selectedFleetExhaustId: state.activeExhaustId || 'Macca',
     selectedFleetShockId: (state.mountedShocks && state.mountedShocks.FL) || 'shk_F14',
     selectedFleetSpringId: (state.mountedSprings && state.mountedSprings.FL) || 'spr_F11',
@@ -4743,6 +4892,9 @@
     state.peddersDynoAuditV1 = true;
     state.carbyJetAuditV1 = true;
     state.manifoldAudit2012V2 = true;
+    state.manifoldActiveF_V1 = true;
+    state.fuelSystemAuditV2 = true;
+    state.brakesAuditV2 = true;
     state.jetLocationsV1 = true;
     syncFlatSessionsFromEvents(state);
     try {
@@ -5406,7 +5558,7 @@
 
     const calcManSel = $('selectCalcManifold');
     if (calcManSel && Array.isArray(state.manifolds)) {
-      const activeManId = state.activeManifoldId || 'MAN_B';
+      const activeManId = state.activeManifoldId || 'MAN_F';
       calcManSel.innerHTML = state.manifolds
         .map((m) => {
           const onCarTag = m.id === activeManId ? ' ★ ON CAR' : '';
@@ -9944,6 +10096,7 @@
       const secId = headerBtn ? headerBtn.getAttribute('data-fleet-acc') : null;
       const isOpen = Boolean(secId && secId === openId);
       card.classList.toggle('is-open', isOpen);
+      card.classList.toggle('open', isOpen);
       if (headerBtn) {
         headerBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
       }
@@ -10636,16 +10789,17 @@
 
   function getActiveBrakesSnapshot() {
     const br = ensureBrakesState();
+    const rearCylShort = br.rearCylinderSize || extractRearCylSizeShort(br.rearCyl || br.rearCylinder) || '9/16"';
     return {
-      padCompound: br.frontPadCompound || 'Porterfield R-4',
+      padCompound: br.frontPadCompound || br.frontPads || 'Porterfield R-4',
       rearShoeCompound: br.rearShoeCompound || 'Porterfield R-4',
-      rearCylinder: br.rearCylinderSize || '9/16"',
-      propValve: br.propValve || 'MACCA',
+      rearCylinder: rearCylShort,
+      propValve: br.propValve || 'MACCA Adjustable',
       frontDuctState: br.frontDuctState || '100% Open',
       rearDuctState: br.rearDuctState || '100% Open',
       ductState: `F: ${br.frontDuctState || '100% Open'} / R: ${br.rearDuctState || '100% Open'}`,
-      flRotorMm: Number(br.flRotorMm ?? 25.4),
-      frRotorMm: Number(br.frRotorMm ?? 25.4)
+      flRotorMm: Number(br.flRotorMm ?? br.rotorMmFL ?? 25.4),
+      frRotorMm: Number(br.frRotorMm ?? br.rotorMmFR ?? 25.4)
     };
   }
 
@@ -10675,18 +10829,44 @@
   function hydrateBrakesFleetInputs() {
     const br = ensureBrakesState();
     const propSel = $('selectBrakesPropValve');
-    if (propSel) propSel.value = br.propValve || 'MACCA';
+    if (propSel) {
+      const targetCurve = br.propValveCurve || br.propValve || '';
+      const hasOpt = Array.from(propSel.options).some((o) => o.value === targetCurve);
+      if (hasOpt) {
+        propSel.value = targetCurve;
+      } else if (/dart/i.test(targetCurve) && propSel.options.length > 1) {
+        propSel.selectedIndex = 1;
+      } else if (/no-?spring/i.test(targetCurve) && propSel.options.length > 2) {
+        propSel.selectedIndex = 2;
+      } else if (propSel.options.length > 0) {
+        propSel.selectedIndex = 0;
+      }
+    }
     const frontPadSel = $('selectBrakesFrontPad');
-    if (frontPadSel) frontPadSel.value = br.frontPadCompound || 'Porterfield R-4';
+    if (frontPadSel) {
+      frontPadSel.value = /bendix/i.test(br.frontPadCompound || br.frontPads)
+        ? 'Bendix Ultimate'
+        : 'Porterfield R-4 Carbon Kevlar';
+      if (frontPadSel.selectedIndex < 0 && frontPadSel.options.length > 0) {
+        frontPadSel.selectedIndex = 0;
+      }
+    }
     const rearShoeSel = $('selectBrakesRearShoe');
-    if (rearShoeSel) rearShoeSel.value = br.rearShoeCompound || 'Porterfield R-4';
+    if (rearShoeSel) {
+      rearShoeSel.value = /r4-?s/i.test(br.rearShoeCompound || br.rearShoe)
+        ? 'Porterfield R4-S'
+        : 'Porterfield R-4 Carbon Kevlar Riveted';
+      if (rearShoeSel.selectedIndex < 0 && rearShoeSel.options.length > 0) {
+        rearShoeSel.selectedIndex = 0;
+      }
+    }
     const flEl = $('inputRotorMm_FL');
     if (flEl && document.activeElement !== flEl) {
-      flEl.value = Number(br.flRotorMm ?? 25.4).toFixed(1);
+      flEl.value = Number(br.flRotorMm ?? br.rotorMmFL ?? 25.4).toFixed(1);
     }
     const frEl = $('inputRotorMm_FR');
     if (frEl && document.activeElement !== frEl) {
-      frEl.value = Number(br.frRotorMm ?? 25.4).toFixed(1);
+      frEl.value = Number(br.frRotorMm ?? br.rotorMmFR ?? 25.4).toFixed(1);
     }
     const notesEl = $('inputBrakesNotes');
     if (notesEl && document.activeElement !== notesEl) {
@@ -10698,10 +10878,11 @@
     const br = ensureBrakesState();
     hydrateBrakesFleetInputs();
 
-    const shortPad = /bendix/i.test(br.frontPadCompound) ? 'BENDIX' : 'R4';
+    const rearCylDisp = br.rearCylinderSize || extractRearCylSizeShort(br.rearCyl || br.rearCylinder) || '9/16"';
+    const shortPad = /bendix/i.test(br.frontPadCompound || br.frontPads) ? 'BENDIX' : 'R4';
     const sumBadge = $('fleetBrakesSummaryBadge');
     if (sumBadge) {
-      sumBadge.textContent = `PBR + ${shortPad} • ${br.rearCylinderSize} REAR`;
+      sumBadge.textContent = `PBR + ${shortPad} • ${rearCylDisp} REAR`;
     }
     const cntBadge = $('fleetBrakesCountBadge');
     if (cntBadge) {
@@ -10709,18 +10890,76 @@
       cntBadge.textContent = minRotor <= 22.3 ? '⚠️ ROTOR MIN' : minRotor <= 22.8 ? 'CHECK ROTOR' : 'SPEC SHEET';
     }
 
-    const cylSpec =
-      REAR_WHEEL_CYLINDER_SPECS.find((item) => item.size === br.rearCylinderSize) ||
-      REAR_WHEEL_CYLINDER_SPECS[0];
-    const cylHintEl = $('outRearCylPartHint');
+    const containerEl = $('brakesFleetContainer');
+    if (containerEl) {
+      containerEl.innerHTML = `
+        <div class="carby-card brakes-spec-card" style="margin-bottom: 0;">
+          <div class="session-head" style="margin-bottom: 10px;">
+            <div>
+              <div class="session-title-line">HQ 202 Group 3H Audited Brake Spec</div>
+              <div class="session-meta-line">${escapeHtml(br.masterCyl)} &bull; ${escapeHtml(br.propValve)} &bull; ${escapeHtml(br.rearCyl)}</div>
+            </div>
+            <span class="active-carby-badge">&#9733; ON CAR #77</span>
+          </div>
+
+          <div class="carby-teardown-grid" style="margin-bottom: 10px;">
+            <div class="carby-teardown-cell">
+              <span class="carby-teardown-label">Master Cylinder</span>
+              <span class="carby-teardown-val txt-emerald">${escapeHtml(br.masterCyl)}</span>
+            </div>
+            <div class="carby-teardown-cell">
+              <span class="carby-teardown-label">Proportioning Valve</span>
+              <span class="carby-teardown-val txt-amber">${escapeHtml(br.propValve)}</span>
+            </div>
+            <div class="carby-teardown-cell">
+              <span class="carby-teardown-label">Front Calipers</span>
+              <span class="carby-teardown-val">${escapeHtml(br.frontCalipers)}</span>
+            </div>
+            <div class="carby-teardown-cell">
+              <span class="carby-teardown-label">Front Rotors</span>
+              <span class="carby-teardown-val">${escapeHtml(br.frontRotors)} (FL ${Number(br.flRotorMm || 25.4).toFixed(1)} / FR ${Number(br.frRotorMm || 25.4).toFixed(1)} mm)</span>
+            </div>
+            <div class="carby-teardown-cell">
+              <span class="carby-teardown-label">Front Pads</span>
+              <span class="carby-teardown-val txt-emerald">${escapeHtml(br.frontPads)}</span>
+            </div>
+            <div class="carby-teardown-cell">
+              <span class="carby-teardown-label">Rear Wheel Cylinders</span>
+              <span class="carby-teardown-val txt-amber">${escapeHtml(br.rearCyl)}</span>
+            </div>
+            <div class="carby-teardown-cell">
+              <span class="carby-teardown-label">Rear Drum Setup</span>
+              <span class="carby-teardown-val">${escapeHtml(br.rearSetup)}</span>
+            </div>
+            <div class="carby-teardown-cell">
+              <span class="carby-teardown-label">Cooling &amp; Lines</span>
+              <span class="carby-teardown-val">${escapeHtml(br.cooling)}</span>
+            </div>
+          </div>
+
+          <div class="carby-card-actions">
+            <button type="button" class="btn btn-ghost" id="btnEditBrakesSpec" data-edit-brakes="1">
+              Edit Brake Spec
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    const cylSpec = getRearWheelCylinderSpec(rearCylDisp);
+    const cylHintEl = $('outBrakesRearCylHint') || $('outRearCylPartHint');
     if (cylHintEl && cylSpec) {
-      cylHintEl.textContent = `${cylSpec.size} (${cylSpec.part}, ${cylSpec.forceDelta} Force vs 7/8" Std) • ${cylSpec.note}`;
+      cylHintEl.textContent = `Active: ${cylSpec.size} (${cylSpec.part}, ${cylSpec.forceDelta || cylSpec.delta})`;
       cylHintEl.className = cylSpec.size === '9/16"' || cylSpec.size === '11/16"' ? 'field-hint emerald' : 'field-hint amber';
+    }
+    const forceBadgeEl = $('outBrakesRearCylForceBadge');
+    if (forceBadgeEl && cylSpec) {
+      forceBadgeEl.textContent = `${cylSpec.size} (${cylSpec.forceDelta || cylSpec.delta} Rear Force)`;
     }
 
     document.querySelectorAll('[data-rear-cylinder]').forEach((btn) => {
       const sz = btn.getAttribute('data-rear-cylinder');
-      const active = sz === br.rearCylinderSize;
+      const active = sz === br.rearCylinder || sz === rearCylDisp || (rearCylDisp === '7/8"' && sz === '7/8" Std');
       btn.classList.toggle('active', active);
       btn.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
@@ -10731,6 +10970,10 @@
       btn.classList.toggle('active', active);
       btn.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
+    const fDuctHint = $('outFrontDuctStateHint');
+    if (fDuctHint) {
+      fDuctHint.textContent = br.frontDuctState || '100% Open';
+    }
 
     document.querySelectorAll('[data-rear-duct]').forEach((btn) => {
       const st = btn.getAttribute('data-rear-duct');
@@ -10738,6 +10981,10 @@
       btn.classList.toggle('active', active);
       btn.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
+    const rDuctHint = $('outRearDuctStateHint');
+    if (rDuctHint) {
+      rDuctHint.textContent = br.rearDuctState || '100% Open';
+    }
 
     const flStatus = formatRotorThicknessStatus(br.flRotorMm);
     const frStatus = formatRotorThicknessStatus(br.frRotorMm);
@@ -10751,6 +10998,54 @@
       frOut.textContent = frStatus.text;
       frOut.className = frStatus.className;
     }
+    const overallRotorBadge = $('outBrakesFrontRotorOverallBadge');
+    if (overallRotorBadge) {
+      const minR = Math.min(Number(br.flRotorMm || 25.4), Number(br.frRotorMm || 25.4));
+      overallRotorBadge.textContent = `${Number(br.flRotorMm || 25.4).toFixed(1)} / ${Number(br.frRotorMm || 25.4).toFixed(1)} mm ${minR <= 22.3 ? 'MIN!' : 'OK'}`;
+    }
+  }
+
+  function openEditBrakesModal() {
+    const br = ensureBrakesState();
+    if ($('editBrakesMasterCyl')) $('editBrakesMasterCyl').value = br.masterCyl || 'PBR 1" Bore';
+    if ($('editBrakesPropValve')) $('editBrakesPropValve').value = br.propValve || 'MACCA Adjustable';
+    if ($('editBrakesFrontCalipers')) $('editBrakesFrontCalipers').value = br.frontCalipers || 'PBR LH 9933233 / RH 9933234';
+    if ($('editBrakesFrontRotors')) $('editBrakesFrontRotors').value = br.frontRotors || 'DBA 4014 (276mm Vent)';
+    if ($('editBrakesFrontPads')) $('editBrakesFrontPads').value = br.frontPads || 'Porterfield R-4';
+    if ($('editBrakesRearCyl')) $('editBrakesRearCyl').value = br.rearCyl || '9/16" (10138)';
+    if ($('editBrakesRearSetup')) $('editBrakesRearSetup').value = br.rearSetup || '9/16" Wheel Cyl Drums';
+    if ($('editBrakesCooling')) $('editBrakesCooling').value = br.cooling || 'Braided Lines + Under-Bumper Centre-Eye Ducts';
+    openModal('modalEditBrakes');
+  }
+
+  function saveEditBrakesModal() {
+    const br = ensureBrakesState();
+    const pick = (id, fb) => {
+      const el = $(id);
+      return el && el.value.trim() ? el.value.trim() : fb;
+    };
+    br.masterCyl = pick('editBrakesMasterCyl', br.masterCyl);
+    br.propValve = pick('editBrakesPropValve', br.propValve);
+    br.frontCalipers = pick('editBrakesFrontCalipers', br.frontCalipers);
+    br.frontRotors = pick('editBrakesFrontRotors', br.frontRotors);
+    br.frontPads = pick('editBrakesFrontPads', br.frontPads);
+    br.rearCyl = pick('editBrakesRearCyl', br.rearCyl);
+    br.rearSetup = pick('editBrakesRearSetup', br.rearSetup);
+    br.cooling = pick('editBrakesCooling', br.cooling);
+    const shortCyl = extractRearCylSizeShort(br.rearCyl);
+    const cylSpec = getRearWheelCylinderSpec(shortCyl);
+    br.rearCylinder = cylSpec.size;
+    br.rearCylinderSize = cylSpec.size === '7/8" Std' ? '7/8"' : cylSpec.size;
+    br.frontPadCompound = /bendix/i.test(br.frontPads)
+      ? 'Bendix Ultimate'
+      : 'Porterfield R-4 Carbon Kevlar (~0.50μ • 232–648°C • "30N" Plate)';
+    state.brakes = normalizeBrakes(br);
+    syncActiveSessionBrakesSnapshot();
+    saveState();
+    closeModal('modalEditBrakes');
+    renderBrakesFleet();
+    renderPostBrakeTempsAndBiasUi();
+    showToast('Updated Brake Spec.');
   }
 
   function syncActiveSessionBrakesSnapshot() {
@@ -10764,24 +11059,37 @@
     const br = ensureBrakesState();
     const propSel = $('selectBrakesPropValve');
     if (propSel && propSel.value) {
-      br.propValve = propSel.value;
+      br.propValveCurve = propSel.value;
+      if (/dart/i.test(propSel.value)) {
+        br.propValve = 'DART Fixed Valve';
+      } else if (/no-?spring/i.test(propSel.value)) {
+        br.propValve = 'No-Spring Valve (1:1)';
+      } else {
+        br.propValve = 'MACCA Adjustable';
+      }
     }
     const frontPadSel = $('selectBrakesFrontPad');
     if (frontPadSel && frontPadSel.value) {
+      br.frontPad = frontPadSel.value;
       br.frontPadCompound = frontPadSel.value;
+      br.frontPads = /bendix/i.test(frontPadSel.value) ? 'Bendix Ultimate' : 'Porterfield R-4';
     }
     const rearShoeSel = $('selectBrakesRearShoe');
     if (rearShoeSel && rearShoeSel.value) {
+      br.rearShoe = rearShoeSel.value;
       br.rearShoeCompound = rearShoeSel.value;
     }
     const flRaw = $('inputRotorMm_FL') ? parseFloat($('inputRotorMm_FL').value) : NaN;
     if (Number.isFinite(flRaw) && flRaw >= 18 && flRaw <= 28) {
       br.flRotorMm = Number(flRaw.toFixed(1));
+      br.rotorMmFL = br.flRotorMm;
     }
     const frRaw = $('inputRotorMm_FR') ? parseFloat($('inputRotorMm_FR').value) : NaN;
     if (Number.isFinite(frRaw) && frRaw >= 18 && frRaw <= 28) {
       br.frRotorMm = Number(frRaw.toFixed(1));
+      br.rotorMmFR = br.frRotorMm;
     }
+    br.rotorThicknessMm = { FL: br.flRotorMm, FR: br.frRotorMm };
     const notesEl = $('inputBrakesNotes');
     if (notesEl) {
       br.notes = notesEl.value.trim();
@@ -10794,14 +11102,20 @@
 
   function selectRearWheelCylinder(rawSize) {
     const br = ensureBrakesState();
-    const matched = REAR_WHEEL_CYLINDER_SPECS.find((item) => item.size === rawSize);
+    const matched = getRearWheelCylinderSpec(rawSize);
     if (!matched) return;
-    br.rearCylinderSize = matched.size;
+    const shortSz = matched.size === '7/8" Std' ? '7/8"' : matched.size;
+    br.rearCylinder = matched.size;
+    br.rearCylinderSize = shortSz;
+    br.rearCylinderPart = matched.part;
+    br.rearForceReduction = matched.delta;
+    br.rearCyl = shortSz === '9/16"' ? '9/16" (10138)' : `${shortSz} (${matched.part})`;
+    br.rearSetup = `${shortSz} Wheel Cyl Drums`;
     syncActiveSessionBrakesSnapshot();
     saveState();
     renderBrakesFleet();
     renderPostBrakeTempsAndBiasUi();
-    showToast(`Rear Wheel Cylinders → ${matched.size} (${matched.part}, ${matched.forceDelta})`);
+    showToast(`Rear Wheel Cylinders → ${matched.size} (${matched.part}, ${matched.forceDelta || matched.delta})`);
   }
 
   function selectBrakeDuctState(axle, rawDuctState) {
@@ -10961,7 +11275,7 @@
         brakeBiasTag: ui.selectedBrakeBiasTag,
         brakes: brSnap
       });
-      if (diag) {
+      if (diag && diag.hasData) {
         diagBanner.style.display = 'block';
         diagBanner.className = `brake-live-diag-banner tone-${diag.tone}`;
         diagBanner.innerHTML = `<strong>${escapeHtml(diag.headline)}:</strong> ${escapeHtml(diag.action)}`;
@@ -14022,6 +14336,49 @@
     );
   }
 
+  /**
+   * Shared Fleet <select> synchronizer & active item resolver.
+   * Ensures every Fleet <select> is populated, has a valid selected option,
+   * and returns the matched item object so detail cards are never blank.
+   */
+  function syncSelectAndPickItem(selectEl, items, currentId, getOptionLabel, preferredFallbackId) {
+    const list = Array.isArray(items) ? items.filter(Boolean) : [];
+    if (list.length === 0) return null;
+
+    const hasId = (idVal) =>
+      idVal !== null &&
+      idVal !== undefined &&
+      idVal !== '' &&
+      list.some((x) => String(x.id) === String(idVal));
+
+    let validId = null;
+    if (hasId(currentId)) {
+      validId = String(currentId);
+    } else if (hasId(preferredFallbackId)) {
+      validId = String(preferredFallbackId);
+    } else {
+      const onCarItem = list.find((x) => x && x.onCar);
+      validId = String(onCarItem ? onCarItem.id : list[0].id);
+    }
+
+    if (selectEl) {
+      selectEl.innerHTML = list
+        .map((item) => {
+          const label = typeof getOptionLabel === 'function' ? getOptionLabel(item) : String(item.name || item.code || item.id);
+          return `<option value="${escapeHtml(String(item.id))}">${escapeHtml(label)}</option>`;
+        })
+        .join('');
+      selectEl.value = validId;
+      if (selectEl.selectedIndex < 0 && selectEl.options.length > 0) {
+        selectEl.selectedIndex = 0;
+        validId = selectEl.options[0].value;
+      }
+    }
+
+    const picked = list.find((x) => String(x.id) === String(validId)) || list[0];
+    return picked;
+  }
+
   function renderCarbyFleet() {
     const container = $('carbyFleetContainer');
     const selectEl = $('selectFleetCarby');
@@ -14033,22 +14390,22 @@
     state.carbies = sortByNameOrCodeAZ(state.carbies);
 
     const activeCarbyId = normalizeCarbyIdAlias(
-      state.baseline && state.baseline.carbyId ? state.baseline.carbyId : state.carbies[0].id
+      state.baseline && state.baseline.carbyId ? state.baseline.carbyId : 'DME1'
     );
-    if (!ui.selectedFleetCarbyId || !state.carbies.some((c) => c.id === ui.selectedFleetCarbyId)) {
-      ui.selectedFleetCarbyId = activeCarbyId;
-    }
 
-    if (selectEl) {
-      selectEl.innerHTML = state.carbies
-        .map((c) => {
-          const isActive = c.id === activeCarbyId;
-          const noJetTag = c.fittedJetMm === null || c.fittedJetMm === undefined ? ' [⚠️ NO JET]' : ` (${formatJetPureMm(c.fittedJetMm)})`;
-          return `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}${noJetTag}${isActive ? ' ★ ON CAR' : ''}</option>`;
-        })
-        .join('');
-      selectEl.value = ui.selectedFleetCarbyId;
-    }
+    const c = syncSelectAndPickItem(
+      selectEl,
+      state.carbies,
+      ui.selectedFleetCarbyId,
+      (item) => {
+        const isActive = String(item.id) === String(activeCarbyId);
+        const noJetTag = item.fittedJetMm === null || item.fittedJetMm === undefined ? ' [⚠️ NO JET]' : ` (${formatJetPureMm(item.fittedJetMm)})`;
+        return `${item.name}${noJetTag}${isActive ? ' ★ ON CAR' : ''}`;
+      },
+      activeCarbyId
+    );
+    if (!c) return;
+    ui.selectedFleetCarbyId = c.id;
 
     const activeCarbyObj = state.carbies.find((item) => item.id === activeCarbyId) || state.carbies[0];
     const activeJetStr =
@@ -14066,7 +14423,6 @@
       countBadge.textContent = `${state.carbies.length} UNIT${state.carbies.length === 1 ? '' : 'S'}`;
     }
 
-    const c = state.carbies.find((item) => item.id === ui.selectedFleetCarbyId) || state.carbies[0];
     const hasJetFitted = c.fittedJetMm !== null && c.fittedJetMm !== undefined && Number.isFinite(Number(c.fittedJetMm));
     const fittedJetText = hasJetFitted
       ? `${formatJetPureMm(c.fittedJetMm)} (${orificeAreaMm2(c.fittedJetMm).toFixed(3)} mm²)`
@@ -14214,7 +14570,7 @@
             ${isOnCar ? `${escapeHtml(c.name)} Active on Car` : `Set ${escapeHtml(c.name)} on Car`}
           </button>
           <button type="button" class="btn btn-secondary" data-edit-carby="${escapeHtml(c.id)}">
-            Edit Carby &amp; Teardown Specs
+            Edit Selected Carby
           </button>
         </div>
       </div>
@@ -14282,21 +14638,18 @@
       $('fleetEmulsionCountBadge').textContent = `${state.emulsions.length} PROFILES`;
     }
 
-    if (!ui.selectedFleetEmulsionId || !state.emulsions.some((e) => e.id === ui.selectedFleetEmulsionId)) {
-      ui.selectedFleetEmulsionId = 'E5_DME';
-    }
-    if (emulSelect) {
-      emulSelect.innerHTML = state.emulsions
-        .map(
-          (e) =>
-            `<option value="${escapeHtml(e.id)}">${escapeHtml(formatEmulsionDropdownOptionLabel(e))}</option>`
-        )
-        .join('');
-      emulSelect.value = ui.selectedFleetEmulsionId;
+    const em = syncSelectAndPickItem(
+      emulSelect,
+      state.emulsions,
+      ui.selectedFleetEmulsionId,
+      (e) => formatEmulsionDropdownOptionLabel(e),
+      'E5_DME'
+    );
+    if (em) {
+      ui.selectedFleetEmulsionId = em.id;
     }
 
-    if (emulContainer) {
-      const em = state.emulsions.find((e) => e.id === ui.selectedFleetEmulsionId) || state.emulsions[0];
+    if (emulContainer && em) {
       const fittedCarbies = getEmulsionAssignedCarbies(em.id);
       const primaryLoc = getEmulsionPrimaryLocation(em.id);
       const isFittedInCarby = primaryLoc !== 'STOCK';
@@ -14349,21 +14702,18 @@
       `;
     }
 
-    if (!ui.selectedFleetBrassId || !state.brassJets.some((b) => b.id === ui.selectedFleetBrassId)) {
-      ui.selectedFleetBrassId = state.brassJets[0].id;
-    }
-    if (brassSelect) {
-      brassSelect.innerHTML = state.brassJets
-        .map(
-          (b) =>
-            `<option value="${escapeHtml(b.id)}">${escapeHtml(b.type)} ${escapeHtml(b.stamp)} — ${Number(b.mm).toFixed(2)} mm (${orificeAreaMm2(b.mm).toFixed(3)} mm² • ${b.qty} in kit)</option>`
-        )
-        .join('');
-      brassSelect.value = ui.selectedFleetBrassId;
+    const br = syncSelectAndPickItem(
+      brassSelect,
+      state.brassJets,
+      ui.selectedFleetBrassId,
+      (b) => `${b.type} ${b.stamp} — ${Number(b.mm).toFixed(2)} mm (${orificeAreaMm2(b.mm).toFixed(3)} mm² • ${b.qty} in kit)`,
+      state.brassJets[0] ? state.brassJets[0].id : 'idle_69'
+    );
+    if (br) {
+      ui.selectedFleetBrassId = br.id;
     }
 
-    if (brassContainer) {
-      const br = state.brassJets.find((b) => b.id === ui.selectedFleetBrassId) || state.brassJets[0];
+    if (brassContainer && br) {
       const brArea = orificeAreaMm2(br.mm);
       brassContainer.innerHTML = `
         <div class="brass-card">
@@ -14401,20 +14751,20 @@
       $('fleetFuelSystemPsiBadge').textContent = `${psiVal.toFixed(1)} PSI`;
     }
 
-    const tankSpec = fs.tankSpec || '74.0 L Tank w/ Polyurethane Foam Baffling (12.0 L Surge Floor)';
-    const preFilter = fs.preFilter || fs.filterModel || 'Sakura FS-8002 Disposable Inline Pre-Filter (Boot)';
-    const fuelPump = fs.fuelPump || fs.pumpModel || 'Holley 12-427 Mighty Mite Electric Pump (4.0–7.0 psi rated • 32 GPH)';
-    const safetyCutoff = fs.safetyCutoff || 'Tachometric Safety Relay (Auto Shut-Off < 300 RPM)';
-    const linesAndDryBreak = fs.linesAndDryBreak || fs.lineRouting || '5/16" (8 mm) Steel Underbody Hardline + Engine Bay Quick-Connect Dry-Break';
-    const pressureGauge = fs.pressureGauge || fs.regulator || '0–15 psi Liquid-Filled Mechanical Gauge (at Carby Inlet)';
-    const inductionSpec = fs.inductionSpec || 'HQRA Alloy Carby Shield + 50mm Reusable Filter + Dual Copper/Composite Head Gasket Stack (<=3.0mm Rule 10o)';
+    const tankSpec = fs.tankSpec || '74L Foam Tank (74.0 L w/ Polyurethane Foam Baffling & 12.0 L Surge Floor)';
+    const preFilter = fs.preFilter || fs.filterModel || 'Sakura FS-8002 Pre-Pump Surge Filter (Boot Inline)';
+    const fuelPump = fs.fuelPump || fs.pumpModel || 'Holley 12-427 Pump (Mighty Mite Electric • 4.0–7.0 psi rated • 32 GPH)';
+    const safetyCutoff = fs.safetyCutoff || 'Peel CP30 Tachometric Safety Relay (Auto Shut-Off < 300 RPM)';
+    const linesAndDryBreak = fs.linesAndDryBreak || fs.lineRouting || 'Dry-Break Sample Tee + 5/16" (8 mm) Steel Underbody Hardline';
+    const pressureGauge = fs.pressureGauge || fs.regulator || 'Stack 4.3 psi Gauge (0–15 psi at Carby Inlet • 4.3 psi WOT)';
+    const inductionSpec = fs.inductionSpec || 'Speco HQ900AL 225x50mm + HQRA Shield + Dual Copper/Composite Head Gasket (<=3.0mm)';
     const serviceNotes = fs.serviceNotes || fs.notes || '';
 
     container.innerHTML = `
       <div class="fuel-sys-card">
         <div class="session-head" style="margin-bottom: 6px;">
           <div>
-            <div class="session-title-line">HQ #71 Race Fuel &amp; Induction System</div>
+            <div class="session-title-line">HQ #77 Race Fuel &amp; Induction System</div>
             <div class="session-meta-line">${escapeHtml(fuelPump)}</div>
           </div>
           <span class="locked-badge">${psiVal.toFixed(1)} PSI RUNNING</span>
@@ -14426,19 +14776,27 @@
             <span class="carby-teardown-val">${escapeHtml(tankSpec)}</span>
           </div>
           <div class="carby-teardown-cell">
-            <span class="carby-teardown-label">Boot Pre-Filter</span>
+            <span class="carby-teardown-label">Pre-Pump Surge Filter</span>
             <span class="carby-teardown-val">${escapeHtml(preFilter)}</span>
           </div>
           <div class="carby-teardown-cell">
-            <span class="carby-teardown-label">Electric Pump &amp; Safety Cutoff</span>
-            <span class="carby-teardown-val">${escapeHtml(fuelPump)} &bull; ${escapeHtml(safetyCutoff)}</span>
+            <span class="carby-teardown-label">Electric Fuel Pump</span>
+            <span class="carby-teardown-val">${escapeHtml(fuelPump)}</span>
           </div>
           <div class="carby-teardown-cell">
-            <span class="carby-teardown-label">Lines, Dry-Break &amp; Inlet Gauge</span>
-            <span class="carby-teardown-val" style="color: var(--emerald);">${escapeHtml(linesAndDryBreak)} &bull; ${escapeHtml(pressureGauge)} (${psiVal.toFixed(1)} psi)</span>
+            <span class="carby-teardown-label">Tachometric Safety Cutoff</span>
+            <span class="carby-teardown-val">${escapeHtml(safetyCutoff)}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Fuel Lines &amp; Sample Tee</span>
+            <span class="carby-teardown-val">${escapeHtml(linesAndDryBreak)}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Fuel Pressure Gauge</span>
+            <span class="carby-teardown-val" style="color: var(--emerald);">${escapeHtml(pressureGauge)} (${psiVal.toFixed(1)} psi)</span>
           </div>
           <div class="carby-teardown-cell" style="grid-column: 1 / -1;">
-            <span class="carby-teardown-label">Induction Shield, Air Filter &amp; Head Gasket Stack</span>
+            <span class="carby-teardown-label">Induction Air Cleaner, Shield &amp; Gasket Stack</span>
             <span class="carby-teardown-val">${escapeHtml(inductionSpec)}</span>
           </div>
         </div>
@@ -14447,7 +14805,7 @@
 
         <div style="display: flex; justify-content: flex-end;">
           <button type="button" class="btn btn-secondary" data-edit-fuel-system="1">
-            Edit Fuel System Hardware &amp; Running PSI
+            Edit Fuel System
           </button>
         </div>
       </div>
@@ -14463,26 +14821,26 @@
       state.manifolds = createDefaultManifolds();
     }
     state.manifolds = sortByNameOrCodeAZ(state.manifolds);
-    const activeId = state.activeManifoldId || (state.manifolds[0] && state.manifolds[0].id) || 'MAN_B';
-    if (!ui.selectedFleetManifoldId || !state.manifolds.some((m) => m.id === ui.selectedFleetManifoldId)) {
-      ui.selectedFleetManifoldId = activeId;
-    }
+    const activeId = state.activeManifoldId || (state.manifolds.find((m) => m.id === 'MAN_F') && 'MAN_F') || (state.manifolds[0] && state.manifolds[0].id) || 'MAN_F';
 
     const activeManObj = state.manifolds.find((item) => item.id === activeId) || state.manifolds[0];
     const activeStats = computeManifoldFlowStats(activeManObj);
 
-    if (selectEl) {
-      selectEl.innerHTML = state.manifolds
-        .map((m) => {
-          const isOnCar = m.id === activeId;
-          const isTrailerSpare = m.id === 'MAN_G' || /trailer\s+spare/i.test(String(m.notes || ''));
-          const st = computeManifoldFlowStats(m);
-          const roleSuffix = isOnCar ? ' ★ ON CAR' : isTrailerSpare ? ' • TRAILER SPARE' : '';
-          return `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name)}${roleSuffix} (${st.shortSummary})</option>`;
-        })
-        .join('');
-      selectEl.value = ui.selectedFleetManifoldId;
-    }
+    const m = syncSelectAndPickItem(
+      selectEl,
+      state.manifolds,
+      ui.selectedFleetManifoldId,
+      (item) => {
+        const isOnCar = item.id === activeId;
+        const isTrailerSpare = item.id === 'MAN_G' || /trailer\s+spare/i.test(String(item.notes || ''));
+        const st = computeManifoldFlowStats(item);
+        const roleSuffix = isOnCar ? ' ★ ON CAR' : isTrailerSpare ? ' • TRAILER SPARE' : '';
+        return `${item.name} — ${st.frontCfm.toFixed(1)} / ${st.midCfm.toFixed(1)} / ${st.rearCfm.toFixed(1)} = ${st.totalCfm.toFixed(1)} CFM${roleSuffix}`;
+      },
+      activeId
+    );
+    if (!m) return;
+    ui.selectedFleetManifoldId = m.id;
 
     const badge = $('fleetManifoldActiveBadge');
     if (badge && activeManObj) {
@@ -14493,7 +14851,6 @@
       countBadge.textContent = `${state.manifolds.length} LOG${state.manifolds.length === 1 ? '' : 'S'}`;
     }
 
-    const m = state.manifolds.find((item) => item.id === ui.selectedFleetManifoldId) || state.manifolds[0];
     const isOnCar = m.id === activeId;
     const isTrailerSpare = m.id === 'MAN_G' || /trailer\s+spare/i.test(String(m.notes || ''));
     const canDelete = !isOnCar && state.manifolds.length > 1;
@@ -14511,7 +14868,7 @@
         : st.spreadTone === 'amber'
         ? 'MODERATE SPREAD (15–25%)'
         : 'HIGH SPREAD (>30%)';
-    const castingSpec = m.casting || '2825951 88/4';
+    const castingSpec = m.casting || '2825951 88-4';
     const testDateStr = m.testDate || '2012-12-29';
     const gasketStackStr = m.gasketStack || 'Standard';
 
@@ -14592,20 +14949,20 @@
       state.exhausts = createDefaultExhausts();
     }
     state.exhausts = sortByNameOrCodeAZ(state.exhausts);
-    const activeId = state.activeExhaustId || state.exhausts[0].id || 'Macca';
-    if (!ui.selectedFleetExhaustId || !state.exhausts.some((x) => x.id === ui.selectedFleetExhaustId)) {
-      ui.selectedFleetExhaustId = activeId;
-    }
+    const activeId = state.activeExhaustId || 'Macca';
 
-    if (selectEl) {
-      selectEl.innerHTML = state.exhausts
-        .map((x) => {
-          const isOnCar = x.id === activeId;
-          return `<option value="${escapeHtml(x.id)}">${escapeHtml(x.name)}${isOnCar ? ' ★ ON CAR' : ''}</option>`;
-        })
-        .join('');
-      selectEl.value = ui.selectedFleetExhaustId;
-    }
+    const x = syncSelectAndPickItem(
+      selectEl,
+      state.exhausts,
+      ui.selectedFleetExhaustId,
+      (item) => {
+        const isOnCar = item.id === activeId;
+        return `${item.name}${isOnCar ? ' ★ ON CAR' : ''}`;
+      },
+      activeId
+    );
+    if (!x) return;
+    ui.selectedFleetExhaustId = x.id;
 
     const badge = $('fleetExhaustActiveBadge');
     if (badge) {
@@ -14616,7 +14973,6 @@
       countBadge.textContent = `${state.exhausts.length} UNIT${state.exhausts.length === 1 ? '' : 'S'}`;
     }
 
-    const x = state.exhausts.find((item) => item.id === ui.selectedFleetExhaustId) || state.exhausts[0];
     const isOnCar = x.id === activeId;
     const canDelete = !isOnCar && state.exhausts.length > 1;
     const hasFlow =
@@ -14831,7 +15187,7 @@
       const reb200 = sh.rebMmS !== undefined ? sh.rebMmS : sh.kingReb;
       const benchStr =
         isFiniteSpecNum(comp200) && isFiniteSpecNum(reb200)
-          ? `Bench @ 200mm/s: Comp ${Math.round(Number(comp200))} / Reb ${Math.round(Number(reb200))} mm/s`
+          ? `Bench @ 200 mm/s: Comp ${Math.round(Number(comp200))} / Reb ${Math.round(Number(reb200))} mm/s`
           : 'No Pedders 5-velocity dyno sheet recorded for this unit.';
       return `
         <div class="pedders-dyno-table-wrap">
@@ -14939,10 +15295,8 @@
     );
 
     const poolForSelect = filteredList.length > 0 ? filteredList : state.shocks;
-    if (!ui.selectedFleetShockId || !poolForSelect.some((sh) => sh.id === ui.selectedFleetShockId)) {
-      const flMounted = mounted.FL && poolForSelect.find((sh) => sh.id === mounted.FL);
-      ui.selectedFleetShockId = flMounted ? flMounted.id : poolForSelect[0].id;
-    }
+    const flMounted = mounted.FL && poolForSelect.find((sh) => sh.id === mounted.FL);
+    const preferredShockId = flMounted ? flMounted.id : (poolForSelect[0] && poolForSelect[0].id);
 
     if (badgeEl) {
       const flCode = (getShockById(mounted.FL) && getShockById(mounted.FL).code) || '—';
@@ -14952,20 +15306,21 @@
       badgeEl.textContent = `FL:${flCode} FR:${frCode} • RL:${rlCode} RR:${rrCode}`;
     }
 
-    if (selectEl) {
-      selectEl.innerHTML = poolForSelect
-        .map((sh) => {
-          const mountedEntry = Object.entries(mounted).find(([, sId]) => sId === sh.id);
-          const pillMeta = getShockLocationPillMeta(sh, mountedEntry ? mountedEntry[0] : null);
-          const specTxt = formatShockKingBadge(sh);
-          return `<option value="${escapeHtml(sh.id)}">${escapeHtml(sh.code)} — ${escapeHtml(specTxt)} [${escapeHtml(pillMeta.text)}]</option>`;
-        })
-        .join('');
-      selectEl.value = ui.selectedFleetShockId;
-    }
-
-    const sh = poolForSelect.find((item) => item.id === ui.selectedFleetShockId) || poolForSelect[0];
+    const sh = syncSelectAndPickItem(
+      selectEl,
+      poolForSelect,
+      ui.selectedFleetShockId,
+      (item) => {
+        const mountedEntry = Object.entries(mounted).find(([, sId]) => sId === item.id);
+        const pillMeta = getShockLocationPillMeta(item, mountedEntry ? mountedEntry[0] : null);
+        const specTxt = formatShockKingBadge(item);
+        return `${item.code} — ${specTxt} [${pillMeta.text}]`;
+      },
+      preferredShockId
+    );
     if (!sh) return;
+    ui.selectedFleetShockId = sh.id;
+
     const normEnd = getNormShockEnd(sh);
     const partNo = normEnd === 'F' ? '9033' : '9067';
     const nomSpec = PEDDERS_SHOCK_NOMINAL[normEnd] || PEDDERS_SHOCK_NOMINAL.F;
@@ -14982,23 +15337,34 @@
     const hasRebMmS = isFiniteSpecNum(rebVal);
     const isConfirmingDel = ui.confirmDeleteShockId === sh.id;
 
+    const comp200Est = hasCompMmS
+      ? `${Math.round(Number(compVal))} N @ 200 mm/s`
+      : hasCurve
+      ? `~+${Math.round((Number(sh.compN[1]) + Number(sh.compN[2])) / 2)} N @ 200 mm/s`
+      : 'Untested';
+    const reb200Est = hasRebMmS
+      ? `${Math.round(Number(rebVal))} N @ 200 mm/s`
+      : hasCurve
+      ? `~${Math.round((Number(sh.rebN[1]) + Number(sh.rebN[2])) / 2)} N @ 200 mm/s`
+      : 'Untested';
+
     const compSummaryVal = hasCurve
       ? `+${sh.compN[1]} / +${sh.compN[2]} / +${sh.compN[4]} N`
       : hasCompMmS
-      ? `${Math.round(Number(compVal))} mm/s`
+      ? `${Math.round(Number(compVal))} mm/s (@ 200 mm/s)`
       : 'Untested';
     const compSummarySub = hasCurve
-      ? `0.1 / 0.3 / 1.0 m/s (Nom +${nomSpec.compN[1]}/+${nomSpec.compN[2]}/+${nomSpec.compN[4]}N)`
-      : `Pedders GSR ${partNo}`;
+      ? `${comp200Est} • 0.1/0.3/1.0 m/s`
+      : `Pedders GSR ${partNo} (@ 200 mm/s)`;
 
     const rebSummaryVal = hasCurve
       ? `${sh.rebN[1]} / ${sh.rebN[2]} / ${sh.rebN[4]} N`
       : hasRebMmS
-      ? `${Math.round(Number(rebVal))} mm/s`
+      ? `${Math.round(Number(rebVal))} mm/s (@ 200 mm/s)`
       : 'Untested';
     const rebSummarySub = hasCurve
-      ? `0.1 / 0.3 / 1.0 m/s (Nom ${nomSpec.rebN[1]}/${nomSpec.rebN[2]}/${nomSpec.rebN[4]}N)`
-      : `Pedders GSR ${partNo}`;
+      ? `${reb200Est} • 0.1/0.3/1.0 m/s`
+      : `Pedders GSR ${partNo} (@ 200 mm/s)`;
 
     const diffValStr = isBin
       ? '⛔ QUARANTINED'
@@ -15368,10 +15734,8 @@
     );
 
     const poolForSelect = filteredList.length > 0 ? filteredList : state.springs;
-    if (!ui.selectedFleetSpringId || !poolForSelect.some((sp) => sp.id === ui.selectedFleetSpringId)) {
-      const flMounted = mounted.FL && poolForSelect.find((sp) => sp.id === mounted.FL);
-      ui.selectedFleetSpringId = flMounted ? flMounted.id : poolForSelect[0].id;
-    }
+    const flMounted = mounted.FL && poolForSelect.find((sp) => sp.id === mounted.FL);
+    const preferredSpringId = flMounted ? flMounted.id : (poolForSelect[0] && poolForSelect[0].id);
 
     if (badgeEl) {
       const flCode = (getSpringById(mounted.FL) && getSpringById(mounted.FL).code) || '—';
@@ -15383,20 +15747,21 @@
       badgeEl.textContent = `FL:${flCode} FR:${frCode} • RL:${rlCode}${rlSpStr} RR:${rrCode}${rrSpStr}`;
     }
 
-    if (selectEl) {
-      selectEl.innerHTML = poolForSelect
-        .map((sp) => {
-          const mountedEntry = Object.entries(mounted).find(([, spId]) => spId === sp.id);
-          const pillMeta = getSpringLocationPillMeta(sp, mountedEntry ? mountedEntry[0] : null, activeSpacers);
-          const specTxt = formatSpringKingBadge(sp);
-          return `<option value="${escapeHtml(sp.id)}">${escapeHtml(sp.code)} — ${escapeHtml(specTxt)} [${escapeHtml(pillMeta.text)}]</option>`;
-        })
-        .join('');
-      selectEl.value = ui.selectedFleetSpringId;
-    }
-
-    const sp = poolForSelect.find((item) => item.id === ui.selectedFleetSpringId) || poolForSelect[0];
+    const sp = syncSelectAndPickItem(
+      selectEl,
+      poolForSelect,
+      ui.selectedFleetSpringId,
+      (item) => {
+        const mountedEntry = Object.entries(mounted).find(([, spId]) => spId === item.id);
+        const pillMeta = getSpringLocationPillMeta(item, mountedEntry ? mountedEntry[0] : null, activeSpacers);
+        const specTxt = formatSpringKingBadge(item);
+        return `${item.code} — ${specTxt} [${pillMeta.text}]`;
+      },
+      preferredSpringId
+    );
     if (!sp) return;
+    ui.selectedFleetSpringId = sp.id;
+
     const normEnd = getNormSpringEnd(sp);
     const partNo = normEnd === 'F' ? '5608' : '5609';
     const nomSpring = PEDDERS_SPRING_NOMINAL[normEnd] || PEDDERS_SPRING_NOMINAL.F;
@@ -15411,6 +15776,7 @@
     const hasHt = isFiniteSpecNum(htVal);
     const hasDeltaHt = isFiniteSpecNum(sp.deltaHeightMm);
     const hasDeltaRate = isFiniteSpecNum(sp.deltaRateKgMm);
+    const rateNmmEquiv = hasRate ? (Number(rateVal) * 9.80665).toFixed(1) : null;
     const isConfirmingDel = ui.confirmDeleteSpringId === sp.id;
 
     const springMatrixRowsHtml = poolForSelect
@@ -15467,14 +15833,14 @@
 
         <div class="carby-specs-grid">
           <div class="telem-cell">
-            <span class="telem-label">HEIGHT @ NORMAL LOAD</span>
+            <span class="telem-label">HEIGHT (MM) @ LOAD</span>
             <span class="telem-val ${hasHt ? 'txt-amber' : ''} mono">${hasHt ? `${Math.round(Number(htVal))} mm (${hasDeltaHt ? formatSignedDeltaNum(sp.deltaHeightMm, 0) : '0'})` : 'Untested'}</span>
             <span class="telem-sub">Nominal ${escapeHtml(partNo)}: ${nomSpring.heightNormalMm} mm</span>
           </div>
           <div class="telem-cell">
-            <span class="telem-label">SPRING RATE (KG/MM)</span>
-            <span class="telem-val ${hasRate ? 'txt-emerald' : 'txt-amber'} mono">${hasRate ? `${Number(rateVal).toFixed(2)} kg/mm (${hasDeltaRate ? formatSignedDeltaNum(sp.deltaRateKgMm, 2) : '0.00'})` : 'Untested'}</span>
-            <span class="telem-sub">Nominal ${escapeHtml(partNo)}: ${nomSpring.rateKgMm.toFixed(2)} kg/mm</span>
+            <span class="telem-label">RATE (N/MM &amp; KG/MM)</span>
+            <span class="telem-val ${hasRate ? 'txt-emerald' : 'txt-amber'} mono">${hasRate ? `${Number(rateVal).toFixed(2)} kg/mm (${rateNmmEquiv} N/mm)` : 'Untested'}</span>
+            <span class="telem-sub">Delta: ${hasDeltaRate ? formatSignedDeltaNum(sp.deltaRateKgMm, 2) : '0.00'} vs Nom ${nomSpring.rateKgMm.toFixed(2)} kg/mm</span>
           </div>
           <div class="telem-cell">
             <span class="telem-label">PAIRED WITH / OPTION</span>
@@ -15523,29 +15889,28 @@
     const selectEl = $('selectFleetSpacerKit');
     const cardContainer = $('spacerKitCardContainer');
     const matrixContainer = $('spacerKitMatrixContainer');
-    const mountedBadgeEl = $('outSpacerKitActiveMountedBadge');
+    const mountedBadgeEl = $('outActiveRearSpacerKitBadge') || $('outSpacerKitActiveMountedBadge');
 
     if (mountedBadgeEl) {
-      mountedBadgeEl.textContent = `Active Car #77: RL ${activeSpacers.RL}mm • RR ${activeSpacers.RR}mm`;
+      mountedBadgeEl.textContent = `CAR #77: RL ${activeSpacers.RL}mm • RR ${activeSpacers.RR}mm`;
     }
 
-    if (!ui.selectedFleetSpacerId || !kit.some((item) => item.id === ui.selectedFleetSpacerId)) {
-      ui.selectedFleetSpacerId = kit[0] ? kit[0].id : 'SP-F1';
+    const sel = syncSelectAndPickItem(
+      selectEl,
+      kit,
+      ui.selectedFleetSpacerId,
+      (item) => {
+        const warnTag = item.statusType === 'warn' || item.statusType === 'danger' ? ' ⚠️' : '';
+        return `${item.code} — ${item.name} (${item.thicknessMm.toFixed(2)}mm • ${item.end} • Qty ${item.qty})${warnTag}`;
+      },
+      kit[0] ? kit[0].id : 'SP-F1'
+    );
+    if (sel) {
+      ui.selectedFleetSpacerId = sel.id;
     }
 
-    if (selectEl) {
-      selectEl.innerHTML = kit
-        .map((item) => {
-          const warnTag = item.statusType === 'warn' ? ' ⚠️' : '';
-          return `<option value="${escapeHtml(item.id)}">${escapeHtml(item.code)} — ${escapeHtml(item.name)} (${item.thicknessMm.toFixed(2)}mm • ${escapeHtml(item.end)} • Qty ${item.qty})${warnTag}</option>`;
-        })
-        .join('');
-      selectEl.value = ui.selectedFleetSpacerId;
-    }
-
-    const sel = kit.find((item) => item.id === ui.selectedFleetSpacerId) || kit[0];
     if (cardContainer && sel) {
-      const statusBadgeClass = sel.statusType === 'warn' ? 'warn' : 'legal';
+      const statusBadgeClass = sel.statusType === 'warn' || sel.statusType === 'danger' ? 'warn' : 'legal';
       const diagKgEst = sel.end === 'REAR' ? `~${(sel.thicknessMm * SPACER_SENSITIVITY_KG_PER_MM).toFixed(1)} kg/corner` : 'Front Ride Height';
       cardContainer.innerHTML = `
         <div class="carby-card" style="margin-bottom: 8px;">
@@ -15591,7 +15956,7 @@
       matrixContainer.innerHTML = kit
         .map((item) => {
           const isSelected = sel && item.id === sel.id;
-          const pillClass = item.statusType === 'warn' ? 'warn' : 'legal';
+          const pillClass = item.statusType === 'warn' || item.statusType === 'danger' ? 'warn' : 'legal';
           return `
             <div class="spacer-kit-row ${isSelected ? 'is-selected' : ''}" data-select-spacer-kit="${escapeHtml(item.id)}" style="cursor: pointer;">
               <div>
@@ -16241,41 +16606,6 @@
         `;
       })
       .join('');
-  }
-
-  function updateOrificeConverter(source) {
-    let mmVal = readNum('convMmInput', 1.850);
-    let inchVal = readNum('convInchInput', 0.0728);
-
-    if (source === 'inch') {
-      mmVal = inchToMm(inchVal);
-      if ($('convMmInput')) $('convMmInput').value = mmVal.toFixed(3);
-    } else {
-      inchVal = mmToInch(mmVal);
-      if ($('convInchInput')) $('convInchInput').value = inchVal.toFixed(4);
-    }
-
-    const area = orificeAreaMm2(mmVal);
-    const baseArea = orificeAreaMm2(1.85);
-    const areaPct = ((area - baseArea) / baseArea) * 100;
-
-    if ($('convAreaOut')) $('convAreaOut').textContent = `${area.toFixed(3)} mm²`;
-    if ($('convVsBaseOut')) $('convVsBaseOut').textContent = `${areaPct >= 0 ? '+' : ''}${areaPct.toFixed(2)}% area vs 1.85 mm`;
-
-    const sorted = sortJetsByDiameter(state.jets);
-    let nearest = sorted[0];
-    let bestDiff = Infinity;
-    sorted.forEach((j) => {
-      const d = Math.abs(j.mm - mmVal);
-      if (d < bestDiff) {
-        bestDiff = d;
-        nearest = j;
-      }
-    });
-    if (nearest) {
-      if ($('convNearestJetOut')) $('convNearestJetOut').textContent = `${formatJetPureMm(nearest.mm)} (${orificeAreaMm2(nearest.mm).toFixed(3)} mm²)`;
-      if ($('convStampHint')) $('convStampHint').textContent = `Δ ${(mmVal - nearest.mm >= 0 ? '+' : '')}${(mmVal - nearest.mm).toFixed(3)} mm`;
-    }
   }
 
   /* ------------------------------------------------------------------------
@@ -18254,6 +18584,64 @@
       .replace(/'/g, '&#39;');
   }
 
+  function renderFleetAndKit() {
+    try {
+      renderBrakesFleet();
+    } catch (err) {
+      console.error('Fleet section error (Brakes):', err);
+    }
+    try {
+      renderCarbyFleet();
+    } catch (err) {
+      console.error('Fleet section error (Carburettors):', err);
+    }
+    try {
+      renderCornerWeightBaselineCard();
+    } catch (err) {
+      console.error('Fleet section error (Corner Weights):', err);
+    }
+    try {
+      renderEmulsionBrassFleet();
+    } catch (err) {
+      console.error('Fleet section error (Emulsion & Brass Kit):', err);
+    }
+    try {
+      renderExhaustFleet();
+    } catch (err) {
+      console.error('Fleet section error (Exhausts):', err);
+    }
+    try {
+      renderFuelSystemFleet();
+    } catch (err) {
+      console.error('Fleet section error (Fuel System):', err);
+    }
+    try {
+      renderJetInventory();
+    } catch (err) {
+      console.error('Fleet section error (Jets):', err);
+    }
+    try {
+      renderManifoldFleet();
+    } catch (err) {
+      console.error('Fleet section error (Manifolds):', err);
+    }
+    try {
+      renderShockFleet();
+    } catch (err) {
+      console.error('Fleet section error (Shocks):', err);
+    }
+    try {
+      renderSpringFleet();
+    } catch (err) {
+      console.error('Fleet section error (Springs):', err);
+    }
+    try {
+      syncFleetAccordionUi();
+    } catch (err) {
+      console.error('Fleet section error (Accordion Sync):', err);
+    }
+  }
+
   function renderAll() {
     const safeRun = (label, fn) => {
       try {
@@ -18284,20 +18672,7 @@
         renderDynoCanvas();
       }
     });
-    safeRun('renderFleet', () => {
-      renderBrakesFleet();
-      renderCarbyFleet();
-      renderCornerWeightBaselineCard();
-      renderEmulsionBrassFleet();
-      renderExhaustFleet();
-      renderFuelSystemFleet();
-      renderJetInventory();
-      renderManifoldFleet();
-      renderShockFleet();
-      renderSpringFleet();
-      updateOrificeConverter('mm');
-      syncFleetAccordionUi();
-    });
+    safeRun('renderFleet', () => renderFleetAndKit());
     safeRun('syncPreRacePostRaceLocksUi', () => syncPreRacePostRaceLocksUi());
   }
 
@@ -18705,6 +19080,12 @@
         return;
       }
 
+      const editBrakesBtn = e.target.closest('[data-edit-brakes]');
+      if (editBrakesBtn) {
+        openEditBrakesModal();
+        return;
+      }
+
       const setManifoldBtn = e.target.closest('[data-set-manifold-on-car]');
       if (setManifoldBtn) {
         setManifoldActiveOnCar(setManifoldBtn.getAttribute('data-set-manifold-on-car'));
@@ -18756,8 +19137,14 @@
         const sid = toggleShockDynoRow.getAttribute('data-toggle-shock-dyno-row');
         if (sid) {
           ui.selectedFleetShockId = sid;
-          if (!ui.expandedShockDynoIds) ui.expandedShockDynoIds = {};
-          ui.expandedShockDynoIds[sid] = !ui.expandedShockDynoIds[sid];
+          if (!(ui.expandedShockDynoIds instanceof Set)) {
+            ui.expandedShockDynoIds = new Set();
+          }
+          if (ui.expandedShockDynoIds.has(sid)) {
+            ui.expandedShockDynoIds.delete(sid);
+          } else {
+            ui.expandedShockDynoIds.add(sid);
+          }
           renderShockFleet();
         }
         return;
@@ -19698,6 +20085,20 @@
         renderSpringFleet();
       });
     }
+    if ($('selectFleetSpacerKit')) {
+      $('selectFleetSpacerKit').addEventListener('change', () => {
+        ui.selectedFleetSpacerId = $('selectFleetSpacerKit').value;
+        renderSpacerKitFleet();
+      });
+    }
+    if ($('btnEditBrakes')) {
+      $('btnEditBrakes').addEventListener('click', openEditBrakesModal);
+    }
+    ['btnSaveBrakesModal', 'btnSaveBrakesSpec'].forEach((btnId) => {
+      if ($(btnId)) {
+        $(btnId).addEventListener('click', saveEditBrakesModal);
+      }
+    });
     if ($('btnAddSpring')) {
       $('btnAddSpring').addEventListener('click', () => {
         openEditSpringModal('__NEW__');
@@ -20109,6 +20510,9 @@
           suspensionSeededV2: true,
           carbyJetAuditV1: true,
           manifoldAudit2012V2: true,
+          manifoldActiveF_V1: true,
+          fuelSystemAuditV2: true,
+          brakesAuditV2: true,
           jetLocationsV1: true,
           spacerKitSeededV1: true,
           calder2024CwSeededV1: true,
@@ -20134,7 +20538,7 @@
           mountedSpacers: { ...DEFAULT_MOUNTED_SPACERS },
           cornerWeights: createDefaultCornerWeightBaseline(),
           cornerWeightBaseline: createDefaultCornerWeightBaseline(),
-          activeManifoldId: 'MAN_B',
+          activeManifoldId: 'MAN_F',
           activeExhaustId: 'Macca',
           sessions: flattenEventsToSessions(defaultEvents),
           dynoPulls: createDefaultDynoPulls(),
@@ -20154,7 +20558,7 @@
         ui.selectedHandlingTags = [];
         ui.selectedBrakeBiasTag = null;
         ui.postBrakeTempsOpen = false;
-        ui.selectedFleetManifoldId = 'MAN_B';
+        ui.selectedFleetManifoldId = 'MAN_F';
         if ($('searchLogQuery')) $('searchLogQuery').value = '';
         if ($('btnClearLogQuery')) $('btnClearLogQuery').hidden = true;
         if ($('selectCalcCarby')) {
@@ -20278,7 +20682,7 @@
 
     if ($('btnAddCustomJet')) {
       $('btnAddCustomJet').addEventListener('click', () => {
-        const rawMm = $('customJetMmInput') ? parseFloat($('customJetMmInput').value) : readNum('convMmInput', 1.86);
+        const rawMm = $('customJetMmInput') ? parseFloat($('customJetMmInput').value) : 1.86;
         const mmVal = Number((Number.isFinite(rawMm) && rawMm > 0 ? rawMm : 1.86).toFixed(3));
         if (state.jets.some((j) => Math.abs(j.mm - mmVal) < 0.002)) {
           showToast(`${formatJetPureMm(mmVal)} is already in the Jets list`);
