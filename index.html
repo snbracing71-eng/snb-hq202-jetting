@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.8.9" />
+  <link rel="stylesheet" href="./styles.css?v=0.9.0" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -1786,6 +1786,101 @@
           </div>
         </div>
 
+        <!-- Step 6 Post-Session Brake Temps (°C) & Bias Check (Collapsible • Optional) -->
+        <div class="post-brake-temps-box" id="postBrakeTempsWrap" style="margin-top: 10px;">
+          <button
+            type="button"
+            class="btn-brake-temps-toggle"
+            id="btnTogglePostBrakeTemps"
+            aria-expanded="false"
+          >
+            <span class="brake-temps-toggle-title">&#127777;&#65039; Brake Temps (&deg;C) &amp; Bias</span>
+            <span class="brake-temps-toggle-summary mono" id="outPostBrakeTempsMini">Optional &bull; Tap to Log</span>
+          </button>
+
+          <div class="post-brake-temps-drawer" id="postBrakeTempsDrawer" style="display: none;">
+            <div class="field-label-row" style="margin-bottom: 6px;">
+              <span class="field-label">Quick 1-Tap Brake Bias Check</span>
+              <span class="field-hint emerald" id="outBrakeBiasTagHint">PBR + R-4 &bull; 9/16&quot; Rear</span>
+            </div>
+            <div class="brake-bias-strip" role="group" aria-label="Post-Session Brake Bias Tag">
+              <button type="button" class="brake-bias-pill" data-brake-bias-tag="Balanced" aria-pressed="false">&#10003; Balanced</button>
+              <button type="button" class="brake-bias-pill warn" data-brake-bias-tag="Rear Lock" aria-pressed="false">&#9888;&#65039; Rear Lock</button>
+              <button type="button" class="brake-bias-pill warn" data-brake-bias-tag="Front Lock" aria-pressed="false">&#9888;&#65039; Front Lock</button>
+              <button type="button" class="brake-bias-pill cold" data-brake-bias-tag="Cold / Wooden" aria-pressed="false">&#129482; Cold / Wooden</button>
+            </div>
+
+            <div class="form-grid-2 compact-pair-grid" style="margin-top: 10px; margin-bottom: 0;">
+              <!-- FL Rotor (°C) -->
+              <div class="field-group" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <label class="field-label" for="inputBrakeTemp_FL">FL Rotor (&deg;C)</label>
+                  <span class="field-hint" id="outBrakeTempHint_FL">R-4 232&ndash;648&deg;C</span>
+                </div>
+                <div class="num-stepper">
+                  <button type="button" class="stepper-btn" data-stepper-target="inputBrakeTemp_FL" data-step="-10" aria-label="Decrease FL Rotor Temp">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input type="number" id="inputBrakeTemp_FL" class="num-input" value="" placeholder="&mdash;" min="20" max="850" step="5" inputmode="numeric" data-brake-temp-corner="FL" />
+                    <span class="num-unit-badge">&deg;C</span>
+                  </div>
+                  <button type="button" class="stepper-btn" data-stepper-target="inputBrakeTemp_FL" data-step="10" aria-label="Increase FL Rotor Temp">+</button>
+                </div>
+              </div>
+
+              <!-- FR Rotor (°C) -->
+              <div class="field-group" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <label class="field-label" for="inputBrakeTemp_FR">FR Rotor (&deg;C)</label>
+                  <span class="field-hint" id="outBrakeTempHint_FR">R-4 232&ndash;648&deg;C</span>
+                </div>
+                <div class="num-stepper">
+                  <button type="button" class="stepper-btn" data-stepper-target="inputBrakeTemp_FR" data-step="-10" aria-label="Decrease FR Rotor Temp">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input type="number" id="inputBrakeTemp_FR" class="num-input" value="" placeholder="&mdash;" min="20" max="850" step="5" inputmode="numeric" data-brake-temp-corner="FR" />
+                    <span class="num-unit-badge">&deg;C</span>
+                  </div>
+                  <button type="button" class="stepper-btn" data-stepper-target="inputBrakeTemp_FR" data-step="10" aria-label="Increase FR Rotor Temp">+</button>
+                </div>
+              </div>
+
+              <!-- RL Drum (°C) -->
+              <div class="field-group" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <label class="field-label" for="inputBrakeTemp_RL">RL Drum (&deg;C)</label>
+                  <span class="field-hint" id="outBrakeTempHint_RL">Warn &gt;230&deg;C</span>
+                </div>
+                <div class="num-stepper">
+                  <button type="button" class="stepper-btn" data-stepper-target="inputBrakeTemp_RL" data-step="-5" aria-label="Decrease RL Drum Temp">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input type="number" id="inputBrakeTemp_RL" class="num-input" value="" placeholder="&mdash;" min="20" max="500" step="5" inputmode="numeric" data-brake-temp-corner="RL" />
+                    <span class="num-unit-badge">&deg;C</span>
+                  </div>
+                  <button type="button" class="stepper-btn" data-stepper-target="inputBrakeTemp_RL" data-step="5" aria-label="Increase RL Drum Temp">+</button>
+                </div>
+              </div>
+
+              <!-- RR Drum (°C) -->
+              <div class="field-group" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <label class="field-label" for="inputBrakeTemp_RR">RR Drum (&deg;C)</label>
+                  <span class="field-hint" id="outBrakeTempHint_RR">Warn &gt;230&deg;C</span>
+                </div>
+                <div class="num-stepper">
+                  <button type="button" class="stepper-btn" data-stepper-target="inputBrakeTemp_RR" data-step="-5" aria-label="Decrease RR Drum Temp">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input type="number" id="inputBrakeTemp_RR" class="num-input" value="" placeholder="&mdash;" min="20" max="500" step="5" inputmode="numeric" data-brake-temp-corner="RR" />
+                    <span class="num-unit-badge">&deg;C</span>
+                  </div>
+                  <button type="button" class="stepper-btn" data-stepper-target="inputBrakeTemp_RR" data-step="5" aria-label="Increase RR Drum Temp">+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live 1-Line AI Brake Cooling & Bias Diagnostic Callout -->
+            <div class="brake-live-diag-banner" id="outLiveBrakeDiagnosticBanner" style="display: none; margin-top: 8px;"></div>
+          </div>
+        </div>
+
         <button type="button" class="btn btn-locked-grey btn-stage-locked btn-full btn-cta-lg" id="btnCompleteSessionFromTyres" style="margin-top: 8px;" disabled>
           LOCK POST-SESSION TYRES &amp; COMPLETE SESSION
         </button>
@@ -2018,9 +2113,245 @@
 
     <!-- =========================================================
          TAB 5: FLEET & KIT (A–Z 1-LINE COLLAPSIBLE ACCORDION BARS)
-         1) Carburettors | 2) Corner Weights | 3) Emulsion & Brass Kit | 4) Exhausts | 5) Fuel System | 6) Jets (mm Toolbox) | 7) Manifolds | 8) Shocks | 9) Springs
+         1) Brakes | 2) Carburettors | 3) Corner Weights | 4) Emulsion & Brass Kit | 5) Exhausts | 6) Fuel System | 7) Jets (mm Toolbox) | 8) Manifolds | 9) Shocks | 10) Springs
          ========================================================= -->
     <section id="tab-fleet" class="tab-panel" aria-labelledby="navTabFleet">
+      <!-- 0) BRAKES (data-fleet-acc="brakes") -->
+      <article class="fleet-acc-card" id="brakesFleetCard" data-fleet-acc-card="brakes">
+        <button
+          type="button"
+          class="fleet-acc-header"
+          data-fleet-acc="brakes"
+          aria-expanded="false"
+        >
+          <div class="fleet-acc-left">
+            <div class="fleet-acc-title">Brakes</div>
+            <div class="fleet-acc-sub">PBR 1&quot; Master &bull; MACCA Prop Valve &bull; DBA 4014 + Porterfield R-4 &bull; 9/16&quot; Rear Drums</div>
+          </div>
+          <div class="fleet-acc-right">
+            <span class="fleet-acc-status-pill emerald" id="fleetBrakesSummaryBadge">PBR + R4 &bull; 9/16&quot; REAR</span>
+            <span class="fleet-acc-count-pill" id="fleetBrakesCountBadge">SPEC SHEET</span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="brakes" aria-hidden="true">&#9654;</span>
+          </div>
+        </button>
+
+        <div class="fleet-acc-body" id="fleetAccBody_brakes" style="display: none;">
+          <!-- 1) Hydraulic Bias & Master Cylinder -->
+          <div class="carby-card brakes-spec-card" style="margin-bottom: 10px;">
+            <div class="session-head" style="margin-bottom: 8px;">
+              <div>
+                <div class="session-title-line">1) Hydraulic Bias &amp; Master Cylinder</div>
+                <div class="session-meta-line">Rule 7.3f Firewall Master &bull; Chassis-Rail Proportioning Valve &bull; Rear Wheel Cylinders</div>
+              </div>
+              <span class="locked-badge" id="outBrakesRearCylForceBadge">9/16&quot; (-58.7% Rear Force)</span>
+            </div>
+
+            <div class="carby-teardown-grid" style="margin-bottom: 10px;">
+              <div class="carby-teardown-cell">
+                <span class="carby-teardown-label">Master Cylinder (Rule 7.3f)</span>
+                <span class="carby-teardown-val txt-emerald" id="outBrakesMasterCyl">PBR Master Vac 25.4mm (1&quot;) Firewall (Rule 7.3f)</span>
+              </div>
+              <div class="carby-teardown-cell">
+                <span class="carby-teardown-label">Bench Curve &amp; Spare Reference</span>
+                <span class="carby-teardown-val mono" id="outBrakesPropBenchCurve">400F:250R | 1000F:450R (Spares: DART 400:300 / 1000:450 &bull; No-Spring 400:400)</span>
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 10px;">
+              <div class="field-label-row">
+                <label class="field-label" for="selectBrakesPropValve">Chassis-Rail Proportioning Valve</label>
+                <span class="field-hint emerald">Bench-Tested Curve</span>
+              </div>
+              <select id="selectBrakesPropValve" data-brakes-field="propValve">
+                <option value="MACCA Fixed Valve (In Car) — 400F:250R | 1000F:450R">MACCA Fixed Valve (In Car) &mdash; Bench Curve: 400F:250R | 1000F:450R</option>
+                <option value="DART Valve (Spare) — 400F:300R | 1000F:450R">DART Fixed Valve (Spare Ref) &mdash; Bench Curve: 400F:300R | 1000F:450R</option>
+                <option value="No-Spring Valve (Spare) — 400F:400R">No-Spring Valve (Spare Ref) &mdash; Bench Curve: 400F:400R (1:1)</option>
+              </select>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <span class="field-label">Rear Wheel Cylinders (vs 7/8&quot; Standard Bore)</span>
+                <span class="field-hint amber" id="outBrakesRearCylHint">Active: 9/16&quot; (IBS-P5573, -58.7%)</span>
+              </div>
+              <div class="rear-cyl-seg" role="group" aria-label="Rear Wheel Cylinder Bore Selector">
+                <button type="button" class="seg-btn active" data-rear-cylinder="9/16&quot;" aria-pressed="true">9/16&quot; (IBS-P5573, -58.7%)</button>
+                <button type="button" class="seg-btn" data-rear-cylinder="11/16&quot;" aria-pressed="false">11/16&quot; (P10321, -38.3%)</button>
+                <button type="button" class="seg-btn" data-rear-cylinder="3/4&quot;" aria-pressed="false">3/4&quot; (P7041, -26.5%)</button>
+                <button type="button" class="seg-btn" data-rear-cylinder="13/16&quot;" aria-pressed="false">13/16&quot; (P10138, -14%)</button>
+                <button type="button" class="seg-btn" data-rear-cylinder="7/8&quot; Std" aria-pressed="false">7/8&quot; Std</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2) Front Disc Setup -->
+          <div class="carby-card brakes-spec-card" style="margin-bottom: 10px;">
+            <div class="session-head" style="margin-bottom: 8px;">
+              <div>
+                <div class="session-title-line">2) Front Disc Setup</div>
+                <div class="session-meta-line">PBR Cast Iron Calipers &bull; DBA 4014 HD 276mm Vent Rotors &bull; Porterfield R-4</div>
+              </div>
+              <span class="locked-badge" id="outBrakesFrontRotorOverallBadge">25.4 / 25.4 mm OK</span>
+            </div>
+
+            <div class="carby-teardown-grid" style="margin-bottom: 10px;">
+              <div class="carby-teardown-cell">
+                <span class="carby-teardown-label">Front Calipers</span>
+                <span class="carby-teardown-val">PBR Cast Iron LH 9933233 / RH 9933234 (unmodified, braided lines, zero-drag SS piston spec)</span>
+              </div>
+              <div class="carby-teardown-cell">
+                <span class="carby-teardown-label">Front Rotors Spec</span>
+                <span class="carby-teardown-val">DBA 4014 (4000 Series HD 276mm Vent) &bull; New 25.4 mm / Min Discard 22.3 mm</span>
+              </div>
+            </div>
+
+            <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+              <div class="field-group" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <label class="field-label" for="inputRotorMm_FL">FL Rotor (mm)</label>
+                  <span class="field-hint emerald" id="outRotorStatus_FL">25.4 mm OK (Min 22.3)</span>
+                </div>
+                <div class="num-stepper">
+                  <button type="button" class="stepper-btn" data-stepper-target="inputRotorMm_FL" data-step="-0.1" aria-label="Decrease FL Rotor Thickness">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input type="number" id="inputRotorMm_FL" class="num-input" value="25.4" min="21.0" max="25.6" step="0.1" inputmode="decimal" data-brakes-field="flRotorMm" />
+                    <span class="num-unit-badge">mm</span>
+                  </div>
+                  <button type="button" class="stepper-btn" data-stepper-target="inputRotorMm_FL" data-step="0.1" aria-label="Increase FL Rotor Thickness">+</button>
+                </div>
+              </div>
+
+              <div class="field-group" style="margin-bottom: 0;">
+                <div class="field-label-row">
+                  <label class="field-label" for="inputRotorMm_FR">FR Rotor (mm)</label>
+                  <span class="field-hint emerald" id="outRotorStatus_FR">25.4 mm OK (Min 22.3)</span>
+                </div>
+                <div class="num-stepper">
+                  <button type="button" class="stepper-btn" data-stepper-target="inputRotorMm_FR" data-step="-0.1" aria-label="Decrease FR Rotor Thickness">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input type="number" id="inputRotorMm_FR" class="num-input" value="25.4" min="21.0" max="25.6" step="0.1" inputmode="decimal" data-brakes-field="frRotorMm" />
+                    <span class="num-unit-badge">mm</span>
+                  </div>
+                  <button type="button" class="stepper-btn" data-stepper-target="inputRotorMm_FR" data-step="0.1" aria-label="Increase FR Rotor Thickness">+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 10px;">
+              <div class="field-label-row">
+                <label class="field-label" for="selectBrakesFrontPad">Front Pads Compound</label>
+                <span class="field-hint emerald" id="outBrakesFrontPadSpecHint">~0.50&mu; &bull; 232&ndash;648&deg;C Optimum &bull; &quot;30N&quot; Plate</span>
+              </div>
+              <select id="selectBrakesFrontPad" data-brakes-field="frontPad">
+                <option value="Porterfield R-4 Carbon Kevlar">Porterfield R-4 Carbon Kevlar (~0.50&mu;, 232&ndash;648&deg;C optimum, &quot;30N&quot; plate)</option>
+                <option value="Bendix Ultimate">Bendix Ultimate (Cold-Bite / Wet / Spare Compound)</option>
+              </select>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <span class="field-label">Front Ducting: Under-Bumper Scoops + Centre-Eye Rotor Ducts</span>
+                <span class="field-hint emerald" id="outFrontDuctStateHint">100% Open</span>
+              </div>
+              <div class="duct-toggle-seg" role="group" aria-label="Front Brake Ducting State">
+                <button type="button" class="seg-btn active" data-front-duct="100% Open" aria-pressed="true">100% Open</button>
+                <button type="button" class="seg-btn" data-front-duct="50% Taped" aria-pressed="false">50% Taped</button>
+                <button type="button" class="seg-btn" data-front-duct="100% Taped" aria-pressed="false">100% Taped</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3) Rear Drum Setup -->
+          <div class="carby-card brakes-spec-card" style="margin-bottom: 10px;">
+            <div class="session-head" style="margin-bottom: 8px;">
+              <div>
+                <div class="session-title-line">3) Rear Drum Setup</div>
+                <div class="session-meta-line">DBA 257mm (10.12&quot;) Cast Iron Drums &bull; Rule 7.2c Manual Star-Wheel Adjust</div>
+              </div>
+              <span class="locked-badge">Rule 7.2c Legal</span>
+            </div>
+
+            <div class="carby-teardown-grid" style="margin-bottom: 10px;">
+              <div class="carby-teardown-cell">
+                <span class="carby-teardown-label">Rear Drums (Rule 7.2c)</span>
+                <span class="carby-teardown-val">DBA 257mm (10.12&quot;) Cast Iron (self-adjusters removed per Rule 7.2c)</span>
+              </div>
+              <div class="carby-teardown-cell">
+                <span class="carby-teardown-label">Shoe Orientation</span>
+                <span class="carby-teardown-val">Short Leading Shoe Forward &bull; Riveted Carbon Kevlar Linings</span>
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 10px;">
+              <div class="field-label-row">
+                <label class="field-label" for="selectBrakesRearShoe">Rear Shoes Compound</label>
+                <span class="field-hint emerald" id="outBrakesRearShoeHint">Short Leading Shoe Forward</span>
+              </div>
+              <select id="selectBrakesRearShoe" data-brakes-field="rearShoe">
+                <option value="Porterfield R-4 Carbon Kevlar Riveted">Porterfield R-4 Carbon Kevlar Riveted (Short Leading Shoe Forward)</option>
+                <option value="Porterfield R4-S">Porterfield R4-S (Lower-Torque Rear Option)</option>
+              </select>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <span class="field-label">Rear Ducting: Meshed Under-Floor Scoops + 40mm Backing-Plate Tubes</span>
+                <span class="field-hint emerald" id="outRearDuctStateHint">100% Open</span>
+              </div>
+              <div class="duct-toggle-seg" role="group" aria-label="Rear Drum Ducting State">
+                <button type="button" class="seg-btn active" data-rear-duct="100% Open" aria-pressed="true">100% Open</button>
+                <button type="button" class="seg-btn" data-rear-duct="50% Taped" aria-pressed="false">50% Taped</button>
+                <button type="button" class="seg-btn" data-rear-duct="100% Taped" aria-pressed="false">100% Taped</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4) Thermal Paint Reference Key & Notes -->
+          <div class="carby-card brakes-spec-card" style="margin-bottom: 0;">
+            <div class="session-head" style="margin-bottom: 8px;">
+              <div>
+                <div class="session-title-line">4) Thermal Paint &amp; Temp Strip Reference Key</div>
+                <div class="session-meta-line">DBA 4014 3-Stripe Rotor Paint &bull; PBR Caliper &amp; DBA Rear Drum Stickers</div>
+              </div>
+              <span class="locked-badge">THERMAL KEY</span>
+            </div>
+
+            <div class="thermal-paint-grid">
+              <div class="thermal-paint-cell">
+                <span class="carby-teardown-label">Front Rotors (DBA 4014)</span>
+                <div class="thermal-paint-chips-row">
+                  <span class="thermal-paint-chip green">Green&rarr;White 430&deg;C</span>
+                  <span class="thermal-paint-chip orange">Orange&rarr;Yellow 560&deg;C</span>
+                  <span class="thermal-paint-chip red">Red&rarr;White 610&deg;C</span>
+                </div>
+              </div>
+              <div class="thermal-paint-cell">
+                <span class="carby-teardown-label">Front Calipers (PBR)</span>
+                <span class="carby-teardown-val mono txt-emerald">121&deg;C &rarr; 280&deg;C</span>
+              </div>
+              <div class="thermal-paint-cell">
+                <span class="carby-teardown-label">Rear Drums (DBA 257mm)</span>
+                <span class="carby-teardown-val mono">Linings <strong class="txt-amber">121&deg;C &rarr; 280&deg;C</strong> (242&ndash;254&deg;C un-ducted ref) &bull; Housing <strong class="txt-emerald">160&deg;C &rarr; 199&deg;C</strong></span>
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-top: 10px; margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="inputBrakesNotes">Brake Bleed, Fluid &amp; Pad Bed-In Notes</label>
+                <span class="field-hint">Auto-Saved</span>
+              </div>
+              <input
+                type="text"
+                id="inputBrakesNotes"
+                class="text-input"
+                placeholder="e.g. Castrol React SRF / Motul RBF660 • R-4 requires 232°C+ bed-in..."
+                data-brakes-field="notes"
+              />
+            </div>
+          </div>
+        </div>
+      </article>
+
       <!-- 1) CARBURETTORS (data-fleet-acc="carburettors") -->
       <article class="fleet-acc-card" id="carbyFleetCard" data-fleet-acc-card="carburettors">
         <button
@@ -4640,6 +4971,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.8.9"></script>
+  <script src="./app.js?v=0.9.0"></script>
 </body>
 </html>

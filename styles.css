@@ -6356,4 +6356,271 @@ button:disabled.btn-stage-locked,
   background: rgba(239, 68, 68, 0.2);
 }
 
+/* --------------------------------------------------------------------------
+   BRAKES FLEET & KIT + POST-SESSION BRAKE TEMPS (°C) & BIAS (v0.9.0)
+   -------------------------------------------------------------------------- */
+.brakes-spec-card {
+  position: relative;
+}
 
+.rear-cyl-seg {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+}
+
+@media (max-width: 520px) {
+  .rear-cyl-seg {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.rear-cyl-btn,
+.duct-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px 6px;
+  border-radius: 8px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+  color: #CBD5E1;
+  background: linear-gradient(180deg, #1E2838 0%, #111722 100%);
+  border: 1px solid #334257;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 2px 4px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  transition: all 0.14s ease;
+}
+
+.rear-cyl-btn:hover,
+.duct-toggle-btn:hover {
+  border-color: #64748B;
+  color: #F8FAFC;
+}
+
+.rear-cyl-btn.active,
+.duct-toggle-btn.active {
+  color: #06141F;
+  font-weight: 900;
+  border-color: #38BDF8;
+  background: linear-gradient(180deg, #7DD3FC 0%, #38BDF8 55%, #0284C7 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    0 0 10px rgba(56, 189, 248, 0.35);
+}
+
+.duct-toggle-seg {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.thermal-paint-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.thermal-paint-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #0D121A 0%, #090D13 100%);
+  border: 1px solid #243042;
+}
+
+.thermal-paint-title {
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: #E2E8F0;
+  text-transform: uppercase;
+}
+
+.thermal-paint-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.thermal-paint-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border: 1px solid #334155;
+  color: #CBD5E1;
+  background: rgba(30, 41, 59, 0.55);
+}
+
+.thermal-paint-chip.green {
+  border-color: rgba(16, 185, 129, 0.55);
+  color: #6EE7B7;
+  background: rgba(16, 185, 129, 0.14);
+}
+
+.thermal-paint-chip.amber {
+  border-color: rgba(245, 158, 11, 0.6);
+  color: #FDE047;
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.thermal-paint-chip.red {
+  border-color: rgba(239, 68, 68, 0.65);
+  color: #FCA5A5;
+  background: rgba(239, 68, 68, 0.16);
+}
+
+.thermal-paint-chip.cyan {
+  border-color: rgba(56, 189, 248, 0.55);
+  color: #7DD3FC;
+  background: rgba(56, 189, 248, 0.14);
+}
+
+.post-brake-temps-box {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(245, 158, 11, 0.08) 0%, transparent 72%),
+    linear-gradient(180deg, #151C28 0%, #0D121A 100%);
+  border: 1px solid #2C3B50;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 4px 10px rgba(0, 0, 0, 0.45);
+}
+
+.btn-brake-temps-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: #F8FAFC;
+  background: linear-gradient(180deg, #222E40 0%, #141C28 100%);
+  border: 1px solid #384961;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 2px 5px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+.btn-brake-temps-toggle:hover {
+  border-color: #38BDF8;
+}
+
+.brake-bias-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+@media (max-width: 520px) {
+  .brake-bias-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.brake-bias-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 6px;
+  border-radius: 8px;
+  font-size: 0.69rem;
+  font-weight: 800;
+  color: #CBD5E1;
+  background: linear-gradient(180deg, #1D2635 0%, #101620 100%);
+  border: 1px solid #303E52;
+  cursor: pointer;
+  transition: all 0.14s ease;
+}
+
+.brake-bias-pill:hover {
+  border-color: #64748B;
+  color: #F8FAFC;
+}
+
+.brake-bias-pill.active {
+  border-color: #F59E0B;
+  color: #111827;
+  font-weight: 900;
+  background: linear-gradient(180deg, #FDE047 0%, #F59E0B 60%, #D97706 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 0 10px rgba(245, 158, 11, 0.35);
+}
+
+.brake-live-diag-banner {
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.38;
+  border: 1px solid rgba(56, 189, 248, 0.48);
+  color: #E0F2FE;
+  background: rgba(14, 116, 144, 0.22);
+}
+
+.brake-live-diag-banner.warn {
+  border-color: rgba(245, 158, 11, 0.65);
+  color: #FEF3C7;
+  background: rgba(180, 83, 9, 0.24);
+}
+
+.brake-live-diag-banner.danger {
+  border-color: rgba(239, 68, 68, 0.7);
+  color: #FEE2E2;
+  background: rgba(185, 28, 28, 0.25);
+}
+
+. brake-live-diag-banner.ok,
+.brake-live-diag-banner.ok {
+  border-color: rgba(16, 185, 129, 0.6);
+  color: #D1FAE5;
+  background: rgba(5, 150, 105, 0.22);
+}
+
+.session-brake-diag-box {
+  margin-top: 6px;
+  padding: 7px 9px;
+  border-radius: 7px;
+  font-size: 0.71rem;
+  font-weight: 800;
+  line-height: 1.35;
+  border: 1px solid rgba(56, 189, 248, 0.42);
+  color: #E0F2FE;
+  background: rgba(15, 23, 42, 0.75);
+}
+
+.session-brake-diag-box.warn {
+  border-color: rgba(245, 158, 11, 0.6);
+  color: #FDE68A;
+  background: rgba(120, 53, 15, 0.28);
+}
+
+.session-brake-diag-box.danger {
+  border-color: rgba(239, 68, 68, 0.65);
+  color: #FECACA;
+  background: rgba(127, 29, 29, 0.3);
+}
+
+.session-brake-diag-box.ok {
+  border-color: rgba(16, 185, 129, 0.55);
+  color: #A7F3D0;
+  background: rgba(6, 78, 59, 0.28);
+}

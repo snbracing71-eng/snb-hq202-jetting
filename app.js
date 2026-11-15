@@ -2302,6 +2302,230 @@
     return out;
   }
 
+  const REAR_WHEEL_CYLINDER_SPECS = {
+    '9/16"': { size: '9/16"', part: 'IBS-P5573', delta: '-58.7%', label: '9/16" (IBS-P5573, -58.7%)' },
+    '11/16"': { size: '11/16"', part: 'P10321', delta: '-38.3%', label: '11/16" (P10321, -38.3%)' },
+    '3/4"': { size: '3/4"', part: 'P7041', delta: '-26.5%', label: '3/4" (P7041, -26.5%)' },
+    '13/16"': { size: '13/16"', part: 'P10138', delta: '-14%', label: '13/16" (P10138, -14%)' },
+    '7/8"': { size: '7/8"', part: 'Std', delta: '0% Baseline', label: '7/8" Std' }
+  };
+
+  function createDefaultBrakes() {
+    return {
+      masterCylinder: 'PBR Master Vac 25.4mm (1") Firewall (Rule 7.3f)',
+      propValve: 'MACCA Fixed Valve (In Car) — 400F:250R | 1000F:450R',
+      rearCylinder: '9/16"',
+      calipers: 'PBR Cast Iron LH 9933233 / RH 9933234 (Unmodified • Braided Lines • Zero-Drag SS Piston)',
+      rotorModel: 'DBA 4014 (4000 Series HD 276mm Vent)',
+      rotorMmFL: 25.4,
+      rotorMmFR: 25.4,
+      frontPadCompound: 'Porterfield R-4 Carbon Kevlar (~0.50μ • 232–648°C • "30N" Plate)',
+      frontDuctSpec: 'Under-Bumper Scoops + Centre-Eye Rotor Ducts',
+      frontDuctState: '100% Open',
+      rearDrumSpec: 'DBA 257mm (10.12") Cast Iron (Self-Adjusters Removed • Rule 7.2c)',
+      rearShoeCompound: 'Porterfield R-4 Carbon Kevlar Riveted (Short Leading Shoe Forward)',
+      rearDuctSpec: 'Meshed Under-Floor Scoops + 40mm Backing-Plate Tubes',
+      rearDuctState: '100% Open',
+      notes:
+        'PBR 1" Master + MACCA 400:250/1000:450 Prop Valve + 9/16" IBS-P5573 Rear Wheel Cylinders (-58.7% force vs 7/8" std). Porterfield R-4 F&R.'
+    };
+  }
+
+  function normalizeBrakes(raw) {
+    const def = createDefaultBrakes();
+    if (!raw || typeof raw !== 'object') return def;
+    const pickRotorMm = (v, fb) => {
+      if (v === null || v === undefined || v === '') return fb;
+      const n = Number(v);
+      return Number.isFinite(n) && n >= 18.0 && n <= 28.0 ? Number(n.toFixed(1)) : fb;
+    };
+    const validCyls = Object.keys(REAR_WHEEL_CYLINDER_SPECS);
+    const validDucts = ['100% Open', '50% Taped', '100% Taped'];
+    const rawCyl = String(raw.rearCylinder || '').trim();
+    const rearCylinder = validCyls.includes(rawCyl) ? rawCyl : def.rearCylinder;
+    const rawFDuct = String(raw.frontDuctState || '').trim();
+    const frontDuctState = validDucts.includes(rawFDuct) ? rawFDuct : def.frontDuctState;
+    const rawRDuct = String(raw.rearDuctState || '').trim();
+    const rearDuctState = validDucts.includes(rawRDuct) ? rawRDuct : def.rearDuctState;
+    return {
+      masterCylinder:
+        typeof raw.masterCylinder === 'string' && raw.masterCylinder.trim()
+          ? raw.masterCylinder.trim()
+          : def.masterCylinder,
+      propValve:
+        typeof raw.propValve === 'string' && raw.propValve.trim()
+          ? raw.propValve.trim()
+          : def.propValve,
+      rearCylinder,
+      calipers:
+        typeof raw.calipers === 'string' && raw.calipers.trim()
+          ? raw.calipers.trim()
+          : def.calipers,
+      rotorModel:
+        typeof raw.rotorModel === 'string' && raw.rotorModel.trim()
+          ? raw.rotorModel.trim()
+          : def.rotorModel,
+      rotorMmFL: pickRotorMm(raw.rotorMmFL, def.rotorMmFL),
+      rotorMmFR: pickRotorMm(raw.rotorMmFR, def.rotorMmFR),
+      frontPadCompound:
+        typeof raw.frontPadCompound === 'string' && raw.frontPadCompound.trim()
+          ? raw.frontPadCompound.trim()
+          : typeof raw.padCompound === 'string' && raw.padCompound.trim()
+          ? raw.padCompound.trim()
+          : def.frontPadCompound,
+      frontDuctSpec:
+        typeof raw.frontDuctSpec === 'string' && raw.frontDuctSpec.trim()
+          ? raw.frontDuctSpec.trim()
+          : def.frontDuctSpec,
+      frontDuctState,
+      rearDrumSpec:
+        typeof raw.rearDrumSpec === 'string' && raw.rearDrumSpec.trim()
+          ? raw.rearDrumSpec.trim()
+          : def.rearDrumSpec,
+      rearShoeCompound:
+        typeof raw.rearShoeCompound === 'string' && raw.rearShoeCompound.trim()
+          ? raw.rearShoeCompound.trim()
+          : def.rearShoeCompound,
+      rearDuctSpec:
+        typeof raw.rearDuctSpec === 'string' && raw.rearDuctSpec.trim()
+          ? raw.rearDuctSpec.trim()
+          : def.rearDuctSpec,
+      rearDuctState,
+      notes:
+        typeof raw.notes === 'string' && raw.notes.trim()
+          ? raw.notes.trim()
+          : def.notes
+    };
+  }
+
+  function normalizeBrakeTemps(raw) {
+    if (!raw || typeof raw !== 'object') {
+      return { FL: null, FR: null, RL: null, RR: null };
+    }
+    const pickTemp = (v) => {
+      if (v === null || v === undefined || v === '') return null;
+      const n = Number(v);
+      return Number.isFinite(n) && n > 0 && n <= 1000 ? Math.round(n) : null;
+    };
+    return {
+      FL: pickTemp(raw.FL),
+      FR: pickTemp(raw.FR),
+      RL: pickTemp(raw.RL),
+      RR: pickTemp(raw.RR)
+    };
+  }
+
+  function hasAnyBrakeTemps(bt) {
+    if (!bt || typeof bt !== 'object') return false;
+    return ['FL', 'FR', 'RL', 'RR'].some(
+      (c) => bt[c] !== null && bt[c] !== undefined && Number.isFinite(Number(bt[c])) && Number(bt[c]) > 0
+    );
+  }
+
+  function normalizeBrakeBiasTag(raw) {
+    const valid = ['Balanced', 'Rear Lock', 'Front Lock', 'Cold / Wooden'];
+    const s = String(raw || '').trim();
+    return valid.includes(s) ? s : null;
+  }
+
+  /**
+   * AI Brake Cooling & Bias Diagnostics:
+   * Evaluates logged corner brake temps (FL/FR Rotor °C, RL/RR Drum °C), Brake Bias tag, and active Brakes hardware
+   * (Porterfield R-4 vs R4-S / Bendix Ultimate, 9/16" IBS-P5573 rear cylinders, front/rear ducting state).
+   */
+  function evaluateSessionBrakeDiagnostics(rawTemps, rawBiasTag, rawBrakesSnap) {
+    const bt = normalizeBrakeTemps(rawTemps);
+    const biasTag = normalizeBrakeBiasTag(rawBiasTag);
+    const br = normalizeBrakes(rawBrakesSnap || (typeof state !== 'undefined' && state ? state.brakes : null));
+    const hasTemps = hasAnyBrakeTemps(bt);
+    if (!hasTemps && !biasTag) {
+      return { hasData: false, tone: 'ok', text: '', lines: [] };
+    }
+
+    const frontVals = [bt.FL, bt.FR].filter((v) => v !== null && Number.isFinite(Number(v)));
+    const rearVals = [bt.RL, bt.RR].filter((v) => v !== null && Number.isFinite(Number(v)));
+    const maxFront = frontVals.length > 0 ? Math.max(...frontVals) : null;
+    const minFront = frontVals.length > 0 ? Math.min(...frontVals) : null;
+    const avgFront = frontVals.length > 0 ? frontVals.reduce((a, b) => a + b, 0) / frontVals.length : null;
+    const maxRear = rearVals.length > 0 ? Math.max(...rearVals) : null;
+
+    const isPorterfieldR4Front = /porterfield\s*r-?4/i.test(br.frontPadCompound);
+    const isRearR4Full = /porterfield\s*r-?4(?!\s*-?s)/i.test(br.rearShoeCompound);
+    const frontDuctOpen = br.frontDuctState === '100% Open';
+
+    const diagParts = [];
+    let tone = 'ok';
+
+    // 1) Front Rotors < 280°C with Porterfield R-4 and front ducts 100% Open (or Cold / Wooden tagged)
+    if (
+      (avgFront !== null && avgFront < 280 && isPorterfieldR4Front && frontDuctOpen) ||
+      biasTag === 'Cold / Wooden'
+    ) {
+      tone = 'warn';
+      const fTempStr =
+        avgFront !== null
+          ? `Front Rotors ${bt.FL ?? '—'}/${bt.FR ?? '—'}°C (<280°C)`
+          : 'Cold / Wooden Pedal Tagged';
+      diagParts.push(
+        `🧊 OVER-COOLED FRONT ROTORS (${fTempStr} w/ ${br.frontDuctState} Ducts): Tape 50% of front under-bumper scoops so Porterfield R-4 pads reach their 232°C+ (450°F) bite window faster.`
+      );
+    }
+
+    // 2) Front Rotors > 560°C (or Front Lock tagged)
+    if ((maxFront !== null && maxFront > 560) || (biasTag === 'Front Lock' && (maxFront === null || maxFront >= 280))) {
+      tone = maxFront !== null && maxFront >= 610 ? 'danger' : 'warn';
+      if (maxFront !== null && maxFront > 560) {
+        const paintZone =
+          maxFront >= 610
+            ? 'Red→White 610°C Peak Paint Zone'
+            : 'Orange→Yellow 560°C Paint Zone';
+        diagParts.push(
+          `🔥 HIGH FRONT ROTOR THERMAL LOAD (F: ${bt.FL ?? '—'}/${bt.FR ?? '—'}°C • ${paintZone}): Keep front ducts 100% Open, watch inner front tyre PSI spike from rim heat soak, and inspect PBR caliper seal strip (121–280°C).`
+        );
+      } else {
+        diagParts.push(
+          `⚠️ FRONT LOCK TAGGED: Verify front cold/hot tyre PSI & camber contact patch; if front rotors are <280°C glaze-locking, tape 50% front scoops to get R-4 into its 232°C+ μ window.`
+        );
+      }
+    }
+
+    // 3) Rear Drums > 230°C or Rear Lock tagged
+    if ((maxRear !== null && maxRear > 230) || biasTag === 'Rear Lock') {
+      if (tone !== 'danger') {
+        tone = maxRear !== null && maxRear >= 260 ? 'danger' : 'warn';
+      }
+      const rTempStr =
+        maxRear !== null ? `RL/RR Drums ${bt.RL ?? '—'}/${bt.RR ?? '—'}°C (>230°C)` : 'Rear Lock Tagged';
+      const compoundStep = isRearR4Full
+        ? 'step rear shoes from Porterfield R-4 to R4-S'
+        : `verify ${br.rearCylinder} rear cylinder (${(REAR_WHEEL_CYLINDER_SPECS[br.rearCylinder] && REAR_WHEEL_CYLINDER_SPECS[br.rearCylinder].delta) || '-58.7%'})`;
+      diagParts.push(
+        `⚠️ REAR THERMAL / BIAS SATURATION (${rTempStr}): Keep rear under-floor scoops 100% Open, verify star-wheel shoe clearance (Rule 7.2c zero drag), or ${compoundStep}.`
+      );
+    }
+
+    // 4) Balanced / Optimal Window
+    if (diagParts.length === 0) {
+      tone = 'ok';
+      const fSummary =
+        avgFront !== null ? `Front Rotors ${bt.FL ?? '—'}/${bt.FR ?? '—'}°C (in 280–560°C R-4 window)` : '';
+      const rSummary =
+        maxRear !== null ? `Rear Drums ${bt.RL ?? '—'}/${bt.RR ?? '—'}°C (≤230°C cool)` : '';
+      const biasSummary = biasTag ? `Bias: ${biasTag}` : '';
+      const combined = [fSummary, rSummary, biasSummary].filter(Boolean).join(' • ');
+      diagParts.push(
+        `✓ BRAKE THERMAL & BIAS WINDOW OPTIMAL (${combined}): Keep Front ${br.frontDuctState} / Rear ${br.rearDuctState} & ${br.rearCylinder} rear cylinders.`
+      );
+    }
+
+    return {
+      hasData: true,
+      tone,
+      lines: diagParts,
+      text: diagParts.join(' | ')
+    };
+  }
+
   function createDefaultShocks() {
     return [
       // Front Shocks (14 units, Pedders GSR 9033 — end: 'F')
@@ -2969,11 +3193,12 @@
       candidate.suspensionSeededV2 = true;
     }
 
-    // Safely backfill Car #77 default active rear spacers (RL: 0mm, RR: 20mm) and cornerWeights / cornerWeightBaseline without touching existing logs
+    // Safely backfill Car #77 default active rear spacers (RL: 0mm, RR: 20mm), cornerWeights, and brakes without touching existing logs
     candidate.mountedSpacers = normalizeRearSpacersMap(candidate.mountedSpacers, DEFAULT_MOUNTED_SPACERS);
     const normalizedCw = normalizeCornerWeightBaseline(candidate.cornerWeights || candidate.cornerWeightBaseline);
     candidate.cornerWeights = normalizedCw;
     candidate.cornerWeightBaseline = normalizedCw;
+    candidate.brakes = normalizeBrakes(candidate.brakes);
 
     const defTyrePool = createDefaultTyrePool();
     if (!Array.isArray(candidate.tyrePool) || candidate.tyrePool.length === 0) {
@@ -3244,6 +3469,43 @@
       const handlingTags = normalizeHandlingTagsArray(
         s.handlingTags !== undefined ? s.handlingTags : defMatch && defMatch.handlingTags ? defMatch.handlingTags : []
       );
+      const brakeTemps = normalizeBrakeTemps(
+        s.brakeTemps !== undefined ? s.brakeTemps : defMatch && defMatch.brakeTemps ? defMatch.brakeTemps : null
+      );
+      const brakeBiasTag = normalizeBrakeBiasTag(
+        s.brakeBiasTag !== undefined ? s.brakeBiasTag : defMatch && defMatch.brakeBiasTag ? defMatch.brakeBiasTag : null
+      );
+      const activeBrakesRef = candidate.brakes || createDefaultBrakes();
+      const rawSessionBrakes = s.brakes && typeof s.brakes === 'object' ? s.brakes : null;
+      const brakesSnap = {
+        padCompound:
+          (rawSessionBrakes && (rawSessionBrakes.padCompound || rawSessionBrakes.frontPadCompound)) ||
+          activeBrakesRef.frontPadCompound,
+        frontPadCompound:
+          (rawSessionBrakes && (rawSessionBrakes.frontPadCompound || rawSessionBrakes.padCompound)) ||
+          activeBrakesRef.frontPadCompound,
+        rearShoeCompound:
+          (rawSessionBrakes && rawSessionBrakes.rearShoeCompound) || activeBrakesRef.rearShoeCompound,
+        rearCylinder:
+          (rawSessionBrakes && rawSessionBrakes.rearCylinder) || activeBrakesRef.rearCylinder,
+        propValve:
+          (rawSessionBrakes && rawSessionBrakes.propValve) || activeBrakesRef.propValve,
+        frontDuctState:
+          (rawSessionBrakes && rawSessionBrakes.frontDuctState) || activeBrakesRef.frontDuctState,
+        rearDuctState:
+          (rawSessionBrakes && rawSessionBrakes.rearDuctState) || activeBrakesRef.rearDuctState,
+        ductState:
+          (rawSessionBrakes && rawSessionBrakes.ductState) ||
+          `F: ${(rawSessionBrakes && rawSessionBrakes.frontDuctState) || activeBrakesRef.frontDuctState} / R: ${(rawSessionBrakes && rawSessionBrakes.rearDuctState) || activeBrakesRef.rearDuctState}`,
+        rotorMmFL:
+          rawSessionBrakes && Number.isFinite(Number(rawSessionBrakes.rotorMmFL))
+            ? Number(rawSessionBrakes.rotorMmFL)
+            : activeBrakesRef.rotorMmFL,
+        rotorMmFR:
+          rawSessionBrakes && Number.isFinite(Number(rawSessionBrakes.rotorMmFR))
+            ? Number(rawSessionBrakes.rotorMmFR)
+            : activeBrakesRef.rotorMmFR
+      };
 
       const normCarbyId = normalizeCarbyIdAlias(s.carbyId || (defMatch && defMatch.carbyId) || 'DME1');
       const carbyObj = candidate.carbies.find((c) => c.id === normCarbyId);
@@ -3302,6 +3564,9 @@
         springs,
         spacers,
         handlingTags,
+        brakeTemps,
+        brakeBiasTag,
+        brakes: brakesSnap,
         tunePreLocked: s.tunePreLocked !== undefined ? Boolean(s.tunePreLocked) : (s.status || 'completed') === 'completed',
         fuelPreLocked: s.fuelPreLocked !== undefined ? Boolean(s.fuelPreLocked) : (s.status || 'completed') === 'completed',
         tyresPreLocked: s.tyresPreLocked !== undefined ? Boolean(s.tyresPreLocked) : (s.status || 'completed') === 'completed',
@@ -3737,6 +4002,7 @@
       cornerWeightBaseline: createDefaultCornerWeightBaseline(),
       activeManifoldId: 'MAN_B',
       activeExhaustId: 'Macca',
+      brakes: createDefaultBrakes(),
       tyrePool: createDefaultTyrePool(),
       sessions: createDefaultSessions(),
       dynoPulls: createDefaultDynoPulls(),
@@ -3787,6 +4053,8 @@
     newTyreSpec: 'buffed',  // 'buffed' | 'wet'
     activeDryPreset: (state.chassis && state.chassis.activeDryPreset) || 'ai_antipush',
     selectedHandlingTags: [],
+    selectedBrakeBiasTag: null,
+    postBrakeTempsOpen: false,
     logSearchTrack: 'ALL',
     logSearchYear: 'ALL',
     logSearchQuery: '',
@@ -5524,6 +5792,7 @@
     const btnPostTyres = $('btnCompleteSessionFromTyres') || $('btnCompleteFromTyres');
     const step2Banner = $('postTyresStep2Banner');
     const handlingTagsWrap = $('postHandlingTagsWrap');
+    const brakeTempsWrap = $('postBrakeTempsWrap');
     const tyresContentWrap = $('tyresActiveSessionContent');
 
     const isStep6PostTyres = Boolean(activeSess && curStep === 6 && !tyresPostLocked);
@@ -5541,6 +5810,12 @@
       handlingTagsWrap.style.display = isStep6PostTyres ? 'block' : 'none';
       if (isStep6PostTyres) {
         renderHandlingTagsStrip();
+      }
+    }
+    if (brakeTempsWrap) {
+      brakeTempsWrap.style.display = isStep6PostTyres ? 'block' : 'none';
+      if (isStep6PostTyres) {
+        renderPostBrakeTempsAndBiasUi();
       }
     }
     if (tyresContentWrap) {
@@ -5777,6 +6052,12 @@
     // Determine Session 1 (Stone-Cold) vs Session 2+ (Hot-Target Only)
     ch.forceFreshColdSet = false;
     ui.selectedHandlingTags = [];
+    ui.selectedBrakeBiasTag = null;
+    ui.postBrakeTempsOpen = false;
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const btEl = $(`inputBrakeTemp_${c}`);
+      if (btEl) btEl.value = '';
+    });
     const mounted = ensureMountedTyresState();
     const mountedShocks = ensureMountedShocksState();
     const mountedSprings = ensureMountedSpringsState();
@@ -5864,6 +6145,7 @@
     });
 
     const resolvedJetMm = fallbackJet ? fallbackJet.mm : base.jetMm;
+    const activeBrakesSnap = getActiveBrakesSnapshot();
     const created = {
       id: `run_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       status: 'active',
@@ -5925,6 +6207,9 @@
       springs: { ...mountedSprings },
       spacers: { ...mountedSpacers },
       handlingTags: [],
+      brakeTemps: { FL: null, FR: null, RL: null, RR: null },
+      brakeBiasTag: null,
+      brakes: activeBrakesSnap,
       tunePreLocked: false,
       fuelPreLocked: false,
       tyresPreLocked: false,
@@ -9817,6 +10102,352 @@
     renderHandlingTagsStrip();
   }
 
+  /* ------------------------------------------------------------------------
+     BRAKES FLEET & POST-SESSION BRAKE TEMPS (°C) / BIAS UI
+     ------------------------------------------------------------------------ */
+  function ensureBrakesState() {
+    state.brakes = normalizeBrakes(state.brakes);
+    return state.brakes;
+  }
+
+  function getActiveBrakesSnapshot() {
+    const br = ensureBrakesState();
+    return {
+      padCompound: br.frontPadCompound || 'Porterfield R-4',
+      rearShoeCompound: br.rearShoeCompound || 'Porterfield R-4',
+      rearCylinder: br.rearCylinderSize || '9/16"',
+      propValve: br.propValve || 'MACCA',
+      frontDuctState: br.frontDuctState || '100% Open',
+      rearDuctState: br.rearDuctState || '100% Open',
+      ductState: `F: ${br.frontDuctState || '100% Open'} / R: ${br.rearDuctState || '100% Open'}`,
+      flRotorMm: Number(br.flRotorMm ?? 25.4),
+      frRotorMm: Number(br.frRotorMm ?? 25.4)
+    };
+  }
+
+  function formatRotorThicknessStatus(mmVal) {
+    const n = Number(mmVal);
+    if (!Number.isFinite(n)) {
+      return { text: 'Max 25.4 / Min 22.3 mm', className: 'field-hint emerald' };
+    }
+    if (n <= 22.3) {
+      return {
+        text: `⚠️ DISCARD LIMIT: ${n.toFixed(1)} mm (≤ 22.3 mm min!)`,
+        className: 'field-hint danger'
+      };
+    }
+    if (n <= 22.8) {
+      return {
+        text: `⚠️ LOW MARGIN: ${n.toFixed(1)} mm (+${(n - 22.3).toFixed(1)} mm above 22.3 mm min)`,
+        className: 'field-hint amber'
+      };
+    }
+    return {
+      text: `✓ Legal (+${(n - 22.3).toFixed(1)} mm above 22.3 mm min)`,
+      className: 'field-hint emerald'
+    };
+  }
+
+  function hydrateBrakesFleetInputs() {
+    const br = ensureBrakesState();
+    const propSel = $('selectBrakesPropValve');
+    if (propSel) propSel.value = br.propValve || 'MACCA';
+    const frontPadSel = $('selectBrakesFrontPad');
+    if (frontPadSel) frontPadSel.value = br.frontPadCompound || 'Porterfield R-4';
+    const rearShoeSel = $('selectBrakesRearShoe');
+    if (rearShoeSel) rearShoeSel.value = br.rearShoeCompound || 'Porterfield R-4';
+    const flEl = $('inputRotorMm_FL');
+    if (flEl && document.activeElement !== flEl) {
+      flEl.value = Number(br.flRotorMm ?? 25.4).toFixed(1);
+    }
+    const frEl = $('inputRotorMm_FR');
+    if (frEl && document.activeElement !== frEl) {
+      frEl.value = Number(br.frRotorMm ?? 25.4).toFixed(1);
+    }
+    const notesEl = $('inputBrakesNotes');
+    if (notesEl && document.activeElement !== notesEl) {
+      notesEl.value = br.notes || '';
+    }
+  }
+
+  function renderBrakesFleet() {
+    const br = ensureBrakesState();
+    hydrateBrakesFleetInputs();
+
+    const shortPad = /bendix/i.test(br.frontPadCompound) ? 'BENDIX' : 'R4';
+    const sumBadge = $('fleetBrakesSummaryBadge');
+    if (sumBadge) {
+      sumBadge.textContent = `PBR + ${shortPad} • ${br.rearCylinderSize} REAR`;
+    }
+    const cntBadge = $('fleetBrakesCountBadge');
+    if (cntBadge) {
+      const minRotor = Math.min(Number(br.flRotorMm || 25.4), Number(br.frRotorMm || 25.4));
+      cntBadge.textContent = minRotor <= 22.3 ? '⚠️ ROTOR MIN' : minRotor <= 22.8 ? 'CHECK ROTOR' : 'SPEC SHEET';
+    }
+
+    const cylSpec =
+      REAR_WHEEL_CYLINDER_SPECS.find((item) => item.size === br.rearCylinderSize) ||
+      REAR_WHEEL_CYLINDER_SPECS[0];
+    const cylHintEl = $('outRearCylPartHint');
+    if (cylHintEl && cylSpec) {
+      cylHintEl.textContent = `${cylSpec.size} (${cylSpec.part}, ${cylSpec.forceDelta} Force vs 7/8" Std) • ${cylSpec.note}`;
+      cylHintEl.className = cylSpec.size === '9/16"' || cylSpec.size === '11/16"' ? 'field-hint emerald' : 'field-hint amber';
+    }
+
+    document.querySelectorAll('[data-rear-cylinder]').forEach((btn) => {
+      const sz = btn.getAttribute('data-rear-cylinder');
+      const active = sz === br.rearCylinderSize;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+
+    document.querySelectorAll('[data-front-duct]').forEach((btn) => {
+      const st = btn.getAttribute('data-front-duct');
+      const active = st === br.frontDuctState;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+
+    document.querySelectorAll('[data-rear-duct]').forEach((btn) => {
+      const st = btn.getAttribute('data-rear-duct');
+      const active = st === br.rearDuctState;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+
+    const flStatus = formatRotorThicknessStatus(br.flRotorMm);
+    const frStatus = formatRotorThicknessStatus(br.frRotorMm);
+    const flOut = $('outRotorStatus_FL');
+    if (flOut) {
+      flOut.textContent = flStatus.text;
+      flOut.className = flStatus.className;
+    }
+    const frOut = $('outRotorStatus_FR');
+    if (frOut) {
+      frOut.textContent = frStatus.text;
+      frOut.className = frStatus.className;
+    }
+  }
+
+  function syncActiveSessionBrakesSnapshot() {
+    const activeSess = getActiveSession();
+    if (activeSess && !activeSess.tyresPostLocked) {
+      activeSess.brakes = getActiveBrakesSnapshot();
+    }
+  }
+
+  function handleBrakesFleetFieldChange() {
+    const br = ensureBrakesState();
+    const propSel = $('selectBrakesPropValve');
+    if (propSel && propSel.value) {
+      br.propValve = propSel.value;
+    }
+    const frontPadSel = $('selectBrakesFrontPad');
+    if (frontPadSel && frontPadSel.value) {
+      br.frontPadCompound = frontPadSel.value;
+    }
+    const rearShoeSel = $('selectBrakesRearShoe');
+    if (rearShoeSel && rearShoeSel.value) {
+      br.rearShoeCompound = rearShoeSel.value;
+    }
+    const flRaw = $('inputRotorMm_FL') ? parseFloat($('inputRotorMm_FL').value) : NaN;
+    if (Number.isFinite(flRaw) && flRaw >= 18 && flRaw <= 28) {
+      br.flRotorMm = Number(flRaw.toFixed(1));
+    }
+    const frRaw = $('inputRotorMm_FR') ? parseFloat($('inputRotorMm_FR').value) : NaN;
+    if (Number.isFinite(frRaw) && frRaw >= 18 && frRaw <= 28) {
+      br.frRotorMm = Number(frRaw.toFixed(1));
+    }
+    const notesEl = $('inputBrakesNotes');
+    if (notesEl) {
+      br.notes = notesEl.value.trim();
+    }
+    syncActiveSessionBrakesSnapshot();
+    saveState();
+    renderBrakesFleet();
+    renderPostBrakeTempsAndBiasUi();
+  }
+
+  function selectRearWheelCylinder(rawSize) {
+    const br = ensureBrakesState();
+    const matched = REAR_WHEEL_CYLINDER_SPECS.find((item) => item.size === rawSize);
+    if (!matched) return;
+    br.rearCylinderSize = matched.size;
+    syncActiveSessionBrakesSnapshot();
+    saveState();
+    renderBrakesFleet();
+    renderPostBrakeTempsAndBiasUi();
+    showToast(`Rear Wheel Cylinders → ${matched.size} (${matched.part}, ${matched.forceDelta})`);
+  }
+
+  function selectBrakeDuctState(axle, rawDuctState) {
+    const br = ensureBrakesState();
+    const valid = ['100% Open', '50% Taped', '100% Taped'].includes(rawDuctState)
+      ? rawDuctState
+      : '100% Open';
+    if (axle === 'rear') {
+      br.rearDuctState = valid;
+      showToast(`Rear Drum Ducts → ${valid}`);
+    } else {
+      br.frontDuctState = valid;
+      showToast(`Front Rotor Ducts → ${valid}`);
+    }
+    syncActiveSessionBrakesSnapshot();
+    saveState();
+    renderBrakesFleet();
+    renderPostBrakeTempsAndBiasUi();
+  }
+
+  function readPostBrakeTempInputs() {
+    const out = { FL: null, FR: null, RL: null, RR: null };
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const el = $(`inputBrakeTemp_${c}`);
+      if (!el) return;
+      const raw = String(el.value || '').trim();
+      if (raw === '') return;
+      const n = parseFloat(raw);
+      if (Number.isFinite(n) && n >= 15 && n <= 950) {
+        out[c] = Math.round(n);
+      }
+    });
+    return out;
+  }
+
+  function togglePostBrakeTempsDrawer() {
+    ui.postBrakeTempsOpen = !ui.postBrakeTempsOpen;
+    renderPostBrakeTempsAndBiasUi();
+  }
+
+  function toggleBrakeBiasTag(rawTag) {
+    const norm = normalizeBrakeBiasTag(rawTag);
+    if (!norm) return;
+    ui.selectedBrakeBiasTag = ui.selectedBrakeBiasTag === norm ? null : norm;
+    const activeSess = getActiveSession();
+    if (activeSess) {
+      activeSess.brakeBiasTag = ui.selectedBrakeBiasTag;
+      activeSess.brakes = getActiveBrakesSnapshot();
+    }
+    renderPostBrakeTempsAndBiasUi();
+  }
+
+  function formatCornerBrakeTempHint(corner, tempC, padCompound) {
+    const isFront = corner === 'FL' || corner === 'FR';
+    const isR4 = /porterfield|r-4|r4/i.test(String(padCompound || 'Porterfield R-4'));
+    if (tempC === null || tempC === undefined || !Number.isFinite(Number(tempC))) {
+      return {
+        text: isFront ? (isR4 ? 'R-4 Opt: 232–648°C' : 'Bendix Opt: 120–450°C') : 'Optimum: 140–230°C',
+        className: 'field-hint'
+      };
+    }
+    const t = Math.round(Number(tempC));
+    if (isFront) {
+      if (t > 610) {
+        return { text: `🔥 ${t}°C (>610°C Red->White Paint!)`, className: 'field-hint danger' };
+      }
+      if (t > 560) {
+        return { text: `⚠️ ${t}°C (>560°C Orange->Yellow Paint)`, className: 'field-hint amber' };
+      }
+      if (isR4 && t < 232) {
+        return { text: `🧊 ${t}°C (<232°C R-4 Bite Floor)`, className: 'field-hint cyan' };
+      }
+      if (isR4 && t < 280) {
+        return { text: `🧊 ${t}°C (Cool for R-4 • <280°C)`, className: 'field-hint cyan' };
+      }
+      return { text: `✓ ${t}°C In Window`, className: 'field-hint emerald' };
+    }
+    // Rear Drum
+    if (t > 250) {
+      return { text: `🔥 ${t}°C (Hot Drum >250°C • Check Shoe Drag)`, className: 'field-hint danger' };
+    }
+    if (t > 230) {
+      return { text: `⚠️ ${t}°C (Warm >230°C • Open Rear Ducts)`, className: 'field-hint amber' };
+    }
+    if (t < 110) {
+      return { text: `🧊 ${t}°C (Cool Drum <110°C)`, className: 'field-hint cyan' };
+    }
+    return { text: `✓ ${t}°C In Window (140–230°C)`, className: 'field-hint emerald' };
+  }
+
+  function renderPostBrakeTempsAndBiasUi() {
+    const wrap = $('postBrakeTempsWrap');
+    if (!wrap) return;
+    const brSnap = getActiveBrakesSnapshot();
+    const temps = readPostBrakeTempInputs();
+    const activeSess = getActiveSession();
+    if (activeSess && !activeSess.tyresPostLocked) {
+      activeSess.brakeTemps = { ...temps };
+      activeSess.brakeBiasTag = ui.selectedBrakeBiasTag || null;
+      activeSess.brakes = brSnap;
+    }
+
+    const hasTemps = hasAnyBrakeTemps(temps);
+    const isOpen = Boolean(ui.postBrakeTempsOpen || hasTemps || ui.selectedBrakeBiasTag);
+    const drawerBody = $('postBrakeTempsDrawerBody');
+    const toggleBtn = $('btnTogglePostBrakeTemps');
+    const chevEl = $('postBrakeTempsChevron');
+    if (drawerBody) {
+      drawerBody.style.display = isOpen ? 'block' : 'none';
+    }
+    if (toggleBtn) {
+      toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+    if (chevEl) {
+      chevEl.innerHTML = isOpen ? '&#9660;' : '&#9654;';
+    }
+
+    const specHintEl = $('outPostBrakeActiveSpecHint');
+    if (specHintEl) {
+      specHintEl.textContent = `${brSnap.rearCylinder} Rear • ${brSnap.padCompound} • ${brSnap.ductState}`;
+    }
+
+    const summaryBadgeEl = $('outPostBrakeSummaryBadge');
+    if (summaryBadgeEl) {
+      const fStr =
+        temps.FL !== null || temps.FR !== null
+          ? `F:${temps.FL ?? '—'}/${temps.FR ?? '—'}°C`
+          : '';
+      const rStr =
+        temps.RL !== null || temps.RR !== null
+          ? `R:${temps.RL ?? '—'}/${temps.RR ?? '—'}°C`
+          : '';
+      const parts = [fStr, rStr, ui.selectedBrakeBiasTag || ''].filter(Boolean);
+      summaryBadgeEl.textContent = parts.length > 0 ? parts.join(' • ') : 'OPTIONAL • BLANK = SKIP';
+    }
+
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const hEl = $(`outBrakeTempHint_${c}`);
+      if (hEl) {
+        const info = formatCornerBrakeTempHint(c, temps[c], brSnap.padCompound);
+        hEl.textContent = info.text;
+        hEl.className = info.className;
+      }
+    });
+
+    document.querySelectorAll('[data-brake-bias-tag]').forEach((btn) => {
+      const tag = btn.getAttribute('data-brake-bias-tag');
+      const active = ui.selectedBrakeBiasTag === tag;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+
+    const diagBanner = $('outLiveBrakeDiagnosticBanner');
+    if (diagBanner) {
+      const diag = evaluateSessionBrakeDiagnostics({
+        brakeTemps: temps,
+        brakeBiasTag: ui.selectedBrakeBiasTag,
+        brakes: brSnap
+      });
+      if (diag) {
+        diagBanner.style.display = 'block';
+        diagBanner.className = `brake-live-diag-banner tone-${diag.tone}`;
+        diagBanner.innerHTML = `<strong>${escapeHtml(diag.headline)}:</strong> ${escapeHtml(diag.action)}`;
+      } else {
+        diagBanner.style.display = 'none';
+        diagBanner.innerHTML = '';
+      }
+    }
+  }
+
   function swapMountedTyresLR() {
     const mounted = ensureMountedTyresState();
     const fl = mounted.FL;
@@ -11392,6 +12023,72 @@
     `;
   }
 
+  function renderUnifiedBrakesBlock(s) {
+    if (!s) return '';
+    const bt = normalizeBrakeTemps(s.brakeTemps);
+    const hasTemps = hasAnyBrakeTemps(bt);
+    const biasTag = normalizeBrakeBiasTag(s.brakeBiasTag);
+    if (!hasTemps && !biasTag) return '';
+
+    const br = (s.brakes && typeof s.brakes === 'object') ? s.brakes : getActiveBrakesSnapshot();
+    const padCompound = br.padCompound || br.frontPadCompound || 'Porterfield R-4';
+    const rearCyl = br.rearCylinder || br.rearCylinderSize || '9/16"';
+    const ductStr =
+      br.ductState ||
+      `F: ${br.frontDuctState || '100% Open'} / R: ${br.rearDuctState || '100% Open'}`;
+
+    const fTempsStr =
+      bt.FL !== null || bt.FR !== null
+        ? `F: ${bt.FL !== null ? bt.FL : '—'}/${bt.FR !== null ? bt.FR : '—'}&deg;C`
+        : 'F: &mdash;/&mdash;&deg;C';
+    const rTempsStr =
+      bt.RL !== null || bt.RR !== null
+        ? `R: ${bt.RL !== null ? bt.RL : '—'}/${bt.RR !== null ? bt.RR : '—'}&deg;C`
+        : 'R: &mdash;/&mdash;&deg;C';
+
+    const biasPillClass =
+      biasTag === 'Balanced'
+        ? 'txt-emerald'
+        : biasTag === 'Cold / Wooden'
+        ? 'txt-cyan'
+        : biasTag
+        ? 'txt-amber'
+        : '';
+
+    const diag = evaluateSessionBrakeDiagnostics(s);
+    const diagHtml = diag
+      ? `
+        <div class="session-brake-diag-box tone-${diag.tone}">
+          <strong>${escapeHtml(diag.headline)}:</strong> ${escapeHtml(diag.action)}
+        </div>
+      `
+      : '';
+
+    return `
+      <div class="unified-session-subblock">
+        <div class="unified-subblock-title">
+          BRAKE TEMPS (&deg;C), BIAS &amp; COOLING &bull;
+          <span class="mono txt-amber">${escapeHtml(rearCyl)} Rear &bull; ${escapeHtml(padCompound)} &bull; ${escapeHtml(ductStr)}</span>
+        </div>
+        <div class="unified-fuel-strip">
+          <div class="unified-fuel-cell">
+            <span class="unified-fuel-lbl">Front Rotors</span>
+            <span class="unified-fuel-val mono">${fTempsStr}</span>
+          </div>
+          <div class="unified-fuel-cell">
+            <span class="unified-fuel-lbl">Rear Drums</span>
+            <span class="unified-fuel-val mono">${rTempsStr}</span>
+          </div>
+          <div class="unified-fuel-cell">
+            <span class="unified-fuel-lbl">Brake Bias</span>
+            <span class="unified-fuel-val mono ${biasPillClass}">${biasTag ? escapeHtml(biasTag) : '&mdash;'}</span>
+          </div>
+        </div>
+        ${diagHtml}
+      </div>
+    `;
+  }
+
   function getSessionOrderWeight(s) {
     const name = String((s && s.sessionName) || '').trim().toLowerCase();
     const pracMatch = name.match(/^practice\s*(\d+)/i);
@@ -11451,6 +12148,20 @@
     const hTags = normalizeHandlingTagsArray(s.handlingTags);
     if (hTags.length > 0) {
       tyreParts.push(...hTags);
+    }
+    const bt = normalizeBrakeTemps(s.brakeTemps);
+    if (hasAnyBrakeTemps(bt)) {
+      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+        if (bt[c] !== null) tyreParts.push(`${bt[c]}c`, `${c} ${bt[c]}c`, 'brake');
+      });
+    }
+    if (s.brakeBiasTag) {
+      tyreParts.push(s.brakeBiasTag, 'brake');
+    }
+    if (s.brakes && typeof s.brakes === 'object') {
+      if (s.brakes.rearCylinder) tyreParts.push(s.brakes.rearCylinder);
+      if (s.brakes.padCompound) tyreParts.push(s.brakes.padCompound);
+      if (s.brakes.ductState) tyreParts.push(s.brakes.ductState);
     }
     const jetMmStr = Number.isFinite(Number(s.jetMm)) ? formatMmNumber(s.jetMm) : '';
     const radStr = Number.isFinite(Number(s.rad)) ? Number(s.rad).toFixed(1) : '';
@@ -11651,6 +12362,7 @@
         ${renderUnifiedFuelWeightBlock(s)}
         ${renderUnifiedTyresBlock(s)}
         ${renderUnifiedSuspensionBlock(s)}
+        ${renderUnifiedBrakesBlock(s)}
 
         ${notesBlockHtml}
 
@@ -12145,6 +12857,14 @@
       'RL_Spacer_mm',
       'RR_Spacer_mm',
       'Handling_Tags',
+      'FL_Rotor_C',
+      'FR_Rotor_C',
+      'RL_Drum_C',
+      'RR_Drum_C',
+      'Brake_Bias_Tag',
+      'Rear_Cylinder',
+      'Front_Pad',
+      'Brake_Ducts',
       'Corner_Weights_FL_FR_RL_RR',
       'Pre_Race_Notes',
       'Post_Race_Notes'
@@ -12174,6 +12894,8 @@
       const spMap = (s.springs && typeof s.springs === 'object') ? s.springs : DEFAULT_MOUNTED_SPRINGS;
       const spacerMap = normalizeRearSpacersMap(s.spacers, DEFAULT_MOUNTED_SPACERS);
       const handlingTagsCsv = normalizeHandlingTagsArray(s.handlingTags).join(' | ');
+      const bt = normalizeBrakeTemps(s.brakeTemps);
+      const brSnap = (s.brakes && typeof s.brakes === 'object') ? s.brakes : getActiveBrakesSnapshot();
       const frontTgt = Number.isFinite(Number(s.hotTargetFront))
         ? Number(s.hotTargetFront)
         : Number.isFinite(Number(s.tyreHotTarget))
@@ -12304,6 +13026,14 @@
         String(spacerMap.RL),
         String(spacerMap.RR),
         handlingTagsCsv,
+        bt.FL !== null ? String(bt.FL) : '',
+        bt.FR !== null ? String(bt.FR) : '',
+        bt.RL !== null ? String(bt.RL) : '',
+        bt.RR !== null ? String(bt.RR) : '',
+        s.brakeBiasTag || '',
+        brSnap.rearCylinder || brSnap.rearCylinderSize || '9/16"',
+        brSnap.padCompound || brSnap.frontPadCompound || 'Porterfield R-4',
+        brSnap.ductState || `F: ${brSnap.frontDuctState || '100% Open'} / R: ${brSnap.rearDuctState || '100% Open'}`,
         cornerWeightsCsvStr,
         s.preRaceNotes || '',
         s.postRaceNotes !== undefined ? s.postRaceNotes : s.notes || ''
@@ -12321,6 +13051,7 @@
   function backupJsonState() {
     syncFlatSessionsFromEvents(state);
     state.spacerKit = normalizeSpacerKit(state.spacerKit);
+    state.brakes = normalizeBrakes(state.brakes);
     state.cornerWeights = ensureCornerWeightBaselineState();
     state.cornerWeights.trimDeltas = normalizeTrimDeltas(state.cornerWeights.trimDeltas);
     state.cornerWeightBaseline = state.cornerWeights;
@@ -12331,7 +13062,7 @@
     }
     const payload = JSON.stringify(
       {
-        app: 'SNB Racing — HQ 202 Jetting & AFR (v0.8.9 Calder 2024 Intercomp Corner Weights, 10-Pc Spacer Kit & 0.92 kg/mm Physics Edition)',
+        app: 'SNB Racing — HQ 202 Jetting & AFR (v0.9.0 Brakes Spec Sheet, Post-Session Brake Temps & AI Cooling Diagnostics Edition)',
         exportedAt: new Date().toISOString(),
         state
       },
@@ -12366,6 +13097,7 @@
         syncSessionSelectFromBaseline();
         hydrateFuelAndTyreInputs();
         hydrateCornerWeightInputs();
+        hydrateBrakesFleetInputs();
         renderAll();
         showToast(`Restored ${state.events.length} events (${state.sessions.length} sessions) from JSON backup`);
       } catch (err) {
@@ -14314,6 +15046,7 @@
     const ch = state.chassis || createDefaultChassisState();
     const b = state.baseline || createDefaultBaseline();
     const fs = state.fuelSystem || createDefaultFuelSystem();
+    const brk = ensureBrakesState();
     const mountedTyres = ensureMountedTyresState();
     const mountedShocks = ensureMountedShocksState();
     const mountedSprings = ensureMountedSpringsState();
@@ -14335,7 +15068,7 @@
 
     const lines = [];
     lines.push('====================================================================');
-    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.8.9)');
+    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.9.0)');
     lines.push(`Exported: ${new Date().toISOString()}`);
     lines.push('====================================================================');
     lines.push('');
@@ -14463,8 +15196,21 @@
     });
     lines.push('');
 
-    // 5. Shocks, Springs & 10-Piece Measured Spacer Inventory Summary
-    lines.push('[5] PEDDERS GSR SHOCKS (9033 FRONT / 9067 REAR), SPRINGS (5608 FRONT / 5609 REAR) & 10-PIECE MEASURED SPACER KIT');
+    // 5. Brakes, Shocks, Springs & 10-Piece Measured Spacer Inventory Summary
+    lines.push('[5] BRAKES HARDWARE SPEC SHEET, PEDDERS GSR SHOCKS (9033F/9067R), SPRINGS (5608F/5609R) & 10-PIECE MEASURED SPACER KIT');
+    const rearCylMeta = REAR_WHEEL_CYLINDER_SPECS[brk.rearCylinder] || REAR_WHEEL_CYLINDER_SPECS['9/16"'];
+    lines.push(
+      `- Brakes Hydraulic Bias & Master: Master="${brk.masterCylinder}" | Prop_Valve="${brk.propValve}" (${brk.propValveCurve}) | Rear_Wheel_Cylinders=${brk.rearCylinder} (${rearCylMeta.partNo}, ${rearCylMeta.forceDelta})`
+    );
+    lines.push(
+      `- Brakes Front Disc Setup: Calipers="${brk.frontCalipers}" | Rotors="${brk.frontRotors}" (FL=${Number(brk.rotorThicknessMm?.FL ?? 25.4).toFixed(1)}mm / FR=${Number(brk.rotorThicknessMm?.FR ?? 25.4).toFixed(1)}mm; Max 25.4mm / Min Discard 22.3mm) | Front_Pads="${brk.frontPads}" | Front_Ducting=${brk.frontDuctState} ("${brk.frontDucting}")`
+    );
+    lines.push(
+      `- Brakes Rear Drum Setup: Drums="${brk.rearDrums}" | Rear_Shoes="${brk.rearShoes}" | Rear_Ducting=${brk.rearDuctState} ("${brk.rearDucting}") | Notes="${brk.notes || ''}"`
+    );
+    lines.push(
+      `- Thermal Paint Reference Key: DBA 4014 Front Rotors (Green->White 430°C • Orange->Yellow 560°C • Red->White 610°C) | PBR Front Calipers (121->280°C) | DBA Rear Drums (Linings 121->280°C, 242-254°C un-ducted ref • Housing 160->199°C)`
+    );
     const fmtDumpShock = (s) => {
       const comp = s.compMmS !== undefined ? s.compMmS : s.kingComp;
       const reb = s.rebMmS !== undefined ? s.rebMmS : s.kingReb;
@@ -14561,6 +15307,13 @@
         );
         lines.push(`    Tyres (${modeStr} • Track_Temp_C: ${trackTempStr} • Targets ${fTgt.toFixed(1)}F / ${rTgt.toFixed(1)}R PSI • ${s.tyreCondition === 'wet' ? 'KW Wet' : 'KB Dry'}): ${fmtT('FL')} | ${fmtT('FR')} | ${fmtT('RL')} | ${fmtT('RR')}`);
         lines.push(`    Suspension (RL_Spacer_mm:${spacerMap.RL}mm | RR_Spacer_mm:${spacerMap.RR}mm): ${fmtSusp('FL')} | ${fmtSusp('FR')} | ${fmtSusp('RL')} | ${fmtSusp('RR')}`);
+        const bt = normalizeBrakeTemps(s.brakeTemps);
+        const bBias = normalizeBrakeBiasTag(s.brakeBiasTag);
+        const bSnap = s.brakes || getActiveBrakesSnapshot();
+        const bDiag = evaluateSessionBrakeDiagnostics(bt, bBias, bSnap);
+        lines.push(
+          `    Brakes (Pads: ${bSnap.padCompound || 'Porterfield R-4'} • Rear_Cyl: ${bSnap.rearCylinder || '9/16"'} • Ducts: F ${bSnap.frontDuctState || '100% Open'} / R ${bSnap.rearDuctState || '100% Open'}): FL_Rotor=${bt.FL !== null ? `${bt.FL}°C` : '—'} | FR_Rotor=${bt.FR !== null ? `${bt.FR}°C` : '—'} | RL_Drum=${bt.RL !== null ? `${bt.RL}°C` : '—'} | RR_Drum=${bt.RR !== null ? `${bt.RR}°C` : '—'} | Bias_Tag=${bBias || '—'}${bDiag.hasData ? ` | AI_Brake_Diag: ${bDiag.headline}` : ''}`
+        );
         if (hTags.length > 0) {
           lines.push(`    Handling_Tags: ${hTags.join(', ')}`);
         }
@@ -15398,6 +16151,9 @@
     linked.springs = { ...tyreSnap.springs };
     linked.spacers = { ...(tyreSnap.spacers || ensureMountedSpacersState()) };
     linked.handlingTags = normalizeHandlingTagsArray(ui.selectedHandlingTags);
+    linked.brakeTemps = readPostBrakeTempInputs();
+    linked.brakeBiasTag = normalizeBrakeBiasTag(ui.selectedBrakeBiasTag);
+    linked.brakes = getActiveBrakesSnapshot();
     if (!linked.racedLaps || linked.racedLaps <= 0) {
       linked.racedLaps = tyreSnap.tyreSessionLaps || 10;
     }
@@ -15507,6 +16263,8 @@
         const pInp = $(`inputPyro${zone}_${c}`);
         if (pInp) pInp.value = '';
       });
+      const brkInp = $(`inputBrakeTemp_${c}`);
+      if (brkInp) brkInp.value = '';
     });
 
     // Update cumulative tyre laps across pool now that session is marked completed
@@ -15521,6 +16279,9 @@
     state.awaitingPostRaceId = null;
     ui.postRaceTargetSessionId = null;
     ui.selectedHandlingTags = [];
+    ui.selectedBrakeBiasTag = null;
+    ui.postBrakeTempsOpen = false;
+    renderPostBrakeTempsAndBiasUi();
 
     if ($('selectCalcCarby')) {
       $('selectCalcCarby').value = state.baseline.carbyId;
@@ -16594,6 +17355,24 @@
       inputEl.dispatchEvent(new Event('change', { bubbles: true }));
       return;
     }
+    if ((idStr === 'inputBrakeTemp_FL' || idStr === 'inputBrakeTemp_FR') && (!Number.isFinite(current) || current <= 0)) {
+      inputEl.value = '420';
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+      inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+    if ((idStr === 'inputBrakeTemp_RL' || idStr === 'inputBrakeTemp_RR') && (!Number.isFinite(current) || current <= 0)) {
+      inputEl.value = '195';
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+      inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+    if ((idStr === 'inputRotorMm_FL' || idStr === 'inputRotorMm_FR') && (!Number.isFinite(current) || current <= 0)) {
+      inputEl.value = '25.4';
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+      inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
     if (idStr.startsWith('inputColdPsi_') && (!Number.isFinite(current) || current <= 0)) {
       const cKey = idStr.replace('inputColdPsi_', '');
       const venue = getSelectedTyreTrackVenue();
@@ -16697,6 +17476,7 @@
     safeRun('renderTyres', () => {
       recalcTyres();
       renderTyreStockList();
+      renderPostBrakeTempsAndBiasUi();
     });
     safeRun('renderSessionLog', () => renderSessionLog());
     safeRun('renderDyno', () => {
@@ -16706,6 +17486,7 @@
       }
     });
     safeRun('renderFleet', () => {
+      renderBrakesFleet();
       renderCarbyFleet();
       renderCornerWeightBaselineCard();
       renderEmulsionBrassFleet();
@@ -17327,6 +18108,36 @@
         return;
       }
 
+      const rearCylBtn = e.target.closest('[data-rear-cylinder]');
+      if (rearCylBtn) {
+        selectRearWheelCylinder(rearCylBtn.getAttribute('data-rear-cylinder'));
+        return;
+      }
+
+      const frontDuctBtn = e.target.closest('[data-front-duct]');
+      if (frontDuctBtn) {
+        selectBrakeDuctState('front', frontDuctBtn.getAttribute('data-front-duct'));
+        return;
+      }
+
+      const rearDuctBtn = e.target.closest('[data-rear-duct]');
+      if (rearDuctBtn) {
+        selectBrakeDuctState('rear', rearDuctBtn.getAttribute('data-rear-duct'));
+        return;
+      }
+
+      const toggleBrakeTempsBtn = e.target.closest('#btnTogglePostBrakeTemps');
+      if (toggleBrakeTempsBtn) {
+        togglePostBrakeTempsDrawer();
+        return;
+      }
+
+      const brakeBiasBtn = e.target.closest('[data-brake-bias-tag]');
+      if (brakeBiasBtn) {
+        toggleBrakeBiasTag(brakeBiasBtn.getAttribute('data-brake-bias-tag'));
+        return;
+      }
+
       const handlingTagBtn = e.target.closest('[data-handling-tag]');
       if (handlingTagBtn) {
         toggleHandlingTag(handlingTagBtn.getAttribute('data-handling-tag'));
@@ -17464,6 +18275,27 @@
     const handleLiveFuelOrTyreInput = (e) => {
       const target = e.target;
       if (!target) return;
+
+      const brakesFieldAttr =
+        (target.getAttribute && target.getAttribute('data-brakes-field')) ||
+        target.id === 'inputRotorMm_FL' ||
+        target.id === 'inputRotorMm_FR' ||
+        target.id === 'selectBrakesPropValve' ||
+        target.id === 'selectBrakesFrontPad' ||
+        target.id === 'selectBrakesRearShoe' ||
+        target.id === 'inputBrakesNotes';
+      if (brakesFieldAttr) {
+        handleBrakesFleetFieldChange();
+        return;
+      }
+
+      const brakeTempInputAttr =
+        (target.getAttribute && target.getAttribute('data-brake-temp-input')) ||
+        (target.id && target.id.startsWith('inputBrakeTemp_'));
+      if (brakeTempInputAttr) {
+        renderPostBrakeTempsAndBiasUi();
+        return;
+      }
 
       const jetLocId = target.getAttribute && target.getAttribute('data-jet-location-select');
       if (jetLocId && e.type === 'change') {
@@ -18517,6 +19349,7 @@
           emulsions: createDefaultEmulsions(),
           brassJets: createDefaultBrassJets(),
           fuelSystem: createDefaultFuelSystem(),
+          brakes: createDefaultBrakes(),
           carbies: createDefaultCarbies(),
           manifolds: createDefaultManifolds(),
           exhausts: createDefaultExhausts(),
@@ -18546,6 +19379,8 @@
         ui.expandedSessionId = null;
         ui.expandedEventIds = new Set();
         ui.selectedHandlingTags = [];
+        ui.selectedBrakeBiasTag = null;
+        ui.postBrakeTempsOpen = false;
         ui.selectedFleetManifoldId = 'MAN_B';
         if ($('searchLogQuery')) $('searchLogQuery').value = '';
         if ($('btnClearLogQuery')) $('btnClearLogQuery').hidden = true;
@@ -18559,6 +19394,7 @@
         syncSessionSelectFromBaseline();
         hydrateFuelAndTyreInputs();
         hydrateCornerWeightInputs();
+        hydrateBrakesFleetInputs();
         renderAll();
         showToast('Restored Calder Park & Winton Seed Events');
       });
@@ -18781,6 +19617,7 @@
     syncSessionSelectFromBaseline();
     hydrateFuelAndTyreInputs();
     hydrateCornerWeightInputs();
+    hydrateBrakesFleetInputs();
   } catch (err) {
     console.error('[boot:hydrateInputs]', err);
   }
