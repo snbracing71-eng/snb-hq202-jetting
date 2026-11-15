@@ -1995,297 +1995,149 @@
     return out;
   }
 
-  function createDefaultCalder2024IntercompHistory() {
-    return [
-      {
-        id: 'calder2024_red',
-        label: 'Calder 2024 [RED] — No Spacers',
-        colorTag: 'RED',
-        updatedAt: 'Calder 2024 [RED]',
-        FL: 352.0,
-        FR: 382.0,
-        RL: 313.0,
-        RR: 326.0,
-        fuelLitresAtScale: 20.0,
-        baseFuelL: 20.0,
-        driverInCar: true,
-        barDisconnected: false,
-        rlSpacerMm: 0,
-        rrSpacerMm: 0,
-        rawRlSpacerMm: 0,
-        rawRrSpacerMm: 0,
-        rfLrCrossPct: 50.54,
-        lfRrWedgePct: 49.45,
-        rideHeightMm: { FL: null, FR: null, RL: null, RR: null },
-        notes: 'Calder 2024 [RED] — No Spacers • 1373 kg • RF+LR Cross 50.54% • Front Split +30 kg RF (382 vs 352 kg)'
-      },
-      {
-        id: 'calder2024_green',
-        label: 'Calder 2024 [GREEN] — 20mm Spacer RR (Race Baseline)',
-        colorTag: 'GREEN',
-        updatedAt: 'Calder 2024 [GREEN]',
-        FL: 361.0,
-        FR: 373.0,
-        RL: 304.0,
-        RR: 334.0,
-        fuelLitresAtScale: 20.0,
-        baseFuelL: 20.0,
-        driverInCar: true,
-        barDisconnected: false,
-        rlSpacerMm: 0,
-        rrSpacerMm: 20,
-        rawRlSpacerMm: 0,
-        rawRrSpacerMm: 20,
-        rfLrCrossPct: 49.38,
-        lfRrWedgePct: 50.62,
-        rideHeightMm: { FL: null, FR: null, RL: null, RR: null },
-        notes: 'Calder 2024 [GREEN] — 20mm Spacer RR (Race Baseline) • 1372 kg • RF+LR Cross 49.38% (Wedge LF+RR 50.62%) • Front Split +12 kg RF'
-      },
-      {
-        id: 'calder2024_blue',
-        label: 'Calder 2024 [BLUE] — 20mm + 7.63mm RR (27mm Test Only)',
-        colorTag: 'BLUE',
-        updatedAt: 'Calder 2024 [BLUE]',
-        FL: 368.0,
-        FR: 366.0,
-        RL: 297.0,
-        RR: 341.0,
-        fuelLitresAtScale: 20.0,
-        baseFuelL: 20.0,
-        driverInCar: true,
-        barDisconnected: false,
-        rlSpacerMm: 0,
-        rrSpacerMm: 20,
-        rawRlSpacerMm: 0,
-        rawRrSpacerMm: 27.63,
-        rfLrCrossPct: 48.30,
-        lfRrWedgePct: 51.68,
-        rideHeightMm: { FL: null, FR: null, RL: null, RR: null },
-        notes: 'Calder 2024 [BLUE] — 20mm + 7.63mm RR (27.63mm Test Only >20mm Rule 6c) • 1372 kg • RF+LR Cross 48.30% • LF +2 kg > RF (+7.0 kg shift @ 0.92 kg/mm)'
-      },
-      {
-        id: 'calder2024_orange',
-        label: 'Calder 2024 [ORANGE] — 20mm RR + RL (Both Sides Rake Test)',
-        colorTag: 'ORANGE',
-        updatedAt: 'Calder 2024 [ORANGE]',
-        FL: 351.0,
-        FR: 383.0,
-        RL: 314.0,
-        RR: 324.0,
-        fuelLitresAtScale: 20.0,
-        baseFuelL: 20.0,
-        driverInCar: true,
-        barDisconnected: false,
-        rlSpacerMm: 20,
-        rrSpacerMm: 20,
-        rawRlSpacerMm: 20,
-        rawRrSpacerMm: 20,
-        rfLrCrossPct: 50.80,
-        lfRrWedgePct: 49.20,
-        rideHeightMm: { FL: null, FR: null, RL: null, RR: null },
-        notes: 'Calder 2024 [ORANGE] — 20mm RR + RL (Both Sides Rake Test) • 1372 kg • RF+LR Cross 50.80% • Pure Rake / Zero Diagonal Transfer'
-      },
-      {
-        id: 'calder2024_black',
-        label: 'Calder 2024 [BLACK] — 10.11mm Steel RL',
-        colorTag: 'BLACK',
-        updatedAt: 'Calder 2024 [BLACK]',
-        FL: 354.0,
-        FR: 381.0,
-        RL: 312.0,
-        RR: 327.0,
-        fuelLitresAtScale: 20.0,
-        baseFuelL: 20.0,
-        driverInCar: true,
-        barDisconnected: false,
-        rlSpacerMm: 10,
-        rrSpacerMm: 20,
-        rawRlSpacerMm: 10.11,
-        rawRrSpacerMm: 20,
-        rfLrCrossPct: 50.40,
-        lfRrWedgePct: 49.64,
-        rideHeightMm: { FL: null, FR: null, RL: null, RR: null },
-        notes: 'Calder 2024 [BLACK] — 10.11mm Steel Flat Ring RL • 1374 kg • RF+LR Cross 50.40%'
-      }
-    ];
-  }
-
-  function createDefaultTrimDeltas() {
+  function createLockedCalder2024BaseSession() {
     return {
-      weldedLeadBabyKg: 55.0,
-      removableLeadPlatesDeltaKg: -8.8,
-      driverGearDeltaKg: -5.0,
-      wheelSet: 'magnesium',
-      magnesiumRimDeltaKg: -6.0,
-      reScaled2026Verified: false
+      id: 'calder_2024_base',
+      name: 'Calder 2024 (No Spacers Base)',
+      locked: true,
+      driverKg: 100.0,
+      fuelL: 20.0,
+      ballastKg: 8.8,
+      notes: 'TCM Wheels • 55kg Lead Baby + 8.8kg plates',
+      baseFL: 352.0,
+      baseFR: 382.0,
+      baseRL: 313.0,
+      baseRR: 326.0
     };
   }
 
-  function normalizeTrimDeltas(raw) {
-    const def = createDefaultTrimDeltas();
-    if (!raw || typeof raw !== 'object') return def;
-    const pickSignedNum = (v, fb) => {
-      if (v === null || v === undefined || v === '') return fb;
-      const n = Number(v);
-      return Number.isFinite(n) ? Number(n.toFixed(1)) : fb;
+  /**
+   * Exact calibrated corner weight deltas [dFL, dFR, dRL, dRR] off any No-Spacers (RL 0mm / RR 0mm) baseline
+   * for all 9 combinations of RL (0 / 10 / 20mm) and RR (0 / 10 / 20mm).
+   */
+  function getSpacerCornerDeltas(rlMmRaw, rrMmRaw) {
+    const rl = snapSpacerMm(rlMmRaw, 0);
+    const rr = snapSpacerMm(rrMmRaw, 0);
+    const key = `${rl}_${rr}`;
+    const table = {
+      '0_0': [0, 0, 0, 0],
+      '0_10': [5, -5, -5, 4],
+      '0_20': [9, -9, -9, 8],
+      '10_20': [2, -1, -1, 1],
+      '20_20': [-1, 1, 1, -2],
+      '10_10': [0, 0, 0, 0],
+      '10_0': [-5, 5, 5, -4],
+      '20_0': [-9, 9, 9, -8],
+      '20_10': [-4, 4, 4, -4]
     };
-    return {
-      weldedLeadBabyKg: Math.max(0, pickSignedNum(raw.weldedLeadBabyKg, def.weldedLeadBabyKg)),
-      removableLeadPlatesDeltaKg: pickSignedNum(raw.removableLeadPlatesDeltaKg, def.removableLeadPlatesDeltaKg),
-      driverGearDeltaKg: pickSignedNum(raw.driverGearDeltaKg, def.driverGearDeltaKg),
-      wheelSet: raw.wheelSet === 'tcm' ? 'tcm' : 'magnesium',
-      magnesiumRimDeltaKg: pickSignedNum(raw.magnesiumRimDeltaKg, def.magnesiumRimDeltaKg),
-      reScaled2026Verified: Boolean(raw.reScaled2026Verified)
-    };
+    return table[key] || [0, 0, 0, 0];
   }
 
   function createDefaultCornerWeightBaseline() {
+    const lockedBase = createLockedCalder2024BaseSession();
+    const [dFL, dFR, dRL, dRR] = getSpacerCornerDeltas(0, 20);
     return {
-      FL: 361.0,
-      FR: 373.0,
-      RL: 304.0,
-      RR: 334.0,
-      fuelLitresAtScale: 20.0,
-      baseFuelL: 20.0,
-      driverInCar: true,
-      barDisconnected: false,
+      activeSessionId: 'calder_2024_base',
       rlSpacerMm: 0,
       rrSpacerMm: 20,
-      rideHeightMm: { FL: null, FR: null, RL: null, RR: null },
-      scaleContext:
-        '20.0 L Fuel • 100 kg Driver+Gear • TCM Rims (Heavier) • 55 kg Welded Lead Baby + 2x 4.4 kg Plates (63.8 kg Ballast) • 17.5mm Front Swaybar Connected',
-      notes:
-        'Calder 2024 [GREEN] Race Baseline — 20mm Spacer RR • 20.0L Fuel • 100kg Driver+Gear • TCM Rims • 63.8kg Ballast (55kg Lead Baby + 2x 4.4kg Plates) • 17.5mm Swaybar Connected',
-      updatedAt: 'Calder 2024 [GREEN]',
-      history: createDefaultCalder2024IntercompHistory(),
-      trimDeltas: createDefaultTrimDeltas(),
-      seededDefaultPadsV1: true,
-      calder2024IntercompSeededV1: true
+      sessions: [lockedBase],
+      FL: Number((lockedBase.baseFL + dFL).toFixed(1)),
+      FR: Number((lockedBase.baseFR + dFR).toFixed(1)),
+      RL: Number((lockedBase.baseRL + dRL).toFixed(1)),
+      RR: Number((lockedBase.baseRR + dRR).toFixed(1)),
+      fuelLitresAtScale: lockedBase.fuelL,
+      baseFuelL: lockedBase.fuelL,
+      driverKg: lockedBase.driverKg,
+      ballastKg: lockedBase.ballastKg,
+      notes: lockedBase.notes,
+      updatedAt: 'Calder 2024',
+      calder2024LockedBaseV2: true
+    };
+  }
+
+  function normalizeScaleSessionItem(raw, fallbackIdx) {
+    if (!raw || typeof raw !== 'object') return null;
+    if (raw.id === 'calder_2024_base') {
+      return createLockedCalder2024BaseSession();
+    }
+    const pickPosKg = (v, fb) => {
+      const n = Number(v);
+      return Number.isFinite(n) && n > 0 && n <= 1200 ? Number(n.toFixed(1)) : fb;
+    };
+    const pickNonNeg = (v, fb, maxVal) => {
+      const n = Number(v);
+      return Number.isFinite(n) && n >= 0 && n <= maxVal ? Number(n.toFixed(1)) : fb;
+    };
+    const bFL = pickPosKg(raw.baseFL ?? raw.FL, null);
+    const bFR = pickPosKg(raw.baseFR ?? raw.FR, null);
+    const bRL = pickPosKg(raw.baseRL ?? raw.RL, null);
+    const bRR = pickPosKg(raw.baseRR ?? raw.RR, null);
+    if (bFL === null || bFR === null || bRL === null || bRR === null) return null;
+    return {
+      id: String(raw.id || `scale_sess_${Date.now()}_${fallbackIdx || 1}`),
+      name: typeof raw.name === 'string' && raw.name.trim() ? raw.name.trim() : `Scale Session ${fallbackIdx || 1}`,
+      locked: false,
+      driverKg: pickNonNeg(raw.driverKg, 95.0, 250),
+      fuelL: pickNonNeg(raw.fuelL ?? raw.baseFuelL ?? raw.fuelLitresAtScale, 20.0, 74),
+      ballastKg: pickNonNeg(raw.ballastKg, 0.0, 200),
+      notes: typeof raw.notes === 'string' ? raw.notes.trim() : '',
+      baseFL: bFL,
+      baseFR: bFR,
+      baseRL: bRL,
+      baseRR: bRR
     };
   }
 
   function normalizeCornerWeightBaseline(raw) {
     const def = createDefaultCornerWeightBaseline();
+    const lockedBase = createLockedCalder2024BaseSession();
     if (!raw || typeof raw !== 'object') return def;
-    const pickCornerKg = (v) => {
-      if (v === null || v === undefined || v === '') return null;
-      const n = Number(v);
-      return Number.isFinite(n) && n > 0 && n <= 1200 ? Number(n.toFixed(1)) : null;
-    };
-    const pickRideHtMm = (v) => {
-      if (v === null || v === undefined || v === '') return null;
-      const n = Number(v);
-      return Number.isFinite(n) && n > 0 && n <= 900 ? Number(n.toFixed(1)) : null;
-    };
-    let fl = pickCornerKg(raw.FL);
-    let fr = pickCornerKg(raw.FR);
-    let rl = pickCornerKg(raw.RL);
-    let rr = pickCornerKg(raw.RR);
-    const isLegacyPlaceholderPads =
-      fl === 382.0 && fr === 368.0 && rl === 312.0 && rr === 308.0;
-    const needsCalder2024Seed = !raw.calder2024IntercompSeededV1;
-    const shouldSeedDefaultPads =
-      (!raw.seededDefaultPadsV1 && fl === null && fr === null && rl === null && rr === null) ||
-      (needsCalder2024Seed && (isLegacyPlaceholderPads || (fl === null && fr === null && rl === null && rr === null)));
-    if (shouldSeedDefaultPads) {
-      fl = def.FL;
-      fr = def.FR;
-      rl = def.RL;
-      rr = def.RR;
+
+    const userSessions = [];
+    if (Array.isArray(raw.sessions)) {
+      raw.sessions.forEach((s, idx) => {
+        if (!s || typeof s !== 'object') return;
+        const sid = String(s.id || '');
+        if (sid === 'calder_2024_base' || sid.startsWith('calder2024_') || sid.startsWith('cw_calder2024_')) {
+          return;
+        }
+        const norm = normalizeScaleSessionItem(s, idx + 1);
+        if (norm && !userSessions.some((u) => u.id === norm.id)) {
+          userSessions.push(norm);
+        }
+      });
     }
 
-    const rawFuel =
-      raw.fuelLitresAtScale !== undefined && raw.fuelLitresAtScale !== null && raw.fuelLitresAtScale !== ''
-        ? raw.fuelLitresAtScale
-        : raw.baseFuelL;
-    const baseFuelL = shouldSeedDefaultPads
-      ? 20.0
-      : rawFuel !== null && rawFuel !== undefined && rawFuel !== '' && Number.isFinite(Number(rawFuel)) && Number(rawFuel) >= 0
-      ? Number(clamp(Number(rawFuel), 0, 74).toFixed(1))
-      : 20.0;
-    const rlRaw = raw.rlSpacerMm !== undefined ? raw.rlSpacerMm : raw.scaleSpacers && raw.scaleSpacers.RL;
-    const rrRaw = raw.rrSpacerMm !== undefined ? raw.rrSpacerMm : raw.scaleSpacers && raw.scaleSpacers.RR;
-    const rhRaw = raw.rideHeightMm && typeof raw.rideHeightMm === 'object' ? raw.rideHeightMm : {};
+    const sessions = [lockedBase, ...userSessions];
+    const requestedActiveId = typeof raw.activeSessionId === 'string' ? raw.activeSessionId : 'calder_2024_base';
+    const activeSession =
+      sessions.find((s) => s.id === requestedActiveId) || lockedBase;
 
-    const defHist = createDefaultCalder2024IntercompHistory();
-    const rawHistoryArr = Array.isArray(raw.history)
-      ? raw.history
-          .filter((h) => h && typeof h === 'object')
-          .map((h) => {
-            const matchedDef = defHist.find((dh) => dh.id === h.id);
-            return {
-              id: String(h.id || `cw_${Date.now()}`),
-              label: typeof h.label === 'string' && h.label.trim() ? h.label.trim() : (matchedDef ? matchedDef.label : ''),
-              colorTag: typeof h.colorTag === 'string' && h.colorTag.trim() ? h.colorTag.trim() : (matchedDef ? matchedDef.colorTag : ''),
-              updatedAt: String(h.updatedAt || (matchedDef ? matchedDef.updatedAt : '2026-11-15')),
-              FL: pickCornerKg(h.FL) ?? 361.0,
-              FR: pickCornerKg(h.FR) ?? 373.0,
-              RL: pickCornerKg(h.RL) ?? 304.0,
-              RR: pickCornerKg(h.RR) ?? 334.0,
-              fuelLitresAtScale: Number.isFinite(Number(h.fuelLitresAtScale ?? h.baseFuelL))
-                ? Number(Number(h.fuelLitresAtScale ?? h.baseFuelL).toFixed(1))
-                : 20.0,
-              baseFuelL: Number.isFinite(Number(h.baseFuelL ?? h.fuelLitresAtScale))
-                ? Number(Number(h.baseFuelL ?? h.fuelLitresAtScale).toFixed(1))
-                : 20.0,
-              driverInCar: h.driverInCar !== undefined ? Boolean(h.driverInCar) : true,
-              barDisconnected: h.barDisconnected !== undefined ? Boolean(h.barDisconnected) : false,
-              rlSpacerMm: snapSpacerMm(h.rlSpacerMm, 0),
-              rrSpacerMm: snapSpacerMm(h.rrSpacerMm, 20),
-              rawRlSpacerMm: Number.isFinite(Number(h.rawRlSpacerMm)) ? Number(h.rawRlSpacerMm) : snapSpacerMm(h.rlSpacerMm, 0),
-              rawRrSpacerMm: Number.isFinite(Number(h.rawRrSpacerMm)) ? Number(h.rawRrSpacerMm) : snapSpacerMm(h.rrSpacerMm, 20),
-              rfLrCrossPct: Number.isFinite(Number(h.rfLrCrossPct)) ? Number(h.rfLrCrossPct) : null,
-              lfRrWedgePct: Number.isFinite(Number(h.lfRrWedgePct)) ? Number(h.lfRrWedgePct) : null,
-              rideHeightMm: {
-                FL: pickRideHtMm(h.rideHeightMm && h.rideHeightMm.FL),
-                FR: pickRideHtMm(h.rideHeightMm && h.rideHeightMm.FR),
-                RL: pickRideHtMm(h.rideHeightMm && h.rideHeightMm.RL),
-                RR: pickRideHtMm(h.rideHeightMm && h.rideHeightMm.RR)
-              },
-              notes: String(h.notes || '')
-            };
-          })
-      : [];
+    const rlSpacerMm = snapSpacerMm(raw.rlSpacerMm, 0);
+    const rrSpacerMm = snapSpacerMm(raw.rrSpacerMm !== undefined ? raw.rrSpacerMm : 20, 20);
+    const [dFL, dFR, dRL, dRR] = getSpacerCornerDeltas(rlSpacerMm, rrSpacerMm);
 
-    // Ensure all 5 Calder 2024 Intercomp colour rows are present in history
-    defHist.forEach((dh) => {
-      if (!rawHistoryArr.some((existing) => existing.id === dh.id)) {
-        rawHistoryArr.push({ ...dh, rideHeightMm: { ...dh.rideHeightMm } });
-      }
-    });
-
-    const isLegacyNotes =
-      !raw.notes ||
-      String(raw.notes).trim() === '' ||
-      String(raw.notes).includes('Baseline workshop pad setup');
+    const liveFL = Number((activeSession.baseFL + dFL).toFixed(1));
+    const liveFR = Number((activeSession.baseFR + dFR).toFixed(1));
+    const liveRL = Number((activeSession.baseRL + dRL).toFixed(1));
+    const liveRR = Number((activeSession.baseRR + dRR).toFixed(1));
 
     return {
-      FL: fl,
-      FR: fr,
-      RL: rl,
-      RR: rr,
-      fuelLitresAtScale: baseFuelL,
-      baseFuelL,
-      driverInCar: raw.driverInCar !== undefined ? Boolean(raw.driverInCar) : true,
-      barDisconnected: shouldSeedDefaultPads ? false : (raw.barDisconnected !== undefined ? Boolean(raw.barDisconnected) : false),
-      rlSpacerMm: snapSpacerMm(rlRaw, 0),
-      rrSpacerMm: snapSpacerMm(rrRaw, 20),
-      rideHeightMm: {
-        FL: pickRideHtMm(rhRaw.FL),
-        FR: pickRideHtMm(rhRaw.FR),
-        RL: pickRideHtMm(rhRaw.RL),
-        RR: pickRideHtMm(rhRaw.RR)
-      },
-      scaleContext:
-        typeof raw.scaleContext === 'string' && raw.scaleContext.trim()
-          ? raw.scaleContext.trim()
-          : def.scaleContext,
-      notes: shouldSeedDefaultPads || isLegacyNotes ? def.notes : String(raw.notes),
-      updatedAt: shouldSeedDefaultPads ? def.updatedAt : String(raw.updatedAt || def.updatedAt),
-      history: rawHistoryArr,
-      trimDeltas: normalizeTrimDeltas(raw.trimDeltas),
-      seededDefaultPadsV1: true,
-      calder2024IntercompSeededV1: true
+      activeSessionId: activeSession.id,
+      rlSpacerMm,
+      rrSpacerMm,
+      sessions,
+      FL: liveFL,
+      FR: liveFR,
+      RL: liveRL,
+      RR: liveRR,
+      fuelLitresAtScale: activeSession.fuelL,
+      baseFuelL: activeSession.fuelL,
+      driverKg: activeSession.driverKg,
+      ballastKg: activeSession.ballastKg,
+      notes: activeSession.notes || '',
+      updatedAt: activeSession.locked ? 'Calder 2024' : activeSession.name,
+      calder2024LockedBaseV2: true
     };
   }
 
@@ -8977,11 +8829,19 @@
       return;
     }
     const spacers = ensureMountedSpacersState();
+    const cw = ensureCornerWeightBaselineState();
     const nextMm = snapSpacerMm(rawMm, 0);
     spacers[corner] = nextMm;
+    if (corner === 'RL') {
+      cw.rlSpacerMm = nextMm;
+    } else {
+      cw.rrSpacerMm = nextMm;
+    }
     if (activeSess) {
       activeSess.spacers = { ...spacers };
     }
+    state.cornerWeights = cw;
+    state.cornerWeightBaseline = cw;
     saveState();
     renderRearSpacerControls();
     renderAiRearSpacerBanner();
@@ -9011,7 +8871,7 @@
   }
 
   function getActiveFuelSgForCornerWeights() {
-    const inpFuelSg = $('inputCalcFuelSg');
+    const inpFuelSg = $('inputCalcFuelSg') || $('inputFuelSg');
     if (inpFuelSg) {
       const parsed = parseFloat(inpFuelSg.value);
       if (Number.isFinite(parsed) && parsed >= 0.68 && parsed <= 0.85) {
@@ -9033,81 +8893,77 @@
     return totalKg > 0 ? Number((((frKg + rlKg) / totalKg) * 100).toFixed(2)) : 50.0;
   }
 
+  function getActiveScaleSessionObj(cwObj) {
+    const cw = cwObj || ensureCornerWeightBaselineState();
+    const lockedBase = createLockedCalder2024BaseSession();
+    if (!Array.isArray(cw.sessions) || cw.sessions.length === 0) {
+      cw.sessions = [lockedBase];
+    } else if (!cw.sessions.some((s) => s && s.id === 'calder_2024_base')) {
+      cw.sessions.unshift(lockedBase);
+    } else {
+      const idx = cw.sessions.findIndex((s) => s && s.id === 'calder_2024_base');
+      cw.sessions[idx] = lockedBase;
+    }
+    const found = cw.sessions.find((s) => s && s.id === cw.activeSessionId);
+    const active = found || lockedBase;
+    cw.activeSessionId = active.id;
+    return active;
+  }
+
   /**
-   * Computes 4-corner scale weight baseline metrics & live wedge shift when testing (testRlMm, testRrMm).
-   * Calibrated with Car #77's real Calder 2024 Intercomp scale data:
-   * - Net spacer step sensitivity = 0.92 kg/mm (~9.0 kg per corner shift moving 0mm -> 20mm RR over stock ~10mm rubber pad,
-   *   or +7.0 kg adding 7.63mm Orange Poly Thin on top of 20mm RR).
-   * - Each 10mm nominal spacer step (0 -> 10 -> 20mm) shifts each corner by 4.5 kg (9.0 kg diagonal FL+RR sum per 10mm step).
-   * Accepts ANY 4 valid corner numbers > 0.
+   * Computes live 4-corner scale weights strictly from the selected Saved Scale Session's
+   * No-Spacers base (baseFL, baseFR, baseRL, baseRR) + exact RL/RR spacer lookup deltas [dFL, dFR, dRL, dRR].
    */
   function computeCornerWeightAndWedgeTelemetry(testRlMmOpt, testRrMmOpt) {
     const cw = ensureCornerWeightBaselineState();
     const spacers = ensureMountedSpacersState();
-    const testRlMm = testRlMmOpt !== undefined ? snapSpacerMm(testRlMmOpt, spacers.RL) : spacers.RL;
-    const testRrMm = testRrMmOpt !== undefined ? snapSpacerMm(testRrMmOpt, spacers.RR) : spacers.RR;
+    const activeSession = getActiveScaleSessionObj(cw);
+
+    // Sync default RL/RR spacer state between cw and mountedSpacers
+    const activeRlMm = snapSpacerMm(
+      cw.rlSpacerMm !== undefined ? cw.rlSpacerMm : spacers.RL,
+      0
+    );
+    const activeRrMm = snapSpacerMm(
+      cw.rrSpacerMm !== undefined ? cw.rrSpacerMm : spacers.RR,
+      20
+    );
+    cw.rlSpacerMm = activeRlMm;
+    cw.rrSpacerMm = activeRrMm;
+
+    const testRlMm = testRlMmOpt !== undefined ? snapSpacerMm(testRlMmOpt, activeRlMm) : activeRlMm;
+    const testRrMm = testRrMmOpt !== undefined ? snapSpacerMm(testRrMmOpt, activeRrMm) : activeRrMm;
+
     const sprInfo = getMountedRearSpringRatesInfo();
     const activeFuelSg = getActiveFuelSgForCornerWeights();
-    const baseFuelL =
-      cw.baseFuelL !== null && cw.baseFuelL !== undefined && Number.isFinite(Number(cw.baseFuelL)) && Number(cw.baseFuelL) >= 0
-        ? Number(Number(cw.baseFuelL).toFixed(1))
-        : 20.0;
+    const baseFuelL = Number(Number(activeSession.fuelL ?? 20.0).toFixed(1));
     const baseFuelMassKg = Number((baseFuelL * activeFuelSg).toFixed(1));
-    const scaleSpacers = { RL: cw.rlSpacerMm, RR: cw.rrSpacerMm };
-    const activeSpacers = { RL: testRlMm, RR: testRrMm };
 
-    const hasAllFour =
-      cw.FL !== null &&
-      cw.FR !== null &&
-      cw.RL !== null &&
-      cw.RR !== null &&
-      Number.isFinite(Number(cw.FL)) &&
-      Number.isFinite(Number(cw.FR)) &&
-      Number.isFinite(Number(cw.RL)) &&
-      Number.isFinite(Number(cw.RR)) &&
-      Number(cw.FL) > 0 &&
-      Number(cw.FR) > 0 &&
-      Number(cw.RL) > 0 &&
-      Number(cw.RR) > 0;
+    const baseFL = Number(activeSession.baseFL);
+    const baseFR = Number(activeSession.baseFR);
+    const baseRL = Number(activeSession.baseRL);
+    const baseRR = Number(activeSession.baseRR);
+    const baseTotalKg = Number((baseFL + baseFR + baseRL + baseRR).toFixed(1));
 
-    // Net +10mm steps of RR relative to RL vs when car was scaled
-    const baseNetRrSteps = (cw.rrSpacerMm - cw.rlSpacerMm) / 10;
-    const testNetRrSteps = (testRrMm - testRlMm) / 10;
-    const deltaRrSteps = testNetRrSteps - baseNetRrSteps;
+    const [dFL, dFR, dRL, dRR] = getSpacerCornerDeltas(testRlMm, testRrMm);
+    const flKg = Number((baseFL + dFL).toFixed(1));
+    const frKg = Number((baseFR + dFR).toFixed(1));
+    const rlKg = Number((baseRL + dRL).toFixed(1));
+    const rrKg = Number((baseRR + dRR).toFixed(1));
 
-    // Calibrated Car #77 scale physics: 0.92 kg/mm sensitivity
-    // Moving 0mm -> 20mm RR (2 steps) shifts each corner by 9.0 kg (+9.0 kg on FL & RR, -9.0 kg on FR & RL -> +18.0 kg on FL+RR diagonal sum)
-    // Each 10mm step shifts each corner by 4.5 kg (9.0 kg on FL+RR diagonal sum)
-    const perCornerDeltaKg = Number((deltaRrSteps * 4.5 * sprInfo.rateScaleFactor).toFixed(1));
-    const diagCrossDeltaKg = Number((perCornerDeltaKg * 2).toFixed(1));
-
-    if (!hasAllFour) {
-      const approxCrossShiftPct = Number((deltaRrSteps * 0.66 * sprInfo.rateScaleFactor).toFixed(2));
-      return {
-        hasAllFour: false,
-        allFourValid: false,
-        cw,
-        baseFuelL,
-        activeFuelSg,
-        baseFuelMassKg,
-        dryCarDriverKg: null,
-        scaleSpacers,
-        activeSpacers,
-        testRlMm,
-        testRrMm,
-        deltaRrSteps,
-        perCornerDeltaKg,
-        diagCrossDeltaKg,
-        approxCrossShiftPct,
-        sprInfo,
-        spacerSensitivityKgPerMm: SPACER_SENSITIVITY_KG_PER_MM
-      };
+    // When computing for the currently selected cw spacers, keep cw.FL/FR/RL/RR synced
+    if (testRlMmOpt === undefined && testRrMmOpt === undefined) {
+      cw.FL = flKg;
+      cw.FR = frKg;
+      cw.RL = rlKg;
+      cw.RR = rrKg;
+      cw.baseFuelL = baseFuelL;
+      cw.fuelLitresAtScale = baseFuelL;
+      cw.driverKg = Number(activeSession.driverKg ?? 100.0);
+      cw.ballastKg = Number(activeSession.ballastKg ?? 8.8);
+      cw.notes = activeSession.notes || '';
     }
 
-    const flKg = Number(cw.FL);
-    const frKg = Number(cw.FR);
-    const rlKg = Number(cw.RL);
-    const rrKg = Number(cw.RR);
     const totalKg = Number((flKg + frKg + rlKg + rrKg).toFixed(1));
     const dryCarDriverKg = Number((totalKg - baseFuelMassKg).toFixed(1));
 
@@ -9121,33 +8977,31 @@
     const rightSideKg = Number((frKg + rrKg).toFixed(1));
     const baseRightPct = Number(((rightSideKg / totalKg) * 100).toFixed(1));
 
-    // Intercomp Cross Weight (RF + LR) & Left-Rear/Front-Left Wedge (LF + RR)
     const intercompCrossKg = Number((frKg + rlKg).toFixed(1));
     const intercompCrossPct = getExactCalderIntercompCrossPct(flKg, frKg, rlKg, rrKg, totalKg);
     const baseCrossKg = Number((flKg + rrKg).toFixed(1));
     const wedgeLfRrPct = Number((100 - intercompCrossPct).toFixed(2));
-    const baseCrossPct = Number(wedgeLfRrPct.toFixed(2));
-    const baseRearPct = overallRearPct;
     const baseRlVsRrKg = Number((rlKg - rrKg).toFixed(1));
     const baseFrMinusFlKg = Number((frKg - flKg).toFixed(1));
 
-    // Live estimated corner weights at (testRlMm, testRrMm)
-    const liveFL = Number((flKg + perCornerDeltaKg).toFixed(1));
-    const liveFR = Number((frKg - perCornerDeltaKg).toFixed(1));
-    const liveRL = Number((rlKg - perCornerDeltaKg).toFixed(1));
-    const liveRR = Number((rrKg + perCornerDeltaKg).toFixed(1));
-    const liveCrossKg = Number((liveFL + liveRR).toFixed(1));
-    const liveIntercompCrossKg = Number((liveFR + liveRL).toFixed(1));
-    const liveIntercompCrossPct = getExactCalderIntercompCrossPct(liveFL, liveFR, liveRL, liveRR, totalKg);
-    const liveCrossPct = Number((100 - liveIntercompCrossPct).toFixed(2));
-    const liveCrossShiftPct = Number((liveCrossPct - baseCrossPct).toFixed(2));
-    const liveRlVsRrKg = Number((liveRL - liveRR).toFixed(1));
-    const liveFrMinusFlKg = Number((liveFR - liveFL).toFixed(1));
+    const deltaRrSteps = (testRrMm - testRlMm) / 10;
+    const perCornerDeltaKg = dFL;
+    const diagCrossDeltaKg = Number((dFL + dRR).toFixed(1));
 
     return {
       hasAllFour: true,
       allFourValid: true,
       cw,
+      activeSession,
+      baseFL,
+      baseFR,
+      baseRL,
+      baseRR,
+      baseTotalKg,
+      dFL,
+      dFR,
+      dRL,
+      dRR,
       FL: flKg,
       FR: frKg,
       RL: rlKg,
@@ -9167,92 +9021,38 @@
       intercompCrossPct,
       wedgeLfRrPct,
       baseCrossKg,
-      baseCrossPct,
-      crossPct: baseCrossPct,
+      baseCrossPct: wedgeLfRrPct,
+      crossPct: wedgeLfRrPct,
       baseLeftPct,
       leftPct: baseLeftPct,
       baseRightPct,
       rightPct: baseRightPct,
-      baseRearPct,
+      baseRearPct: overallRearPct,
       rearPct: overallRearPct,
       baseRlVsRrKg,
       staticRlMinusRrKg: baseRlVsRrKg,
       baseFrMinusFlKg,
-      scaleSpacers,
-      activeSpacers,
+      scaleSpacers: { RL: 0, RR: 0 },
+      activeSpacers: { RL: testRlMm, RR: testRrMm },
       testRlMm,
       testRrMm,
       deltaRrSteps,
       perCornerDeltaKg,
       diagCrossDeltaKg,
-      liveFL,
-      liveFR,
-      liveRL,
-      liveRR,
-      liveCrossKg,
-      liveIntercompCrossKg,
-      liveIntercompCrossPct,
-      liveCrossPct,
-      projectedCrossPct: liveCrossPct,
-      liveCrossShiftPct,
-      liveRlVsRrKg,
-      liveFrMinusFlKg,
+      liveFL: flKg,
+      liveFR: frKg,
+      liveRL: rlKg,
+      liveRR: rrKg,
+      liveCrossKg: baseCrossKg,
+      liveIntercompCrossKg: intercompCrossKg,
+      liveIntercompCrossPct: intercompCrossPct,
+      liveCrossPct: wedgeLfRrPct,
+      projectedCrossPct: wedgeLfRrPct,
+      liveCrossShiftPct: 0,
+      liveRlVsRrKg: baseRlVsRrKg,
+      liveFrMinusFlKg: baseFrMinusFlKg,
       sprInfo,
       spacerSensitivityKgPerMm: SPACER_SENSITIVITY_KG_PER_MM
-    };
-  }
-
-  /**
-   * Computes current car trim delta vs the Calder 2024 scale sheet and flags if under 1,365 kg legal minimum.
-   * Clears warning automatically once a new 2026 scale sheet >= 1365 kg is saved or trim deltas put car >= 1365 kg.
-   */
-  function computeTrimWeightDeltaTelemetry() {
-    const cw = ensureCornerWeightBaselineState();
-    cw.trimDeltas = normalizeTrimDeltas(cw.trimDeltas);
-    const trim = cw.trimDeltas;
-    const cwTelem = computeCornerWeightAndWedgeTelemetry();
-    const scaleTotalKg = cwTelem.hasAllFour ? cwTelem.totalKg : 1372.0;
-    const scaleFuelL = cwTelem.baseFuelL;
-    const fuelSg = cwTelem.activeFuelSg;
-
-    // Normalize baseline scale sheet to 20.0 L fuel
-    const scaleWtAt20L = Number((scaleTotalKg - (scaleFuelL - 20.0) * fuelSg).toFixed(1));
-    const weldedLeadBabyKg = Number(trim.weldedLeadBabyKg ?? 55.0);
-    const removableLeadDeltaKg = Number(trim.removableLeadDeltaKg ?? -8.8);
-    const driverGearDeltaKg = Number(trim.driverGearDeltaKg ?? -5.0);
-    const wheelSet = trim.wheelSet === 'tcm' ? 'tcm' : 'magnesium';
-    const magnesiumRimDeltaKg = Number(trim.magnesiumRimDeltaKg ?? -6.0);
-    const activeRimDeltaKg = wheelSet === 'magnesium' ? magnesiumRimDeltaKg : 0.0;
-
-    // If user saved a fresh 2026 scale sheet >= 1365 kg and hasn't applied negative deltas, netDelta is 0
-    const netDeltaKg = Number((removableLeadDeltaKg + driverGearDeltaKg + activeRimDeltaKg).toFixed(1));
-    const estCurrentWtAt20L = Number((scaleWtAt20L + netDeltaKg).toFixed(1));
-    const legalMinKg = 1365.0;
-    const marginVsMinKg = Number((estCurrentWtAt20L - legalMinKg).toFixed(1));
-    const isClearedBy2026Scale = Boolean(cw.is2026Rescaled && estCurrentWtAt20L >= legalMinKg);
-    const isUnderMin = estCurrentWtAt20L < legalMinKg;
-    const deficitKg = isUnderMin ? Number(Math.abs(marginVsMinKg).toFixed(1)) : 0.0;
-    const recommendedBallastKg = isUnderMin ? Math.max(5, Math.ceil((deficitKg + 2.0) / 5) * 5) : 0;
-
-    return {
-      trim,
-      scaleTotalKg,
-      scaleFuelL,
-      scaleWtAt20L,
-      weldedLeadBabyKg,
-      removableLeadDeltaKg,
-      driverGearDeltaKg,
-      wheelSet,
-      magnesiumRimDeltaKg,
-      activeRimDeltaKg,
-      netDeltaKg,
-      estCurrentWtAt20L,
-      legalMinKg,
-      marginVsMinKg,
-      isUnderMin,
-      isClearedBy2026Scale,
-      deficitKg,
-      recommendedBallastKg
     };
   }
 
@@ -9284,239 +9084,156 @@
   }
 
   function hydrateCornerWeightInputs() {
-    const cw = ensureCornerWeightBaselineState();
-    cw.trimDeltas = normalizeTrimDeltas(cw.trimDeltas);
-    const baseFuelInp = $('inputCwBaseFuelL');
-    if (baseFuelInp && document.activeElement !== baseFuelInp) {
-      baseFuelInp.value = Number(cw.baseFuelL ?? cw.fuelLitresAtScale ?? 20.0).toFixed(1);
-    }
-    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-      const inp = $(`inputCornerWt_${c}`);
-      if (inp && document.activeElement !== inp) {
-        inp.value = cw[c] !== null && Number.isFinite(Number(cw[c])) && Number(cw[c]) > 0 ? Number(cw[c]).toFixed(1) : '';
-      }
-      const rhInp = $(`inputCwRideHeight_${c}`);
-      const rhVal = cw.rideHeightMm && cw.rideHeightMm[c];
-      if (rhInp && document.activeElement !== rhInp) {
-        rhInp.value = rhVal !== null && rhVal !== undefined && Number.isFinite(Number(rhVal)) && Number(rhVal) > 0 ? Number(rhVal).toFixed(1) : '';
-      }
-    });
-    const notesInp = $('inputCwNotes');
-    if (notesInp && document.activeElement !== notesInp) {
-      notesInp.value = cw.notes || '';
-    }
-    const leadBabyInp = $('inputTrimWeldedLeadKg');
-    if (leadBabyInp && document.activeElement !== leadBabyInp) {
-      leadBabyInp.value = Number(cw.trimDeltas.weldedLeadBabyKg ?? 55.0).toFixed(1);
-    }
-    const remLeadInp = $('inputTrimRemovableLeadDeltaKg');
-    if (remLeadInp && document.activeElement !== remLeadInp) {
-      remLeadInp.value = Number(cw.trimDeltas.removableLeadDeltaKg ?? -8.8).toFixed(1);
-    }
-    const drvDeltaInp = $('inputTrimDriverDeltaKg');
-    if (drvDeltaInp && document.activeElement !== drvDeltaInp) {
-      drvDeltaInp.value = Number(cw.trimDeltas.driverGearDeltaKg ?? -5.0).toFixed(1);
-    }
-    const magDeltaInp = $('inputTrimMagRimDeltaKg');
-    if (magDeltaInp && document.activeElement !== magDeltaInp) {
-      magDeltaInp.value = Number(cw.trimDeltas.magnesiumRimDeltaKg ?? -6.0).toFixed(1);
-    }
+    ensureCornerWeightBaselineState();
     renderCornerWeights();
+  }
+
+  function formatCornerDeltaBadge(deltaKg) {
+    const n = Number(deltaKg || 0);
+    if (Math.abs(n) < 0.05) {
+      return { text: '0 kg', cls: 'cw-pad-delta-pill zero mono' };
+    }
+    if (n > 0) {
+      return { text: `+${n.toFixed(0)} kg`, cls: 'cw-pad-delta-pill plus mono' };
+    }
+    return { text: `\u2212${Math.abs(n).toFixed(0)} kg`, cls: 'cw-pad-delta-pill minus mono' };
+  }
+
+  function renderCornerWeightSpacerRefTable() {
+    const container = $('cwSpacerRefTableContainer');
+    if (!container) return;
+    const kit = ensureSpacerKitState();
+    const cw = ensureCornerWeightBaselineState();
+    container.innerHTML = `
+      <div class="cw-spacer-ref-grid">
+        ${kit
+          .map((sp) => {
+            const isIllegalStack = sp.id === 'SP-R3' || sp.id === 'SP-R4';
+            return `
+              <div class="cw-spacer-ref-row ${isIllegalStack ? 'is-illegal-stack' : ''}">
+                <div>
+                  <strong class="mono">${escapeHtml(sp.code)}</strong> &bull;
+                  <strong>${escapeHtml(sp.name)}</strong>
+                  <span class="mono" style="color: var(--text-secondary);">(${escapeHtml(sp.end)} &bull; Qty ${sp.qty})</span>
+                </div>
+                <div class="mono" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                  <span class="txt-emerald"><strong>${Number(sp.thicknessMm).toFixed(2)} mm</strong> (${escapeHtml(sp.liftText)})</span>
+                  <span class="locked-badge ${isIllegalStack ? 'amber' : ''}" style="font-size: 0.6rem; padding: 1px 6px;">${escapeHtml(sp.legalityNote)}</span>
+                </div>
+              </div>
+            `;
+          })
+          .join('')}
+        <div class="cw-spacer-ref-row" style="border-color: rgba(16, 185, 129, 0.45);">
+          <div>
+            <strong class="mono txt-emerald">CAR #77 ACTIVE REAR SPACERS</strong> &bull;
+            <span>Hard-Rubber / Poly / Steel Rear Spring Seat Setup</span>
+          </div>
+          <div class="mono txt-emerald">
+            <strong>RL: ${cw.rlSpacerMm} mm &bull; RR: ${cw.rrSpacerMm} mm</strong>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   function renderCornerWeightBaselineCard() {
     const card = $('cornerWeightBaselineCard');
     if (!card) return;
     const telem = computeCornerWeightAndWedgeTelemetry();
-    const trimTelem = computeTrimWeightDeltaTelemetry();
-    const { cw, sprInfo } = telem;
+    const { cw, activeSession } = telem;
 
-    const baseFuelInp = $('inputCwBaseFuelL');
-    if (baseFuelInp && document.activeElement !== baseFuelInp) {
-      baseFuelInp.value = telem.baseFuelL.toFixed(1);
+    // 1) Header status & session count pills
+    const isSweetCross = telem.intercompCrossPct >= 49.0 && telem.intercompCrossPct <= 50.6;
+    const badgeEl = $('cornerWtStatusBadge');
+    if (badgeEl) {
+      badgeEl.textContent = `${telem.totalKg.toFixed(1)} kg • ${telem.intercompCrossPct.toFixed(2)}% RF+LR`;
+      badgeEl.className = `fleet-acc-status-pill ${isSweetCross ? 'emerald' : 'amber'}`;
     }
-
-    const setupCtxEl = $('outCwSetupContextText');
-    if (setupCtxEl && cw.setupContext) {
-      setupCtxEl.textContent = cw.setupContext;
-    }
-
-    // Sync condition pills & updated badge
-    const btnDriver = $('btnCwDriverInCar');
-    if (btnDriver) {
-      const dActive = cw.driverInCar !== false;
-      btnDriver.classList.toggle('active', dActive);
-      btnDriver.setAttribute('aria-pressed', dActive ? 'true' : 'false');
-      btnDriver.textContent = dActive ? '✓ Driver In Car (100kg)' : 'Driver Out';
-    }
-    const btnBar = $('btnCwBarDisconnected');
-    if (btnBar) {
-      const bActive = Boolean(cw.barDisconnected);
-      btnBar.classList.toggle('active', bActive);
-      btnBar.setAttribute('aria-pressed', bActive ? 'true' : 'false');
-      btnBar.textContent = bActive ? '✓ Swaybar Disconnected' : '17.5mm Swaybar Connected';
-    }
-    const updEl = $('outCwUpdatedAt');
-    if (updEl) {
-      updEl.textContent = `Row: ${cw.activeRowColor || 'GREEN'} (${cw.updatedAt || '2024-08-18'})`;
+    const countBadgeEl = $('fleetCornerWtCountBadge');
+    if (countBadgeEl) {
+      const sLen = Array.isArray(cw.sessions) ? cw.sessions.length : 1;
+      countBadgeEl.textContent = `${sLen} ${sLen === 1 ? 'SESSION' : 'SESSIONS'}`;
     }
 
-    const histCountBadge = $('fleetCornerWtCountBadge');
-    if (histCountBadge) {
-      const hLen = Array.isArray(cw.history) ? cw.history.length : 0;
-      histCountBadge.textContent = hLen > 0 ? `${hLen} ROWS` : 'SAVED';
+    // 2) Active Session Setup Banner
+    const sessTagEl = $('outCwActiveSessionTag');
+    if (sessTagEl) {
+      sessTagEl.textContent = activeSession.locked ? 'LOCKED BASE' : 'SAVED BASELINE';
+      sessTagEl.className = `locked-badge mono ${activeSession.locked ? '' : 'emerald'}`;
+    }
+    const sessBannerEl = $('outCwActiveSessionBanner');
+    if (sessBannerEl) {
+      if (activeSession.id === 'calder_2024_base') {
+        sessBannerEl.textContent =
+          'SESSION: Calder 2024 (Locked Base) | Driver: 100.0 kg • Fuel: 20.0 L • Ballast: 8.8 kg (+55kg Lead Baby) • TCM Wheels';
+      } else {
+        const notesPart = activeSession.notes ? ` • ${activeSession.notes}` : '';
+        sessBannerEl.textContent = `SESSION: ${activeSession.name} | Driver: ${Number(activeSession.driverKg).toFixed(1)} kg • Fuel: ${Number(activeSession.fuelL).toFixed(1)} L • Ballast: ${Number(activeSession.ballastKg).toFixed(1)} kg${notesPart}`;
+      }
     }
 
-    // Sync scale baseline spacer pills
+    // 3) Interactive Rear Spacer Selector Bar
     ['RL', 'RR'].forEach((corner) => {
       const curMm = corner === 'RL' ? cw.rlSpacerMm : cw.rrSpacerMm;
-      const lblEl = $(`outScaleBaseSpacerLbl_${corner}`);
+      const lblEl = $(`outCwSpacerLbl_${corner}`);
       if (lblEl) {
         lblEl.textContent = `${curMm} mm`;
       }
-      document.querySelectorAll(`[data-scale-spacer-corner="${corner}"]`).forEach((btn) => {
-        const bMm = snapSpacerMm(btn.getAttribute('data-scale-spacer-mm'), 0);
+      document.querySelectorAll(`[data-cw-spacer-corner="${corner}"]`).forEach((btn) => {
+        const bMm = snapSpacerMm(btn.getAttribute('data-cw-spacer-mm'), 0);
         const active = bMm === curMm;
         btn.classList.toggle('active', active);
         btn.setAttribute('aria-pressed', active ? 'true' : 'false');
       });
     });
 
-    // Render Trim Delta controls & 1,365 kg Scrutineering Warning inside Corner Weights
-    const btnWheelMag = $('btnCwWheelMag');
-    const btnWheelTcm = $('btnCwWheelTcm');
-    if (btnWheelMag && btnWheelTcm) {
-      const isMag = trimTelem.wheelSet === 'magnesium';
-      btnWheelMag.classList.toggle('active', isMag);
-      btnWheelMag.setAttribute('aria-pressed', isMag ? 'true' : 'false');
-      btnWheelTcm.classList.toggle('active', !isMag);
-      btnWheelTcm.setAttribute('aria-pressed', !isMag ? 'true' : 'false');
-    }
-    const trimStatusBadge = $('outCwTrimDeltaStatusBadge');
-    if (trimStatusBadge) {
-      if (trimTelem.isUnderMin) {
-        trimStatusBadge.textContent = `⚠️ ${trimTelem.deficitKg.toFixed(1)} KG UNDER 1365 KG MIN!`;
-        trimStatusBadge.className = 'locked-badge danger';
-      } else {
-        trimStatusBadge.textContent = `✓ +${trimTelem.marginVsMinKg.toFixed(1)} KG OVER 1365 KG MIN`;
-        trimStatusBadge.className = 'locked-badge emerald';
-      }
-    }
-    const trimScaleBaseEl = $('outTrimScaleBaseKg');
-    if (trimScaleBaseEl) {
-      trimScaleBaseEl.textContent = `${trimTelem.scaleWtAt20L.toFixed(1)} kg`;
-    }
-    const trimNetDeltaEl = $('outTrimNetDeltaKg');
-    if (trimNetDeltaEl) {
-      const nSign = trimTelem.netDeltaKg > 0 ? '+' : '';
-      trimNetDeltaEl.textContent = `${nSign}${trimTelem.netDeltaKg.toFixed(1)} kg`;
-      trimNetDeltaEl.className = `telem-val mono ${trimTelem.netDeltaKg < 0 ? 'txt-amber' : 'txt-emerald'}`;
-    }
-    const trimNetDeltaSubEl = $('outTrimNetDeltaSub');
-    if (trimNetDeltaSubEl) {
-      trimNetDeltaSubEl.textContent = `Plates ${trimTelem.removableLeadDeltaKg.toFixed(1)} • Drv ${trimTelem.driverGearDeltaKg.toFixed(1)} • Rims ${trimTelem.activeRimDeltaKg.toFixed(1)}`;
-    }
-    const trimEstCurrentEl = $('outTrimEstCurrentKg');
-    if (trimEstCurrentEl) {
-      trimEstCurrentEl.textContent = `${trimTelem.estCurrentWtAt20L.toFixed(1)} kg`;
-      trimEstCurrentEl.className = `telem-val mono ${trimTelem.isUnderMin ? 'txt-danger' : 'txt-emerald'}`;
-    }
-    const trimEstMarginSubEl = $('outTrimEstMarginSub');
-    if (trimEstMarginSubEl) {
-      if (trimTelem.isUnderMin) {
-        trimEstMarginSubEl.textContent = `${trimTelem.deficitKg.toFixed(1)} kg UNDER 1365 kg min!`;
-        trimEstMarginSubEl.className = 'telem-sub txt-danger';
-      } else {
-        trimEstMarginSubEl.textContent = `+${trimTelem.marginVsMinKg.toFixed(1)} kg vs 1365 kg min`;
-        trimEstMarginSubEl.className = 'telem-sub txt-emerald';
-      }
-    }
-    const trimAlertBanner = $('cwTrimScrutineerAlert');
-    const trimAlertTitle = $('outCwTrimAlertTitle');
-    const trimAlertBody = $('outCwTrimAlertBody');
-    if (trimAlertBanner && trimAlertTitle && trimAlertBody) {
-      if (trimTelem.isUnderMin) {
-        trimAlertBanner.className = 'cw-trim-alert-banner danger';
-        trimAlertTitle.textContent = `⚠️ ~${trimTelem.deficitKg.toFixed(1)} KG UNDER 1,365 KG MIN! RE-SCALE & FIT ~${trimTelem.recommendedBallastKg} KG BALLAST ON LEFT PASSENGER FLOOR BEFORE RACE!`;
-        trimAlertBody.innerHTML = `Scaled Row 2 Green was <strong>${trimTelem.scaleWtAt20L.toFixed(1)} kg @ 20L</strong>, but current trim changes (<strong>${trimTelem.netDeltaKg.toFixed(1)} kg</strong>: 2&times;4.4kg plates removed, driver ${trimTelem.driverGearDeltaKg.toFixed(1)}kg, ${trimTelem.wheelSet === 'magnesium' ? `Magnesium rims ${trimTelem.activeRimDeltaKg.toFixed(1)}kg` : 'TCM rims 0.0kg'}) drop Car #77 to <strong>~${trimTelem.estCurrentWtAt20L.toFixed(1)} kg @ 20L</strong>. Mounting <strong>~${trimTelem.recommendedBallastKg} kg</strong> lead ballast low on the <strong>LEFT passenger floor</strong> restores legal weight with buffer AND improves Left % (currently 48.5%) &amp; RL traction for Sandown Turn 4!`;
-      } else {
-        trimAlertBanner.className = 'cw-trim-alert-banner safe';
-        trimAlertTitle.textContent = `✓ ESTIMATED CURRENT WEIGHT SAFE (${trimTelem.estCurrentWtAt20L.toFixed(1)} KG @ 20L • +${trimTelem.marginVsMinKg.toFixed(1)} KG OVER 1,365 KG MIN)`;
-        trimAlertBody.innerHTML = `With current trim deltas (${trimTelem.netDeltaKg >= 0 ? '+' : ''}${trimTelem.netDeltaKg.toFixed(1)} kg vs scale sheet), Car #77 is estimated at <strong>${trimTelem.estCurrentWtAt20L.toFixed(1)} kg @ 20L fuel</strong> (+${trimTelem.marginVsMinKg.toFixed(1)} kg over the 1,365.0 kg legal minimum).`;
-      }
+    const spacerSumEl = $('outCwActiveSpacerSummary');
+    if (spacerSumEl) {
+      const fmtSigned = (n) => (n > 0 ? `+${n}` : n < 0 ? `\u2212${Math.abs(n)}` : '0');
+      spacerSumEl.textContent = `RL ${cw.rlSpacerMm}mm / RR ${cw.rrSpacerMm}mm (\u0394 ${fmtSigned(telem.dFL)}/${fmtSigned(telem.dFR)}/${fmtSigned(telem.dRL)}/${fmtSigned(telem.dRR)} kg)`;
     }
 
-    // Render 5 Calder 2024 Intercomp colour rows + any custom snapshots
-    const histListEl = $('cwHistoryList');
-    if (histListEl) {
-      const hist = Array.isArray(cw.history) ? cw.history : [];
-      if (hist.length === 0) {
-        histListEl.innerHTML = '';
-      } else {
-        histListEl.innerHTML = hist
-          .map((h, idx) => {
-            const hFL = Number(h.FL || 0);
-            const hFR = Number(h.FR || 0);
-            const hRL = Number(h.RL || 0);
-            const hRR = Number(h.RR || 0);
-            const hTot = Number((hFL + hFR + hRL + hRR).toFixed(1));
-            const hIntercompCross =
-              h.intercompCrossPct !== undefined && Number.isFinite(Number(h.intercompCrossPct))
-                ? Number(h.intercompCrossPct).toFixed(2)
-                : getExactCalderIntercompCrossPct(hFL, hFR, hRL, hRR, hTot).toFixed(2);
-            const hWedgeLfRr =
-              h.wedgeLfRrPct !== undefined && Number.isFinite(Number(h.wedgeLfRrPct))
-                ? Number(h.wedgeLfRrPct).toFixed(2)
-                : (100 - Number(hIntercompCross)).toFixed(2);
-            const rowColor = String(h.rowColor || '').toUpperCase();
-            const colorClass =
-              rowColor === 'RED'
-                ? 'red'
-                : rowColor === 'GREEN'
-                ? 'green'
-                : rowColor === 'BLUE'
-                ? 'blue'
-                : rowColor === 'ORANGE'
-                ? 'orange'
-                : rowColor === 'BLACK'
-                ? 'black'
-                : 'green';
-            const isCurrentlyLoaded =
-              telem.hasAllFour &&
-              Math.abs(telem.FL - hFL) < 0.05 &&
-              Math.abs(telem.FR - hFR) < 0.05 &&
-              Math.abs(telem.RL - hRL) < 0.05 &&
-              Math.abs(telem.RR - hRR) < 0.05;
-            const labelStr = h.rowLabel || `${h.updatedAt || 'Scale Snapshot'} (RL ${h.rlSpacerMm ?? 0}mm / RR ${h.rrSpacerMm ?? 20}mm)`;
-            const fSplit = hFR - hFL;
-            const fSplitStr = fSplit === 0 ? 'Even Front' : fSplit > 0 ? `Front Split +${fSplit.toFixed(0)} kg RF` : `LF +${Math.abs(fSplit).toFixed(0)} kg > RF`;
-            return `
-              <div class="cw-history-row ${isCurrentlyLoaded ? 'is-active-row' : ''}">
-                <div>
-                  <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    ${rowColor ? `<span class="cw-row-color-pill ${colorClass}">${escapeHtml(rowColor)}</span>` : ''}
-                    <strong class="mono ${isCurrentlyLoaded ? 'txt-emerald' : ''}" style="font-size: 0.78rem;">${escapeHtml(labelStr)}</strong>
-                    ${isCurrentlyLoaded ? `<span class="locked-badge" style="font-size: 0.62rem; padding: 1px 6px;">ACTIVE PAD BASELINE</span>` : ''}
-                  </div>
-                  <div class="mono" style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 3px;">
-                    FL:<strong>${hFL.toFixed(0)}</strong> / FR:<strong>${hFR.toFixed(0)}</strong> / RL:<strong>${hRL.toFixed(0)}</strong> / RR:<strong>${hRR.toFixed(0)}</strong> (<strong class="txt-emerald">${hTot.toFixed(0)} kg</strong>) &bull; RF+LR Cross: <strong>${hIntercompCross}%</strong> (LF+RR <strong>${hWedgeLfRr}%</strong>) &bull; ${escapeHtml(fSplitStr)}
-                  </div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <button type="button" class="btn ${isCurrentlyLoaded ? 'btn-amber-outline' : 'btn-secondary'} btn-xs" data-load-cw-hist="${idx}">${isCurrentlyLoaded ? 'Loaded' : 'Load'}</button>
-                  ${!h.id || !String(h.id).startsWith('cw_calder2024_') ? `<button type="button" class="btn-icon-delete" data-del-cw-hist="${idx}" title="Delete Snapshot" aria-label="Delete Snapshot">&#10005;</button>` : ''}
-                </div>
-              </div>
-            `;
-          })
-          .join('');
-      }
-    }
-
-    const badgeEl = $('cornerWtStatusBadge');
-    const baseFuelHintEl = $('outCwBaseFuelHint');
+    // 4) Read-Only 4-Corner Chassis Layout
     const frontKgEl = $('outCwFrontKg');
     const frontPctEl = $('outCwFrontPct');
+    const frontSplitEl = $('outCwStaticFrontDelta');
+    if (frontKgEl) frontKgEl.textContent = `${telem.overallFrontKg.toFixed(1)} kg`;
+    if (frontPctEl) frontPctEl.textContent = `${telem.overallFrontPct.toFixed(1)}%`;
+    if (frontSplitEl) {
+      const fDiff = telem.FR - telem.FL;
+      if (Math.abs(fDiff) < 0.05) {
+        frontSplitEl.textContent = `Even Front (${telem.FR.toFixed(0)} vs ${telem.FL.toFixed(0)} kg)`;
+      } else if (fDiff > 0) {
+        frontSplitEl.textContent = `+${fDiff.toFixed(0)} kg RF (${telem.FR.toFixed(0)} vs ${telem.FL.toFixed(0)} kg)`;
+      } else {
+        frontSplitEl.textContent = `+${Math.abs(fDiff).toFixed(0)} kg LF (${telem.FL.toFixed(0)} vs ${telem.FR.toFixed(0)} kg)`;
+      }
+    }
+
+    const cornersMeta = [
+      { key: 'FL', kg: telem.FL, base: telem.baseFL, delta: telem.dFL },
+      { key: 'FR', kg: telem.FR, base: telem.baseFR, delta: telem.dFR },
+      { key: 'RL', kg: telem.RL, base: telem.baseRL, delta: telem.dRL },
+      { key: 'RR', kg: telem.RR, base: telem.baseRR, delta: telem.dRR }
+    ];
+    cornersMeta.forEach((c) => {
+      const kgEl = $(`outCwCornerKg_${c.key}`);
+      const deltaEl = $(`outCwCornerDelta_${c.key}`);
+      const baseEl = $(`outCwCornerBase_${c.key}`);
+      if (kgEl) {
+        kgEl.innerHTML = `${c.kg.toFixed(1)} <span class="cw-pad-kg-unit">kg</span>`;
+      }
+      if (deltaEl) {
+        const dBadge = formatCornerDeltaBadge(c.delta);
+        deltaEl.textContent = dBadge.text;
+        deltaEl.className = dBadge.cls;
+      }
+      if (baseEl) {
+        baseEl.textContent = `No-Spacers Base: ${c.base.toFixed(1)} kg`;
+      }
+    });
+
     const totalKgEl = $('outCwTotalKg');
     const dryCarSubEl = $('outCwDryCarSub');
     const crossColEl = $('cwHubColCross');
@@ -9524,316 +9241,248 @@
     const crossKgEl = $('outCwCrossKg');
     const leftPctEl = $('outCwLeftPct');
     const leftKgEl = $('outCwLeftKg');
-    const rearKgEl = $('outCwRearKg');
-    const rearPctEl = $('outCwRearPct');
-    const staticRearDeltaEl = $('outCwStaticRearDelta');
-    const wedgeEl = $('outCornerWtWedgeShiftBox');
-
-    if (!telem.hasAllFour) {
-      if (badgeEl) {
-        badgeEl.textContent = 'Enter 4 Corners';
-        badgeEl.className = 'fleet-acc-status-pill amber';
-      }
-      if (baseFuelHintEl) {
-        baseFuelHintEl.textContent = `~${telem.baseFuelMassKg.toFixed(1)} kg @ ${telem.activeFuelSg.toFixed(3)} SG • Dry Car+Driver: — kg`;
-      }
-      if (frontKgEl) frontKgEl.textContent = '— kg';
-      if (frontPctEl) frontPctEl.textContent = '—%';
-      if (totalKgEl) totalKgEl.textContent = '— kg';
-      if (dryCarSubEl) dryCarSubEl.textContent = 'Dry Car+Driver: — kg';
-      if (crossColEl) {
-        crossColEl.classList.remove('is-sweet-spot', 'is-warn');
-      }
-      if (crossPctEl) crossPctEl.textContent = '—%';
-      if (crossKgEl) crossKgEl.textContent = '— kg';
-      if (leftPctEl) leftPctEl.textContent = '—%';
-      if (leftKgEl) leftKgEl.textContent = '— kg';
-      if (rearKgEl) rearKgEl.textContent = '— kg';
-      if (rearPctEl) rearPctEl.textContent = '—%';
-      if (staticRearDeltaEl) staticRearDeltaEl.textContent = 'Static RL vs RR: — kg';
-      if (wedgeEl) {
-        const activeSpacers = ensureMountedSpacersState();
-        const stepDelta = (activeSpacers.RR - activeSpacers.RL - (cw.rrSpacerMm - cw.rlSpacerMm)) / 10;
-        const perCornerKg = Number((stepDelta * 4.5 * sprInfo.rateScaleFactor).toFixed(1));
-        const signStr = perCornerKg >= 0 ? '+' : '';
-        wedgeEl.innerHTML = `<strong>Calibrated Spacer Physics (0.92 kg/mm &bull; ${sprInfo.rlCode} ${sprInfo.rlRate} N/mm RL / ${sprInfo.rrCode} ${sprInfo.rrRate} N/mm RR):</strong> Moving <strong>0mm &rarr; 20mm RR</strong> shifts each corner by <strong>~9.0 kg</strong> (+7.0 kg adding 7.63mm Orange Poly on top of 20mm). Active car setup (RL <strong>${activeSpacers.RL}mm</strong> / RR <strong>${activeSpacers.RR}mm</strong>) shifts each corner by <strong>${signStr}${perCornerKg.toFixed(1)} kg</strong> vs scale baseline.`;
-      }
-      return;
-    }
-
-    const isSweetCross = telem.intercompCrossPct >= 49.0 && telem.intercompCrossPct <= 50.6;
-    const rlRrSign = telem.baseRlVsRrKg > 0 ? '+' : '';
-    const heavierSideLabel =
-      Math.abs(telem.baseRlVsRrKg) < 0.05
-        ? 'Even RL/RR'
-        : telem.baseRlVsRrKg > 0
-        ? 'RL heavier'
-        : 'RR heavier';
-    const rearDiffWarn = Math.abs(telem.liveRlVsRrKg) > 18.0;
-
-    if (badgeEl) {
-      badgeEl.textContent = `${telem.totalKg.toFixed(1)} kg • ${telem.intercompCrossPct.toFixed(2)}% RF+LR`;
-      badgeEl.className = `fleet-acc-status-pill ${isSweetCross ? 'emerald' : 'amber'}`;
-    }
-    if (baseFuelHintEl) {
-      baseFuelHintEl.textContent = `~${telem.baseFuelMassKg.toFixed(1)} kg @ ${telem.activeFuelSg.toFixed(3)} SG • Dry Car+Driver: ${telem.dryCarDriverKg.toFixed(1)} kg`;
-    }
-    if (frontKgEl) frontKgEl.textContent = `${telem.overallFrontKg.toFixed(1)} kg`;
-    if (frontPctEl) frontPctEl.textContent = `${telem.overallFrontPct.toFixed(1)}%`;
     if (totalKgEl) totalKgEl.textContent = `${telem.totalKg.toFixed(1)} kg`;
     if (dryCarSubEl) dryCarSubEl.textContent = `Dry: ${telem.dryCarDriverKg.toFixed(1)} kg`;
     if (crossColEl) {
       crossColEl.classList.toggle('is-sweet-spot', isSweetCross);
       crossColEl.classList.toggle('is-warn', !isSweetCross);
     }
-    if (crossPctEl) crossPctEl.textContent = `${telem.intercompCrossPct.toFixed(2)}%`;
-    if (crossKgEl) crossKgEl.textContent = `LF+RR Wedge: ${telem.wedgeLfRrPct.toFixed(2)}% (${telem.baseCrossKg.toFixed(0)} kg)`;
-    if (leftPctEl) leftPctEl.textContent = `${telem.baseLeftPct.toFixed(1)}% / ${telem.baseRightPct.toFixed(1)}%`;
-    if (leftKgEl) leftKgEl.textContent = `${telem.leftSideKg.toFixed(0)}L / ${telem.rightSideKg.toFixed(0)}R kg`;
+    if (crossPctEl) crossPctEl.textContent = `${telem.intercompCrossPct.toFixed(2)}% RF+LR`;
+    if (crossKgEl) crossKgEl.textContent = `Wedge LF+RR: ${telem.wedgeLfRrPct.toFixed(2)}% (${telem.baseCrossKg.toFixed(0)} kg)`;
+    if (leftPctEl) leftPctEl.textContent = `${telem.baseLeftPct.toFixed(1)}% L / ${telem.baseRightPct.toFixed(1)}% R`;
+    if (leftKgEl) leftKgEl.textContent = `${telem.leftSideKg.toFixed(1)} L • ${telem.rightSideKg.toFixed(1)} R kg`;
+
+    const rearKgEl = $('outCwRearKg');
+    const rearPctEl = $('outCwRearPct');
+    const rearSplitEl = $('outCwStaticRearDelta');
     if (rearKgEl) rearKgEl.textContent = `${telem.overallRearKg.toFixed(1)} kg`;
     if (rearPctEl) rearPctEl.textContent = `${telem.overallRearPct.toFixed(1)}%`;
-    if (staticRearDeltaEl) {
-      const fSplitSign = telem.baseFrMinusFlKg >= 0 ? '+' : '';
-      staticRearDeltaEl.textContent = `Static RL vs RR: ${rlRrSign}${telem.baseRlVsRrKg.toFixed(1)} kg (${heavierSideLabel}) • Front FR-FL: ${fSplitSign}${telem.baseFrMinusFlKg.toFixed(1)} kg`;
-      staticRearDeltaEl.className = `cw-axle-subline mono ${Math.abs(telem.baseRlVsRrKg) > 18 ? 'txt-amber' : ''}`;
+    if (rearSplitEl) {
+      const rDiff = telem.RR - telem.RL;
+      if (Math.abs(rDiff) < 0.05) {
+        rearSplitEl.textContent = `Even Rear (${telem.RR.toFixed(0)} vs ${telem.RL.toFixed(0)} kg)`;
+        rearSplitEl.className = 'cw-axle-sub mono txt-emerald';
+      } else if (rDiff > 0) {
+        rearSplitEl.textContent = `+${rDiff.toFixed(0)} kg RR (${telem.RR.toFixed(0)} vs ${telem.RL.toFixed(0)} kg)`;
+        rearSplitEl.className = `cw-axle-sub mono ${rDiff > 18 ? 'txt-amber' : ''}`;
+      } else {
+        rearSplitEl.textContent = `+${Math.abs(rDiff).toFixed(0)} kg RL (${telem.RL.toFixed(0)} vs ${telem.RR.toFixed(0)} kg)`;
+        rearSplitEl.className = `cw-axle-sub mono ${Math.abs(rDiff) > 18 ? 'txt-amber' : ''}`;
+      }
     }
 
-    if (wedgeEl) {
-      const cSign = telem.perCornerDeltaKg >= 0 ? '+' : '';
-      const liveRlRrSign = telem.liveRlVsRrKg >= 0 ? '+' : '';
-      const warnHtml = rearDiffWarn
-        ? ` <span class="txt-danger">&bull; ⚠️ CCW Inside-Rear Unload Warning: RL is ${Math.abs(telem.liveRlVsRrKg).toFixed(0)} kg lighter than RR (on CCW Sandown Turn 4 LH exit, step to RR 10mm + Left Floor Ballast if Spin LH Exit occurs!)</span>`
-        : '';
-      wedgeEl.innerHTML = `
-        <div><strong>Calibrated 0.92 kg/mm Spacer Physics (Active RL ${telem.testRlMm}mm &bull; RR ${telem.testRrMm}mm vs Scaled RL ${cw.rlSpacerMm}mm &bull; RR ${cw.rrSpacerMm}mm):</strong> Corner shift <strong>${cSign}${telem.perCornerDeltaKg.toFixed(1)} kg/corner</strong> (~9.0 kg moving 0&rarr;20mm RR) &rarr; Est Live: <strong>FL ${telem.liveFL.toFixed(1)}</strong> / <strong>FR ${telem.liveFR.toFixed(1)}</strong> / <strong>RL ${telem.liveRL.toFixed(1)}</strong> / <strong>RR ${telem.liveRR.toFixed(1)} kg</strong> &bull; Intercomp Cross (RF+LR): <strong class="txt-emerald">${telem.liveIntercompCrossPct.toFixed(2)}%</strong> (Wedge LF+RR: <strong>${telem.liveCrossPct.toFixed(2)}%</strong>) &bull; Live RL vs RR: <strong>${liveRlRrSign}${telem.liveRlVsRrKg.toFixed(1)} kg</strong>${warnHtml}</div>
-      `;
+    // 5) Saved Scale Sessions List
+    const sessionsListEl = $('cwSavedSessionsList');
+    if (sessionsListEl) {
+      const sessions = Array.isArray(cw.sessions) ? cw.sessions : [createLockedCalder2024BaseSession()];
+      sessionsListEl.innerHTML = sessions
+        .map((s) => {
+          const isActive = s.id === activeSession.id;
+          const bFL = Number(s.baseFL || 352);
+          const bFR = Number(s.baseFR || 382);
+          const bRL = Number(s.baseRL || 313);
+          const bRR = Number(s.baseRR || 326);
+          const bTotal = Number((bFL + bFR + bRL + bRR).toFixed(0));
+          const isConfirmDel = ui.confirmDeleteScaleSessionId === s.id;
+          const summaryLine =
+            s.id === 'calder_2024_base'
+              ? `100kg Driver • 20L Fuel • 8.8kg Ballast • TCM Wheels | Base FL:${bFL.toFixed(0)} FR:${bFR.toFixed(0)} RL:${bRL.toFixed(0)} RR:${bRR.toFixed(0)} (${bTotal} kg)`
+              : `${Number(s.driverKg ?? 95).toFixed(0)}kg Driver • ${Number(s.fuelL ?? 20).toFixed(0)}L Fuel • ${Number(s.ballastKg ?? 0).toFixed(1)}kg Ballast${s.notes ? ` • ${s.notes}` : ''} | Base FL:${bFL.toFixed(0)} FR:${bFR.toFixed(0)} RL:${bRL.toFixed(0)} RR:${bRR.toFixed(0)} (${bTotal} kg)`;
+          return `
+            <div class="cw-session-row ${isActive ? 'is-active' : ''}">
+              <div class="cw-session-row-left">
+                <div class="cw-session-row-title-line">
+                  <span class="cw-session-row-name mono">${escapeHtml(s.name)}</span>
+                  ${s.locked ? '<span class="locked-badge mono" style="font-size: 0.6rem; padding: 1px 6px;">LOCKED</span>' : ''}
+                  ${isActive ? '<span class="locked-badge emerald mono" style="font-size: 0.6rem; padding: 1px 6px;">ACTIVE</span>' : ''}
+                </div>
+                <div class="cw-session-row-meta mono">${escapeHtml(summaryLine)}</div>
+              </div>
+              <div class="cw-session-row-actions">
+                <button
+                  type="button"
+                  class="btn ${isActive ? 'btn-amber-outline' : 'btn-secondary'} btn-xs"
+                  data-select-scale-session="${escapeHtml(s.id)}"
+                >
+                  ${isActive ? 'Active' : 'Select'}
+                </button>
+                ${
+                  !s.locked
+                    ? `<button
+                        type="button"
+                        class="btn ${isConfirmDel ? 'btn-danger' : 'btn-secondary'} btn-xs"
+                        data-del-scale-session="${escapeHtml(s.id)}"
+                        title="Delete Saved Scale Session"
+                        aria-label="Delete Saved Scale Session"
+                      >${isConfirmDel ? 'Confirm?' : '&#10005;'}</button>`
+                    : ''
+                }
+              </div>
+            </div>
+          `;
+        })
+        .join('');
     }
+
+    // 6) Compact 10-Piece Mitutoyo-Measured Spacer Stock Reference Table
+    renderCornerWeightSpacerRefTable();
   }
 
   const renderCornerWeights = renderCornerWeightBaselineCard;
 
-  function handleCornerWeightBaselineInput() {
+  function handleCwSpacerButtonSelect(corner, rawMm) {
+    if (corner !== 'RL' && corner !== 'RR') return;
     const cw = ensureCornerWeightBaselineState();
-    const baseFuelEl = $('inputCwBaseFuelL');
-    if (baseFuelEl) {
-      const rawFuel = String(baseFuelEl.value || '').trim();
-      if (rawFuel !== '') {
-        const parsedFuel = parseFloat(rawFuel);
-        if (Number.isFinite(parsedFuel) && parsedFuel >= 0) {
-          const clampedFuel = Number(clamp(parsedFuel, 0, 74.0).toFixed(1));
-          cw.baseFuelL = clampedFuel;
-          cw.fuelLitresAtScale = clampedFuel;
-        }
-      }
+    const spacers = ensureMountedSpacersState();
+    const nextMm = snapSpacerMm(rawMm, 0);
+    if (corner === 'RL') {
+      cw.rlSpacerMm = nextMm;
+    } else {
+      cw.rrSpacerMm = nextMm;
     }
-    if (!cw.rideHeightMm || typeof cw.rideHeightMm !== 'object') {
-      cw.rideHeightMm = { FL: null, FR: null, RL: null, RR: null };
+    spacers[corner] = nextMm;
+    const activeSess = getActiveSession();
+    if (activeSess && !activeSess.tyresPreLocked) {
+      activeSess.spacers = { ...spacers };
     }
-    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-      const el = $(`inputCornerWt_${c}`);
-      if (el) {
-        const raw = String(el.value || '').trim();
-        if (raw === '') {
-          cw[c] = null;
-        } else {
-          const num = parseFloat(raw);
-          cw[c] = Number.isFinite(num) && num > 0 && num <= 1200 ? Number(num.toFixed(1)) : null;
-        }
-      }
-      const rhEl = $(`inputCwRideHeight_${c}`);
-      if (rhEl) {
-        const rawRh = String(rhEl.value || '').trim();
-        if (rawRh === '') {
-          cw.rideHeightMm[c] = null;
-        } else {
-          const numRh = parseFloat(rawRh);
-          cw.rideHeightMm[c] = Number.isFinite(numRh) && numRh > 0 && numRh <= 900 ? Number(numRh.toFixed(1)) : null;
-        }
-      }
-    });
-    const notesEl = $('inputCwNotes');
-    if (notesEl) {
-      cw.notes = String(notesEl.value || '');
-    }
-    cw.updatedAt = getLocalTodayIso();
     state.cornerWeights = cw;
     state.cornerWeightBaseline = cw;
     saveState();
     renderCornerWeights();
-    recalcFuelAndWeight();
-    recalcTyres();
-  }
-
-  function handleTrimDeltaInput() {
-    const cw = ensureCornerWeightBaselineState();
-    cw.trimDeltas = normalizeTrimDeltas(cw.trimDeltas);
-    const readTrimField = (id, fallback, minVal, maxVal) => {
-      const el = $(id);
-      if (!el) return fallback;
-      const num = parseFloat(String(el.value || '').trim());
-      return Number.isFinite(num) ? Number(clamp(num, minVal, maxVal).toFixed(1)) : fallback;
-    };
-    cw.trimDeltas.weldedLeadBabyKg = readTrimField('inputTrimWeldedLeadKg', cw.trimDeltas.weldedLeadBabyKg, 0, 120);
-    cw.trimDeltas.removableLeadDeltaKg = readTrimField('inputTrimRemovableLeadDeltaKg', cw.trimDeltas.removableLeadDeltaKg, -60, 60);
-    cw.trimDeltas.driverGearDeltaKg = readTrimField('inputTrimDriverDeltaKg', cw.trimDeltas.driverGearDeltaKg, -40, 40);
-    cw.trimDeltas.magnesiumRimDeltaKg = readTrimField('inputTrimMagRimDeltaKg', cw.trimDeltas.magnesiumRimDeltaKg, -25, 25);
-    state.cornerWeights = cw;
-    state.cornerWeightBaseline = cw;
-    saveState();
-    renderCornerWeights();
-    recalcFuelAndWeight();
-  }
-
-  function toggleTrimWheelSet(wheelSetKey) {
-    const cw = ensureCornerWeightBaselineState();
-    cw.trimDeltas = normalizeTrimDeltas(cw.trimDeltas);
-    cw.trimDeltas.wheelSet = wheelSetKey === 'tcm' ? 'tcm' : 'magnesium';
-    state.cornerWeights = cw;
-    state.cornerWeightBaseline = cw;
-    saveState();
-    renderCornerWeights();
-    recalcFuelAndWeight();
+    renderRearSpacerControls();
+    renderAiRearSpacerBanner();
+    renderSpacerKitFleet();
+    const telem = computeCornerWeightAndWedgeTelemetry();
     showToast(
-      cw.trimDeltas.wheelSet === 'magnesium'
-        ? `Wheel Set: Magnesium Rims (${cw.trimDeltas.magnesiumRimDeltaKg.toFixed(1)} kg vs TCM scale sheet)`
-        : 'Wheel Set: TCM Rims (0.0 kg delta vs scale sheet)'
+      `RL ${cw.rlSpacerMm}mm / RR ${cw.rrSpacerMm}mm → FL ${telem.FL.toFixed(0)} / FR ${telem.FR.toFixed(0)} / RL ${telem.RL.toFixed(0)} / RR ${telem.RR.toFixed(0)} kg (${telem.intercompCrossPct.toFixed(2)}% RF+LR)`
     );
   }
 
-  function applyTrimWtToScaleCheck() {
-    const trimTelem = computeTrimWeightDeltaTelemetry();
-    if (!state.chassis) state.chassis = createDefaultChassisState();
-    state.chassis.scaleCheckKg = trimTelem.estCurrentWtAt20L;
-    state.chassis.scaleCheckFuelL = 20.0;
-    state.chassis.scaleFactSource = `Anchored to Calder 2024 Scale Sheet (${trimTelem.scaleWtAt20L.toFixed(1)} kg @ 20L) + Trim Delta (${trimTelem.netDeltaKg >= 0 ? '+' : ''}${trimTelem.netDeltaKg.toFixed(1)} kg = ${trimTelem.estCurrentWtAt20L.toFixed(1)} kg @ 20L)`;
-    if ($('inputScaleCheckKg')) $('inputScaleCheckKg').value = trimTelem.estCurrentWtAt20L.toFixed(1);
-    if ($('inputScaleCheckFuelL')) $('inputScaleCheckFuelL').value = '20.0';
-    saveState();
-    recalcFuelAndWeight();
-    renderCornerWeights();
-    showToast(`Synced ${trimTelem.estCurrentWtAt20L.toFixed(1)} kg @ 20.0 L to Fuel & Wt Scale Check`);
+  function openNewScaleSessionModal() {
+    const todayStr = getLocalTodayIso();
+    if ($('newScaleSessionName')) {
+      $('newScaleSessionName').value = `Workshop Rescale ${todayStr}`;
+    }
+    if ($('newScaleDriverKg')) $('newScaleDriverKg').value = '95.0';
+    if ($('newScaleFuelL')) $('newScaleFuelL').value = '20.0';
+    if ($('newScaleBallastKg')) $('newScaleBallastKg').value = '0.0';
+    if ($('newScaleFL')) $('newScaleFL').value = '352.0';
+    if ($('newScaleFR')) $('newScaleFR').value = '382.0';
+    if ($('newScaleRL')) $('newScaleRL').value = '313.0';
+    if ($('newScaleRR')) $('newScaleRR').value = '326.0';
+    if ($('newScaleNotes')) $('newScaleNotes').value = '';
+    openModal('modalNewScaleSession');
   }
 
-  function toggleCornerWeightCondition(condKey) {
+  function saveNewScaleSessionFromModal() {
     const cw = ensureCornerWeightBaselineState();
-    if (condKey === 'driverInCar') {
-      cw.driverInCar = !cw.driverInCar;
-    } else if (condKey === 'barDisconnected') {
-      cw.barDisconnected = !cw.barDisconnected;
+    getActiveScaleSessionObj(cw);
+
+    const rawName = $('newScaleSessionName') ? String($('newScaleSessionName').value || '').trim() : '';
+    const name = rawName || `Scale Session ${getLocalTodayIso()}`;
+    const readModalNum = (id, fb, minV, maxV) => {
+      const el = $(id);
+      if (!el) return fb;
+      const v = parseFloat(String(el.value || '').trim());
+      if (!Number.isFinite(v)) return fb;
+      return Number(clamp(v, minV, maxV).toFixed(1));
+    };
+
+    const driverKg = readModalNum('newScaleDriverKg', 95.0, 0, 250);
+    const fuelL = readModalNum('newScaleFuelL', 20.0, 0, 74);
+    const ballastKg = readModalNum('newScaleBallastKg', 0.0, 0, 200);
+    const baseFL = readModalNum('newScaleFL', null, 50, 1000);
+    const baseFR = readModalNum('newScaleFR', null, 50, 1000);
+    const baseRL = readModalNum('newScaleRL', null, 50, 1000);
+    const baseRR = readModalNum('newScaleRR', null, 50, 1000);
+    const notes = $('newScaleNotes') ? String($('newScaleNotes').value || '').trim() : '';
+
+    if (baseFL === null || baseFR === null || baseRL === null || baseRR === null) {
+      showToast('Enter valid FL, FR, RL, and RR No-Spacers corner weights (kg)');
+      return;
     }
-    cw.updatedAt = getLocalTodayIso();
+
+    const newSess = {
+      id: `scale_sess_${Date.now()}`,
+      name,
+      locked: false,
+      driverKg,
+      fuelL,
+      ballastKg,
+      notes,
+      baseFL,
+      baseFR,
+      baseRL,
+      baseRR
+    };
+
+    cw.sessions.push(newSess);
+    cw.activeSessionId = newSess.id;
+    // Reset spacers to RL 0mm / RR 0mm so user sees exact No-Spacers baseline first and can tap 0/10/20mm
+    cw.rlSpacerMm = 0;
+    cw.rrSpacerMm = 0;
+    const spacers = ensureMountedSpacersState();
+    spacers.RL = 0;
+    spacers.RR = 0;
+
+    state.cornerWeights = cw;
+    state.cornerWeightBaseline = cw;
+    closeModal('modalNewScaleSession');
+    saveState();
+    renderCornerWeights();
+    renderRearSpacerControls();
+    renderAiRearSpacerBanner();
+    recalcFuelAndWeight();
+    const totalKg = (baseFL + baseFR + baseRL + baseRR).toFixed(1);
+    showToast(`Saved "${name}" (${totalKg} kg No-Spacers Base)`);
+  }
+
+  function selectSavedScaleSession(sessionId) {
+    if (!sessionId) return;
+    const cw = ensureCornerWeightBaselineState();
+    getActiveScaleSessionObj(cw);
+    const target = cw.sessions.find((s) => s && s.id === sessionId);
+    if (!target) return;
+    cw.activeSessionId = target.id;
+    ui.confirmDeleteScaleSessionId = null;
     state.cornerWeights = cw;
     state.cornerWeightBaseline = cw;
     saveState();
     renderCornerWeights();
+    renderAiRearSpacerBanner();
+    recalcFuelAndWeight();
+    const telem = computeCornerWeightAndWedgeTelemetry();
+    showToast(`Active Baseline: ${target.name} (${telem.totalKg.toFixed(1)} kg @ RL ${cw.rlSpacerMm}mm / RR ${cw.rrSpacerMm}mm)`);
   }
 
-  function saveCornerWeightSnapshot() {
-    const telem = computeCornerWeightAndWedgeTelemetry();
-    if (!telem.hasAllFour) {
-      showToast('Enter all 4 corner weights (> 0 kg) before saving a snapshot');
+  function deleteSavedScaleSession(sessionId) {
+    if (!sessionId || sessionId === 'calder_2024_base') {
+      showToast('Calder 2024 (No Spacers Base) is permanently locked');
       return;
     }
     const cw = ensureCornerWeightBaselineState();
-    if (!Array.isArray(cw.history)) cw.history = [];
-    const todayIso = getLocalTodayIso();
-    cw.updatedAt = todayIso;
-    cw.activeRowColor = '2026 SCALE';
-    // If a new 2026 scale sheet >= 1365 kg is saved, mark is2026Rescaled = true and zero out old post-2024 trim deltas
-    if (telem.totalKg >= 1365.0) {
-      cw.is2026Rescaled = true;
-      cw.trimDeltas = {
-        ...normalizeTrimDeltas(cw.trimDeltas),
-        removableLeadDeltaKg: 0.0,
-        driverGearDeltaKg: 0.0,
-        wheelSet: 'tcm'
-      };
-    }
-    cw.history.unshift({
-      id: `cw_${Date.now()}`,
-      rowColor: '2026',
-      rowLabel: `${todayIso} Scale Sheet — RL ${cw.rlSpacerMm}mm / RR ${cw.rrSpacerMm}mm`,
-      updatedAt: todayIso,
-      FL: telem.FL,
-      FR: telem.FR,
-      RL: telem.RL,
-      RR: telem.RR,
-      fuelLitresAtScale: telem.baseFuelL,
-      baseFuelL: telem.baseFuelL,
-      driverInCar: cw.driverInCar !== false,
-      barDisconnected: Boolean(cw.barDisconnected),
-      rlSpacerMm: cw.rlSpacerMm,
-      rrSpacerMm: cw.rrSpacerMm,
-      intercompCrossPct: telem.intercompCrossPct,
-      wedgeLfRrPct: telem.wedgeLfRrPct,
-      rideHeightMm: { ...(cw.rideHeightMm || { FL: null, FR: null, RL: null, RR: null }) },
-      notes: cw.notes || ''
-    });
-    if (cw.history.length > 15) {
-      cw.history = cw.history.slice(0, 15);
-    }
-    state.cornerWeights = cw;
-    state.cornerWeightBaseline = cw;
-    saveState();
-    hydrateCornerWeightInputs();
-    recalcFuelAndWeight();
-    showToast(`Saved Scale Sheet Snapshot (${telem.totalKg.toFixed(1)} kg • ${telem.intercompCrossPct.toFixed(2)}% RF+LR Cross)`);
-  }
+    getActiveScaleSessionObj(cw);
+    const target = cw.sessions.find((s) => s && s.id === sessionId);
+    if (!target || target.locked) return;
 
-  function loadCornerWeightSnapshot(idx) {
-    const cw = ensureCornerWeightBaselineState();
-    if (!Array.isArray(cw.history) || !cw.history[idx]) return;
-    const snap = cw.history[idx];
-    cw.FL = snap.FL;
-    cw.FR = snap.FR;
-    cw.RL = snap.RL;
-    cw.RR = snap.RR;
-    cw.baseFuelL = Number(snap.baseFuelL ?? snap.fuelLitresAtScale ?? 20.0);
-    cw.fuelLitresAtScale = cw.baseFuelL;
-    cw.driverInCar = snap.driverInCar !== false;
-    cw.barDisconnected = Boolean(snap.barDisconnected);
-    cw.rlSpacerMm = snapSpacerMm(snap.rlSpacerMm, 0);
-    cw.rrSpacerMm = snapSpacerMm(snap.rrSpacerMm, 20);
-    cw.activeRowColor = snap.rowColor || 'CUSTOM';
-    cw.rideHeightMm = { ...(snap.rideHeightMm || { FL: null, FR: null, RL: null, RR: null }) };
-    cw.notes = snap.notes || '';
-    cw.updatedAt = snap.updatedAt || getLocalTodayIso();
-    state.cornerWeights = cw;
-    state.cornerWeightBaseline = cw;
-    saveState();
-    hydrateCornerWeightInputs();
-    recalcFuelAndWeight();
-    recalcTyres();
-    showToast(`Loaded ${snap.rowLabel || `Scale Snapshot from ${cw.updatedAt}`}`);
-  }
+    if (ui.confirmDeleteScaleSessionId !== sessionId) {
+      ui.confirmDeleteScaleSessionId = sessionId;
+      renderCornerWeights();
+      showToast(`Tap "Confirm?" again to delete "${target.name}"`);
+      return;
+    }
 
-  function deleteCornerWeightSnapshot(idx) {
-    const cw = ensureCornerWeightBaselineState();
-    if (!Array.isArray(cw.history) || !cw.history[idx]) return;
-    cw.history.splice(idx, 1);
+    ui.confirmDeleteScaleSessionId = null;
+    cw.sessions = cw.sessions.filter((s) => s && s.id !== sessionId);
+    if (cw.activeSessionId === sessionId) {
+      cw.activeSessionId = 'calder_2024_base';
+    }
     state.cornerWeights = cw;
     state.cornerWeightBaseline = cw;
     saveState();
     renderCornerWeights();
-    showToast('Removed Scale Sheet Snapshot');
-  }
-
-  function handleScaleBaselineSpacerSelect(corner, rawMm) {
-    if (corner !== 'RL' && corner !== 'RR') return;
-    const cw = ensureCornerWeightBaselineState();
-    const mm = snapSpacerMm(rawMm, 0);
-    if (corner === 'RL') {
-      cw.rlSpacerMm = mm;
-    } else {
-      cw.rrSpacerMm = mm;
-    }
-    cw.updatedAt = getLocalTodayIso();
-    state.cornerWeights = cw;
-    state.cornerWeightBaseline = cw;
-    saveState();
-    renderCornerWeights();
-    recalcTyres();
-    showToast(`Scale Baseline ${corner} Spacer recorded as ${mm}mm`);
+    renderAiRearSpacerBanner();
+    showToast(`Deleted "${target.name}"`);
   }
 
   /**
@@ -11080,45 +10729,6 @@
           weightAlert.className = 'manifold-alert safe';
           weightTitle.textContent = `SCRUTINEERING WEIGHT SAFE (+${marginKg.toFixed(1)} KG BUFFER @ ${predictedPostRaceKg.toFixed(1)} KG)`;
           weightBody.textContent = `Dry Car + Driver is ${dryCarDriverKg.toFixed(1)} kg. Finishing with ${surgeFloorL.toFixed(1)} L surge floor (${endFuelKg.toFixed(1)} kg) puts post-race weight at ${predictedPostRaceKg.toFixed(1)} kg (+${marginKg.toFixed(1)} kg over ${LEGAL_MIN_KG.toFixed(1)} kg legal min — no extra buffer fuel needed).`;
-        }
-      }
-    }
-
-    // Sync Trim Weight Delta & 1,365 kg Scrutineering Warning Banner on Fuel & Wt Card 2
-    const fuelTrimBanner = $('fuelTrimDeltaWarningBanner');
-    const fuelTrimTitle = $('outFuelTrimDeltaTitle');
-    const fuelTrimBadge = $('outFuelTrimDeltaBadge');
-    const fuelTrimBody = $('outFuelTrimDeltaBody');
-    if (fuelTrimBanner) {
-      const trimTelem = computeTrimWeightDeltaTelemetry();
-      if (trimTelem.isClearedBy2026Scale && !trimTelem.isUnderMin) {
-        fuelTrimBanner.style.display = 'none';
-      } else {
-        fuelTrimBanner.style.display = 'block';
-        if (trimTelem.isUnderMin) {
-          fuelTrimBanner.className = 'manifold-alert danger trim-delta-fuel-banner';
-          if (fuelTrimTitle) {
-            fuelTrimTitle.textContent = `CURRENT TRIM DELTA WARNING (~${trimTelem.estCurrentWtAt20L.toFixed(1)} KG @ 20L FUEL)`;
-          }
-          if (fuelTrimBadge) {
-            fuelTrimBadge.textContent = `${trimTelem.deficitKg.toFixed(1)} KG UNDER 1365 KG MIN!`;
-            fuelTrimBadge.className = 'locked-badge danger';
-          }
-          if (fuelTrimBody) {
-            fuelTrimBody.innerHTML = `Calder 2024 Scale Baseline was <strong>${trimTelem.scaleWtAt20L.toFixed(1)} kg @ 20L</strong> (55 kg welded lead baby + 2&times;4.4 kg plates, 100 kg driver, TCM rims). With current trim deltas (<strong>${trimTelem.netDeltaKg.toFixed(1)} kg</strong>: 2&times;4.4 kg plates removed, driver ${trimTelem.driverGearDeltaKg.toFixed(1)} kg, ${trimTelem.wheelSet === 'magnesium' ? `Magnesium rims ${trimTelem.activeRimDeltaKg.toFixed(1)} kg` : 'TCM rims 0.0 kg'}), Est. Current Weight @ 20L is <strong>~${trimTelem.estCurrentWtAt20L.toFixed(1)} kg</strong> &mdash; <strong class="txt-danger">~${trimTelem.deficitKg.toFixed(1)} kg UNDER 1365 kg MIN! Re-scale &amp; fit ~${trimTelem.recommendedBallastKg} kg ballast on LEFT passenger floor before race!</strong>`;
-          }
-        } else {
-          fuelTrimBanner.className = 'manifold-alert safe trim-delta-fuel-banner';
-          if (fuelTrimTitle) {
-            fuelTrimTitle.textContent = `CURRENT TRIM WEIGHT @ 20L FUEL: ~${trimTelem.estCurrentWtAt20L.toFixed(1)} KG (+${trimTelem.marginVsMinKg.toFixed(1)} KG VS 1365 KG MIN)`;
-          }
-          if (fuelTrimBadge) {
-            fuelTrimBadge.textContent = `✓ >= 1365 KG OK`;
-            fuelTrimBadge.className = 'locked-badge emerald';
-          }
-          if (fuelTrimBody) {
-            fuelTrimBody.innerHTML = `Scaled baseline was <strong>${trimTelem.scaleWtAt20L.toFixed(1)} kg @ 20L</strong>; net trim delta is <strong>${trimTelem.netDeltaKg >= 0 ? '+' : ''}${trimTelem.netDeltaKg.toFixed(1)} kg</strong> &rarr; Estimated Current Weight @ 20L Fuel is <strong>~${trimTelem.estCurrentWtAt20L.toFixed(1)} kg</strong> (+${trimTelem.marginVsMinKg.toFixed(1)} kg over 1,365.0 kg legal min).`;
-          }
         }
       }
     }
@@ -15052,7 +14662,6 @@
     const mountedSprings = ensureMountedSpringsState();
     const mountedSpacers = ensureMountedSpacersState();
     const cwTelem = computeCornerWeightAndWedgeTelemetry();
-    const trimTelem = computeTrimWeightDeltaTelemetry();
     const activeVenue = getSelectedTyreTrackVenue();
     const aiRec = recommendRearSpacers(activeVenue);
     const scaleFuelMass = (Number(ch.scaleCheckFuelL) || 0) * (Number(b.fuelSg) || 0.740);
@@ -15068,13 +14677,13 @@
 
     const lines = [];
     lines.push('====================================================================');
-    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.9.0)');
+    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.9.1)');
     lines.push(`Exported: ${new Date().toISOString()}`);
     lines.push('====================================================================');
     lines.push('');
 
     // 1. Active Baseline & Scale Fact Anchor
-    lines.push('[1] LOCKED BASELINE, CALDER 2024 INTERCOMP CORNER WEIGHTS & TRIM WEIGHT DELTA');
+    lines.push('[1] LOCKED BASELINE & CORNER WEIGHTS LIVE SPACER CALCULATOR');
     lines.push(`- Active Baseline: ${b.venue} | ${b.sessionDate} | ${b.sessionName}`);
     lines.push(`- Carby / Emulsion / Man / Exh: ${getCarbyDisplayName(b.carbyId)} | Emulsion ${formatEmulsionShort(b.emulsionId || 'E5_DME')} | ${getManifoldDisplayName(b.manifoldId || state.activeManifoldId || 'MAN_B')} | ${b.exhaustId || state.activeExhaustId || 'Macca'} Exhaust`);
     lines.push(`- Baseline Main Jet: ${formatJetPureMm(b.jetMm)} (${orificeAreaMm2(b.jetMm).toFixed(3)} mm²) @ ${Number(b.rad).toFixed(1)}% RAD, SG ${Number(b.fuelSg).toFixed(3)}, Timing ${Number(b.timing).toFixed(1)} deg, Fuel ${Number(b.fuelPsi ?? 4.3).toFixed(1)} psi`);
@@ -15082,19 +14691,18 @@
     lines.push(`- Scale Fact Anchor: ${Number(ch.scaleCheckKg).toFixed(1)} kg Official Scale Wt w/ ${Number(ch.scaleCheckFuelL).toFixed(1)} L in tank = ${dryCarKg.toFixed(1)} kg Dry Car + Driver`);
     lines.push(`- Scale Fact Source: ${ch.scaleFactSource || 'Anchored to Official Track Scale Check'}`);
     lines.push(
-      cwTelem.allFourValid
-        ? `- Corner_Weights_FL_FR_RL_RR (Active Baseline — ${cwTelem.cw.activeRowColor || 'GREEN'}): FL ${cwTelem.FL.toFixed(1)} kg | FR ${cwTelem.FR.toFixed(1)} kg | RL ${cwTelem.RL.toFixed(1)} kg | RR ${cwTelem.RR.toFixed(1)} kg | CW_Base_Fuel_L=${cwTelem.baseFuelL.toFixed(1)} L (~${cwTelem.baseFuelMassKg.toFixed(1)} kg @ ${cwTelem.activeFuelSg.toFixed(3)} SG; Dry Car+Driver: ${cwTelem.dryCarDriverKg.toFixed(1)} kg) | Total=${cwTelem.totalKg.toFixed(1)} kg | Front=${cwTelem.overallFrontPct.toFixed(1)}% (${cwTelem.overallFrontKg.toFixed(1)} kg) | Rear=${cwTelem.overallRearPct.toFixed(1)}% (${cwTelem.overallRearKg.toFixed(1)} kg) | Left=${cwTelem.leftPct.toFixed(1)}% (${cwTelem.leftSideKg.toFixed(1)} kg) | Right=${cwTelem.rightPct.toFixed(1)}% (${cwTelem.rightSideKg.toFixed(1)} kg) | Intercomp_Cross_RF_LR=${cwTelem.intercompCrossPct.toFixed(2)}% (${cwTelem.intercompCrossKg.toFixed(1)} kg) | Wedge_LF_RR=${cwTelem.wedgeLfRrPct.toFixed(2)}% (${cwTelem.baseCrossKg.toFixed(1)} kg) | Static RL vs RR: ${cwTelem.staticRlMinusRrKg >= 0 ? '+' : ''}${cwTelem.staticRlMinusRrKg.toFixed(1)} kg @ Scaled Spacers RL ${cwTelem.scaleSpacers.RL}mm / RR ${cwTelem.scaleSpacers.RR}mm; Live Projected Intercomp RF+LR=${cwTelem.liveIntercompCrossPct.toFixed(2)}% (Wedge LF+RR=${cwTelem.projectedCrossPct.toFixed(2)}%)`
-        : `- Corner_Weights_FL_FR_RL_RR (With Driver): Not entered yet (CW_Base_Fuel_L=${cwTelem.baseFuelL.toFixed(1)} L • Scaled Spacers RL ${cwTelem.scaleSpacers.RL}mm / RR ${cwTelem.scaleSpacers.RR}mm)`
+      `- Active Scale Session: "${cwTelem.activeSession.name}" (${cwTelem.activeSession.locked ? 'LOCKED BASE' : 'SAVED SESSION'}) | Driver=${Number(cwTelem.activeSession.driverKg).toFixed(1)} kg • Fuel=${Number(cwTelem.activeSession.fuelL).toFixed(1)} L • Ballast=${Number(cwTelem.activeSession.ballastKg).toFixed(1)} kg • Notes="${cwTelem.activeSession.notes || ''}"`
     );
-    lines.push(`- Scale Setup Context: ${cwTelem.cw.setupContext || '20.0 L Fuel • 100 kg Driver+Gear • TCM Rims (Heavier) • 55 kg Welded Lead Baby + 2x 4.4 kg Plates (63.8 kg Ballast) • 17.5mm Front Swaybar Connected'}`);
     lines.push(
-      `- Current Trim Deltas vs Scale Sheet: Welded_Lead_Baby=${trimTelem.weldedLeadBabyKg.toFixed(1)} kg | Removable_Lead_Delta=${trimTelem.removableLeadDeltaKg.toFixed(1)} kg | Driver_Gear_Delta=${trimTelem.driverGearDeltaKg.toFixed(1)} kg | Wheel_Set=${trimTelem.wheelSet.toUpperCase()} (${trimTelem.activeRimDeltaKg.toFixed(1)} kg) | Net_Delta=${trimTelem.netDeltaKg.toFixed(1)} kg -> Est_Current_Weight_At_20L=${trimTelem.estCurrentWtAt20L.toFixed(1)} kg (${trimTelem.isUnderMin ? `⚠️ ${trimTelem.deficitKg.toFixed(1)} kg UNDER 1365 kg MIN! Fit ~${trimTelem.recommendedBallastKg} kg ballast on LEFT passenger floor!` : `+${trimTelem.marginVsMinKg.toFixed(1)} kg over 1365 kg min`})`
+      `- No-Spacers Base (0/0): FL ${cwTelem.activeSession.baseFL} / FR ${cwTelem.activeSession.baseFR} / RL ${cwTelem.activeSession.baseRL} / RR ${cwTelem.activeSession.baseRR} (${cwTelem.baseTotalKg} kg)`
     );
-    (cwTelem.cw.history || []).forEach((h, hIdx) => {
-      const hTot = Number(h.FL || 0) + Number(h.FR || 0) + Number(h.RL || 0) + Number(h.RR || 0);
-      const hRfLr = h.intercompCrossPct !== undefined ? Number(h.intercompCrossPct).toFixed(2) : getExactCalderIntercompCrossPct(Number(h.FL), Number(h.FR), Number(h.RL), Number(h.RR), hTot).toFixed(2);
+    lines.push(
+      `- Live Computed Corner Weights @ Spacers RL ${cwTelem.rlSpacerMm}mm / RR ${cwTelem.rrSpacerMm}mm: FL ${cwTelem.FL} kg (${cwTelem.dFL >= 0 ? '+' : ''}${cwTelem.dFL}) | FR ${cwTelem.FR} kg (${cwTelem.dFR >= 0 ? '+' : ''}${cwTelem.dFR}) | RL ${cwTelem.RL} kg (${cwTelem.dRL >= 0 ? '+' : ''}${cwTelem.dRL}) | RR ${cwTelem.RR} kg (${cwTelem.dRR >= 0 ? '+' : ''}${cwTelem.dRR}) | Total=${cwTelem.totalKg} kg | Front=${cwTelem.overallFrontPct.toFixed(1)}% (${cwTelem.overallFrontKg} kg) | Rear=${cwTelem.overallRearPct.toFixed(1)}% (${cwTelem.overallRearKg} kg) | Left=${cwTelem.leftPct.toFixed(1)}% (${cwTelem.leftSideKg} kg) | Right=${cwTelem.rightPct.toFixed(1)}% (${cwTelem.rightSideKg} kg) | Cross_RF_LR=${cwTelem.intercompCrossPct.toFixed(1)}% (${cwTelem.intercompCrossKg} kg) | Wedge_LF_RR=${cwTelem.wedgeLfRrPct.toFixed(1)}% (${cwTelem.baseCrossKg} kg)`
+    );
+    (cwTelem.cw.sessions || []).forEach((sItem, sIdx) => {
+      const sTot = Math.round(sItem.baseFL + sItem.baseFR + sItem.baseRL + sItem.baseRR);
       lines.push(
-        `  * Scale Row ${hIdx + 1} (${h.rowLabel || h.updatedAt}): FL ${h.FL} / FR ${h.FR} / RL ${h.RL} / RR ${h.RR} (${hTot} kg • RF+LR Cross ${hRfLr}% • Spacers RL ${h.rlSpacerMm}mm / RR ${h.rrSpacerMm}mm)`
+        `  * Saved Scale Session ${sIdx + 1} (${sItem.name}${sItem.locked ? ' [LOCKED]' : ''}): No-Spacers Base FL ${sItem.baseFL} / FR ${sItem.baseFR} / RL ${sItem.baseRL} / RR ${sItem.baseRR} (${sTot} kg • Driver ${sItem.driverKg}kg • Fuel ${sItem.fuelL}L • Ballast ${sItem.ballastKg}kg)`
       );
     });
     lines.push('');
@@ -17291,13 +16899,8 @@
     'inputPumpBeforeL',
     'inputPumpAfterL',
     'inputScaleCheckFuelL',
-    'inputCwBaseFuelL',
     'modalPostFuelInL',
     'modalPostFuelOutL',
-    'inputCornerWt_FL',
-    'inputCornerWt_FR',
-    'inputCornerWt_RL',
-    'inputCornerWt_RR',
     'editManifoldCfmFront',
     'editManifoldCfmMiddle',
     'editManifoldCfmRear'
@@ -17317,19 +16920,7 @@
       ? stepStr.split('.')[1].length
       : 0;
 
-    // If an optional AFR, Cold/Hot Tyre PSI, Tyre Temp, Track Temp, Corner Wt, Exhaust CFM, or Water Temp field is blank, start at a sensible default when stepping
-    if (idStr.startsWith('inputCornerWt_') && (!Number.isFinite(current) || current <= 0)) {
-      inputEl.value = '342.5';
-      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
-      inputEl.dispatchEvent(new Event('change', { bubbles: true }));
-      return;
-    }
-    if (idStr === 'inputCwBaseFuelL' && !Number.isFinite(current)) {
-      inputEl.value = '20.0';
-      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
-      inputEl.dispatchEvent(new Event('change', { bubbles: true }));
-      return;
-    }
+    // If an optional AFR, Cold/Hot Tyre PSI, Tyre Temp, Track Temp, Exhaust CFM, or Water Temp field is blank, start at a sensible default when stepping
     if (idStr === 'inputTrackTempC' && !Number.isFinite(current)) {
       const startTemp = Math.max(5, Math.min(65, Math.round(26 + delta)));
       inputEl.value = String(startTemp);
@@ -18144,11 +17735,11 @@
         return;
       }
 
-      const scaleSpacerBtn = e.target.closest('[data-scale-spacer-corner]');
-      if (scaleSpacerBtn) {
-        handleScaleBaselineSpacerSelect(
-          scaleSpacerBtn.getAttribute('data-scale-spacer-corner'),
-          scaleSpacerBtn.getAttribute('data-scale-spacer-mm')
+      const cwSpacerBtn = e.target.closest('[data-cw-spacer-corner]');
+      if (cwSpacerBtn) {
+        handleCwSpacerButtonSelect(
+          cwSpacerBtn.getAttribute('data-cw-spacer-corner'),
+          cwSpacerBtn.getAttribute('data-cw-spacer-mm')
         );
         return;
       }
@@ -18159,52 +17750,27 @@
         return;
       }
 
-      const cwToggleBtn = e.target.closest('[data-cw-toggle]');
-      if (cwToggleBtn) {
-        toggleCornerWeightCondition(cwToggleBtn.getAttribute('data-cw-toggle'));
+      const openNewScaleBtn = e.target.closest('#btnOpenNewScaleSessionModal');
+      if (openNewScaleBtn) {
+        openNewScaleSessionModal();
         return;
       }
 
-      const saveCwSnapBtn = e.target.closest('#btnSaveCwSnapshot');
-      if (saveCwSnapBtn) {
-        saveCornerWeightSnapshot();
+      const confirmSaveScaleBtn = e.target.closest('#btnConfirmSaveScaleSession');
+      if (confirmSaveScaleBtn) {
+        saveNewScaleSessionFromModal();
         return;
       }
 
-      const loadCwHistBtn = e.target.closest('[data-load-cw-hist]');
-      if (loadCwHistBtn) {
-        loadCornerWeightSnapshot(loadCwHistBtn.getAttribute('data-load-cw-hist'));
+      const selectScaleSessionBtn = e.target.closest('[data-select-scale-session]');
+      if (selectScaleSessionBtn) {
+        selectSavedScaleSession(selectScaleSessionBtn.getAttribute('data-select-scale-session'));
         return;
       }
 
-      const delCwHistBtn = e.target.closest('[data-del-cw-hist]');
-      if (delCwHistBtn) {
-        deleteCornerWeightSnapshot(delCwHistBtn.getAttribute('data-del-cw-hist'));
-        return;
-      }
-
-      const cwWheelSetBtn = e.target.closest('[data-cw-wheel-set]');
-      if (cwWheelSetBtn) {
-        toggleTrimWheelSet(cwWheelSetBtn.getAttribute('data-cw-wheel-set'));
-        return;
-      }
-
-      const applyTrimWtBtn = e.target.closest('#btnApplyTrimWtToScaleCheck');
-      if (applyTrimWtBtn) {
-        applyTrimWtToScaleCheck();
-        return;
-      }
-
-      const jumpToCwTrimBtn = e.target.closest('#btnJumpToCornerWeightsTrim');
-      if (jumpToCwTrimBtn) {
-        switchTab('tab-fleet');
-        ui.openFleetSectionId = 'corner_weights';
-        syncFleetAccordionUi();
-        renderCornerWeights();
-        const trimCardEl = $('cwTrimDeltaCard') || $('cornerWeightBaselineCard');
-        if (trimCardEl) {
-          setTimeout(() => trimCardEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
-        }
+      const delScaleSessionBtn = e.target.closest('[data-del-scale-session]');
+      if (delScaleSessionBtn) {
+        deleteSavedScaleSession(delScaleSessionBtn.getAttribute('data-del-scale-session'));
         return;
       }
 
@@ -18338,29 +17904,6 @@
       const cornerSpringSel = target.getAttribute && target.getAttribute('data-corner-spring-select');
       if (cornerSpringSel) {
         handleCornerSpringSelectChange(cornerSpringSel, target.value);
-        return;
-      }
-
-      const trimDeltaAttr =
-        (target.getAttribute && target.getAttribute('data-trim-delta-input')) ||
-        target.id === 'inputTrimWeldedLeadKg' ||
-        target.id === 'inputTrimRemovableLeadDeltaKg' ||
-        target.id === 'inputTrimDriverDeltaKg' ||
-        target.id === 'inputTrimMagRimDeltaKg';
-      if (trimDeltaAttr) {
-        handleTrimDeltaInput();
-        return;
-      }
-
-      const cornerWtAttr =
-        (target.getAttribute && target.getAttribute('data-corner-wt-input')) ||
-        (target.getAttribute && target.getAttribute('data-cw-rh-input')) ||
-        target.id === 'inputCwBaseFuelL' ||
-        target.id === 'inputCwNotes' ||
-        (target.id && target.id.startsWith('inputCornerWt_')) ||
-        (target.id && target.id.startsWith('inputCwRideHeight_'));
-      if (cornerWtAttr) {
-        handleCornerWeightBaselineInput();
         return;
       }
 

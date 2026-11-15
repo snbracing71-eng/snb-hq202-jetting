@@ -6624,3 +6624,285 @@ button:disabled.btn-stage-locked,
   color: #A7F3D0;
   background: rgba(6, 78, 59, 0.28);
 }
+
+/* --------------------------------------------------------------------------
+   CORNER WEIGHTS LIVE SPACER CALCULATOR & SAVED SCALE SESSIONS (v0.9.1)
+   -------------------------------------------------------------------------- */
+.cw-active-session-banner {
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border-radius: 9px;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(16, 185, 129, 0.12) 0%, transparent 72%),
+    linear-gradient(180deg, #121B28 0%, #0A1018 100%);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+.cw-active-session-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.cw-active-session-eyebrow {
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6EE7B7;
+}
+
+.cw-active-session-text {
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 1.4;
+  color: #F1F5F9;
+}
+
+.cw-spacer-selector-bar {
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 9px;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(56, 189, 248, 0.1) 0%, transparent 72%),
+    linear-gradient(180deg, #162030 0%, #0C121B 100%);
+  border: 1px solid #2D3E56;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+.cw-spacer-selector-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.cw-readonly-pad-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background:
+    radial-gradient(ellipse 85% 55% at 50% 0%, rgba(56, 189, 248, 0.09) 0%, transparent 70%),
+    linear-gradient(180deg, #182232 0%, #0D131D 55%, #090D14 100%);
+  border: 1px solid #2E3F57;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.65),
+    0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.cw-pad-corner-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.cw-pad-corner-title {
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94A3B8;
+}
+
+.cw-pad-delta-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  border: 1px solid #334155;
+  color: #CBD5E1;
+  background: rgba(30, 41, 59, 0.65);
+}
+
+.cw-pad-delta-pill.plus {
+  border-color: rgba(16, 185, 129, 0.6);
+  color: #6EE7B7;
+  background: rgba(16, 185, 129, 0.16);
+}
+
+.cw-pad-delta-pill.minus {
+  border-color: rgba(245, 158, 11, 0.6);
+  color: #FDE047;
+  background: rgba(245, 158, 11, 0.16);
+}
+
+.cw-pad-delta-pill.zero {
+  border-color: rgba(148, 163, 184, 0.4);
+  color: #94A3B8;
+  background: rgba(30, 41, 59, 0.45);
+}
+
+.cw-pad-kg-val {
+  font-size: 1.38rem;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: #F8FAFC;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+  margin: 2px 0 4px;
+}
+
+.cw-pad-kg-unit {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #64748B;
+}
+
+.cw-pad-base-sub {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #64748B;
+}
+
+.cw-saved-sessions-section {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #131B27 0%, #0B1018 100%);
+  border: 1px solid #28364A;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.cw-saved-sessions-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+
+.cw-saved-sessions-sub {
+  font-size: 0.69rem;
+  color: #94A3B8;
+  margin-top: 2px;
+}
+
+.cw-new-session-btn {
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  padding: 6px 11px;
+}
+
+.cw-saved-sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.cw-session-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #182230 0%, #0F1620 100%);
+  border: 1px solid #2B3A4E;
+  transition: all 0.14s ease;
+}
+
+.cw-session-row.is-active {
+  border-color: rgba(16, 185, 129, 0.65);
+  background:
+    radial-gradient(ellipse 85% 60% at 15% 0%, rgba(16, 185, 129, 0.13) 0%, transparent 75%),
+    linear-gradient(180deg, #16252B 0%, #0D171E 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(110, 231, 183, 0.14),
+    0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.cw-session-row-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.cw-session-row-title-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+
+.cw-session-row-name {
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: #F8FAFC;
+}
+
+.cw-session-row.is-active .cw-session-row-name {
+  color: #6EE7B7;
+}
+
+.cw-session-row-meta {
+  font-size: 0.69rem;
+  line-height: 1.38;
+  color: #CBD5E1;
+}
+
+.cw-session-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.cw-spacer-ref-section {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #121822 0%, #0A0E15 100%);
+  border: 1px solid #263346;
+}
+
+.cw-spacer-ref-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.cw-spacer-ref-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cw-spacer-ref-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 9px;
+  border-radius: 7px;
+  font-size: 0.69rem;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid #233044;
+  color: #E2E8F0;
+}
+
+.cw-spacer-ref-row.is-illegal-stack {
+  border-color: rgba(245, 158, 11, 0.45);
+}
+
