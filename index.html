@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.8.8" />
+  <link rel="stylesheet" href="./styles.css?v=0.8.9" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -999,6 +999,24 @@
               <span class="telem-sub txt-emerald" id="outPredPostRaceMargin">17.6 L end fuel &bull; +5.0 kg vs 1365.0 kg min</span>
             </div>
           </div>
+        </div>
+
+        <!-- Current Trim Weight Delta & 1,365 kg Scrutineering Warning Banner (Synced w/ Corner Weights) -->
+        <div id="fuelTrimDeltaWarningBanner" class="manifold-alert danger trim-delta-fuel-banner" style="margin-bottom: 12px;" role="region" aria-live="polite">
+          <div class="trim-delta-fuel-head">
+            <h4 class="alert-title" id="fuelTrimDeltaTitle">&#9888;&#65039; ~12.8 KG UNDER 1365 KG MIN! (EST. CURRENT @ 20L: ~1352.2 KG)</h4>
+            <div class="trim-delta-fuel-actions">
+              <button type="button" class="btn btn-amber-outline btn-xs" id="btnApplyTrimWtToScaleCheck" title="Copy Estimated Current Trim Weight @ 20L into Official Track Scale Wt">
+                Use 1352.2 kg @ 20L
+              </button>
+              <button type="button" class="btn btn-secondary btn-xs" id="btnJumpToCornerWeightsTrim" title="Open Corner Weights Trim Delta Tracker">
+                Edit Trim Deltas
+              </button>
+            </div>
+          </div>
+          <p class="alert-body" id="fuelTrimDeltaBody">
+            Calder 2024 Scale Sheet (<strong>1372.0 kg @ 20.0 L</strong>) &minus; <strong>19.8 kg Trim Removed</strong> (<strong>&minus;8.8 kg</strong> 2&times;4.4kg plates, <strong>&minus;5.0 kg</strong> driver 100&rarr;95kg, <strong>&minus;6.0 kg</strong> Magnesium rims vs TCM) = <strong>~1352.2 kg @ 20L</strong> (<strong>55.0 kg</strong> Welded Lead Baby locked). <strong>Re-scale &amp; fit ~15 kg ballast on LEFT passenger floor before race!</strong>
+          </p>
         </div>
 
         <!-- Live Post-Race Scrutineering Weight Status Banner -->
@@ -2054,19 +2072,19 @@
         >
           <div class="fleet-acc-left">
             <div class="fleet-acc-title">Corner Weights</div>
-            <div class="fleet-acc-sub">4-Corner Scale Pad Sheet &bull; Cross % &amp; L/R F/R Balance</div>
+            <div class="fleet-acc-sub">Calder 2024 Intercomp 5-Row Pad Sheet &bull; Trim Delta &amp; 0.92 kg/mm Wedge</div>
           </div>
           <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill emerald" id="cornerWtStatusBadge">1370.0 kg &bull; 50.4% CROSS</span>
-            <span class="fleet-acc-count-pill" id="fleetCornerWtCountBadge">SAVED</span>
+            <span class="fleet-acc-status-pill amber" id="cornerWtStatusBadge">1372.0 kg &bull; 49.38% RF+LR &bull; &#9888;&#65039; 1352.2 kg TRIM</span>
+            <span class="fleet-acc-count-pill" id="fleetCornerWtCountBadge">5 ROWS</span>
             <span class="fleet-acc-chevron" data-fleet-acc-chevron="corner_weights" aria-hidden="true">&#9654;</span>
           </div>
         </button>
 
         <div class="fleet-acc-body" id="fleetAccBody_corner_weights" style="display: none;">
           <div class="card-elevated corner-wt-recessed-box">
-            <!-- Scale Conditions Bar: Driver In Car | Swaybar Disconnected | Updated Date -->
-            <div class="cw-conditions-bar" style="margin-bottom: 10px;">
+            <!-- Scale Conditions Bar: Driver In Car | Swaybar Connected/Disconnected | Updated Date -->
+            <div class="cw-conditions-bar" style="margin-bottom: 8px;">
               <div class="cw-condition-pills" role="group" aria-label="Scale Pad Setup Conditions">
                 <button
                   type="button"
@@ -2075,31 +2093,39 @@
                   data-cw-toggle="driverInCar"
                   aria-pressed="true"
                 >
-                  &#10003; Driver In Car
+                  &#10003; Driver In Car (100 kg)
                 </button>
                 <button
                   type="button"
-                  class="cw-cond-pill active"
+                  class="cw-cond-pill"
                   id="btnCwBarDisconnected"
                   data-cw-toggle="barDisconnected"
-                  aria-pressed="true"
+                  aria-pressed="false"
                 >
-                  &#10003; Swaybar Unhooked
+                  17.5mm Swaybar Connected
                 </button>
               </div>
-              <span class="cw-updated-badge mono" id="outCwUpdatedAt">Updated: 2026-11-15</span>
+              <span class="cw-updated-badge mono" id="outCwUpdatedAt">Updated: Calder 2024 [GREEN]</span>
+            </div>
+
+            <!-- Setup Context Metadata Banner -->
+            <div class="cw-setup-context-banner" id="cwScaleSetupContextBanner" style="margin-bottom: 10px;">
+              <div class="cw-setup-context-eyebrow">CALDER 2024 INTERCOMP SCALE SHEET CONTEXT (ROW 2 GREEN &mdash; RACE BASELINE)</div>
+              <div class="cw-setup-context-text" id="outCwSetupContextText">
+                20.0 L Fuel &bull; 100 kg Driver+Gear &bull; TCM Rims (Heavier) &bull; 55 kg Welded Lead Baby + 2&times; 4.4 kg Plates (63.8 kg Ballast) &bull; 17.5mm Front Swaybar Connected
+              </div>
             </div>
 
             <!-- Base Fuel When Scaled (L) Stepper Row -->
             <div class="field-group cw-base-fuel-group" style="margin-bottom: 12px;">
               <div class="field-label-row">
                 <label class="field-label" for="inputCwBaseFuelL">Base Fuel When Scaled (L)</label>
-                <span class="field-hint mono emerald" id="outCwBaseFuelHint">~18.5 kg @ 0.740 SG &bull; Dry Car+Driver: 1351.5 kg</span>
+                <span class="field-hint mono emerald" id="outCwBaseFuelHint">~14.8 kg @ 0.740 SG &bull; Dry Car+Driver: 1357.2 kg</span>
               </div>
               <div class="num-stepper">
                 <button type="button" class="stepper-btn" data-stepper-target="inputCwBaseFuelL" data-step="-0.5" aria-label="Decrease Base Fuel When Scaled">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputCwBaseFuelL" class="num-input" data-corner-wt-input="baseFuelL" value="25.0" min="0.0" max="74.0" step="0.5" inputmode="decimal" />
+                  <input type="number" id="inputCwBaseFuelL" class="num-input" data-corner-wt-input="baseFuelL" value="20.0" min="0.0" max="74.0" step="0.5" inputmode="decimal" />
                   <span class="num-unit-badge">L</span>
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="inputCwBaseFuelL" data-step="0.5" aria-label="Increase Base Fuel When Scaled">+</button>
@@ -2110,10 +2136,11 @@
             <div class="cw-axle-box cw-axle-box-front" id="cwAxleBoxFront">
               <div class="cw-axle-eyebrow">OVERALL FRONT</div>
               <div class="cw-axle-main-row">
-                <span class="cw-axle-kg mono" id="outCwFrontKg">750.0 kg</span>
+                <span class="cw-axle-kg mono" id="outCwFrontKg">734.0 kg</span>
                 <span class="cw-axle-dot">&bull;</span>
-                <span class="cw-axle-pct-pill mono" id="outCwFrontPct">54.7%</span>
+                <span class="cw-axle-pct-pill mono" id="outCwFrontPct">53.5%</span>
               </div>
+              <div class="cw-axle-sub mono" id="outCwStaticFrontDelta">Front Split FR vs FL: +12.0 kg RF (373 vs 361 kg)</div>
             </div>
 
             <!-- FRONT CORNERS ROW (2-col): FL (kg) | FR (kg) -->
@@ -2121,12 +2148,12 @@
               <div class="field-group" style="margin-bottom: 0;">
                 <div class="field-label-row">
                   <label class="field-label" for="inputCornerWt_FL">FL (kg)</label>
-                  <span class="field-hint">Front Left</span>
+                  <span class="field-hint">Front Left (LF)</span>
                 </div>
                 <div class="num-stepper">
                   <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FL" data-step="-0.5" aria-label="Decrease FL Corner Weight">&minus;</button>
                   <div class="num-input-wrap">
-                    <input type="number" id="inputCornerWt_FL" class="num-input" data-corner-wt-input="FL" value="382.0" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
+                    <input type="number" id="inputCornerWt_FL" class="num-input" data-corner-wt-input="FL" value="361.0" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
                     <span class="num-unit-badge">kg</span>
                   </div>
                   <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FL" data-step="0.5" aria-label="Increase FL Corner Weight">+</button>
@@ -2136,12 +2163,12 @@
               <div class="field-group" style="margin-bottom: 0;">
                 <div class="field-label-row">
                   <label class="field-label" for="inputCornerWt_FR">FR (kg)</label>
-                  <span class="field-hint">Front Right</span>
+                  <span class="field-hint">Front Right (RF)</span>
                 </div>
                 <div class="num-stepper">
                   <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FR" data-step="-0.5" aria-label="Decrease FR Corner Weight">&minus;</button>
                   <div class="num-input-wrap">
-                    <input type="number" id="inputCornerWt_FR" class="num-input" data-corner-wt-input="FR" value="368.0" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
+                    <input type="number" id="inputCornerWt_FR" class="num-input" data-corner-wt-input="FR" value="373.0" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
                     <span class="num-unit-badge">kg</span>
                   </div>
                   <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_FR" data-step="0.5" aria-label="Increase FR Corner Weight">+</button>
@@ -2153,18 +2180,18 @@
             <div class="cw-center-hub" id="cwCenterHub">
               <div class="cw-hub-col">
                 <span class="cw-hub-label">TOTAL WT</span>
-                <span class="cw-hub-val mono" id="outCwTotalKg">1370.0 kg</span>
-                <span class="cw-hub-sub mono" id="outCwDryCarSub">Dry: 1351.5 kg</span>
+                <span class="cw-hub-val mono" id="outCwTotalKg">1372.0 kg</span>
+                <span class="cw-hub-sub mono" id="outCwDryCarSub">Dry: 1357.2 kg</span>
               </div>
-              <div class="cw-hub-col cw-hub-col-cross" id="cwHubColCross">
-                <span class="cw-hub-label">CROSS WT (FL+RR)</span>
-                <span class="cw-hub-val-cross mono" id="outCwCrossPct">50.4%</span>
-                <span class="cw-hub-sub mono" id="outCwCrossKg">690.0 kg</span>
+              <div class="cw-hub-col cw-hub-col-cross is-sweet-spot" id="cwHubColCross">
+                <span class="cw-hub-label">INTERCOMP CROSS / WEDGE</span>
+                <span class="cw-hub-val-cross mono" id="outCwCrossPct">49.38% RF+LR</span>
+                <span class="cw-hub-sub mono" id="outCwCrossKg">Wedge LF+RR: 50.62% (695 kg)</span>
               </div>
               <div class="cw-hub-col">
-                <span class="cw-hub-label">LEFT SIDE</span>
-                <span class="cw-hub-val mono" id="outCwLeftPct">50.7%</span>
-                <span class="cw-hub-sub mono" id="outCwLeftKg">694.0 kg</span>
+                <span class="cw-hub-label">LEFT / RIGHT</span>
+                <span class="cw-hub-val mono" id="outCwLeftPct">48.5% L / 51.5% R</span>
+                <span class="cw-hub-sub mono" id="outCwLeftKg">665.0 L &bull; 707.0 R kg</span>
               </div>
             </div>
 
@@ -2173,12 +2200,12 @@
               <div class="field-group" style="margin-bottom: 0;">
                 <div class="field-label-row">
                   <label class="field-label" for="inputCornerWt_RL">RL (kg)</label>
-                  <span class="field-hint">Rear Left</span>
+                  <span class="field-hint">Rear Left (LR)</span>
                 </div>
                 <div class="num-stepper">
                   <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RL" data-step="-0.5" aria-label="Decrease RL Corner Weight">&minus;</button>
                   <div class="num-input-wrap">
-                    <input type="number" id="inputCornerWt_RL" class="num-input" data-corner-wt-input="RL" value="312.0" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
+                    <input type="number" id="inputCornerWt_RL" class="num-input" data-corner-wt-input="RL" value="304.0" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
                     <span class="num-unit-badge">kg</span>
                   </div>
                   <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RL" data-step="0.5" aria-label="Increase RL Corner Weight">+</button>
@@ -2188,12 +2215,12 @@
               <div class="field-group" style="margin-bottom: 0;">
                 <div class="field-label-row">
                   <label class="field-label" for="inputCornerWt_RR">RR (kg)</label>
-                  <span class="field-hint">Rear Right</span>
+                  <span class="field-hint">Rear Right (RR)</span>
                 </div>
                 <div class="num-stepper">
                   <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RR" data-step="-0.5" aria-label="Decrease RR Corner Weight">&minus;</button>
                   <div class="num-input-wrap">
-                    <input type="number" id="inputCornerWt_RR" class="num-input" data-corner-wt-input="RR" value="308.0" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
+                    <input type="number" id="inputCornerWt_RR" class="num-input" data-corner-wt-input="RR" value="334.0" placeholder="&mdash;" min="0" max="800" step="0.5" inputmode="decimal" />
                     <span class="num-unit-badge">kg</span>
                   </div>
                   <button type="button" class="stepper-btn" data-stepper-target="inputCornerWt_RR" data-step="0.5" aria-label="Increase RR Corner Weight">+</button>
@@ -2205,18 +2232,18 @@
             <div class="cw-axle-box cw-axle-box-rear" id="cwAxleBoxRear">
               <div class="cw-axle-eyebrow">OVERALL REAR</div>
               <div class="cw-axle-main-row">
-                <span class="cw-axle-kg mono" id="outCwRearKg">620.0 kg</span>
+                <span class="cw-axle-kg mono" id="outCwRearKg">638.0 kg</span>
                 <span class="cw-axle-dot">&bull;</span>
-                <span class="cw-axle-pct-pill mono" id="outCwRearPct">45.3%</span>
+                <span class="cw-axle-pct-pill mono" id="outCwRearPct">46.5%</span>
               </div>
-              <div class="cw-axle-sub mono" id="outCwStaticRearDelta">Static RL vs RR: +4.0 kg (RL heavier)</div>
+              <div class="cw-axle-sub mono txt-amber" id="outCwStaticRearDelta">Static RL vs RR: &minus;30.0 kg (RR heavier &bull; CCW RL unload caution)</div>
             </div>
 
             <!-- Spacers Installed When Scaled (RL & RR: 0 / 10 / 20mm) -->
             <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
               <div class="field-group" style="margin-bottom: 0;">
                 <div class="field-label-row">
-                  <span class="field-label">RL Spacer (When Scaled)</span>
+                  <label class="field-label">RL Spacer (When Scaled)</label>
                   <span class="field-hint mono" id="outScaleBaseSpacerLbl_RL">0 mm</span>
                 </div>
                 <div class="rear-spacer-seg" role="group" aria-label="RL Spacer Installed When Scaled">
@@ -2228,13 +2255,115 @@
 
               <div class="field-group" style="margin-bottom: 0;">
                 <div class="field-label-row">
-                  <span class="field-label">RR Spacer (When Scaled)</span>
+                  <label class="field-label">RR Spacer (When Scaled)</label>
                   <span class="field-hint mono" id="outScaleBaseSpacerLbl_RR">20 mm</span>
                 </div>
                 <div class="rear-spacer-seg" role="group" aria-label="RR Spacer Installed When Scaled">
                   <button type="button" class="rear-spacer-pill" data-scale-spacer-corner="RR" data-scale-spacer-mm="0">0mm</button>
                   <button type="button" class="rear-spacer-pill" data-scale-spacer-corner="RR" data-scale-spacer-mm="10">10mm</button>
                   <button type="button" class="rear-spacer-pill active" data-scale-spacer-corner="RR" data-scale-spacer-mm="20">20mm</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- CURRENT TRIM WEIGHT DELTA & 1,365 KG SCRUTINEERING WARNING TRACKER -->
+            <div class="cw-trim-delta-box" id="cwTrimDeltaCard" style="margin-bottom: 10px;">
+              <div class="cw-trim-head">
+                <div>
+                  <div class="section-eyebrow" style="margin-bottom: 2px;">Trim Changes Since 2024 Scale Sheet (Ballast / Driver / Rims)</div>
+                  <div class="cw-trim-sub">Tracks mass changes vs 1,372.0 kg Calder pad baseline until re-scaled in 2026</div>
+                </div>
+                <span class="locked-badge mono" id="outCwTrimNetDeltaBadge">&minus;19.8 kg Net</span>
+              </div>
+
+              <!-- Wheel Set Toggle: Magnesium Rims (Race - Lighter) vs TCM Rims (Scaled - Heavier) -->
+              <div class="field-group" style="margin-bottom: 8px;">
+                <div class="field-label-row">
+                  <span class="field-label">Mounted Wheel Set (vs TCM Rims When Scaled)</span>
+                  <span class="field-hint amber mono" id="outCwWheelSetHint">Magnesium Rims (&minus;6.0 kg)</span>
+                </div>
+                <div class="seg-toggle cw-wheel-toggle" role="group" aria-label="Mounted Wheel Set">
+                  <button type="button" class="seg-btn active" id="btnCwWheelMag" data-cw-wheel-set="magnesium" aria-pressed="true">
+                    Magnesium Rims (Race &mdash; Lighter)
+                  </button>
+                  <button type="button" class="seg-btn" id="btnCwWheelTcm" data-cw-wheel-set="tcm" aria-pressed="false">
+                    TCM Rims (Scaled &mdash; Heavier)
+                  </button>
+                </div>
+              </div>
+
+              <!-- 4-Cell Trim Delta Inputs Grid -->
+              <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 8px;">
+                <div class="field-group" style="margin-bottom: 0;">
+                  <div class="field-label-row">
+                    <label class="field-label" for="inputTrimLeadBabyKg">Welded Lead Baby (kg)</label>
+                    <span class="field-hint emerald">Locked Rear Seat</span>
+                  </div>
+                  <div class="num-stepper">
+                    <button type="button" class="stepper-btn" data-stepper-target="inputTrimLeadBabyKg" data-step="-0.5" aria-label="Decrease Welded Lead Baby Mass">&minus;</button>
+                    <div class="num-input-wrap">
+                      <input type="number" id="inputTrimLeadBabyKg" class="num-input" data-trim-delta-input="weldedLeadBabyKg" value="55.0" min="0" max="120" step="0.5" inputmode="decimal" />
+                      <span class="num-unit-badge">kg</span>
+                    </div>
+                    <button type="button" class="stepper-btn" data-stepper-target="inputTrimLeadBabyKg" data-step="0.5" aria-label="Increase Welded Lead Baby Mass">+</button>
+                  </div>
+                </div>
+
+                <div class="field-group" style="margin-bottom: 0;">
+                  <div class="field-label-row">
+                    <label class="field-label" for="inputTrimPlatesDeltaKg">Removable Lead Plates &Delta;</label>
+                    <span class="field-hint amber">2&times;4.4kg Out = &minus;8.8</span>
+                  </div>
+                  <div class="num-stepper">
+                    <button type="button" class="stepper-btn" data-stepper-target="inputTrimPlatesDeltaKg" data-step="-0.2" aria-label="Decrease Removable Lead Plates Delta">&minus;</button>
+                    <div class="num-input-wrap">
+                      <input type="number" id="inputTrimPlatesDeltaKg" class="num-input" data-trim-delta-input="removableLeadPlatesDeltaKg" value="-8.8" min="-50" max="50" step="0.2" inputmode="decimal" />
+                      <span class="num-unit-badge">kg</span>
+                    </div>
+                    <button type="button" class="stepper-btn" data-stepper-target="inputTrimPlatesDeltaKg" data-step="0.2" aria-label="Increase Removable Lead Plates Delta">+</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+                <div class="field-group" style="margin-bottom: 0;">
+                  <div class="field-label-row">
+                    <label class="field-label" for="inputTrimDriverDeltaKg">Driver + Gear &Delta; (kg)</label>
+                    <span class="field-hint amber">100&rarr;95kg = &minus;5.0</span>
+                  </div>
+                  <div class="num-stepper">
+                    <button type="button" class="stepper-btn" data-stepper-target="inputTrimDriverDeltaKg" data-step="-0.5" aria-label="Decrease Driver and Gear Delta">&minus;</button>
+                    <div class="num-input-wrap">
+                      <input type="number" id="inputTrimDriverDeltaKg" class="num-input" data-trim-delta-input="driverGearDeltaKg" value="-5.0" min="-40" max="40" step="0.5" inputmode="decimal" />
+                      <span class="num-unit-badge">kg</span>
+                    </div>
+                    <button type="button" class="stepper-btn" data-stepper-target="inputTrimDriverDeltaKg" data-step="0.5" aria-label="Increase Driver and Gear Delta">+</button>
+                  </div>
+                </div>
+
+                <div class="field-group" style="margin-bottom: 0;">
+                  <div class="field-label-row">
+                    <label class="field-label" for="inputTrimMagRimDeltaKg">Magnesium Rim &Delta; (kg)</label>
+                    <span class="field-hint">vs TCM Rims</span>
+                  </div>
+                  <div class="num-stepper">
+                    <button type="button" class="stepper-btn" data-stepper-target="inputTrimMagRimDeltaKg" data-step="-0.5" aria-label="Decrease Magnesium Rim Weight Delta">&minus;</button>
+                    <div class="num-input-wrap">
+                      <input type="number" id="inputTrimMagRimDeltaKg" class="num-input" data-trim-delta-input="magnesiumRimDeltaKg" value="-6.0" min="-25" max="10" step="0.5" inputmode="decimal" />
+                      <span class="num-unit-badge">kg</span>
+                    </div>
+                    <button type="button" class="stepper-btn" data-stepper-target="inputTrimMagRimDeltaKg" data-step="0.5" aria-label="Increase Magnesium Rim Weight Delta">+</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Live Estimated Current Weight @ 20L Fuel & 1,365 kg Scrutineering Warning Banner -->
+              <div id="outCwTrimEstWeightBanner" class="manifold-alert danger cw-trim-alert-banner" role="status" aria-live="polite">
+                <div class="cw-trim-alert-title" id="outCwTrimAlertTitle">
+                  &#9888;&#65039; EST. CURRENT WEIGHT @ 20L FUEL: ~1352.2 KG (&sim;12.8 KG UNDER 1365 KG MIN!)
+                </div>
+                <div class="cw-trim-alert-body" id="outCwTrimAlertBody">
+                  Re-scale &amp; fit <strong>~15 kg ballast on LEFT passenger floor</strong> before race! (Left side is 665 kg / 48.5% vs Right 707 kg / 51.5%; left-floor ballast restores 1,365+ kg legal minimum AND improves L/R balance &amp; Sandown CCW RL traction.)
                 </div>
               </div>
             </div>
@@ -2275,22 +2404,25 @@
                 id="inputCwNotes"
                 class="text-input"
                 data-corner-wt-input="notes"
-                value="Baseline workshop pad setup (swaybar unhooked, driver in)"
-                placeholder="e.g. Baseline workshop pad setup (swaybar unhooked, driver in)"
+                value="Calder 2024 [GREEN] Race Baseline — 20mm Spacer RR • 20.0L Fuel • 100kg Driver+Gear • TCM Rims • 63.8kg Ballast (55kg Lead Baby + 2x 4.4kg Plates) • 17.5mm Swaybar Connected"
+                placeholder="e.g. Calder 2024 [GREEN] Race Baseline — 20mm Spacer RR"
               />
             </div>
 
-            <!-- Live Wedge Shift Estimator for 0 / 10 / 20mm Rear Spacers -->
+            <!-- Live Wedge Shift Estimator for 0 / 10 / 20mm Rear Spacers (Calibrated 0.92 kg/mm) -->
             <div class="corner-wt-wedge-est" id="outCornerWtWedgeShiftBox">
-              <strong>Live Rear Spacer Wedge Shift (~9.5 kg diagonal / ~0.7% Cross Wt per 10mm step on Pedders 5609 ~140 N/mm):</strong>
+              <strong>Calibrated Car #77 Intercomp Physics (0.92 kg/mm net spacer step &bull; ~9.0 kg diagonal shift 0&rarr;20mm over stock ~10mm pad &bull; +7.0 kg adding 7.63mm):</strong>
               Enter 4-corner weights above to preview exact cross-weight &amp; RL/RR static load across <code>0mm / 10mm / 20mm</code> spacers.
             </div>
 
-            <!-- Save Scale Sheet Snapshot to History -->
+            <!-- Save Scale Sheet Snapshot to History + Calder 2024 5-Row Colour Sheet -->
             <div style="margin-top: 10px;">
-              <button type="button" class="btn btn-amber-outline btn-full" id="btnSaveCwSnapshot">
-                + Save Current 4-Corner Sheet to History
-              </button>
+              <div class="cw-history-head-bar">
+                <span class="section-eyebrow" style="margin: 0;">Calder 2024 Intercomp 5-Row Scale Sheet &amp; Saved History</span>
+                <button type="button" class="btn btn-amber-outline btn-xs" id="btnSaveCwSnapshot">
+                  + Save Current Sheet (Clears &lt;1365kg Warn if &ge;1365kg)
+                </button>
+              </div>
               <div id="cwHistoryList" class="cw-history-list"></div>
             </div>
           </div>
@@ -2539,17 +2671,18 @@
           aria-expanded="false"
         >
           <div class="fleet-acc-left">
-            <div class="fleet-acc-title">Springs</div>
-            <div class="fleet-acc-sub">Pedders 5608 (Front) &amp; 5609 (Rear) &bull; Rate &amp; Height</div>
+            <div class="fleet-acc-title">Springs &amp; Spacers</div>
+            <div class="fleet-acc-sub">Pedders 5608/5609 Coils &bull; 10-Piece Mitutoyo Spacer Kit (Rule 6c &le;20mm)</div>
           </div>
           <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill emerald" id="fleetSpringActiveBadge">FL:F11 FR:F12 &bull; RL:R6 RR:R5</span>
-            <span class="fleet-acc-count-pill" id="fleetSpringCountBadge">16 UNITS</span>
+            <span class="fleet-acc-status-pill emerald" id="fleetSpringActiveBadge">FL:F11 FR:F12 &bull; RL:R6(0) RR:R5(20mm)</span>
+            <span class="fleet-acc-count-pill" id="fleetSpringCountBadge">16 COILS + 10 SPACERS</span>
             <span class="fleet-acc-chevron" data-fleet-acc-chevron="springs" aria-hidden="true">&#9654;</span>
           </div>
         </button>
 
         <div class="fleet-acc-body" id="fleetAccBody_springs" style="display: none;">
+          <div class="section-eyebrow" style="margin-bottom: 6px;">Sub-Section A &bull; Pedders 5608 (Front) &amp; 5609 (Rear) Coil Springs</div>
           <div class="tyre-stock-filter-bar" role="group" aria-label="Filter Springs Fleet" style="margin-bottom: 10px;">
             <button type="button" class="tyre-filter-pill active" data-spring-fleet-filter="all" id="btnFilterSpringsAll">
               All (<span id="countFilterSpringsAll">16</span>)
@@ -2573,7 +2706,26 @@
             </button>
           </div>
 
-          <div id="springFleetContainer"></div>
+          <div id="springFleetContainer" style="margin-bottom: 16px;"></div>
+
+          <!-- Sub-Section B: Locked 10-Piece Measured Spacer Inventory (5 Mitutoyo Pairs • Rule 6c <= 20.00mm) -->
+          <div class="spacer-kit-fleet-section" id="spacerKitFleetSection">
+            <div class="spacer-kit-head-bar">
+              <div>
+                <div class="section-eyebrow" style="margin-bottom: 2px;">Sub-Section B &bull; Locked 10-Piece Mitutoyo-Measured Spacer Inventory</div>
+                <div class="spacer-kit-sub">5 Measured Pairs (SP-F1 &amp; SP-R1..R4) + Car #77 Mounted RR ~20mm Sleeve &bull; Rule 6c Max 20.00 mm Combined</div>
+              </div>
+              <span class="locked-badge mono" id="outActiveRearSpacerKitBadge">CAR #77: RL 0mm &bull; RR 20mm</span>
+            </div>
+
+            <div class="fleet-selector-bar" style="margin-bottom: 10px;">
+              <label class="sr-only" for="selectFleetSpacerKit">Select Measured Spacer Pair</label>
+              <select id="selectFleetSpacerKit" class="select-input" aria-label="Select Measured Spacer Pair"></select>
+            </div>
+
+            <div id="spacerKitCardContainer" style="margin-bottom: 10px;"></div>
+            <div id="spacerKitMatrixContainer"></div>
+          </div>
         </div>
       </article>
     </section>
@@ -4488,6 +4640,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.8.8"></script>
+  <script src="./app.js?v=0.8.9"></script>
 </body>
 </html>
