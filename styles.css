@@ -5976,3 +5976,145 @@ button:disabled.btn-stage-locked,
   background: rgba(239, 68, 68, 0.16);
   border-color: rgba(239, 68, 68, 0.5);
 }
+
+/* =========================================================
+   v0.8.8 — EMULSION/BRASS DROPDOWNS, SLIM JET MATRIX & 4-PLACE LOCATION SELECTORS
+   ========================================================= */
+.jet-matrix-slim-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #151C27 0%, #0D1219 100%);
+  border: 1px solid #2A374A;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.jet-matrix-slim-title {
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #E2E8F0;
+}
+
+.custom-jet-inline-bar {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr) auto;
+  gap: 6px;
+  align-items: center;
+  padding: 8px 9px;
+  margin-bottom: 9px;
+  border-radius: 9px;
+  background: rgba(9, 13, 19, 0.9);
+  border: 1px solid #334358;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.8);
+}
+
+@media (max-width: 480px) {
+  .custom-jet-inline-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+  .custom-jet-inline-bar button {
+    grid-column: 1 / -1;
+  }
+}
+
+.jet-inv-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 11px;
+}
+
+.jet-inv-row.in-carby {
+  border-color: rgba(56, 189, 248, 0.65);
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(56, 189, 248, 0.12) 0%, transparent 72%),
+    linear-gradient(180deg, #162231 0%, #0D141E 100%);
+}
+
+.jet-inv-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.jet-inv-primary-line {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.jet-inv-mm {
+  font-family: var(--font-mono);
+  font-size: 1.02rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  letter-spacing: 0.01em;
+}
+
+.jet-inv-area-sub {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #94A3B8;
+}
+
+.jet-inv-note-sub {
+  font-size: 0.70rem;
+  font-weight: 700;
+  color: #64748B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jet-location-select,
+.emulsion-location-select {
+  min-height: 36px;
+  padding: 5px 28px 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  border-radius: 8px;
+  background-position: right 7px center, 0 0;
+  width: auto;
+  min-width: 142px;
+}
+
+.emulsion-location-select {
+  width: 100%;
+  margin-top: 2px;
+}
+
+.jet-location-select.loc-box,
+.emulsion-location-select.loc-box {
+  color: #6EE7B7;
+  border-color: rgba(16, 185, 129, 0.65);
+  border-top-color: #6EE7B7;
+  background-color: #0B231B;
+  box-shadow:
+    inset 0 1px 0 rgba(110, 231, 183, 0.22),
+    0 2px 5px rgba(0, 0, 0, 0.65);
+}
+
+.jet-location-select.loc-carby,
+.emulsion-location-select.loc-carby {
+  color: #FDE047;
+  border-color: rgba(56, 189, 248, 0.78);
+  border-top-color: #7DD3FC;
+  border-bottom-color: #D97706;
+  background-color: #112233;
+  box-shadow:
+    0 0 10px rgba(56, 189, 248, 0.25),
+    inset 0 1px 0 rgba(186, 230, 253, 0.28),
+    0 2px 6px rgba(0, 0, 0, 0.75);
+}
+

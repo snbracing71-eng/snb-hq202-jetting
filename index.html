@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.8.7" />
+  <link rel="stylesheet" href="./styles.css?v=0.8.8" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -2316,8 +2316,10 @@
         </button>
 
         <div class="fleet-acc-body" id="fleetAccBody_emulsions" style="display: none;">
+          <div class="section-eyebrow" style="margin-bottom: 6px;">Emulsion Tube Library (#1&ndash;#8 &bull; 9 Profiles / 14 Tubes)</div>
           <div class="fleet-selector-bar" style="margin-bottom: 10px;">
-            <div class="section-eyebrow" style="margin: 0; align-self: center;">Emulsion Tube Library (#1&ndash;#8 &bull; 9 Profiles / 14 Tubes)</div>
+            <label class="sr-only" for="selectEmulsionProfile">Select Emulsion Tube Profile (#1 to #8)</label>
+            <select id="selectEmulsionProfile" class="select-input" aria-label="Select Emulsion Tube Profile (#1 to #8)"></select>
             <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddEmulsion">
               + Add Tube
             </button>
@@ -2325,8 +2327,10 @@
 
           <div id="emulsionFleetContainer" style="margin-bottom: 16px;"></div>
 
+          <div class="section-eyebrow" style="margin-bottom: 6px;">Idle Tubes (#67/#69) &amp; Power Bypass Valves (#53&ndash;#67)</div>
           <div class="fleet-selector-bar" style="margin-bottom: 10px;">
-            <div class="section-eyebrow" style="margin: 0; align-self: center;">Idle Tubes (#67/#69) &amp; Power Bypass Valves (#53&ndash;#67)</div>
+            <label class="sr-only" for="selectBrassProfile">Select Idle Tube or Power Bypass Valve</label>
+            <select id="selectBrassProfile" class="select-input" aria-label="Select Idle Tube or Power Bypass Valve"></select>
             <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddBrassJet">
               + Add Brass
             </button>
@@ -2404,76 +2408,45 @@
             <div class="fleet-acc-sub">11-Slot Tactix Drill-Gauge Matrix (1.70&ndash;2.03 mm) + Orifice Area (mm&sup2;)</div>
           </div>
           <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill emerald" id="toolboxSummaryBadge">1.70&ndash;2.03 mm &bull; 11 IN TACTIX BOX</span>
+            <span class="fleet-acc-status-pill emerald" id="toolboxSummaryBadge">DME#1: 1.85 &bull; DME#2: 1.90 &bull; BOX READY</span>
             <span class="fleet-acc-chevron" data-fleet-acc-chevron="jets" aria-hidden="true">&#9654;</span>
           </div>
         </button>
 
         <div class="fleet-acc-body" id="fleetAccBody_jets" style="display: none;">
-          <!-- Live Metric Drill (mm) <-> Area (mm^2) Orifice Converter -->
-          <div class="card-elevated" style="margin-bottom: 12px;">
-            <div class="section-eyebrow" style="margin-bottom: 8px;">Live Metric Orifice (mm) &amp; Flow Area (mm&sup2;) Calculator</div>
-
-            <div class="form-grid-2 stack-mobile" style="margin-bottom: 10px;">
-              <div class="field-group" style="margin-bottom: 0;">
-                <div class="field-label-row">
-                  <label class="field-label" for="convMmInput">Metric Drill Size (mm)</label>
-                  <span class="field-hint emerald">Pure mm Standard</span>
-                </div>
-                <div class="num-stepper">
-                  <button type="button" class="stepper-btn" data-stepper-target="convMmInput" data-step="-0.010" aria-label="Decrease Orifice mm">&minus;</button>
-                  <div class="num-input-wrap">
-                    <input type="number" id="convMmInput" class="num-input" value="1.850" min="1.200" max="2.600" step="0.005" inputmode="decimal" />
-                    <span class="num-unit-badge">mm</span>
-                  </div>
-                  <button type="button" class="stepper-btn" data-stepper-target="convMmInput" data-step="0.010" aria-label="Increase Orifice mm">+</button>
-                </div>
-              </div>
-
-              <div class="field-group" style="margin-bottom: 0;">
-                <div class="field-label-row">
-                  <label class="field-label" for="convInchInput">Ref Decimal Inch (Optional)</label>
-                  <span class="field-hint">1 in = 25.400 mm</span>
-                </div>
-                <div class="num-stepper">
-                  <button type="button" class="stepper-btn" data-stepper-target="convInchInput" data-step="-0.0005" aria-label="Decrease Orifice Inch">&minus;</button>
-                  <div class="num-input-wrap">
-                    <input type="number" id="convInchInput" class="num-input" value="0.0728" min="0.047" max="0.102" step="0.0005" inputmode="decimal" />
-                    <span class="num-unit-badge">in</span>
-                  </div>
-                  <button type="button" class="stepper-btn" data-stepper-target="convInchInput" data-step="0.0005" aria-label="Increase Orifice Inch">+</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="physics-summary-grid" style="margin-bottom: 10px;">
-              <div class="telem-cell">
-                <span class="telem-label">Orifice Flow Area</span>
-                <span class="telem-val txt-emerald" id="convAreaOut">2.688 mm&sup2;</span>
-                <span class="telem-sub" id="convVsBaseOut">0.00% area vs 1.85 mm baseline</span>
-              </div>
-              <div class="telem-cell">
-                <span class="telem-label">Nearest Tactix Box Jet</span>
-                <span class="telem-val txt-amber" id="convNearestJetOut">1.85 mm</span>
-                <span class="telem-sub" id="convStampHint">2.688 mm&sup2;</span>
-              </div>
-            </div>
-
-            <div class="form-grid-2 stack-mobile">
-              <input
-                type="text"
-                id="customJetLabelInput"
-                class="text-input"
-                placeholder="Custom note (e.g. Bellmouthed 1.86 mm Drill)"
-              />
-              <button type="button" class="btn btn-amber-outline" id="btnAddCustomJet">
-                + Add Custom mm Jet to Box
-              </button>
-            </div>
+          <!-- Slim 1-Row Header Bar + Collapsible Custom Jet Input -->
+          <div class="jet-matrix-slim-head">
+            <div class="section-eyebrow" style="margin: 0;">11-Slot Tactix Drill-Gauge Matrix (mm)</div>
+            <button type="button" class="btn btn-amber-outline btn-xs" id="btnToggleAddCustomJet" aria-expanded="false">
+              + Add Custom mm Jet
+            </button>
           </div>
 
-          <!-- 11-Slot Tactix Metric Drill-Gauge Main Jet Matrix -->
-          <div class="section-eyebrow" style="margin-bottom: 8px;">11-Slot Tactix Drill-Gauge Box (1.70&ndash;2.03 mm) &amp; Spare Metric Drills</div>
+          <div class="custom-jet-inline-bar" id="addCustomJetCollapse" style="display: none;">
+            <input
+              type="number"
+              id="customJetMmInput"
+              class="num-input custom-jet-mm-inp"
+              value="1.86"
+              min="1.20"
+              max="2.60"
+              step="0.01"
+              inputmode="decimal"
+              aria-label="Custom Jet Size in mm"
+              placeholder="mm (e.g. 1.86)"
+            />
+            <input
+              type="text"
+              id="customJetLabelInput"
+              class="text-input custom-jet-note-inp"
+              placeholder="Note (e.g. Bellmouthed Drill)"
+              aria-label="Custom Jet Note"
+            />
+            <button type="button" class="btn btn-confirm btn-xs" id="btnAddCustomJet">
+              Add Jet
+            </button>
+          </div>
+
           <div class="jet-inventory-list" id="jetInventoryList"></div>
         </div>
       </article>
@@ -3430,9 +3403,19 @@
           <input type="text" id="editEmulsionCollar" class="text-input" placeholder="e.g. Single / Twin" />
         </div>
         <div class="field-group" style="margin-bottom: 0;">
-          <label class="field-label" for="editEmulsionStatus">Current Status</label>
-          <input type="text" id="editEmulsionStatus" class="text-input" placeholder="e.g. Fitted in DME #1 / Untested Stock" />
+          <label class="field-label" for="editEmulsionLocation">Location / Fitted Carby (2-Way Sync)</label>
+          <select id="editEmulsionLocation" class="select-input">
+            <option value="STOCK">In Kit Stock</option>
+            <option value="DME1">In DME #1</option>
+            <option value="DME2">In DME #2</option>
+            <option value="SNB">In SNB</option>
+          </select>
         </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom: 10px;">
+        <label class="field-label" for="editEmulsionStatus">Status / Bench Note</label>
+        <input type="text" id="editEmulsionStatus" class="text-input" placeholder="e.g. Fitted in DME #1 / Untested Stock" />
       </div>
 
       <div class="field-group" style="margin-bottom: 10px;">
@@ -4505,6 +4488,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.8.7"></script>
+  <script src="./app.js?v=0.8.8"></script>
 </body>
 </html>
