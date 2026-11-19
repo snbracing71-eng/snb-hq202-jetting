@@ -208,10 +208,13 @@ body {
   gap: 6px;
   padding: 6px 11px;
   border-radius: 8px;
+  font-family: inherit;
   font-size: 12.5px;
   font-weight: 900;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
   background:
     radial-gradient(ellipse 75% 45% at 50% 10%, rgba(110, 255, 170, 0.28) 0%, transparent 70%),
     linear-gradient(180deg, #0D3B2E 0%, #07221B 58%, #041410 100%);
@@ -225,9 +228,27 @@ body {
   color: #6EE7B7;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
   white-space: nowrap;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
 
-.net-status.offline {
+.net-status:active {
+  transform: translateY(2px);
+  box-shadow:
+    0 1px 0 #020E0B,
+    0 2px 5px rgba(0, 0, 0, 0.75),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25);
+}
+
+.net-status.synced {
+  color: #6EE7B7;
+  border-color: #10B981;
+  border-top-color: #6EE7B7;
+  border-bottom-color: #065F46;
+}
+
+.net-status.offline,
+.net-status.syncing,
+.net-status.queued {
   color: #FDE68A;
   background:
     radial-gradient(ellipse 75% 45% at 50% 10%, rgba(253, 224, 71, 0.28) 0%, transparent 70%),
@@ -7236,3 +7257,56 @@ button:disabled.btn-stage-locked,
   border-top: 1px dashed rgba(71, 85, 105, 0.65);
 }
 
+/* =========================================================
+   OFFLINE-FIRST CLOUD SYNC (PHONE & LAPTOP) PANELS & PILLS
+   ========================================================= */
+.cloud-sync-panel-box {
+  position: relative;
+  border-color: #3B4C66;
+  border-top-color: #5B7192;
+}
+
+.cloud-sync-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.cloud-sync-panel-sub {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.cloud-sync-key-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 8px;
+}
+
+@media (max-width: 520px) {
+  .cloud-sync-key-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cloud-sync-meta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #0B0E14 0%, #131923 100%);
+  border: 1px solid #2A3649;
+}
+
+.cloud-sync-meta-text {
+  font-size: 0.73rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+}

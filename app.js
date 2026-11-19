@@ -7,6 +7,10 @@
   'use strict';
 
   const STORAGE_KEY = 'snb_hq202_jetting_state_v03';
+  const CLOUD_CFG_STORAGE_KEY = 'snb_hq202_cloud_cfg_v1';
+  const CLOUD_GIST_FILENAME = 'snb_hq202_master_state.json';
+  const CLOUD_GIST_DESCRIPTION = 'SNB Racing HQ 202 Cloud Sync';
+  const GITHUB_GISTS_API_URL = 'https://api.github.com/gists';
   const ISA_STD_DENSITY = 1.2250; // kg/m^3 at 15C (288.15K), 1013.25 hPa, 0% RH
   const R_DRY = 287.058;          // J/(kg*K) dry air gas constant
   const R_VAPOR = 461.495;        // J/(kg*K) water vapor gas constant
@@ -5082,6 +5086,10 @@
     candidate.brakesAuditV2 = true;
     candidate.jetLocationsV1 = true;
     candidate.bathurstBenchmarkFixV1 = true;
+    candidate.lastModifiedAt =
+      Number.isFinite(Number(candidate.lastModifiedAt)) && Number(candidate.lastModifiedAt) > 0
+        ? Math.round(Number(candidate.lastModifiedAt))
+        : 0;
     return candidate;
   }
 
@@ -5120,6 +5128,7 @@
       brakesAuditV2: true,
       jetLocationsV1: true,
       bathurstBenchmarkFixV1: true,
+      lastModifiedAt: 0,
       activeEventId: null,
       activeSessionId: null,
       events: createDefaultEvents(),
@@ -5216,10 +5225,604 @@
     selectedFleetExhaustId: state.activeExhaustId || 'Macca',
     selectedFleetShockId: (state.mountedShocks && state.mountedShocks.FL) || 'shk_F14',
     selectedFleetSpringId: (state.mountedSprings && state.mountedSprings.FL) || 'spr_F11',
-    dynoScrubRpm: 5000
+    dynoScrubRpm: 5000,
+    cloudSyncInFlight: false,
+    cloudSyncLastError: ''
   };
 
-  function saveState() {
+  /* ------------------------------------------------------------------------
+     OFFLINE-FIRST CLOUD SYNC ENGINE (GitHub Gist REST API)
+     ------------------------------------------------------------------------ */
+  let cloudPushDebounceTimer = null;
+
+  function createDefaultCloudConfig() {
+    return {
+      syncKey: '',
+      gistId: '',
+      lastSyncedAt: null,
+      pendingPush: false,
+      deviceLabel: ''
+    };
+  }
+
+  function loadCloudConfig() {
+    try {
+      const raw = localStorage.getItem(CLOUD_CFG_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          return {
+            syncKey: typeof parsed.syncKey === 'string' ? parsed.syncKey.trim() : '',
+            gistId: typeof parsed.gistId === 'string' ? parsed.gistId.trim() : '',
+            lastSyncedAt:
+              Number.isFinite(Number(parsed.lastSyncedAt)) && Number(parsed.lastSyncedAt) > 0
+                ? Math.round(Number(parsed.lastSyncedAt))
+                : null,
+            pendingPush: Boolean(parsed.pendingPush),
+            deviceLabel: typeof parsed.deviceLabel === 'string' ? parsed.deviceLabel.trim() : ''
+          };
+        }
+      }
+    } catch (err) {
+      console.warn('Unable to load cloud sync config:', err);
+    }
+    return createDefaultCloudConfig();
+  }
+
+  let cloudCfg = loadCloudConfig();
+
+  function saveCloudConfig(patch = null) {
+    if (patch && typeof patch === 'object') {
+      cloudCfg = {
+        ...cloudCfg,
+        ...patch
+      };
+    }
+    try {
+      localStorage.setItem(CLOUD_CFG_STORAGE_KEY, JSON.stringify(cloudCfg));
+    } catch (err) {
+      console.warn('Unable to save cloud sync config:', err);
+    }
+    renderCloudSyncUi();
+  }
+
+  function formatCloudTimestamp(ts) {
+    if (!Number.isFinite(Number(ts)) || Number(ts) <= 0) {
+      return 'Never (Local Only)';
+    }
+    try {
+      const d = new Date(Number(ts));
+      return d.toLocaleString('en-AU', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch (_) {
+      return new Date(Number(ts)).toISOString();
+    }
+  }
+
+  function getCloudHeaders(syncKey) {
+    return {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${syncKey}`,
+      'Content-Type': 'application/json'
+    };
+  }
+
+  async function discoverOrCreateCloudGist(syncKey, createIfMissing = true) {
+    const listResp = await fetch(`${GITHUB_GISTS_API_URL}?per_page=50`, {
+      method: 'GET',
+      headers: getCloudHeaders(syncKey),
+      cache: 'no-store'
+    });
+    if (!listResp.ok) {
+      throw new Error(`GitHub Gist list failed (HTTP ${listResp.status})`);
+    }
+    const gists = await listResp.json();
+    if (Array.isArray(gists)) {
+      const match = gists.find(
+        (g) => g && g.files && typeof g.files === 'object' && g.files[CLOUD_GIST_FILENAME]
+      );
+      if (match && match.id) {
+        saveCloudConfig({ gistId: String(match.id) });
+        return { gistId: String(match.id), createdNew: false };
+      }
+    }
+
+    if (!createIfMissing) {
+      return { gistId: '', createdNew: false };
+    }
+
+    const createPayload = {
+      description: CLOUD_GIST_DESCRIPTION,
+      public: false,
+      files: {
+        [CLOUD_GIST_FILENAME]: {
+          content: JSON.stringify(state, null, 2)
+        }
+      }
+    };
+    const createResp = await fetch(GITHUB_GISTS_API_URL, {
+      method: 'POST',
+      headers: getCloudHeaders(syncKey),
+      body: JSON.stringify(createPayload)
+    });
+    if (!createResp.ok) {
+      throw new Error(`GitHub Gist create failed (HTTP ${createResp.status})`);
+    }
+    const created = await createResp.json();
+    if (!created || !created.id) {
+      throw new Error('GitHub Gist created without ID');
+    }
+    saveCloudConfig({ gistId: String(created.id) });
+    return { gistId: String(created.id), createdNew: true };
+  }
+
+  async function fetchRemoteCloudState(syncKey, gistId) {
+    const resp = await fetch(`${GITHUB_GISTS_API_URL}/${encodeURIComponent(gistId)}`, {
+      method: 'GET',
+      headers: getCloudHeaders(syncKey),
+      cache: 'no-store'
+    });
+    if (!resp.ok) {
+      const err = new Error(`GitHub Gist fetch failed (HTTP ${resp.status})`);
+      err.status = resp.status;
+      throw err;
+    }
+    const gistData = await resp.json();
+    const fileEntry = gistData && gistData.files && gistData.files[CLOUD_GIST_FILENAME];
+    if (!fileEntry) {
+      return null;
+    }
+    let rawContent = fileEntry.content;
+    if ((fileEntry.truncated || !rawContent) && fileEntry.raw_url) {
+      const rawResp = await fetch(fileEntry.raw_url, {
+        method: 'GET',
+        cache: 'no-store'
+      });
+      if (rawResp.ok) {
+        rawContent = await rawResp.text();
+      }
+    }
+    if (!rawContent) return null;
+    const parsed = JSON.parse(rawContent);
+    return parsed && typeof parsed === 'object' ? parsed : null;
+  }
+
+  function applyRemoteStateToLocal(remoteData, showSyncToast = true) {
+    if (!remoteData || typeof remoteData !== 'object') return false;
+    const remoteTs =
+      Number.isFinite(Number(remoteData.lastModifiedAt)) && Number(remoteData.lastModifiedAt) > 0
+        ? Math.round(Number(remoteData.lastModifiedAt))
+        : Date.now();
+    state = hydrateState(remoteData);
+    state.lastModifiedAt = remoteTs;
+    saveState({ skipTimestamp: true, skipCloudPush: true });
+    saveCloudConfig({
+      lastSyncedAt: Date.now(),
+      pendingPush: false
+    });
+    try {
+      if ($('inputTargetAfr')) {
+        const bootTarget =
+          state && Number.isFinite(Number(state.targetAfr)) && Number(state.targetAfr) < 12.90
+            ? Number(state.targetAfr)
+            : 12.75;
+        $('inputTargetAfr').value = bootTarget.toFixed(2);
+      }
+      renderDynoRpmFormInputs();
+      syncSessionSelectFromBaseline();
+      hydrateFuelAndTyreInputs();
+      hydrateCornerWeightInputs();
+      hydrateBrakesFleetInputs();
+    } catch (err) {
+      console.warn('Cloud pull input re-hydration error:', err);
+    }
+    renderAll();
+    if (showSyncToast && typeof showToast === 'function') {
+      showToast('Synced latest HQ 202 data');
+    }
+    return true;
+  }
+
+  async function pushStateToCloud(options = {}) {
+    const manual = Boolean(options.manual);
+    const forceOverwrite = Boolean(options.forceOverwrite);
+    cloudCfg = loadCloudConfig();
+    if (!cloudCfg.syncKey) {
+      if (manual && typeof showToast === 'function') {
+        showToast('Enter & save your GitHub Sync Key first');
+      }
+      renderCloudSyncUi();
+      return false;
+    }
+
+    if (!navigator.onLine) {
+      saveCloudConfig({ pendingPush: true });
+      if (manual && typeof showToast === 'function') {
+        showToast('Offline at track — push queued automatically for next signal');
+      }
+      return false;
+    }
+
+    if (ui.cloudSyncInFlight) return false;
+    ui.cloudSyncInFlight = true;
+    ui.cloudSyncLastError = '';
+    renderCloudSyncUi();
+
+    try {
+      let targetGistId = cloudCfg.gistId;
+      let justCreatedNew = false;
+
+      if (!targetGistId) {
+        const disc = await discoverOrCreateCloudGist(cloudCfg.syncKey, true);
+        targetGistId = disc.gistId;
+        justCreatedNew = disc.createdNew;
+      }
+
+      // Safeguard: Before overwriting remote data on a newly linked device (lastSyncedAt === null),
+      // check if remote lastModifiedAt > local lastModifiedAt so a factory-default laptop NEVER overwrites phone data.
+      if (!justCreatedNew && !forceOverwrite && cloudCfg.lastSyncedAt === null) {
+        try {
+          const remoteData = await fetchRemoteCloudState(cloudCfg.syncKey, targetGistId);
+          const remoteTs =
+            remoteData && Number.isFinite(Number(remoteData.lastModifiedAt))
+              ? Number(remoteData.lastModifiedAt)
+              : 0;
+          const localTs =
+            state && Number.isFinite(Number(state.lastModifiedAt))
+              ? Number(state.lastModifiedAt)
+              : 0;
+
+          if (remoteData && remoteTs > localTs) {
+            if (manual) {
+              const confirmPullFirst = window.confirm(
+                'Cloud has newer HQ 202 data than this newly linked device.\n\nPress OK to PULL the newer Cloud data onto this device first (Recommended so you do not overwrite your Phone data), or Cancel to force-push this device over the Cloud.'
+              );
+              if (confirmPullFirst) {
+                ui.cloudSyncInFlight = false;
+                applyRemoteStateToLocal(remoteData, true);
+                return true;
+              }
+            } else {
+              // Automatic sync on a newly linked device: always pull newer remote data safely
+              ui.cloudSyncInFlight = false;
+              applyRemoteStateToLocal(remoteData, true);
+              return true;
+            }
+          }
+        } catch (preCheckErr) {
+          if (preCheckErr && preCheckErr.status === 404) {
+            const disc = await discoverOrCreateCloudGist(cloudCfg.syncKey, true);
+            targetGistId = disc.gistId;
+          }
+        }
+      }
+
+      if (!state.lastModifiedAt || Number(state.lastModifiedAt) <= 0) {
+        state.lastModifiedAt = Date.now();
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (_) {}
+      }
+
+      const patchPayload = {
+        description: CLOUD_GIST_DESCRIPTION,
+        files: {
+          [CLOUD_GIST_FILENAME]: {
+            content: JSON.stringify(state, null, 2)
+          }
+        }
+      };
+
+      let patchResp = await fetch(`${GITHUB_GISTS_API_URL}/${encodeURIComponent(targetGistId)}`, {
+        method: 'PATCH',
+        headers: getCloudHeaders(cloudCfg.syncKey),
+        body: JSON.stringify(patchPayload)
+      });
+
+      if (patchResp.status === 404) {
+        const disc = await discoverOrCreateCloudGist(cloudCfg.syncKey, true);
+        targetGistId = disc.gistId;
+        patchResp = await fetch(`${GITHUB_GISTS_API_URL}/${encodeURIComponent(targetGistId)}`, {
+          method: 'PATCH',
+          headers: getCloudHeaders(cloudCfg.syncKey),
+          body: JSON.stringify(patchPayload)
+        });
+      }
+
+      if (!patchResp.ok) {
+        throw new Error(`Cloud Push failed (HTTP ${patchResp.status})`);
+      }
+
+      ui.cloudSyncInFlight = false;
+      saveCloudConfig({
+        gistId: targetGistId,
+        pendingPush: false,
+        lastSyncedAt: Date.now()
+      });
+      if (manual && typeof showToast === 'function') {
+        showToast('Pushed HQ 202 master state to Cloud');
+      }
+      return true;
+    } catch (err) {
+      console.warn('Cloud push error:', err);
+      ui.cloudSyncInFlight = false;
+      ui.cloudSyncLastError = err && err.message ? err.message : 'Cloud push failed';
+      saveCloudConfig({ pendingPush: true });
+      if (manual && typeof showToast === 'function') {
+        showToast(`Cloud Push Error: ${ui.cloudSyncLastError}`);
+      }
+      return false;
+    }
+  }
+
+  async function pullStateFromCloud(manual = false) {
+    cloudCfg = loadCloudConfig();
+    if (!cloudCfg.syncKey) {
+      if (manual && typeof showToast === 'function') {
+        showToast('Enter & save your GitHub Sync Key first');
+      }
+      renderCloudSyncUi();
+      return false;
+    }
+
+    if (!navigator.onLine) {
+      renderCloudSyncUi();
+      if (manual && typeof showToast === 'function') {
+        showToast('Device is offline — cannot pull from Cloud right now');
+      }
+      return false;
+    }
+
+    // If an offline edit is queued and this is an automatic background check, flush pending push first
+    if (!manual && cloudCfg.pendingPush) {
+      return pushStateToCloud({ manual: false });
+    }
+
+    if (ui.cloudSyncInFlight) return false;
+    ui.cloudSyncInFlight = true;
+    ui.cloudSyncLastError = '';
+    renderCloudSyncUi();
+
+    try {
+      let targetGistId = cloudCfg.gistId;
+      if (!targetGistId) {
+        const disc = await discoverOrCreateCloudGist(cloudCfg.syncKey, false);
+        targetGistId = disc.gistId;
+      }
+
+      if (!targetGistId) {
+        ui.cloudSyncInFlight = false;
+        renderCloudSyncUi();
+        if (manual && typeof showToast === 'function') {
+          showToast('No Cloud Gist found yet — click "Push This Device to Cloud" on your Phone first');
+        }
+        return false;
+      }
+
+      const remoteData = await fetchRemoteCloudState(cloudCfg.syncKey, targetGistId);
+      ui.cloudSyncInFlight = false;
+
+      if (!remoteData) {
+        renderCloudSyncUi();
+        if (manual && typeof showToast === 'function') {
+          showToast('Cloud Gist is empty — push from your primary device first');
+        }
+        return false;
+      }
+
+      const remoteTs =
+        Number.isFinite(Number(remoteData.lastModifiedAt)) && Number(remoteData.lastModifiedAt) > 0
+          ? Math.round(Number(remoteData.lastModifiedAt))
+          : 0;
+      const localTs =
+        state && Number.isFinite(Number(state.lastModifiedAt)) && Number(state.lastModifiedAt) > 0
+          ? Math.round(Number(state.lastModifiedAt))
+          : 0;
+
+      if (manual || remoteTs > localTs) {
+        applyRemoteStateToLocal(remoteData, true);
+        return true;
+      }
+
+      saveCloudConfig({
+        gistId: targetGistId,
+        lastSyncedAt: Date.now()
+      });
+      return false;
+    } catch (err) {
+      console.warn('Cloud pull error:', err);
+      ui.cloudSyncInFlight = false;
+      ui.cloudSyncLastError = err && err.message ? err.message : 'Cloud pull failed';
+      renderCloudSyncUi();
+      if (manual && typeof showToast === 'function') {
+        showToast(`Cloud Pull Error: ${ui.cloudSyncLastError}`);
+      }
+      return false;
+    }
+  }
+
+  function scheduleDebouncedCloudPush() {
+    cloudCfg = loadCloudConfig();
+    if (!cloudCfg.syncKey) return;
+    if (!navigator.onLine) {
+      saveCloudConfig({ pendingPush: true });
+      return;
+    }
+    saveCloudConfig({ pendingPush: true });
+    if (cloudPushDebounceTimer) {
+      clearTimeout(cloudPushDebounceTimer);
+    }
+    cloudPushDebounceTimer = setTimeout(() => {
+      cloudPushDebounceTimer = null;
+      pushStateToCloud({ manual: false });
+    }, 1500);
+  }
+
+  function renderCloudSyncUi() {
+    const cfg = cloudCfg || loadCloudConfig();
+    const hasKey = Boolean(cfg.syncKey);
+    const isOnline = typeof navigator !== 'undefined' ? Boolean(navigator.onLine) : true;
+    const isSyncing = Boolean(ui.cloudSyncInFlight);
+    const isQueued = Boolean(cfg.pendingPush);
+
+    // 1. Top-Right Header Status Pill (#netStatusBadge)
+    const netBadge = $('netStatusBadge');
+    const netText = $('netStatusText');
+    if (netBadge && netText) {
+      netBadge.classList.remove('offline', 'synced', 'syncing', 'queued');
+      if (isSyncing) {
+        netBadge.classList.add('syncing');
+        netText.textContent = '🔄 SYNCING...';
+      } else if (hasKey && (!isOnline || isQueued)) {
+        netBadge.classList.add('queued');
+        netText.textContent = !isOnline && isQueued ? 'OFFLINE • QUEUED' : '⚡ QUEUED OFFLINE';
+      } else if (hasKey && cfg.lastSyncedAt) {
+        netBadge.classList.add('synced');
+        netText.textContent = '☁️ SYNCED';
+      } else if (!isOnline) {
+        netBadge.classList.add('offline');
+        netText.textContent = 'OFFLINE READY';
+      } else {
+        netText.textContent = 'OFFLINE READY';
+      }
+    }
+
+    // Determine status badge text & class for panels
+    let panelStatusText = 'LOCAL ONLY';
+    let panelStatusTone = '';
+    if (isSyncing) {
+      panelStatusText = '🔄 SYNCING...';
+      panelStatusTone = 'amber';
+    } else if (hasKey && (!isOnline || isQueued)) {
+      panelStatusText = !isOnline && isQueued ? 'OFFLINE • QUEUED' : '⚡ QUEUED OFFLINE';
+      panelStatusTone = 'amber';
+    } else if (hasKey && cfg.lastSyncedAt) {
+      panelStatusText = '☁️ SYNCED';
+      panelStatusTone = 'emerald';
+    } else if (hasKey) {
+      panelStatusText = 'KEY SAVED • READY';
+      panelStatusTone = 'emerald';
+    }
+
+    const statusBadgeIds = [
+      'logCloudSyncStatusBadge',
+      'fleetCloudSyncStatusBadge',
+      'modalCloudSyncStatusBadge'
+    ];
+    statusBadgeIds.forEach((id) => {
+      const el = $(id);
+      if (!el) return;
+      el.textContent = panelStatusText;
+      el.classList.remove('emerald', 'amber');
+      if (panelStatusTone) el.classList.add(panelStatusTone);
+    });
+
+    const fleetMeta = $('fleetCloudSyncMetaBadge');
+    if (fleetMeta) {
+      fleetMeta.textContent = cfg.deviceLabel
+        ? `${cfg.deviceLabel.toUpperCase()} • ${cfg.gistId ? 'GIST LINKED' : 'PRIVATE GIST'}`
+        : cfg.gistId
+          ? `GIST ${cfg.gistId.slice(0, 8)}…`
+          : 'PRIVATE GITHUB GIST';
+    }
+
+    const gistLabelText = cfg.gistId ? `Gist: ${cfg.gistId.slice(0, 10)}…` : 'Gist: Auto-Discover';
+    if ($('fleetCloudGistIdBadge')) $('fleetCloudGistIdBadge').textContent = gistLabelText;
+    if ($('modalCloudGistIdLabel')) $('modalCloudGistIdLabel').textContent = gistLabelText;
+
+    const lastSyncedFormatted = formatCloudTimestamp(cfg.lastSyncedAt);
+    ['outCloudLastSyncedLog', 'outCloudLastSyncedFleet', 'outCloudLastSyncedModal'].forEach((id) => {
+      const el = $(id);
+      if (el) el.textContent = lastSyncedFormatted;
+    });
+
+    // Populate inputs unless currently focused by user typing
+    const keyInputs = ['inputCloudSyncKeyLog', 'inputCloudSyncKeyFleet', 'inputCloudSyncKeyModal'];
+    keyInputs.forEach((id) => {
+      const el = $(id);
+      if (el && document.activeElement !== el) {
+        el.value = cfg.syncKey || '';
+      }
+    });
+
+    const labelInputs = ['inputCloudDeviceLabelLog', 'inputCloudDeviceLabelFleet', 'inputCloudDeviceLabelModal'];
+    labelInputs.forEach((id) => {
+      const el = $(id);
+      if (el && document.activeElement !== el) {
+        el.value = cfg.deviceLabel || '';
+      }
+    });
+  }
+
+  function openCloudSyncModal() {
+    renderCloudSyncUi();
+    const modal = $('modalCloudSync');
+    if (modal) modal.classList.add('open');
+  }
+
+  async function saveAndConnectCloudDevice(suffix) {
+    const keyInput = $(`inputCloudSyncKey${suffix}`);
+    const labelInput = $(`inputCloudDeviceLabel${suffix}`);
+    const rawKey = keyInput ? String(keyInput.value || '').trim() : '';
+    const rawLabel = labelInput ? String(labelInput.value || '').trim() : '';
+
+    if (!rawKey) {
+      if (typeof showToast === 'function') {
+        showToast('Please paste a GitHub Personal Access Token (gist scope)');
+      }
+      return;
+    }
+
+    const keyChanged = rawKey !== cloudCfg.syncKey;
+    saveCloudConfig({
+      syncKey: rawKey,
+      deviceLabel: rawLabel || cloudCfg.deviceLabel || '',
+      gistId: keyChanged ? '' : cloudCfg.gistId,
+      lastSyncedAt: keyChanged ? null : cloudCfg.lastSyncedAt
+    });
+
+    if (typeof showToast === 'function') {
+      showToast('Sync Key saved locally — connecting to Cloud Gist...');
+    }
+
+    if (!navigator.onLine) {
+      if (typeof showToast === 'function') {
+        showToast('Offline right now — key saved and ready when signal returns');
+      }
+      return;
+    }
+
+    // Attempt to discover an existing Gist and pull if remote is newer; otherwise discover/create
+    const pulled = await pullStateFromCloud(false);
+    if (!pulled && !cloudCfg.gistId) {
+      await pushStateToCloud({ manual: false });
+    }
+  }
+
+  function disconnectCloudDevice() {
+    if (cloudPushDebounceTimer) {
+      clearTimeout(cloudPushDebounceTimer);
+      cloudPushDebounceTimer = null;
+    }
+    ui.cloudSyncInFlight = false;
+    ui.cloudSyncLastError = '';
+    cloudCfg = createDefaultCloudConfig();
+    try {
+      localStorage.removeItem(CLOUD_CFG_STORAGE_KEY);
+    } catch (_) {}
+    renderCloudSyncUi();
+    if (typeof showToast === 'function') {
+      showToast('Disconnected Cloud Sync on this device (local data preserved)');
+    }
+  }
+
+  function saveState(options = {}) {
     state.seedInitializedV1 = true;
     state.peddersDynoAuditV1 = true;
     state.carbyJetAuditV1 = true;
@@ -5228,11 +5831,18 @@
     state.fuelSystemAuditV2 = true;
     state.brakesAuditV2 = true;
     state.jetLocationsV1 = true;
+    state.bathurstBenchmarkFixV1 = true;
+    if (!options || !options.skipTimestamp) {
+      state.lastModifiedAt = Date.now();
+    }
     syncFlatSessionsFromEvents(state);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch (err) {
       console.warn('Unable to persist state:', err);
+    }
+    if (!options || !options.skipCloudPush) {
+      scheduleDebouncedCloudPush();
     }
   }
 
@@ -21563,22 +22173,87 @@
       });
     });
 
-    // Network status & PWA Install prompt
-    const updateNetBadge = () => {
-      const badge = $('netStatusBadge');
-      const txt = $('netStatusText');
-      if (!badge || !txt) return;
-      if (!navigator.onLine) {
-        badge.classList.add('offline');
-        txt.textContent = 'Pit Offline';
-      } else {
-        badge.classList.remove('offline');
-        txt.textContent = 'Offline Ready';
+    // Network status, Offline-First Cloud Sync & PWA Install prompt
+    if ($('netStatusBadge')) {
+      $('netStatusBadge').addEventListener('click', () => {
+        openCloudSyncModal();
+      });
+    }
+
+    ['Log', 'Fleet', 'Modal'].forEach((suffix) => {
+      const btnSave = $(`btnSaveConnectCloud${suffix}`);
+      if (btnSave) {
+        btnSave.addEventListener('click', () => {
+          saveAndConnectCloudDevice(suffix);
+        });
       }
-    };
-    window.addEventListener('online', updateNetBadge);
-    window.addEventListener('offline', updateNetBadge);
-    updateNetBadge();
+      const btnPush = $(`btnPushCloud${suffix}`);
+      if (btnPush) {
+        btnPush.addEventListener('click', () => {
+          pushStateToCloud({ manual: true });
+        });
+      }
+      const btnPull = $(`btnPullCloud${suffix}`);
+      if (btnPull) {
+        btnPull.addEventListener('click', () => {
+          pullStateFromCloud(true);
+        });
+      }
+      const btnDisconnect = $(`btnDisconnectCloud${suffix}`);
+      if (btnDisconnect) {
+        btnDisconnect.addEventListener('click', () => {
+          disconnectCloudDevice();
+        });
+      }
+    });
+
+    window.addEventListener('online', () => {
+      renderCloudSyncUi();
+      const cfg = loadCloudConfig();
+      if (cfg.syncKey) {
+        if (cfg.pendingPush) {
+          pushStateToCloud({ manual: false });
+        } else {
+          pullStateFromCloud(false);
+        }
+      }
+    });
+
+    window.addEventListener('offline', () => {
+      renderCloudSyncUi();
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && navigator.onLine) {
+        const cfg = loadCloudConfig();
+        if (cfg.syncKey) {
+          if (cfg.pendingPush) {
+            pushStateToCloud({ manual: false });
+          } else {
+            pullStateFromCloud(false);
+          }
+        }
+      }
+    });
+
+    setInterval(() => {
+      if (
+        typeof document !== 'undefined' &&
+        document.visibilityState === 'visible' &&
+        navigator.onLine
+      ) {
+        const cfg = loadCloudConfig();
+        if (cfg.syncKey) {
+          if (cfg.pendingPush) {
+            pushStateToCloud({ manual: false });
+          } else {
+            pullStateFromCloud(false);
+          }
+        }
+      }
+    }, 60000);
+
+    renderCloudSyncUi();
 
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -21643,4 +22318,18 @@
   }
   renderAll();
   registerServiceWorker();
+
+  // Trigger initial Cloud Sync check on app startup if a Sync Key is configured
+  try {
+    const bootCloudCfg = loadCloudConfig();
+    if (bootCloudCfg.syncKey && typeof navigator !== 'undefined' && navigator.onLine) {
+      if (bootCloudCfg.pendingPush) {
+        pushStateToCloud({ manual: false });
+      } else {
+        pullStateFromCloud(false);
+      }
+    }
+  } catch (err) {
+    console.warn('[boot:cloudSync]', err);
+  }
 })();

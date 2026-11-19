@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.9.6" />
+  <link rel="stylesheet" href="./styles.css?v=0.9.7" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -79,10 +79,17 @@
         >
           Install
         </button>
-        <div id="netStatusBadge" class="net-status" aria-live="polite">
-          <span class="net-dot"></span>
-          <span id="netStatusText">PWA Ready</span>
-        </div>
+        <button
+          type="button"
+          id="netStatusBadge"
+          class="net-status"
+          aria-live="polite"
+          title="Tap to open Cloud Sync (Phone &amp; Laptop)"
+          aria-label="Cloud Sync Status — Tap to configure Phone &amp; Laptop Cloud Sync"
+        >
+          <span class="net-dot" id="netStatusDot"></span>
+          <span id="netStatusText">OFFLINE READY</span>
+        </button>
       </div>
     </div>
   </header>
@@ -2070,12 +2077,67 @@
 
       <div id="sessionLogList"></div>
 
-      <details class="pit-admin-drawer">
+      <details class="pit-admin-drawer" id="logBackupExportDrawer">
         <summary class="pit-admin-summary">
-          <span>Backup / Export Data</span>
-          <span class="pit-admin-summary-hint">CSV &bull; JSON &bull; Seed Reset</span>
+          <span>Backup / Export Data &amp; Cloud Sync</span>
+          <span class="pit-admin-summary-hint">Cloud Sync &bull; CSV &bull; JSON &bull; Seed Reset</span>
         </summary>
         <div class="pit-admin-body">
+          <!-- CLOUD SYNC (PHONE & LAPTOP) PANEL INSIDE SESSION LOG DRAWER -->
+          <div class="card-elevated cloud-sync-panel-box" id="logCloudSyncPanel" style="margin-bottom: 12px;">
+            <div class="cloud-sync-panel-head">
+              <div>
+                <div class="section-eyebrow" style="margin-bottom: 2px;">CLOUD SYNC (PHONE &amp; LAPTOP)</div>
+                <div class="cloud-sync-panel-sub">Offline-First Private Gist Sync (<span class="mono">snb_hq202_master_state.json</span>)</div>
+              </div>
+              <span class="fleet-acc-status-pill" id="logCloudSyncStatusBadge">OFFLINE READY</span>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 10px;">
+              <div class="field-label-row">
+                <label class="field-label" for="inputCloudSyncKeyLog">Sync Key (GitHub Gist Token)</label>
+                <span class="field-hint emerald">Saved Local Only</span>
+              </div>
+              <div class="cloud-sync-key-row">
+                <input
+                  type="password"
+                  id="inputCloudSyncKeyLog"
+                  class="text-input mono cloud-sync-key-input"
+                  placeholder="ghp_... or github_pat_... (gist scope)"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+                <input
+                  type="text"
+                  id="inputCloudDeviceLabelLog"
+                  class="text-input cloud-device-label-input"
+                  placeholder="Device (e.g. Track Phone)"
+                  autocomplete="off"
+                />
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-confirm btn-full" id="btnSaveConnectCloudLog" style="margin-bottom: 10px;">
+              Save &amp; Connect Device
+            </button>
+
+            <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+              <button type="button" class="btn btn-primary btn-full" id="btnPushCloudLog">
+                &#11014; Push This Device to Cloud
+              </button>
+              <button type="button" class="btn btn-amber-outline btn-full" id="btnPullCloudLog">
+                &#11015; Pull Cloud to This Device
+              </button>
+            </div>
+
+            <div class="cloud-sync-meta-bar">
+              <div class="cloud-sync-meta-text mono" id="outCloudLastSyncedLog">Last Synced: Never (Local Only)</div>
+              <button type="button" class="btn btn-danger btn-xs" id="btnDisconnectCloudLog">
+                Disconnect
+              </button>
+            </div>
+          </div>
+
           <div class="toolbar-grid" style="margin-bottom: 8px;">
             <button type="button" class="btn btn-secondary" id="btnExportSessionsCsv">
               Export CSV
@@ -2097,7 +2159,7 @@
 
     <!-- =========================================================
          TAB 5: FLEET & KIT (A–Z 1-LINE COLLAPSIBLE ACCORDION BARS)
-         1) Brakes | 2) Carburettors | 3) Corner Weights | 4) Emulsion & Brass Kit | 5) Exhausts | 6) Fuel System | 7) Jets (mm Toolbox) | 8) Manifolds | 9) Shocks | 10) Springs
+         1) Brakes | 2) Carburettors | 3) Cloud Sync (Phone & Laptop) | 4) Corner Weights | 5) Emulsion & Brass Kit | 6) Exhausts | 7) Fuel System | 8) Jets (mm Toolbox) | 9) Manifolds | 10) Shocks | 11) Springs
          ========================================================= -->
     <section id="tab-fleet" class="tab-panel" aria-labelledby="navTabFleet">
       <!-- 0) BRAKES (data-fleet-acc="brakes") -->
@@ -2379,7 +2441,85 @@
         </div>
       </article>
 
-      <!-- 2) CORNER WEIGHTS (data-fleet-acc="corner_weights") -->
+      <!-- 2) CLOUD SYNC (PHONE & LAPTOP) (data-fleet-acc="cloud_sync") -->
+      <article class="fleet-acc-card" id="cloudSyncFleetCard" data-fleet-acc-card="cloud_sync">
+        <button
+          type="button"
+          class="fleet-acc-header"
+          data-fleet-acc="cloud_sync"
+          aria-expanded="false"
+        >
+          <div class="fleet-acc-left">
+            <div class="fleet-acc-title">CLOUD SYNC (PHONE &amp; LAPTOP)</div>
+            <div class="fleet-acc-sub">Offline-First Private GitHub Gist Sync &bull; Newer Edits Always Win</div>
+          </div>
+          <div class="fleet-acc-right">
+            <span class="fleet-acc-status-pill" id="fleetCloudSyncStatusBadge">OFFLINE READY</span>
+            <span class="fleet-acc-count-pill" id="fleetCloudSyncMetaBadge">LOCAL ONLY</span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="cloud_sync" aria-hidden="true">&#9654;</span>
+          </div>
+        </button>
+
+        <div class="fleet-acc-body" id="fleetAccBody_cloud_sync" style="display: none;">
+          <div class="card-elevated cloud-sync-panel-box">
+            <div class="cloud-sync-panel-head">
+              <div>
+                <div class="section-eyebrow" style="margin-bottom: 2px;">OFFLINE-FIRST CLOUD SYNC ENGINE</div>
+                <div class="cloud-sync-panel-sub">
+                  Syncs <span class="mono">snb_hq202_master_state.json</span> via private GitHub Gist. Phone queues offline at the track and auto-flushes when signal returns.
+                </div>
+              </div>
+              <span class="locked-badge mono" id="fleetCloudGistIdBadge">NO GIST LINKED</span>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 10px;">
+              <div class="field-label-row">
+                <label class="field-label" for="inputCloudSyncKeyFleet">Sync Key (GitHub Gist Personal Access Token)</label>
+                <span class="field-hint emerald">Stored Only in This Device&rsquo;s localStorage</span>
+              </div>
+              <div class="cloud-sync-key-row">
+                <input
+                  type="password"
+                  id="inputCloudSyncKeyFleet"
+                  class="text-input mono cloud-sync-key-input"
+                  placeholder="ghp_... or github_pat_... (gist scope)"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+                <input
+                  type="text"
+                  id="inputCloudDeviceLabelFleet"
+                  class="text-input cloud-device-label-input"
+                  placeholder="Device (e.g. Track Phone)"
+                  autocomplete="off"
+                />
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-confirm btn-full" id="btnSaveConnectCloudFleet" style="margin-bottom: 10px;">
+              Save &amp; Connect Device
+            </button>
+
+            <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+              <button type="button" class="btn btn-primary btn-full" id="btnPushCloudFleet">
+                &#11014; Push This Device to Cloud
+              </button>
+              <button type="button" class="btn btn-amber-outline btn-full" id="btnPullCloudFleet">
+                &#11015; Pull Cloud to This Device
+              </button>
+            </div>
+
+            <div class="cloud-sync-meta-bar">
+              <div class="cloud-sync-meta-text mono" id="outCloudLastSyncedFleet">Last Synced: Never (Local Only)</div>
+              <button type="button" class="btn btn-danger btn-xs" id="btnDisconnectCloudFleet">
+                Disconnect
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 3) CORNER WEIGHTS (data-fleet-acc="corner_weights") -->
       <article class="fleet-acc-card" id="cornerWeightBaselineCard" data-fleet-acc-card="corner_weights">
         <button
           type="button"
@@ -5070,9 +5210,84 @@
     </div>
   </div>
 
+  <!-- =========================================================
+       MODAL: CLOUD SYNC (PHONE & LAPTOP) — TAPPABLE HEADER PILL
+       ========================================================= -->
+  <div class="modal-backdrop" id="modalCloudSync" role="dialog" aria-modal="true" aria-labelledby="modalCloudSyncTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">Offline-First Private GitHub Gist Sync</div>
+          <h2 class="section-title" id="modalCloudSyncTitle">Cloud Sync (Phone &amp; Laptop)</h2>
+        </div>
+        <button type="button" class="btn btn-danger" data-close-modal="modalCloudSync" aria-label="Close Cloud Sync Modal">
+          Close
+        </button>
+      </div>
+
+      <p style="margin: 0 0 12px; font-size: 0.78rem; color: var(--text-secondary); line-height: 1.45;">
+        Keep your Track Phone and Workshop Laptop 100% synced via a private GitHub Gist (<code class="mono">snb_hq202_master_state.json</code>). Works 100% offline at the track and auto-flushes queued changes as soon as signal returns.
+      </p>
+
+      <div class="card-elevated cloud-sync-panel-box">
+        <div class="cloud-sync-panel-head">
+          <div>
+            <div class="section-eyebrow" style="margin-bottom: 2px;">LIVE SYNC STATUS</div>
+            <div class="cloud-sync-panel-sub mono" id="modalCloudGistIdLabel">Gist: Not Linked Yet</div>
+          </div>
+          <span class="fleet-acc-status-pill" id="modalCloudSyncStatusBadge">OFFLINE READY</span>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 10px;">
+          <div class="field-label-row">
+            <label class="field-label" for="inputCloudSyncKeyModal">Sync Key (GitHub Personal Access Token &bull; gist scope)</label>
+            <span class="field-hint emerald">Local Only</span>
+          </div>
+          <div class="cloud-sync-key-row">
+            <input
+              type="password"
+              id="inputCloudSyncKeyModal"
+              class="text-input mono cloud-sync-key-input"
+              placeholder="ghp_... or github_pat_... (gist scope)"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <input
+              type="text"
+              id="inputCloudDeviceLabelModal"
+              class="text-input cloud-device-label-input"
+              placeholder="Device (e.g. Track Phone)"
+              autocomplete="off"
+            />
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-confirm btn-full" id="btnSaveConnectCloudModal" style="margin-bottom: 10px;">
+          Save &amp; Connect Device
+        </button>
+
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+          <button type="button" class="btn btn-primary btn-full" id="btnPushCloudModal">
+            &#11014; Push This Device to Cloud
+          </button>
+          <button type="button" class="btn btn-amber-outline btn-full" id="btnPullCloudModal">
+            &#11015; Pull Cloud to This Device
+          </button>
+        </div>
+
+        <div class="cloud-sync-meta-bar">
+          <div class="cloud-sync-meta-text mono" id="outCloudLastSyncedModal">Last Synced: Never (Local Only)</div>
+          <button type="button" class="btn btn-danger btn-xs" id="btnDisconnectCloudModal">
+            Disconnect
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.9.6"></script>
+  <script src="./app.js?v=0.9.7"></script>
 </body>
 </html>
