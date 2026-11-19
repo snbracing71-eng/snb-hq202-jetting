@@ -7107,3 +7107,132 @@ button:disabled.btn-stage-locked,
   color: #FECACA;
   background: rgba(185, 28, 28, 0.25);
 }
+
+/* =========================================================
+   TRACK BENCHMARK PB PILLS, SESSION LAP BADGES & FLEET LIST
+   ========================================================= */
+.track-pb-banner-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.70rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: #FDE68A;
+  background: rgba(245, 158, 11, 0.16);
+  border: 1px solid rgba(245, 158, 11, 0.55);
+  white-space: nowrap;
+}
+
+.track-pb-banner-pill.is-empty {
+  color: var(--text-secondary);
+  background: rgba(30, 41, 59, 0.65);
+  border-color: rgba(100, 116, 139, 0.45);
+}
+
+.session-best-lap-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 8px;
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.78);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+.session-best-lap-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #F8FAFC;
+}
+
+.session-track-pb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: #064E3B;
+  background: linear-gradient(135deg, #34D399, #FBBF24);
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.35);
+}
+
+.session-pb-delta-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #94A3B8;
+  background: rgba(30, 41, 59, 0.85);
+  border: 1px solid rgba(71, 85, 105, 0.55);
+}
+
+.track-benchmark-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.track-benchmark-row {
+  padding: 9px 11px;
+  border-radius: 9px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(51, 65, 85, 0.75);
+}
+
+.track-benchmark-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.track-benchmark-venue {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.track-benchmark-meta {
+  font-size: 0.71rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.track-benchmark-time-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 7px;
+  font-family: var(--font-mono);
+  font-size: 0.80rem;
+  font-weight: 900;
+  color: #6EE7B7;
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+}
+
+.track-benchmark-edit-drawer {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(71, 85, 105, 0.65);
+}
+

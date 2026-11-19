@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.9.3" />
+  <link rel="stylesheet" href="./styles.css?v=0.9.4" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -120,6 +120,7 @@
                 <span class="live-event-dot"></span>
                 <span id="gateBLiveEventBannerPill">CALDER PARK RACEWAY &bull; 13 NOV 2026 &bull; RACE WEEKEND</span>
               </span>
+              <span class="track-pb-banner-pill" id="gateBTrackPbBadge">🏁 TRACK PB: 1:16.66 (Lap 10)</span>
             </div>
             <div class="live-event-venue-name" id="gateBEventVenueLabel" style="margin-top: 4px;">SELECT SESSION TO COMMENCE</div>
             <div class="live-event-sub-title" id="gateBEventTitleLabel">Choose which session you are commencing next from the dropdown below</div>
@@ -213,6 +214,7 @@
                 <span class="live-event-dot"></span>
                 <span id="liveEventTrackDateCompact">CALDER PARK RACEWAY &bull; 13 NOV 2026</span>
               </span>
+              <span class="track-pb-banner-pill" id="liveEventTrackPbBadge">🏁 TRACK PB: 1:16.66 (Lap 10)</span>
             </div>
             <div class="in-session-locked-row">
               <span class="in-session-locked-pill" id="liveLockedSessionPill">IN SESSION: PRACTICE 1</span>
@@ -2850,6 +2852,39 @@
           </div>
         </div>
       </article>
+
+      <!-- 8) TRACK BENCHMARKS (data-fleet-acc="track_benchmarks") -->
+      <article class="card fleet-acc-card" id="trackBenchmarksFleetCard">
+        <button
+          type="button"
+          class="fleet-acc-header"
+          data-fleet-acc="track_benchmarks"
+          aria-expanded="false"
+          aria-controls="fleetAccBody_track_benchmarks"
+        >
+          <span class="fleet-acc-title-wrap">
+            <span class="fleet-acc-title">Track Benchmarks</span>
+          </span>
+          <span class="fleet-acc-meta">
+            <span class="fleet-acc-active-pill" id="fleetTrackBenchmarksActiveBadge">SANDOWN 1:37.6866 &bull; CALDER 1:16.66</span>
+            <span class="fleet-acc-count-pill" id="fleetTrackBenchmarksCountBadge">5 TRACKS LOGGED</span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="track_benchmarks" aria-hidden="true">&#9662;</span>
+          </span>
+        </button>
+
+        <div class="fleet-acc-body" id="fleetAccBody_track_benchmarks" style="display: none;">
+          <div class="section-header" style="margin-bottom: 8px;">
+            <div>
+              <div class="section-eyebrow">HQ 202 PERSONAL BEST LAPS &bull; AUTO-PULLED INTO SESSION 1 NOTES</div>
+              <h2 class="section-title">All-Time Circuit Benchmarks (Car #71 / #77)</h2>
+            </div>
+          </div>
+          <p class="fleet-helper-copy" style="margin: 0 0 10px; font-size: 0.76rem; color: var(--text-secondary); line-height: 1.4;">
+            Verified fastest Group 3H HQ 202 lap at each circuit. Automatically pulled into Session 1 Pre-Race Notes when starting an event and promoted whenever a faster Post-Session Lap is logged.
+          </p>
+          <div id="trackBenchmarksFleetContainer"></div>
+        </div>
+      </article>
     </section>
   </main>
 
@@ -3070,6 +3105,46 @@
                 </div>
                 <button type="button" class="stepper-btn" data-stepper-target="modalPost5500" data-step="0.05" aria-label="Increase 5500 AFR">+</button>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5B. Session Fastest Lap & On Lap # (Auto-Checks Track Benchmark PB) -->
+      <div class="card-elevated post-race-section-card" style="margin-bottom: 12px;">
+        <div class="field-label-row" style="margin-bottom: 8px;">
+          <span class="section-eyebrow" style="margin-bottom: 0;">Session Fastest Lap &amp; Track Benchmark Check (Optional)</span>
+          <span class="field-hint emerald" id="modalPostTrackPbHint">Track PB: &mdash;</span>
+        </div>
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 0;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="modalPostBestLap">Session Fastest Lap</label>
+            <input
+              type="text"
+              id="modalPostBestLap"
+              class="text-input mono"
+              placeholder="e.g. 1:37.68"
+              inputmode="text"
+              autocomplete="off"
+            />
+          </div>
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="modalPostBestLapNum">On Lap #</label>
+            <div class="num-stepper">
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostBestLapNum" data-step="-1" aria-label="Decrease Fastest Lap Number">&minus;</button>
+              <div class="num-input-wrap">
+                <input
+                  type="number"
+                  id="modalPostBestLapNum"
+                  class="num-input"
+                  value=""
+                  placeholder="Lap #"
+                  min="1"
+                  max="50"
+                  step="1"
+                />
+              </div>
+              <button type="button" class="stepper-btn" data-stepper-target="modalPostBestLapNum" data-step="1" aria-label="Increase Fastest Lap Number">+</button>
             </div>
           </div>
         </div>
@@ -4998,6 +5073,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.9.3"></script>
+  <script src="./app.js?v=0.9.4"></script>
 </body>
 </html>

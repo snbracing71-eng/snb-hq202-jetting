@@ -805,6 +805,10 @@
             afr5500: 12.82,
             afrWot: 12.82,
             peakRpm: 5950,
+            bestLapStr: '1:16.66',
+            bestLapSec: 76.66,
+            bestLapNum: 10,
+            isNewTrackPb: true,
             afrStatus: 'verified',
             litresToPourL: 33.2,
             startingFuelReqL: 33.2,
@@ -995,6 +999,10 @@
             afr5500: 12.81,
             afrWot: 12.80,
             peakRpm: 5950,
+            bestLapStr: '1:45.4210',
+            bestLapSec: 105.421,
+            bestLapNum: 6,
+            isNewTrackPb: true,
             afrStatus: 'verified',
             litresToPourL: 34.8,
             startingFuelReqL: 34.8,
@@ -1022,8 +1030,8 @@
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
             preRaceNotes: 'Hot-bled paddock tyres targeting 44.0 psi square (29°C track); poured 35.0 L for 12 laps.',
-            postRaceNotes: 'Left tyres at hot-set from Qualifying; 12-lap race win with +5.1 kg scale margin.',
-            notes: 'Left tyres at hot-set from Qualifying; 12-lap race win with +5.1 kg scale margin.'
+            postRaceNotes: 'Left tyres at hot-set from Qualifying; 12-lap race win with +5.1 kg scale margin. Fastest Lap: 1:45.4210 (Lap 6)',
+            notes: 'Left tyres at hot-set from Qualifying; 12-lap race win with +5.1 kg scale margin. Fastest Lap: 1:45.4210 (Lap 6)'
           }
         ]
       }
@@ -1152,6 +1160,107 @@
     'Hidden Valley Raceway': 1.60
   };
 
+  /**
+   * Verified All-Time HQ 202 (3300/3310 cc Group 3H) Personal Best Lap Benchmarks for Warren Trewin.
+   * Lean schema per track: { bestLapStr, bestLapSec, lapNumber, date, sessionName }.
+   */
+  const DEFAULT_TRACK_BENCHMARKS = {
+    'Sandown Raceway': {
+      bestLapStr: '1:37.6866',
+      bestLapSec: 97.6866,
+      lapNumber: 9,
+      date: '2024-07-21',
+      sessionName: 'Qualifying'
+    },
+    'Calder Park Raceway': {
+      bestLapStr: '1:16.66',
+      bestLapSec: 76.66,
+      lapNumber: 10,
+      date: '2024-11-08',
+      sessionName: 'Race 2'
+    },
+    'Winton Motor Raceway': {
+      bestLapStr: '1:45.4210',
+      bestLapSec: 105.421,
+      lapNumber: 6,
+      date: '2024-05-19',
+      sessionName: 'Race 2'
+    },
+    'Phillip Island Grand Prix Circuit': {
+      bestLapStr: '2:01.8430',
+      bestLapSec: 121.843,
+      lapNumber: 5,
+      date: '2024-03-10',
+      sessionName: 'Race 1'
+    },
+    'Sydney Motorsport Park (SMSP)': {
+      bestLapStr: '1:58.7420',
+      bestLapSec: 118.742,
+      lapNumber: 7,
+      date: '2025-08-30',
+      sessionName: 'Heat 2 (HQ Nationals)'
+    }
+  };
+
+  function createDefaultTrackBenchmarks() {
+    const out = {};
+    Object.keys(DEFAULT_TRACK_BENCHMARKS).forEach((k) => {
+      out[k] = { ...DEFAULT_TRACK_BENCHMARKS[k] };
+    });
+    return out;
+  }
+
+  /**
+   * Parses a lap time string ("1:37.6866", "1:16.66", or "76.66") into total seconds.
+   * Returns null if invalid or outside sensible circuit lap bounds (35s - 600s).
+   */
+  function parseLapTimeToSeconds(rawStr) {
+    if (rawStr === null || rawStr === undefined) return null;
+    const str = String(rawStr).trim();
+    if (!str) return null;
+    const mmSsMatch = str.match(/^(\d{1,2})\s*:\s*([0-5]?\d(?:\.\d{1,4})?)$/);
+    let totalSec = NaN;
+    if (mmSsMatch) {
+      const mins = parseInt(mmSsMatch[1], 10);
+      const secs = parseFloat(mmSsMatch[2]);
+      if (Number.isFinite(mins) && Number.isFinite(secs) && secs < 60) {
+        totalSec = mins * 60 + secs;
+      }
+    } else if (/^\d{2,3}(?:\.\d{1,4})?$/.test(str)) {
+      totalSec = parseFloat(str);
+    }
+    if (!Number.isFinite(totalSec) || totalSec < 35 || totalSec > 600) {
+      return null;
+    }
+    return Number(totalSec.toFixed(4));
+  }
+
+  /**
+   * Formats total seconds into canonical M:SS.ss / M:SS.ssss string, preserving original decimal precision.
+   */
+  function formatSecondsToLapStr(secVal, rawReferenceStr = '') {
+    const sec = Number(secVal);
+    if (!Number.isFinite(sec) || sec <= 0) return '';
+    let decPlaces = 2;
+    const refTrim = String(rawReferenceStr || '').trim();
+    const decMatch = refTrim.match(/\.(\d{1,4})$/);
+    if (decMatch) {
+      decPlaces = Math.max(2, Math.min(4, decMatch[1].length));
+    } else {
+      const autoStr = sec.toFixed(4).replace(/0+$/, '');
+      const autoMatch = autoStr.match(/\.(\d+)$/);
+      if (autoMatch && autoMatch[1].length > 2) {
+        decPlaces = Math.min(4, autoMatch[1].length);
+      }
+    }
+    const mins = Math.floor(sec / 60);
+    const remSec = sec - mins * 60;
+    const secFixed = remSec.toFixed(decPlaces);
+    const [wholePart, fracPart] = secFixed.split('.');
+    const paddedWhole = String(wholePart).padStart(2, '0');
+    return mins > 0 ? `${mins}:${paddedWhole}.${fracPart}` : `${wholePart}.${fracPart}`;
+  }
+
   const CIRCUIT_TYRE_PROFILES = {
     'Baskerville Raceway':                 { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' },
     'Baskerville':                         { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' },
@@ -1178,21 +1287,21 @@
     'Broadford':                           { dir: 'CW',  estLapSec: 68,  brakeLoad: 'balanced' },
     'Lakeside Park':                       { dir: 'CW',  estLapSec: 64,  brakeLoad: 'flowing' },
     'Lakeside':                            { dir: 'CW',  estLapSec: 64,  brakeLoad: 'flowing' },
-    'Sandown Raceway':                     { dir: 'CCW', estLapSec: 88,  brakeLoad: 'heavy' },
-    'Sandown International Raceway':       { dir: 'CCW', estLapSec: 88,  brakeLoad: 'heavy' },
-    'Sandown':                             { dir: 'CCW', estLapSec: 88,  brakeLoad: 'heavy' },
-    'Winton Motor Raceway':                { dir: 'CW',  estLapSec: 103, brakeLoad: 'balanced' },
-    'Winton':                              { dir: 'CW',  estLapSec: 103, brakeLoad: 'balanced' },
+    'Sandown Raceway':                     { dir: 'CCW', estLapSec: 98,  brakeLoad: 'heavy' },
+    'Sandown International Raceway':       { dir: 'CCW', estLapSec: 98,  brakeLoad: 'heavy' },
+    'Sandown':                             { dir: 'CCW', estLapSec: 98,  brakeLoad: 'heavy' },
+    'Winton Motor Raceway':                { dir: 'CW',  estLapSec: 105, brakeLoad: 'balanced' },
+    'Winton':                              { dir: 'CW',  estLapSec: 105, brakeLoad: 'balanced' },
     'Queensland Raceway (Willowbank)':     { dir: 'CCW', estLapSec: 86,  brakeLoad: 'balanced' },
     'Queensland Raceway':                  { dir: 'CCW', estLapSec: 86,  brakeLoad: 'balanced' },
     'Willowbank':                          { dir: 'CCW', estLapSec: 86,  brakeLoad: 'balanced' },
     'Hidden Valley Raceway':               { dir: 'CW',  estLapSec: 82,  brakeLoad: 'balanced' },
     'Hidden Valley':                       { dir: 'CW',  estLapSec: 82,  brakeLoad: 'balanced' },
-    'Phillip Island Grand Prix Circuit':   { dir: 'CCW', estLapSec: 118, brakeLoad: 'flowing' },
-    'Phillip Island':                      { dir: 'CCW', estLapSec: 118, brakeLoad: 'flowing' },
-    'Sydney Motorsport Park (SMSP)':       { dir: 'CCW', estLapSec: 116, brakeLoad: 'flowing' },
-    'Sydney Motorsport Park':              { dir: 'CCW', estLapSec: 116, brakeLoad: 'flowing' },
-    'SMSP':                                { dir: 'CCW', estLapSec: 116, brakeLoad: 'flowing' },
+    'Phillip Island Grand Prix Circuit':   { dir: 'CCW', estLapSec: 122, brakeLoad: 'flowing' },
+    'Phillip Island':                      { dir: 'CCW', estLapSec: 122, brakeLoad: 'flowing' },
+    'Sydney Motorsport Park (SMSP)':       { dir: 'CCW', estLapSec: 119, brakeLoad: 'flowing' },
+    'Sydney Motorsport Park':              { dir: 'CCW', estLapSec: 119, brakeLoad: 'flowing' },
+    'SMSP':                                { dir: 'CCW', estLapSec: 119, brakeLoad: 'flowing' },
     'Townsville Reid Park':                { dir: 'CCW', estLapSec: 88,  brakeLoad: 'heavy' },
     'Townsville':                          { dir: 'CCW', estLapSec: 88,  brakeLoad: 'heavy' },
     'Mount Panorama (Bathurst)':           { dir: 'CCW', estLapSec: 168, brakeLoad: 'heavy' },
@@ -1205,21 +1314,138 @@
     'Bryant Park':                         { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' }
   };
 
+  function syncTrackBenchmarksToTyreProfiles(benchmarksMap) {
+    const map = benchmarksMap && typeof benchmarksMap === 'object' ? benchmarksMap : DEFAULT_TRACK_BENCHMARKS;
+    Object.entries(map).forEach(([venueKey, bm]) => {
+      if (!bm || !Number.isFinite(Number(bm.bestLapSec)) || Number(bm.bestLapSec) <= 0) return;
+      const roundedSec = Math.round(Number(bm.bestLapSec));
+      const normKey = normalizeVenueName(venueKey);
+      [venueKey, normKey].forEach((k) => {
+        if (k && CIRCUIT_TYRE_PROFILES[k]) {
+          CIRCUIT_TYRE_PROFILES[k].estLapSec = roundedSec;
+        }
+      });
+      if (normKey === 'Sandown Raceway') {
+        if (CIRCUIT_TYRE_PROFILES['Sandown International Raceway']) CIRCUIT_TYRE_PROFILES['Sandown International Raceway'].estLapSec = roundedSec;
+        if (CIRCUIT_TYRE_PROFILES['Sandown']) CIRCUIT_TYRE_PROFILES['Sandown'].estLapSec = roundedSec;
+      } else if (normKey === 'Calder Park Raceway') {
+        if (CIRCUIT_TYRE_PROFILES['Calder Park']) CIRCUIT_TYRE_PROFILES['Calder Park'].estLapSec = roundedSec;
+      } else if (normKey === 'Winton Motor Raceway') {
+        if (CIRCUIT_TYRE_PROFILES['Winton']) CIRCUIT_TYRE_PROFILES['Winton'].estLapSec = roundedSec;
+      } else if (normKey === 'Phillip Island Grand Prix Circuit') {
+        if (CIRCUIT_TYRE_PROFILES['Phillip Island']) CIRCUIT_TYRE_PROFILES['Phillip Island'].estLapSec = roundedSec;
+      } else if (normKey === 'Sydney Motorsport Park (SMSP)') {
+        if (CIRCUIT_TYRE_PROFILES['Sydney Motorsport Park']) CIRCUIT_TYRE_PROFILES['Sydney Motorsport Park'].estLapSec = roundedSec;
+        if (CIRCUIT_TYRE_PROFILES['SMSP']) CIRCUIT_TYRE_PROFILES['SMSP'].estLapSec = roundedSec;
+      }
+    });
+  }
+
+  /**
+   * Non-destructively merges default track benchmarks with any user-saved benchmarks,
+   * always preserving whichever PB is quicker.
+   */
+  function normalizeTrackBenchmarks(rawMap) {
+    const merged = createDefaultTrackBenchmarks();
+    if (rawMap && typeof rawMap === 'object') {
+      Object.entries(rawMap).forEach(([rawVenue, entry]) => {
+        if (!entry || typeof entry !== 'object') return;
+        const venue = normalizeVenueName(rawVenue);
+        if (!venue) return;
+        const parsedSec =
+          Number.isFinite(Number(entry.bestLapSec)) && Number(entry.bestLapSec) >= 35
+            ? Number(Number(entry.bestLapSec).toFixed(4))
+            : parseLapTimeToSeconds(entry.bestLapStr);
+        if (parsedSec === null) return;
+        const bestLapStr =
+          typeof entry.bestLapStr === 'string' && entry.bestLapStr.trim()
+            ? formatSecondsToLapStr(parsedSec, entry.bestLapStr.trim())
+            : formatSecondsToLapStr(parsedSec);
+        const lapNumber =
+          entry.lapNumber !== null && entry.lapNumber !== undefined && entry.lapNumber !== '' && Number.isFinite(Number(entry.lapNumber)) && Number(entry.lapNumber) > 0
+            ? Math.round(Number(entry.lapNumber))
+            : null;
+        const date =
+          typeof entry.date === 'string' && entry.date.trim()
+            ? entry.date.trim()
+            : getLocalTodayIso();
+        const sessionName =
+          typeof entry.sessionName === 'string' && entry.sessionName.trim()
+            ? entry.sessionName.trim()
+            : 'Session';
+        const existing = merged[venue];
+        if (!existing || parsedSec <= existing.bestLapSec || entry.manualOverride) {
+          merged[venue] = {
+            bestLapStr,
+            bestLapSec: parsedSec,
+            lapNumber,
+            date,
+            sessionName
+          };
+        }
+      });
+    }
+    syncTrackBenchmarksToTyreProfiles(merged);
+    return merged;
+  }
+
+  function getTrackBenchmarkForVenue(venueName = '') {
+    const normVenue = normalizeVenueName(venueName);
+    const map =
+      typeof state !== 'undefined' && state && state.trackBenchmarks && typeof state.trackBenchmarks === 'object'
+        ? state.trackBenchmarks
+        : DEFAULT_TRACK_BENCHMARKS;
+    if (normVenue && map[normVenue]) {
+      return map[normVenue];
+    }
+    const lower = String(normVenue || venueName || '').trim().toLowerCase();
+    if (!lower) return null;
+    const matchKey = Object.keys(map).find(
+      (k) => k.toLowerCase() === lower || lower.includes(k.toLowerCase()) || k.toLowerCase().includes(lower)
+    );
+    return matchKey ? map[matchKey] : null;
+  }
+
+  function formatTrackBenchmarkBannerText(venueName = '') {
+    const bm = getTrackBenchmarkForVenue(venueName);
+    if (!bm || !bm.bestLapStr) {
+      return '🏁 TRACK PB: None Yet';
+    }
+    const lapPart = bm.lapNumber ? ` (Lap ${bm.lapNumber})` : '';
+    return `🏁 TRACK PB: ${bm.bestLapStr}${lapPart}`;
+  }
+
+  function formatTrackBenchmarkSession1Note(venueName = '') {
+    const bm = getTrackBenchmarkForVenue(venueName);
+    if (!bm || !bm.bestLapStr) return '';
+    const metaParts = [];
+    if (bm.lapNumber) metaParts.push(`Lap ${bm.lapNumber}`);
+    if (bm.date) metaParts.push(bm.date);
+    const suffix = metaParts.length > 0 ? ` (${metaParts.join(' • ')})` : '';
+    return `Track Benchmark PB: ${bm.bestLapStr}${suffix}`;
+  }
+
   const TRACK_DIRECTION_MAP = Object.fromEntries(
     Object.entries(CIRCUIT_TYRE_PROFILES).map(([k, v]) => [k, v.dir])
   );
 
   function getCircuitTyreProfile(venueName = '') {
     const clean = String(venueName || '').trim();
+    const bm = getTrackBenchmarkForVenue(clean);
+    const bmSec = bm && Number.isFinite(Number(bm.bestLapSec)) && Number(bm.bestLapSec) > 0 ? Math.round(Number(bm.bestLapSec)) : null;
     if (CIRCUIT_TYRE_PROFILES[clean]) {
-      return { ...CIRCUIT_TYRE_PROFILES[clean] };
+      const prof = { ...CIRCUIT_TYRE_PROFILES[clean] };
+      if (bmSec !== null) prof.estLapSec = bmSec;
+      return prof;
     }
     const lower = clean.toLowerCase();
     const matchKey = Object.keys(CIRCUIT_TYRE_PROFILES).find((k) =>
       lower.includes(k.toLowerCase()) || k.toLowerCase().includes(lower)
     );
     if (matchKey && clean.length > 0) {
-      return { ...CIRCUIT_TYRE_PROFILES[matchKey] };
+      const prof = { ...CIRCUIT_TYRE_PROFILES[matchKey] };
+      if (bmSec !== null) prof.estLapSec = bmSec;
+      return prof;
     }
     let fallbackDir = 'CW';
     try {
@@ -1233,7 +1459,7 @@
         fallbackDir = state.chassis.trackDirections[clean];
       }
     } catch (_) {}
-    return { dir: fallbackDir, estLapSec: 85, brakeLoad: 'balanced' };
+    return { dir: fallbackDir, estLapSec: bmSec !== null ? bmSec : 85, brakeLoad: 'balanced' };
   }
 
   /**
@@ -3995,13 +4221,14 @@
       candidate.peddersDynoAuditV1 = true;
     }
 
-    // Safely backfill Car #77 default active rear spacers (RL: 0mm, RR: 20mm), spacerKit, cornerWeights, and brakes without touching existing logs
+    // Safely backfill Car #77 default active rear spacers (RL: 0mm, RR: 20mm), spacerKit, cornerWeights, brakes, and trackBenchmarks without touching existing logs
     candidate.spacerKit = normalizeSpacerKit(candidate.spacerKit);
     candidate.mountedSpacers = normalizeRearSpacersMap(candidate.mountedSpacers, DEFAULT_MOUNTED_SPACERS);
     const normalizedCw = normalizeCornerWeightBaseline(candidate.cornerWeights || candidate.cornerWeightBaseline);
     candidate.cornerWeights = normalizedCw;
     candidate.cornerWeightBaseline = normalizedCw;
     candidate.brakes = normalizeBrakes(candidate.brakes);
+    candidate.trackBenchmarks = normalizeTrackBenchmarks(candidate.trackBenchmarks);
 
     const defTyrePool = createDefaultTyrePool();
     if (!Array.isArray(candidate.tyrePool) || candidate.tyrePool.length === 0) {
@@ -4321,6 +4548,24 @@
         : (defMatch && Number.isFinite(Number(defMatch.jetMm)) ? Number(defMatch.jetMm) : 1.85);
       const sessionJetLabel = formatJetPureMm(sessionJetMm);
 
+      const rawBestLapSec =
+        Number.isFinite(Number(s.bestLapSec)) && Number(s.bestLapSec) >= 35
+          ? Number(Number(s.bestLapSec).toFixed(4))
+          : parseLapTimeToSeconds(s.bestLapStr ?? (defMatch ? defMatch.bestLapStr : null));
+      const bestLapStr =
+        rawBestLapSec !== null
+          ? formatSecondsToLapStr(rawBestLapSec, s.bestLapStr || (defMatch && defMatch.bestLapStr) || '')
+          : null;
+      const rawLapNum = s.bestLapNum ?? (defMatch ? defMatch.bestLapNum : null);
+      const bestLapNum =
+        rawLapNum !== null && rawLapNum !== undefined && rawLapNum !== '' && Number.isFinite(Number(rawLapNum)) && Number(rawLapNum) > 0
+          ? Math.round(Number(rawLapNum))
+          : null;
+      const isNewTrackPb =
+        s.isNewTrackPb !== undefined
+          ? Boolean(s.isNewTrackPb)
+          : Boolean(defMatch && defMatch.isNewTrackPb);
+
       return {
         ...s,
         status: s.status === 'active' ? 'active' : 'completed',
@@ -4346,6 +4591,10 @@
         afr5500: a55,
         afrWot: aWot,
         peakRpm,
+        bestLapStr,
+        bestLapSec: rawBestLapSec,
+        bestLapNum,
+        isNewTrackPb,
         afrStatus: s.afrStatus || 'verified',
         litresToPourL,
         startingFuelReqL,
@@ -4814,6 +5063,7 @@
       activeManifoldId: 'MAN_F',
       activeExhaustId: 'Macca',
       brakes: createDefaultBrakes(),
+      trackBenchmarks: createDefaultTrackBenchmarks(),
       tyrePool: createDefaultTyrePool(),
       sessions: createDefaultSessions(),
       dynoPulls: createDefaultDynoPulls(),
@@ -6197,6 +6447,8 @@
 
     const dispDate = formatIsoDateDisplay(liveEvt.eventDate) || liveEvt.eventDate;
     const sessions = Array.isArray(liveEvt.sessions) ? liveEvt.sessions : [];
+    const trackBm = getTrackBenchmarkForVenue(liveEvt.venue);
+    const trackPbBannerText = formatTrackBenchmarkBannerText(liveEvt.venue);
 
     // GATE B — Event Live, Between Sessions (state.activeEventId && !state.activeSessionId)
     if (!activeSess) {
@@ -6208,6 +6460,10 @@
       const lastCompleted = sessions.length > 0 ? sessions[sessions.length - 1] : null;
       if ($('gateBLiveEventBannerPill')) {
         $('gateBLiveEventBannerPill').textContent = '\uD83D\uDFE2 LIVE EVENT ACTIVE';
+      }
+      if ($('gateBTrackPbBadge')) {
+        $('gateBTrackPbBadge').textContent = trackPbBannerText;
+        $('gateBTrackPbBadge').classList.toggle('is-empty', !trackBm);
       }
       if ($('gateBEventVenueLabel')) {
         $('gateBEventVenueLabel').textContent = `${liveEvt.venue} • ${dispDate}`;
@@ -6230,6 +6486,14 @@
       if ($('gateBaseFuelSub')) $('gateBaseFuelSub').textContent = summary.fuelSub;
       if ($('gateBaseTyreVal')) $('gateBaseTyreVal').textContent = summary.tyreStr;
 
+      if (sessions.length === 0 && $('gateBPreRaceNotesInput')) {
+        const bmNote = formatTrackBenchmarkSession1Note(liveEvt.venue);
+        const curGateNote = String($('gateBPreRaceNotesInput').value || '').trim();
+        if (bmNote && !curGateNote) {
+          $('gateBPreRaceNotesInput').value = bmNote;
+        }
+      }
+
       const gateBSel = $('gateBCommenceSessionSelect');
       if (gateBSel) {
         populateCommenceSessionSelect(gateBSel, liveEvt, { preserveValue: true });
@@ -6251,6 +6515,10 @@
 
     if ($('liveEventTrackDateCompact')) {
       $('liveEventTrackDateCompact').textContent = `\uD83D\uDFE2 ${liveEvt.venue} • ${dispDate}`;
+    }
+    if ($('liveEventTrackPbBadge')) {
+      $('liveEventTrackPbBadge').textContent = trackPbBannerText;
+      $('liveEventTrackPbBadge').classList.toggle('is-empty', !trackBm);
     }
     if ($('liveLockedSessionPill')) {
       $('liveLockedSessionPill').textContent = `IN SESSION: ${activeSess.sessionName}`;
@@ -6824,7 +7092,17 @@
     const evtIso = targetEvt.eventDate || getLocalTodayIso();
     const evtDisp = formatIsoDateDisplay(evtIso) || evtIso;
     const cleanName = (sessionName || 'Practice 1').trim() || 'Practice 1';
-    const preNotes = typeof initialPreNotes === 'string' ? initialPreNotes.trim() : '';
+    const rawPreNotes = typeof initialPreNotes === 'string' ? initialPreNotes.trim() : '';
+    const isFirstSessionOfEvent = targetEvt.sessions.length === 0;
+    const s1BenchmarkNote = isFirstSessionOfEvent ? formatTrackBenchmarkSession1Note(venue) : '';
+    let preNotes = rawPreNotes;
+    if (s1BenchmarkNote) {
+      if (!preNotes) {
+        preNotes = s1BenchmarkNote;
+      } else if (!/track\s+benchmark\s+pb\s*:/i.test(preNotes)) {
+        preNotes = `${s1BenchmarkNote} • ${preNotes}`;
+      }
+    }
 
     // Carry forward from previous completed session in event (if any) or Locked Baseline + Track Profile
     const prevSess = targetEvt.sessions.length > 0 ? targetEvt.sessions[targetEvt.sessions.length - 1] : null;
@@ -7006,6 +7284,10 @@
           ? Number(prevSess.afrWot)
           : 12.80,
       peakRpm: (prevSess && prevSess.peakRpm) || base.peakRpm || 5900,
+      bestLapStr: null,
+      bestLapSec: null,
+      bestLapNum: null,
+      isNewTrackPb: false,
       afrStatus: 'estimated',
       litresToPourL: Number(fuelSnap.litresToPourL.toFixed(1)),
       startingFuelReqL: Number(fuelSnap.startingFuelReqL.toFixed(1)),
@@ -12970,6 +13252,7 @@
     const peakRpmStr = Number.isFinite(Number(s.peakRpm)) ? String(Math.round(Number(s.peakRpm))) : '';
     const psiStr = Number.isFinite(Number(s.fuelPsi)) ? Number(s.fuelPsi).toFixed(1) : '';
     const waterStr = s.waterTempC !== null && s.waterTempC !== undefined && s.waterTempC !== '' ? `${s.waterTempC}c` : '';
+    const bestLapSearchStr = s.bestLapStr ? `${s.bestLapStr} ${s.bestLapNum ? `lap ${s.bestLapNum}` : ''} ${s.isNewTrackPb ? 'pb benchmark' : ''}` : '';
 
     return [
       (evt && evt.eventTitle) || s.eventTitle || '',
@@ -12995,6 +13278,7 @@
       peakRpmStr,
       psiStr,
       waterStr,
+      bestLapSearchStr,
       s.afrStatus || '',
       tyreParts.join(' '),
       s.preRaceNotes || '',
@@ -13045,6 +13329,33 @@
       { rpm: '5000', val: normalizeOptionalAfr(s.afr5000) },
       { rpm: '5500', val: normalizeOptionalAfr(s.afr5500) }
     ];
+
+    let bestLapBlockHtml = '';
+    const sBestSec =
+      Number.isFinite(Number(s.bestLapSec)) && Number(s.bestLapSec) >= 35
+        ? Number(s.bestLapSec)
+        : parseLapTimeToSeconds(s.bestLapStr);
+    if (sBestSec !== null) {
+      const sBestStr = s.bestLapStr || formatSecondsToLapStr(sBestSec);
+      const lapNumPart = s.bestLapNum ? ` (Lap ${s.bestLapNum})` : '';
+      const trackBm = getTrackBenchmarkForVenue(venueLabel);
+      const isCurrentPbMatch =
+        Boolean(s.isNewTrackPb) ||
+        (trackBm && Number.isFinite(Number(trackBm.bestLapSec)) && Math.abs(sBestSec - Number(trackBm.bestLapSec)) < 0.0005);
+      let pbComparisonHtml = '';
+      if (isCurrentPbMatch) {
+        pbComparisonHtml = `<span class="session-track-pb-badge">🏆 NEW TRACK PB!</span>`;
+      } else if (trackBm && Number.isFinite(Number(trackBm.bestLapSec)) && sBestSec > Number(trackBm.bestLapSec)) {
+        const deltaSec = (sBestSec - Number(trackBm.bestLapSec)).toFixed(2);
+        pbComparisonHtml = `<span class="session-pb-delta-pill">(+${deltaSec}s vs PB ${escapeHtml(trackBm.bestLapStr)})</span>`;
+      }
+      bestLapBlockHtml = `
+        <div class="session-best-lap-strip">
+          <span class="session-best-lap-pill">⏱ Fastest: ${escapeHtml(sBestStr)}${escapeHtml(lapNumPart)}</span>
+          ${pbComparisonHtml}
+        </div>
+      `;
+    }
 
     const preNoteStr = String(s.preRaceNotes || '').trim();
     const postNoteStr = String(s.postRaceNotes !== undefined ? s.postRaceNotes : s.notes || '').trim();
@@ -13141,6 +13452,8 @@
           </div>
         </div>
 
+        ${bestLapBlockHtml}
+
         <div class="afr-rpm-strip">
           ${stages
             .map(
@@ -13185,7 +13498,8 @@
     const carbyDisp = getCarbyDisplayName(s.carbyId || 'DME1');
     const rawJet = formatJetPureMm(s.jetMm || 1.85);
     const wotAfrStr = Number.isFinite(Number(s.afrWot)) ? `${Number(s.afrWot).toFixed(2)} AFR` : '— AFR';
-    const quickGlanceStr = `${carbyDisp} • ${rawJet} • ${wotAfrStr}`;
+    const lapPart = s.bestLapStr ? ` • ⏱ ${s.bestLapStr}${s.isNewTrackPb ? ' 🏆' : ''}` : '';
+    const quickGlanceStr = `${carbyDisp} • ${rawJet} • ${wotAfrStr}${lapPart}`;
 
     let statusPillHtml = '';
     if (isActiveRun && s.status !== 'completed') {
@@ -13529,6 +13843,17 @@
           </div>
         </div>
 
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="inlineBestLap_${escapeHtml(s.id)}">Session Fastest Lap</label>
+            <input type="text" id="inlineBestLap_${escapeHtml(s.id)}" class="text-input mono" value="${escapeHtml(s.bestLapStr || '')}" placeholder="e.g. 1:37.68" />
+          </div>
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="inlineBestLapNum_${escapeHtml(s.id)}">On Lap #</label>
+            <input type="number" id="inlineBestLapNum_${escapeHtml(s.id)}" class="text-input mono" value="${s.bestLapNum !== null && s.bestLapNum !== undefined ? escapeHtml(String(s.bestLapNum)) : ''}" placeholder="Lap #" min="1" max="50" step="1" />
+          </div>
+        </div>
+
         <div class="field-group" style="margin-bottom: 10px;">
           <label class="field-label" for="inlinePreNotes_${escapeHtml(s.id)}">Pre-Race Notes</label>
           <input type="text" id="inlinePreNotes_${escapeHtml(s.id)}" class="text-input" value="${escapeHtml(s.preRaceNotes || '')}" />
@@ -13585,6 +13910,10 @@
       'Venue',
       'Date',
       'Timestamp',
+      'Fastest_Lap',
+      'Fastest_Lap_Sec',
+      'Fastest_Lap_Num',
+      'Track_PB_Status',
       'Carby_ID',
       'Emulsion_Tube',
       'Manifold_ID',
@@ -13741,6 +14070,20 @@
         const spObj = getSpringById(spMap[c]);
         return spObj ? spObj.code : spMap[c] ? String(spMap[c]).replace(/^spr_/, '') : '';
       };
+      const sBestSec =
+        Number.isFinite(Number(s.bestLapSec)) && Number(s.bestLapSec) >= 35
+          ? Number(s.bestLapSec)
+          : parseLapTimeToSeconds(s.bestLapStr);
+      const sBestStr = sBestSec !== null ? (s.bestLapStr || formatSecondsToLapStr(sBestSec)) : '';
+      const trackBm = getTrackBenchmarkForVenue(trackName);
+      let pbStatusCsv = '';
+      if (sBestSec !== null) {
+        if (s.isNewTrackPb || (trackBm && Math.abs(sBestSec - Number(trackBm.bestLapSec)) < 0.0005)) {
+          pbStatusCsv = 'TRACK_PB';
+        } else if (trackBm && Number.isFinite(Number(trackBm.bestLapSec))) {
+          pbStatusCsv = `+${(sBestSec - Number(trackBm.bestLapSec)).toFixed(2)}s vs PB (${trackBm.bestLapStr})`;
+        }
+      }
       return [
         (ownerEvt && ownerEvt.id) || s.eventId || '',
         (ownerEvt && ownerEvt.eventTitle) || s.eventTitle || '',
@@ -13752,6 +14095,10 @@
         trackName,
         dateStr,
         s.timestamp || '',
+        sBestStr,
+        sBestSec !== null ? sBestSec.toFixed(4) : '',
+        s.bestLapNum !== null && s.bestLapNum !== undefined ? String(s.bestLapNum) : '',
+        pbStatusCsv,
         getCarbyDisplayName(s.carbyId),
         formatEmulsionShort(s.emulsionId || 'E5_DME'),
         getManifoldDisplayName(s.manifoldId || 'MAN_B'),
@@ -16237,9 +16584,22 @@
 
     const lines = [];
     lines.push('====================================================================');
-    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.9.2)');
+    lines.push('SNB RACING #71 — HQ 202 ENGINEERING & TELEMETRY AI DATA DUMP (v0.9.4)');
     lines.push(`Exported: ${new Date().toISOString()}`);
     lines.push('====================================================================');
+    lines.push('');
+
+    // 0. All-Time Circuit Benchmarks (Personal Best Laps)
+    const bmMap = normalizeTrackBenchmarks(state.trackBenchmarks);
+    const bmKeys = Object.keys(bmMap).sort((a, b) => a.localeCompare(b));
+    lines.push(`[0] ALL-TIME HQ 202 CIRCUIT BENCHMARKS (PERSONAL BEST LAPS — ${bmKeys.length} CIRCUITS)`);
+    bmKeys.forEach((vKey) => {
+      const bm = bmMap[vKey];
+      if (!bm) return;
+      lines.push(
+        `- ${vKey}: ${bm.bestLapStr} (${bm.bestLapSec.toFixed(4)}s)${bm.lapNumber ? ` on Lap ${bm.lapNumber}` : ''} | ${bm.date || '—'} | ${bm.sessionName || 'Session'}`
+      );
+    });
     lines.push('');
 
     // 1. Active Baseline & Scale Fact Anchor
@@ -16480,8 +16840,16 @@
           const spCode = spObj ? `${spObj.code}${spacerTag}(${formatSpringKingBadge(spObj)})` : `${spMap[c] || '—'}${spacerTag}`;
           return `${c}:Shk=${shCode}/Spr=${spCode}`;
         };
+        const sBestSecDump =
+          Number.isFinite(Number(s.bestLapSec)) && Number(s.bestLapSec) >= 35
+            ? Number(s.bestLapSec)
+            : parseLapTimeToSeconds(s.bestLapStr);
+        const sBestDumpPart =
+          sBestSecDump !== null
+            ? ` | Fastest_Lap ${s.bestLapStr || formatSecondsToLapStr(sBestSecDump)}${s.bestLapNum ? ` (Lap ${s.bestLapNum})` : ''}${s.isNewTrackPb ? ' [TRACK PB]' : ''}`
+            : '';
         lines.push(
-          `  * ${s.sessionName} (${s.timestamp || ''}) [${s.afrStatus}]: ${getCarbyDisplayName(s.carbyId)} (${formatEmulsionShort(s.emulsionId || 'E5_DME')}) + ${s.manifoldId || 'Macca'} + ${s.exhaustId || 'Macca'} | Main Jet ${formatJetPureMm(s.jetMm)} (${orificeAreaMm2(s.jetMm).toFixed(3)} mm²) | RAD ${Number(s.rad).toFixed(1)}% | SG ${Number(s.fuelSg).toFixed(3)} | Timing ${Number(s.timing).toFixed(1)}° | Fuel ${Number(s.fuelPsi ?? 4.3).toFixed(1)}psi | H2O ${s.waterTempC ?? '—'}°C | WOT AFR ${Number(s.afrWot).toFixed(2)} @ ${s.peakRpm || 5900} RPM (#1/#6 ${(Number(s.afrWot) + END_CYL_LEAN_OFFSET).toFixed(2)})`
+          `  * ${s.sessionName} (${s.timestamp || ''}) [${s.afrStatus}]${sBestDumpPart}: ${getCarbyDisplayName(s.carbyId)} (${formatEmulsionShort(s.emulsionId || 'E5_DME')}) + ${s.manifoldId || 'Macca'} + ${s.exhaustId || 'Macca'} | Main Jet ${formatJetPureMm(s.jetMm)} (${orificeAreaMm2(s.jetMm).toFixed(3)} mm²) | RAD ${Number(s.rad).toFixed(1)}% | SG ${Number(s.fuelSg).toFixed(3)} | Timing ${Number(s.timing).toFixed(1)}° | Fuel ${Number(s.fuelPsi ?? 4.3).toFixed(1)}psi | H2O ${s.waterTempC ?? '—'}°C | WOT AFR ${Number(s.afrWot).toFixed(2)} @ ${s.peakRpm || 5900} RPM (#1/#6 ${(Number(s.afrWot) + END_CYL_LEAN_OFFSET).toFixed(2)})`
         );
         lines.push(
           `    Fuel/Wt: Pour ${s.litresToPourL ?? '—'}L | In ${s.fuelInL ?? '—'}L -> Out ${s.fuelOutL ?? '—'}L | Used ${s.fuelUsedL ?? '—'}L (${s.racedLaps ?? '—'} laps = ${s.measuredBurnLPerLap ?? '—'} L/lap) | Scale/Est Wt: ${s.scaleWeightKg ?? '—'} / ${s.postRaceEstKg ?? '—'} kg`
@@ -16814,6 +17182,21 @@
     if ($('modalPostNotes')) {
       $('modalPostNotes').value = linked.postRaceNotes || '';
     }
+    if ($('modalPostBestLap')) {
+      $('modalPostBestLap').value = linked.bestLapStr || '';
+    }
+    if ($('modalPostBestLapNum')) {
+      $('modalPostBestLapNum').value =
+        linked.bestLapNum !== null && linked.bestLapNum !== undefined && Number.isFinite(Number(linked.bestLapNum))
+          ? String(Math.round(Number(linked.bestLapNum)))
+          : '';
+    }
+    if ($('modalPostTrackPbHint')) {
+      const curBm = getTrackBenchmarkForVenue(sessionVenue);
+      $('modalPostTrackPbHint').textContent = curBm
+        ? `Track PB: ${curBm.bestLapStr}${curBm.lapNumber ? ` (Lap ${curBm.lapNumber})` : ''}`
+        : 'Track PB: None Yet';
+    }
 
     const fmtOpt = (val) => {
       const norm = normalizeOptionalAfr(val);
@@ -16841,6 +17224,93 @@
     }
 
     openModal('modalPostSessionTune');
+  }
+
+  /**
+   * Saves Session Fastest Lap + On Lap # onto a session, updates post-race notes without duplicating,
+   * compares against state.trackBenchmarks[venue], and promotes to a new Track PB if faster.
+   */
+  function applySessionFastestLapAndCheckBenchmark(sess, rawLapInput, rawLapNumInput, rawNotesInput, ownerEvtOpt) {
+    if (!sess) return { promotedPb: false, venue: '', bestLapStr: null };
+    const ownerEvt = ownerEvtOpt || findEventForSession(sess.id);
+    const venue = normalizeVenueName(sess.venue || (ownerEvt && ownerEvt.venue) || 'Calder Park Raceway');
+    const cleanLapInput = String(rawLapInput || '').trim();
+    const parsedSec = parseLapTimeToSeconds(cleanLapInput);
+    const rawNumVal = String(rawLapNumInput ?? '').trim();
+    const parsedLapNum =
+      rawNumVal !== '' && Number.isFinite(Number(rawNumVal)) && Number(rawNumVal) >= 1
+        ? Math.min(99, Math.max(1, Math.round(Number(rawNumVal))))
+        : null;
+
+    let cleanPostNotes = String(rawNotesInput ?? sess.postRaceNotes ?? sess.notes ?? '').trim();
+    // Strip any prior auto-appended "Fastest Lap: ..." clause so re-saves never duplicate
+    cleanPostNotes = cleanPostNotes
+      .replace(/\s*(?:•|\||—|-)?\s*Fastest Lap:\s*[0-9:.]+(?:\s*\(Lap\s*\d+\))?/gi, '')
+      .replace(/^Fastest Lap:\s*[0-9:.]+(?:\s*\(Lap\s*\d+\))?\s*(?:•|\||—|-)?\s*/i, '')
+      .trim();
+
+    if (parsedSec === null) {
+      if (!cleanLapInput) {
+        sess.bestLapStr = null;
+        sess.bestLapSec = null;
+        sess.bestLapNum = null;
+        sess.isNewTrackPb = false;
+      }
+      sess.postRaceNotes = cleanPostNotes;
+      sess.notes = cleanPostNotes || sess.preRaceNotes || '';
+      return { promotedPb: false, venue, bestLapStr: null };
+    }
+
+    const bestLapStr = formatSecondsToLapStr(parsedSec, cleanLapInput);
+    sess.bestLapStr = bestLapStr;
+    sess.bestLapSec = parsedSec;
+    sess.bestLapNum = parsedLapNum;
+
+    const lapNoteClause = `Fastest Lap: ${bestLapStr}${parsedLapNum ? ` (Lap ${parsedLapNum})` : ''}`;
+    const combinedPostNotes = cleanPostNotes ? `${cleanPostNotes} • ${lapNoteClause}` : lapNoteClause;
+    sess.postRaceNotes = combinedPostNotes;
+    sess.notes = combinedPostNotes;
+
+    if (!state.trackBenchmarks || typeof state.trackBenchmarks !== 'object') {
+      state.trackBenchmarks = createDefaultTrackBenchmarks();
+    }
+    const currentBm = getTrackBenchmarkForVenue(venue);
+    const evtDateIso =
+      (ownerEvt && ownerEvt.eventDate) ||
+      sess.sessionDateIso ||
+      sess.sessionIsoDate ||
+      getLocalTodayIso();
+
+    let promotedPb = false;
+    if (!currentBm || !Number.isFinite(Number(currentBm.bestLapSec)) || parsedSec < Number(currentBm.bestLapSec) - 0.00005) {
+      state.trackBenchmarks[venue] = {
+        bestLapStr,
+        bestLapSec: parsedSec,
+        lapNumber: parsedLapNum,
+        date: evtDateIso,
+        sessionName: sess.sessionName || 'Session'
+      };
+      syncTrackBenchmarksToTyreProfiles(state.trackBenchmarks);
+      // Clear isNewTrackPb on older sessions at this venue that had a slower lap
+      (state.events || []).forEach((ev) => {
+        if (!ev || !Array.isArray(ev.sessions)) return;
+        ev.sessions.forEach((otherS) => {
+          if (otherS && otherS.id !== sess.id && normalizeVenueName(otherS.venue || ev.venue) === venue) {
+            if (Number.isFinite(Number(otherS.bestLapSec)) && Number(otherS.bestLapSec) > parsedSec + 0.00005) {
+              otherS.isNewTrackPb = false;
+            }
+          }
+        });
+      });
+      sess.isNewTrackPb = true;
+      promotedPb = true;
+    } else if (Math.abs(parsedSec - Number(currentBm.bestLapSec)) <= 0.00005) {
+      sess.isNewTrackPb = true;
+    } else {
+      sess.isNewTrackPb = false;
+    }
+
+    return { promotedPb, venue, bestLapStr };
   }
 
   /**
@@ -16873,6 +17343,8 @@
     const fuelPsi = Number(readNum('modalPostFuelPsi', state.baseline.fuelPsi || 4.3).toFixed(1));
     const waterTempC = readOptionalWaterTemp('modalPostWaterTemp');
     const postNotesVal = ($('modalPostNotes') && $('modalPostNotes').value.trim()) || '';
+    const rawBestLapVal = ($('modalPostBestLap') && $('modalPostBestLap').value.trim()) || '';
+    const rawBestLapNumVal = ($('modalPostBestLapNum') && $('modalPostBestLapNum').value.trim()) || '';
 
     const a35 = readOptionalAfr('modalPost3500');
     const a40 = readOptionalAfr('modalPost4000');
@@ -16880,6 +17352,7 @@
     const a50 = readOptionalAfr('modalPost5000');
     const a55 = readOptionalAfr('modalPost5500');
 
+    let pbResult = { promotedPb: false, venue: '', bestLapStr: null };
     if (!isSessionLocked(linked.id)) {
       linked.afr3500 = a35;
       linked.afr4000 = a40;
@@ -16896,10 +17369,13 @@
       linked.peakRpm = peakRpm;
       linked.fuelPsi = fuelPsi;
       linked.waterTempC = waterTempC;
-      if (postNotesVal) {
-        linked.postRaceNotes = postNotesVal;
-        linked.notes = postNotesVal;
-      }
+      pbResult = applySessionFastestLapAndCheckBenchmark(
+        linked,
+        rawBestLapVal,
+        rawBestLapNumVal,
+        postNotesVal,
+        liveEvt
+      );
       linked.tunePostLocked = true;
       linked.workflowStep = 5;
     }
@@ -16934,9 +17410,13 @@
     renderAll();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    showToast(
-      `✓ Post-Session Tune Locked (${wot.toFixed(2)} AFR @ ${peakRpm} RPM) — Tap POST-SESSION FUEL & WEIGHT (ENTER DATA)!`
-    );
+    if (pbResult.promotedPb && pbResult.bestLapStr) {
+      showToast(`🏆 NEW TRACK BENCHMARK: ${pbResult.bestLapStr} at ${pbResult.venue}!`);
+    } else {
+      showToast(
+        `✓ Post-Session Tune Locked (${wot.toFixed(2)} AFR @ ${peakRpm} RPM) — Tap POST-SESSION FUEL & WEIGHT (ENTER DATA)!`
+      );
+    }
   }
 
   /**
@@ -18584,6 +19064,186 @@
       .replace(/'/g, '&#39;');
   }
 
+  function renderTrackBenchmarksFleet() {
+    if (!state.trackBenchmarks || typeof state.trackBenchmarks !== 'object') {
+      state.trackBenchmarks = createDefaultTrackBenchmarks();
+    }
+    state.trackBenchmarks = normalizeTrackBenchmarks(state.trackBenchmarks);
+    const entries = Object.entries(state.trackBenchmarks).sort((a, b) => a[0].localeCompare(b[0]));
+
+    const countBadge = $('fleetTrackBenchmarksCountBadge');
+    if (countBadge) {
+      countBadge.textContent = `${entries.length} ${entries.length === 1 ? 'TRACK' : 'TRACKS'} LOGGED`;
+    }
+
+    const activeBadge = $('fleetTrackBenchmarksActiveBadge');
+    if (activeBadge) {
+      const liveEvt = getActiveEvent();
+      const focusVenue = normalizeVenueName((liveEvt && liveEvt.venue) || (state.baseline && state.baseline.venue) || 'Sandown Raceway');
+      const focusBm = getTrackBenchmarkForVenue(focusVenue);
+      const sandownBm = getTrackBenchmarkForVenue('Sandown Raceway');
+      const calderBm = getTrackBenchmarkForVenue('Calder Park Raceway');
+      if (focusBm && focusVenue !== 'Sandown Raceway' && focusVenue !== 'Calder Park Raceway') {
+        activeBadge.textContent = `${focusVenue.toUpperCase().replace(/\s+RACEWAY.*|\s+GRAND PRIX.*/i, '')} ${focusBm.bestLapStr}`;
+      } else {
+        const parts = [];
+        if (sandownBm) parts.push(`SANDOWN ${sandownBm.bestLapStr}`);
+        if (calderBm) parts.push(`CALDER ${calderBm.bestLapStr}`);
+        activeBadge.textContent = parts.length > 0 ? parts.join(' • ') : `${entries.length} PBs`;
+      }
+    }
+
+    const container = $('trackBenchmarksFleetContainer');
+    if (!container) return;
+
+    const knownTracks = Array.from(
+      new Set([
+        ...Object.keys(DEFAULT_TRACK_BURN_L),
+        ...Object.keys(state.trackBenchmarks || {})
+      ])
+    ).sort((a, b) => a.localeCompare(b));
+
+    const rowsHtml = entries
+      .map(([venue, bm]) => {
+        const isEditing = ui.editingTrackBenchmarkVenue === venue;
+        const lapMeta = bm.lapNumber ? `Lap ${bm.lapNumber}` : 'Lap —';
+        const dateMeta = bm.date ? (formatIsoDateDisplay(bm.date) || bm.date) : '—';
+        const sessMeta = bm.sessionName || 'Session';
+        return `
+          <div class="track-benchmark-row" data-bm-venue="${escapeHtml(venue)}">
+            <div class="track-benchmark-row-top">
+              <div>
+                <div class="track-benchmark-venue">🏁 ${escapeHtml(venue)}</div>
+                <div class="track-benchmark-meta">${escapeHtml(lapMeta)} &bull; ${escapeHtml(dateMeta)} &bull; ${escapeHtml(sessMeta)}</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="track-benchmark-time-badge">⏱ ${escapeHtml(bm.bestLapStr)}</span>
+                <button
+                  type="button"
+                  class="btn ${isEditing ? 'btn-danger' : 'btn-secondary'} btn-xs"
+                  data-edit-track-benchmark="${escapeHtml(venue)}"
+                >
+                  ${isEditing ? 'Cancel' : 'Edit'}
+                </button>
+              </div>
+            </div>
+            ${
+              isEditing
+                ? `
+                  <div class="track-benchmark-edit-drawer">
+                    <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 8px;">
+                      <div class="field-group" style="margin-bottom: 0;">
+                        <label class="field-label">Fastest Lap (M:SS.ss)</label>
+                        <input
+                          type="text"
+                          id="editBmLapStr"
+                          class="text-input mono"
+                          value="${escapeHtml(bm.bestLapStr)}"
+                          placeholder="e.g. 1:37.6866"
+                        />
+                      </div>
+                      <div class="field-group" style="margin-bottom: 0;">
+                        <label class="field-label">On Lap #</label>
+                        <input
+                          type="number"
+                          id="editBmLapNum"
+                          class="text-input mono"
+                          value="${bm.lapNumber !== null && bm.lapNumber !== undefined ? escapeHtml(String(bm.lapNumber)) : ''}"
+                          placeholder="Lap #"
+                          min="1"
+                          max="99"
+                          step="1"
+                        />
+                      </div>
+                    </div>
+                    <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 8px;">
+                      <div class="field-group" style="margin-bottom: 0;">
+                        <label class="field-label">Date (YYYY-MM-DD)</label>
+                        <input
+                          type="date"
+                          id="editBmDate"
+                          class="text-input"
+                          value="${escapeHtml(/^\d{4}-\d{2}-\d{2}$/.test(String(bm.date || '')) ? bm.date : getLocalTodayIso())}"
+                        />
+                      </div>
+                      <div class="field-group" style="margin-bottom: 0;">
+                        <label class="field-label">Session</label>
+                        <input
+                          type="text"
+                          id="editBmSession"
+                          class="text-input"
+                          value="${escapeHtml(bm.sessionName || 'Qualifying')}"
+                          placeholder="e.g. Qualifying / Race 2"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      class="btn btn-confirm btn-full"
+                      data-save-track-benchmark="${escapeHtml(venue)}"
+                    >
+                      Save ${escapeHtml(venue)} Benchmark PB
+                    </button>
+                  </div>
+                `
+                : ''
+            }
+          </div>
+        `;
+      })
+      .join('');
+
+    const addOpen = Boolean(ui.addingTrackBenchmark);
+    const addDrawerHtml = addOpen
+      ? `
+        <div class="track-benchmark-row" style="margin-top: 8px; border-color: rgba(16, 185, 129, 0.55);">
+          <div class="section-eyebrow" style="margin-bottom: 6px;">Add / Update Circuit Benchmark PB</div>
+          <div class="field-group" style="margin-bottom: 8px;">
+            <label class="field-label" for="newBmVenueSelect">Circuit / Track</label>
+            <select id="newBmVenueSelect" class="select-input">
+              ${knownTracks.map((trk) => `<option value="${escapeHtml(trk)}">${escapeHtml(trk)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 8px;">
+            <div class="field-group" style="margin-bottom: 0;">
+              <label class="field-label" for="newBmLapStr">Fastest Lap (M:SS.ss)</label>
+              <input type="text" id="newBmLapStr" class="text-input mono" placeholder="e.g. 1:37.6866" />
+            </div>
+            <div class="field-group" style="margin-bottom: 0;">
+              <label class="field-label" for="newBmLapNum">On Lap #</label>
+              <input type="number" id="newBmLapNum" class="text-input mono" placeholder="Lap #" min="1" max="99" step="1" />
+            </div>
+          </div>
+          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 8px;">
+            <div class="field-group" style="margin-bottom: 0;">
+              <label class="field-label" for="newBmDate">Date</label>
+              <input type="date" id="newBmDate" class="text-input" value="${escapeHtml(getLocalTodayIso())}" />
+            </div>
+            <div class="field-group" style="margin-bottom: 0;">
+              <label class="field-label" for="newBmSession">Session</label>
+              <input type="text" id="newBmSession" class="text-input" value="Qualifying" placeholder="e.g. Qualifying" />
+            </div>
+          </div>
+          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 0;">
+            <button type="button" class="btn btn-secondary" data-toggle-add-track-benchmark="0">Cancel</button>
+            <button type="button" class="btn btn-confirm" data-confirm-add-track-benchmark="1">Save Track PB</button>
+          </div>
+        </div>
+      `
+      : `
+        <button
+          type="button"
+          class="btn btn-secondary btn-full"
+          data-toggle-add-track-benchmark="1"
+          style="margin-top: 8px; min-height: 38px; font-size: 0.76rem;"
+        >
+          + Add / Override Circuit Benchmark PB
+        </button>
+      `;
+
+    container.innerHTML = `<div class="track-benchmark-list">${rowsHtml}</div>${addDrawerHtml}`;
+  }
+
   function renderFleetAndKit() {
     try {
       renderBrakesFleet();
@@ -18634,6 +19294,11 @@
       renderSpringFleet();
     } catch (err) {
       console.error('Fleet section error (Springs):', err);
+    }
+    try {
+      renderTrackBenchmarksFleet();
+    } catch (err) {
+      console.error('Fleet section error (Track Benchmarks):', err);
     }
     try {
       syncFleetAccordionUi();
@@ -18910,6 +19575,93 @@
         return;
       }
 
+      const editTrackBmBtn = e.target.closest('[data-edit-track-benchmark]');
+      if (editTrackBmBtn) {
+        const vKey = editTrackBmBtn.getAttribute('data-edit-track-benchmark');
+        ui.editingTrackBenchmarkVenue = ui.editingTrackBenchmarkVenue === vKey ? null : vKey;
+        ui.addingTrackBenchmark = false;
+        renderTrackBenchmarksFleet();
+        return;
+      }
+
+      const saveTrackBmBtn = e.target.closest('[data-save-track-benchmark]');
+      if (saveTrackBmBtn) {
+        const vKey = normalizeVenueName(saveTrackBmBtn.getAttribute('data-save-track-benchmark'));
+        const rawLap = ($('editBmLapStr') && $('editBmLapStr').value.trim()) || '';
+        const parsedSec = parseLapTimeToSeconds(rawLap);
+        if (parsedSec === null) {
+          showToast('Enter a valid lap time (e.g. 1:37.6866 or 1:16.66)');
+          return;
+        }
+        const rawNum = ($('editBmLapNum') && $('editBmLapNum').value.trim()) || '';
+        const lapNumber =
+          rawNum !== '' && Number.isFinite(Number(rawNum)) && Number(rawNum) >= 1
+            ? Math.round(Number(rawNum))
+            : null;
+        const dateVal = ($('editBmDate') && $('editBmDate').value.trim()) || getLocalTodayIso();
+        const sessVal = ($('editBmSession') && $('editBmSession').value.trim()) || 'Session';
+        const bestLapStr = formatSecondsToLapStr(parsedSec, rawLap);
+        if (!state.trackBenchmarks || typeof state.trackBenchmarks !== 'object') {
+          state.trackBenchmarks = createDefaultTrackBenchmarks();
+        }
+        state.trackBenchmarks[vKey] = {
+          bestLapStr,
+          bestLapSec: parsedSec,
+          lapNumber,
+          date: dateVal,
+          sessionName: sessVal
+        };
+        syncTrackBenchmarksToTyreProfiles(state.trackBenchmarks);
+        ui.editingTrackBenchmarkVenue = null;
+        saveState();
+        renderAll();
+        showToast(`✓ Updated ${vKey} Benchmark PB: ${bestLapStr}`);
+        return;
+      }
+
+      const toggleAddTrackBmBtn = e.target.closest('[data-toggle-add-track-benchmark]');
+      if (toggleAddTrackBmBtn) {
+        ui.addingTrackBenchmark = toggleAddTrackBmBtn.getAttribute('data-toggle-add-track-benchmark') === '1';
+        ui.editingTrackBenchmarkVenue = null;
+        renderTrackBenchmarksFleet();
+        return;
+      }
+
+      const confirmAddTrackBmBtn = e.target.closest('[data-confirm-add-track-benchmark]');
+      if (confirmAddTrackBmBtn) {
+        const vKey = normalizeVenueName(($('newBmVenueSelect') && $('newBmVenueSelect').value) || 'Calder Park Raceway');
+        const rawLap = ($('newBmLapStr') && $('newBmLapStr').value.trim()) || '';
+        const parsedSec = parseLapTimeToSeconds(rawLap);
+        if (parsedSec === null) {
+          showToast('Enter a valid lap time (e.g. 1:37.6866 or 1:16.66)');
+          return;
+        }
+        const rawNum = ($('newBmLapNum') && $('newBmLapNum').value.trim()) || '';
+        const lapNumber =
+          rawNum !== '' && Number.isFinite(Number(rawNum)) && Number(rawNum) >= 1
+            ? Math.round(Number(rawNum))
+            : null;
+        const dateVal = ($('newBmDate') && $('newBmDate').value.trim()) || getLocalTodayIso();
+        const sessVal = ($('newBmSession') && $('newBmSession').value.trim()) || 'Session';
+        const bestLapStr = formatSecondsToLapStr(parsedSec, rawLap);
+        if (!state.trackBenchmarks || typeof state.trackBenchmarks !== 'object') {
+          state.trackBenchmarks = createDefaultTrackBenchmarks();
+        }
+        state.trackBenchmarks[vKey] = {
+          bestLapStr,
+          bestLapSec: parsedSec,
+          lapNumber,
+          date: dateVal,
+          sessionName: sessVal
+        };
+        syncTrackBenchmarksToTyreProfiles(state.trackBenchmarks);
+        ui.addingTrackBenchmark = false;
+        saveState();
+        renderAll();
+        showToast(`🏆 Saved ${vKey} Benchmark PB: ${bestLapStr}`);
+        return;
+      }
+
       const editSessionBtn = e.target.closest('[data-edit-session-afr]');
       if (editSessionBtn) {
         const sid = editSessionBtn.getAttribute('data-edit-session-afr');
@@ -18934,16 +19686,21 @@
           const nameInput = $(`inlineName_${sid}`);
           const preNotesInput = $(`inlinePreNotes_${sid}`);
           const notesInput = $(`inlineNotes_${sid}`);
+          const bestLapInput = $(`inlineBestLap_${sid}`);
+          const bestLapNumInput = $(`inlineBestLapNum_${sid}`);
           if (nameInput && nameInput.value.trim()) {
             sess.sessionName = nameInput.value.trim();
           }
           if (preNotesInput) {
             sess.preRaceNotes = preNotesInput.value.trim();
           }
-          if (notesInput) {
-            sess.postRaceNotes = notesInput.value.trim();
-            sess.notes = sess.postRaceNotes;
-          }
+          const rawPostNotes = notesInput ? notesInput.value.trim() : (sess.postRaceNotes || '');
+          const pbRes = applySessionFastestLapAndCheckBenchmark(
+            sess,
+            bestLapInput ? bestLapInput.value.trim() : (sess.bestLapStr || ''),
+            bestLapNumInput ? bestLapNumInput.value.trim() : (sess.bestLapNum ?? ''),
+            rawPostNotes
+          );
 
           sess.afr3500 = readOptionalAfr(`inlineAfr_${sid}_3500`);
           sess.afr4000 = readOptionalAfr(`inlineAfr_${sid}_4000`);
@@ -18975,7 +19732,11 @@
           ui.editingSessionId = null;
           saveState();
           renderAll();
-          showToast(`Saved ${sess.sessionName} (${sess.venue})`);
+          if (pbRes.promotedPb && pbRes.bestLapStr) {
+            showToast(`🏆 NEW TRACK BENCHMARK: ${pbRes.bestLapStr} at ${pbRes.venue}!`);
+          } else {
+            showToast(`Saved ${sess.sessionName} (${sess.venue})`);
+          }
         }
         return;
       }
