@@ -13,6 +13,207 @@
   const HPA_PER_PSI = 68.9475729318;
   const MM_PER_INCH = 25.4;
   const END_CYL_LEAN_OFFSET = 0.27; // #1 & #6 siamesed cast log manifold lean bias
+  let state = null;
+
+  /**
+   * Verified All-Years Australian HQ 202 (3300/3310 cc Group 3H, Car #71 / #70) Personal Best Lap Benchmarks for Warren Trewin.
+   * Lean schema per track: { bestLapStr, bestLapSec, lapNumber, date, sessionName }.
+   */
+  const DEFAULT_TRACK_BENCHMARKS = {
+    'Sandown Raceway': {
+      bestLapStr: '1:37.6866',
+      bestLapSec: 97.6866,
+      lapNumber: 9,
+      date: '2024-07-21',
+      sessionName: 'Qualifying'
+    },
+    'Calder Park Raceway': {
+      bestLapStr: '1:16.66',
+      bestLapSec: 76.66,
+      lapNumber: 10,
+      date: '2024-11-08',
+      sessionName: 'Race 2'
+    },
+    'Winton Motor Raceway': {
+      bestLapStr: '1:45.4210',
+      bestLapSec: 105.421,
+      lapNumber: 6,
+      date: '2024-05-19',
+      sessionName: 'Race 2'
+    },
+    'Phillip Island Grand Prix Circuit': {
+      bestLapStr: '2:01.8430',
+      bestLapSec: 121.843,
+      lapNumber: 5,
+      date: '2024-03-10',
+      sessionName: 'Race 1'
+    },
+    'Sydney Motorsport Park (SMSP)': {
+      bestLapStr: '1:58.7420',
+      bestLapSec: 118.742,
+      lapNumber: 7,
+      date: '2025-08-30',
+      sessionName: 'Heat 2 (HQ Nationals)'
+    },
+    'Mount Panorama (Bathurst)': {
+      bestLapStr: '3:03.5070',
+      bestLapSec: 183.507,
+      lapNumber: 3,
+      date: '2016-03-27',
+      sessionName: 'Practice 4 (Bathurst Motor Festival)'
+    },
+    'CARCO.com.au Raceway (Wanneroo)': {
+      bestLapStr: '1:12.4850',
+      bestLapSec: 72.485,
+      lapNumber: 5,
+      date: '2017-11-19',
+      sessionName: 'Heat 3 (HQ Nationals Barbagallo)'
+    },
+    'Symmons Plains Raceway': {
+      bestLapStr: '1:10.3120',
+      bestLapSec: 70.312,
+      lapNumber: 6,
+      date: '2015-10-25',
+      sessionName: 'Heat 2 (HQ Nationals Symmons Plains)'
+    },
+    'Morgan Park Raceway': {
+      bestLapStr: '1:34.1840',
+      bestLapSec: 94.184,
+      lapNumber: 5,
+      date: '2014-07-20',
+      sessionName: 'Heat 2 (HQ Nationals Morgan Park)'
+    },
+    'Wakefield Park / One Raceway': {
+      bestLapStr: '1:14.2180',
+      bestLapSec: 74.218,
+      lapNumber: 6,
+      date: '2016-10-16',
+      sessionName: 'Heat 2 (HQ Nationals Wakefield Park)'
+    },
+    'Mallala Motorsport Park': {
+      bestLapStr: '1:26.8400',
+      bestLapSec: 86.84,
+      lapNumber: 5,
+      date: '2018-10-21',
+      sessionName: 'Heat 2 (HQ Nationals)'
+    }
+  };
+
+  function createDefaultTrackBenchmarks() {
+    const out = {};
+    Object.keys(DEFAULT_TRACK_BENCHMARKS).forEach((k) => {
+      out[k] = { ...DEFAULT_TRACK_BENCHMARKS[k] };
+    });
+    return out;
+  }
+
+  /**
+   * Parses a lap time string ("1:37.6866", "1:16.66", or "76.66") into total seconds.
+   * Returns null if invalid or outside sensible circuit lap bounds (35s - 600s).
+   */
+  function parseLapTimeToSeconds(rawStr) {
+    if (rawStr === null || rawStr === undefined) return null;
+    const str = String(rawStr).trim();
+    if (!str) return null;
+    const mmSsMatch = str.match(/^(\d{1,2})\s*:\s*([0-5]?\d(?:\.\d{1,4})?)$/);
+    let totalSec = NaN;
+    if (mmSsMatch) {
+      const mins = parseInt(mmSsMatch[1], 10);
+      const secs = parseFloat(mmSsMatch[2]);
+      if (Number.isFinite(mins) && Number.isFinite(secs) && secs < 60) {
+        totalSec = mins * 60 + secs;
+      }
+    } else if (/^\d{2,3}(?:\.\d{1,4})?$/.test(str)) {
+      totalSec = parseFloat(str);
+    }
+    if (!Number.isFinite(totalSec) || totalSec < 35 || totalSec > 600) {
+      return null;
+    }
+    return Number(totalSec.toFixed(4));
+  }
+
+  /**
+   * Formats total seconds into canonical M:SS.ss / M:SS.ssss string, preserving original decimal precision.
+   */
+  function formatSecondsToLapStr(secVal, rawReferenceStr = '') {
+    const sec = Number(secVal);
+    if (!Number.isFinite(sec) || sec <= 0) return '';
+    let decPlaces = 2;
+    const refTrim = String(rawReferenceStr || '').trim();
+    const decMatch = refTrim.match(/\.(\d{1,4})$/);
+    if (decMatch) {
+      decPlaces = Math.max(2, Math.min(4, decMatch[1].length));
+    } else {
+      const autoStr = sec.toFixed(4).replace(/0+$/, '');
+      const autoMatch = autoStr.match(/\.(\d+)$/);
+      if (autoMatch && autoMatch[1].length > 2) {
+        decPlaces = Math.min(4, autoMatch[1].length);
+      }
+    }
+    const mins = Math.floor(sec / 60);
+    const remSec = sec - mins * 60;
+    const secFixed = remSec.toFixed(decPlaces);
+    const [wholePart, fracPart] = secFixed.split('.');
+    const paddedWhole = String(wholePart).padStart(2, '0');
+    return mins > 0 ? `${mins}:${paddedWhole}.${fracPart}` : `${wholePart}.${fracPart}`;
+  }
+
+  const CIRCUIT_TYRE_PROFILES = {
+    'Baskerville Raceway':                 { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' },
+    'Baskerville':                         { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' },
+    'Symmons Plains Raceway':              { dir: 'CW',  estLapSec: 70,  brakeLoad: 'heavy' },
+    'Symmons Plains':                      { dir: 'CW',  estLapSec: 70,  brakeLoad: 'heavy' },
+    'Mallala Motorsport Park':             { dir: 'CW',  estLapSec: 87,  brakeLoad: 'heavy' },
+    'Mallala':                             { dir: 'CW',  estLapSec: 87,  brakeLoad: 'heavy' },
+    'Calder Park Raceway':                 { dir: 'CW',  estLapSec: 77,  brakeLoad: 'balanced' },
+    'Calder Park':                         { dir: 'CW',  estLapSec: 77,  brakeLoad: 'balanced' },
+    'Morgan Park Raceway':                 { dir: 'CW',  estLapSec: 94,  brakeLoad: 'balanced' },
+    'Morgan Park':                         { dir: 'CW',  estLapSec: 94,  brakeLoad: 'balanced' },
+    'CARCO.com.au Raceway (Wanneroo)':     { dir: 'CW',  estLapSec: 72,  brakeLoad: 'heavy' },
+    'CARCO.com.au Raceway':                { dir: 'CW',  estLapSec: 72,  brakeLoad: 'heavy' },
+    'Barbagallo':                          { dir: 'CW',  estLapSec: 72,  brakeLoad: 'heavy' },
+    'Wanneroo':                            { dir: 'CW',  estLapSec: 72,  brakeLoad: 'heavy' },
+    'Collie Motorplex':                    { dir: 'CW',  estLapSec: 78,  brakeLoad: 'balanced' },
+    'Collie':                              { dir: 'CW',  estLapSec: 78,  brakeLoad: 'balanced' },
+    'Wakefield Park / One Raceway':        { dir: 'CCW', estLapSec: 74,  brakeLoad: 'balanced' },
+    'Wakefield Park':                      { dir: 'CCW', estLapSec: 74,  brakeLoad: 'balanced' },
+    'One Raceway':                         { dir: 'CCW', estLapSec: 74,  brakeLoad: 'balanced' },
+    'Pheasant Wood Circuit':               { dir: 'CCW', estLapSec: 63,  brakeLoad: 'balanced' },
+    'Pheasant Wood':                       { dir: 'CCW', estLapSec: 63,  brakeLoad: 'balanced' },
+    'Broadford State Motorcycle Complex':  { dir: 'CW',  estLapSec: 68,  brakeLoad: 'balanced' },
+    'Broadford':                           { dir: 'CW',  estLapSec: 68,  brakeLoad: 'balanced' },
+    'Lakeside Park':                       { dir: 'CW',  estLapSec: 64,  brakeLoad: 'flowing' },
+    'Lakeside':                            { dir: 'CW',  estLapSec: 64,  brakeLoad: 'flowing' },
+    'Sandown Raceway':                     { dir: 'CCW', estLapSec: 98,  brakeLoad: 'heavy' },
+    'Sandown International Raceway':       { dir: 'CCW', estLapSec: 98,  brakeLoad: 'heavy' },
+    'Sandown':                             { dir: 'CCW', estLapSec: 98,  brakeLoad: 'heavy' },
+    'Winton Motor Raceway':                { dir: 'CW',  estLapSec: 105, brakeLoad: 'balanced' },
+    'Winton':                              { dir: 'CW',  estLapSec: 105, brakeLoad: 'balanced' },
+    'Queensland Raceway (Willowbank)':     { dir: 'CCW', estLapSec: 86,  brakeLoad: 'balanced' },
+    'Queensland Raceway':                  { dir: 'CCW', estLapSec: 86,  brakeLoad: 'balanced' },
+    'Willowbank':                          { dir: 'CCW', estLapSec: 86,  brakeLoad: 'balanced' },
+    'Hidden Valley Raceway':               { dir: 'CW',  estLapSec: 82,  brakeLoad: 'balanced' },
+    'Hidden Valley':                       { dir: 'CW',  estLapSec: 82,  brakeLoad: 'balanced' },
+    'Phillip Island Grand Prix Circuit':   { dir: 'CCW', estLapSec: 122, brakeLoad: 'flowing' },
+    'Phillip Island':                      { dir: 'CCW', estLapSec: 122, brakeLoad: 'flowing' },
+    'Sydney Motorsport Park (SMSP)':       { dir: 'CCW', estLapSec: 119, brakeLoad: 'flowing' },
+    'Sydney Motorsport Park':              { dir: 'CCW', estLapSec: 119, brakeLoad: 'flowing' },
+    'SMSP':                                { dir: 'CCW', estLapSec: 119, brakeLoad: 'flowing' },
+    'Townsville Reid Park':                { dir: 'CCW', estLapSec: 88,  brakeLoad: 'heavy' },
+    'Townsville':                          { dir: 'CCW', estLapSec: 88,  brakeLoad: 'heavy' },
+    'Mount Panorama (Bathurst)':           { dir: 'CCW', estLapSec: 184, brakeLoad: 'heavy' },
+    'Mount Panorama':                      { dir: 'CCW', estLapSec: 184, brakeLoad: 'heavy' },
+    'Bathurst':                            { dir: 'CCW', estLapSec: 184, brakeLoad: 'heavy' },
+    'The Bend Motorsport Park':            { dir: 'CCW', estLapSec: 145, brakeLoad: 'flowing' },
+    'The Bend':                            { dir: 'CCW', estLapSec: 145, brakeLoad: 'flowing' },
+    'Haunted Hills / Bryant Park':         { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' },
+    'Haunted Hills':                       { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' },
+    'Bryant Park':                         { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' }
+  };
+
+  const TRACK_DIRECTION_MAP = Object.fromEntries(
+    Object.entries(CIRCUIT_TYRE_PROFILES).map(([k, v]) => [k, v.dir])
+  );
 
   function clamp(val, min, max) {
     return Math.min(max, Math.max(min, val));
@@ -495,6 +696,48 @@
     const str = String(rawVenue || '').trim();
     if (!str || /^calder\s*park(\s*\/\s*track|\s*raceway)?$/i.test(str)) {
       return 'Calder Park Raceway';
+    }
+    if (/^sandown(\s*international)?(\s*motor)?(\s*raceway)?$/i.test(str)) {
+      return 'Sandown Raceway';
+    }
+    if (/^winton(\s*motor)?(\s*raceway)?$/i.test(str)) {
+      return 'Winton Motor Raceway';
+    }
+    if (/^phillip\s*island(\s*grand\s*prix\s*circuit|\s*gp\s*circuit|\s*circuit)?$/i.test(str)) {
+      return 'Phillip Island Grand Prix Circuit';
+    }
+    if (/^(sydney\s*motorsport\s*park(\s*\(smsp\))?|smsp|eastern\s*creek(\s*raceway)?)$/i.test(str)) {
+      return 'Sydney Motorsport Park (SMSP)';
+    }
+    if (/^(mount\s*panorama(\s*\(bathurst\)|\s*circuit)?|mt\.?\s*panorama|bathurst)$/i.test(str)) {
+      return 'Mount Panorama (Bathurst)';
+    }
+    if (/^(carco\.com\.au\s*raceway(\s*\(wanneroo\))?|barbagallo(\s*raceway)?|wanneroo(\s*raceway)?)$/i.test(str)) {
+      return 'CARCO.com.au Raceway (Wanneroo)';
+    }
+    if (/^symmons\s*plains(\s*raceway)?$/i.test(str)) {
+      return 'Symmons Plains Raceway';
+    }
+    if (/^morgan\s*park(\s*raceway)?$/i.test(str)) {
+      return 'Morgan Park Raceway';
+    }
+    if (/^(wakefield\s*park(\s*\/\s*one\s*raceway|\s*raceway)?|one\s*raceway)$/i.test(str)) {
+      return 'Wakefield Park / One Raceway';
+    }
+    if (/^mallala(\s*motorsport\s*park|\s*raceway)?$/i.test(str)) {
+      return 'Mallala Motorsport Park';
+    }
+    if (/^baskerville(\s*raceway)?$/i.test(str)) {
+      return 'Baskerville Raceway';
+    }
+    if (/^(queensland\s*raceway(\s*\(willowbank\))?|willowbank)$/i.test(str)) {
+      return 'Queensland Raceway (Willowbank)';
+    }
+    if (/^the\s*bend(\s*motorsport\s*park)?$/i.test(str)) {
+      return 'The Bend Motorsport Park';
+    }
+    if (/^hidden\s*valley(\s*raceway)?$/i.test(str)) {
+      return 'Hidden Valley Raceway';
     }
     return str;
   }
@@ -1160,185 +1403,8 @@
     'Hidden Valley Raceway': 1.60
   };
 
-  /**
-   * Verified All-Time HQ 202 (3300/3310 cc Group 3H) Personal Best Lap Benchmarks for Warren Trewin.
-   * Lean schema per track: { bestLapStr, bestLapSec, lapNumber, date, sessionName }.
-   */
-  const DEFAULT_TRACK_BENCHMARKS = {
-    'Sandown Raceway': {
-      bestLapStr: '1:37.6866',
-      bestLapSec: 97.6866,
-      lapNumber: 9,
-      date: '2024-07-21',
-      sessionName: 'Qualifying'
-    },
-    'Calder Park Raceway': {
-      bestLapStr: '1:16.66',
-      bestLapSec: 76.66,
-      lapNumber: 10,
-      date: '2024-11-08',
-      sessionName: 'Race 2'
-    },
-    'Winton Motor Raceway': {
-      bestLapStr: '1:45.4210',
-      bestLapSec: 105.421,
-      lapNumber: 6,
-      date: '2024-05-19',
-      sessionName: 'Race 2'
-    },
-    'Phillip Island Grand Prix Circuit': {
-      bestLapStr: '2:01.8430',
-      bestLapSec: 121.843,
-      lapNumber: 5,
-      date: '2024-03-10',
-      sessionName: 'Race 1'
-    },
-    'Sydney Motorsport Park (SMSP)': {
-      bestLapStr: '1:58.7420',
-      bestLapSec: 118.742,
-      lapNumber: 7,
-      date: '2025-08-30',
-      sessionName: 'Heat 2 (HQ Nationals)'
-    }
-  };
-
-  function createDefaultTrackBenchmarks() {
-    const out = {};
-    Object.keys(DEFAULT_TRACK_BENCHMARKS).forEach((k) => {
-      out[k] = { ...DEFAULT_TRACK_BENCHMARKS[k] };
-    });
-    return out;
-  }
-
-  /**
-   * Parses a lap time string ("1:37.6866", "1:16.66", or "76.66") into total seconds.
-   * Returns null if invalid or outside sensible circuit lap bounds (35s - 600s).
-   */
-  function parseLapTimeToSeconds(rawStr) {
-    if (rawStr === null || rawStr === undefined) return null;
-    const str = String(rawStr).trim();
-    if (!str) return null;
-    const mmSsMatch = str.match(/^(\d{1,2})\s*:\s*([0-5]?\d(?:\.\d{1,4})?)$/);
-    let totalSec = NaN;
-    if (mmSsMatch) {
-      const mins = parseInt(mmSsMatch[1], 10);
-      const secs = parseFloat(mmSsMatch[2]);
-      if (Number.isFinite(mins) && Number.isFinite(secs) && secs < 60) {
-        totalSec = mins * 60 + secs;
-      }
-    } else if (/^\d{2,3}(?:\.\d{1,4})?$/.test(str)) {
-      totalSec = parseFloat(str);
-    }
-    if (!Number.isFinite(totalSec) || totalSec < 35 || totalSec > 600) {
-      return null;
-    }
-    return Number(totalSec.toFixed(4));
-  }
-
-  /**
-   * Formats total seconds into canonical M:SS.ss / M:SS.ssss string, preserving original decimal precision.
-   */
-  function formatSecondsToLapStr(secVal, rawReferenceStr = '') {
-    const sec = Number(secVal);
-    if (!Number.isFinite(sec) || sec <= 0) return '';
-    let decPlaces = 2;
-    const refTrim = String(rawReferenceStr || '').trim();
-    const decMatch = refTrim.match(/\.(\d{1,4})$/);
-    if (decMatch) {
-      decPlaces = Math.max(2, Math.min(4, decMatch[1].length));
-    } else {
-      const autoStr = sec.toFixed(4).replace(/0+$/, '');
-      const autoMatch = autoStr.match(/\.(\d+)$/);
-      if (autoMatch && autoMatch[1].length > 2) {
-        decPlaces = Math.min(4, autoMatch[1].length);
-      }
-    }
-    const mins = Math.floor(sec / 60);
-    const remSec = sec - mins * 60;
-    const secFixed = remSec.toFixed(decPlaces);
-    const [wholePart, fracPart] = secFixed.split('.');
-    const paddedWhole = String(wholePart).padStart(2, '0');
-    return mins > 0 ? `${mins}:${paddedWhole}.${fracPart}` : `${wholePart}.${fracPart}`;
-  }
-
-  const CIRCUIT_TYRE_PROFILES = {
-    'Baskerville Raceway':                 { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' },
-    'Baskerville':                         { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' },
-    'Symmons Plains Raceway':              { dir: 'CW',  estLapSec: 66,  brakeLoad: 'heavy' },
-    'Symmons Plains':                      { dir: 'CW',  estLapSec: 66,  brakeLoad: 'heavy' },
-    'Mallala Motorsport Park':             { dir: 'CW',  estLapSec: 85,  brakeLoad: 'heavy' },
-    'Mallala':                             { dir: 'CW',  estLapSec: 85,  brakeLoad: 'heavy' },
-    'Calder Park Raceway':                 { dir: 'CW',  estLapSec: 77,  brakeLoad: 'balanced' },
-    'Calder Park':                         { dir: 'CW',  estLapSec: 77,  brakeLoad: 'balanced' },
-    'Morgan Park Raceway':                 { dir: 'CW',  estLapSec: 88,  brakeLoad: 'balanced' },
-    'Morgan Park':                         { dir: 'CW',  estLapSec: 88,  brakeLoad: 'balanced' },
-    'CARCO.com.au Raceway (Wanneroo)':     { dir: 'CW',  estLapSec: 70,  brakeLoad: 'heavy' },
-    'CARCO.com.au Raceway':                { dir: 'CW',  estLapSec: 70,  brakeLoad: 'heavy' },
-    'Barbagallo':                          { dir: 'CW',  estLapSec: 70,  brakeLoad: 'heavy' },
-    'Wanneroo':                            { dir: 'CW',  estLapSec: 70,  brakeLoad: 'heavy' },
-    'Collie Motorplex':                    { dir: 'CW',  estLapSec: 78,  brakeLoad: 'balanced' },
-    'Collie':                              { dir: 'CW',  estLapSec: 78,  brakeLoad: 'balanced' },
-    'Wakefield Park / One Raceway':        { dir: 'CCW', estLapSec: 72,  brakeLoad: 'balanced' },
-    'Wakefield Park':                      { dir: 'CCW', estLapSec: 72,  brakeLoad: 'balanced' },
-    'One Raceway':                         { dir: 'CCW', estLapSec: 72,  brakeLoad: 'balanced' },
-    'Pheasant Wood Circuit':               { dir: 'CCW', estLapSec: 63,  brakeLoad: 'balanced' },
-    'Pheasant Wood':                       { dir: 'CCW', estLapSec: 63,  brakeLoad: 'balanced' },
-    'Broadford State Motorcycle Complex':  { dir: 'CW',  estLapSec: 68,  brakeLoad: 'balanced' },
-    'Broadford':                           { dir: 'CW',  estLapSec: 68,  brakeLoad: 'balanced' },
-    'Lakeside Park':                       { dir: 'CW',  estLapSec: 64,  brakeLoad: 'flowing' },
-    'Lakeside':                            { dir: 'CW',  estLapSec: 64,  brakeLoad: 'flowing' },
-    'Sandown Raceway':                     { dir: 'CCW', estLapSec: 98,  brakeLoad: 'heavy' },
-    'Sandown International Raceway':       { dir: 'CCW', estLapSec: 98,  brakeLoad: 'heavy' },
-    'Sandown':                             { dir: 'CCW', estLapSec: 98,  brakeLoad: 'heavy' },
-    'Winton Motor Raceway':                { dir: 'CW',  estLapSec: 105, brakeLoad: 'balanced' },
-    'Winton':                              { dir: 'CW',  estLapSec: 105, brakeLoad: 'balanced' },
-    'Queensland Raceway (Willowbank)':     { dir: 'CCW', estLapSec: 86,  brakeLoad: 'balanced' },
-    'Queensland Raceway':                  { dir: 'CCW', estLapSec: 86,  brakeLoad: 'balanced' },
-    'Willowbank':                          { dir: 'CCW', estLapSec: 86,  brakeLoad: 'balanced' },
-    'Hidden Valley Raceway':               { dir: 'CW',  estLapSec: 82,  brakeLoad: 'balanced' },
-    'Hidden Valley':                       { dir: 'CW',  estLapSec: 82,  brakeLoad: 'balanced' },
-    'Phillip Island Grand Prix Circuit':   { dir: 'CCW', estLapSec: 122, brakeLoad: 'flowing' },
-    'Phillip Island':                      { dir: 'CCW', estLapSec: 122, brakeLoad: 'flowing' },
-    'Sydney Motorsport Park (SMSP)':       { dir: 'CCW', estLapSec: 119, brakeLoad: 'flowing' },
-    'Sydney Motorsport Park':              { dir: 'CCW', estLapSec: 119, brakeLoad: 'flowing' },
-    'SMSP':                                { dir: 'CCW', estLapSec: 119, brakeLoad: 'flowing' },
-    'Townsville Reid Park':                { dir: 'CCW', estLapSec: 88,  brakeLoad: 'heavy' },
-    'Townsville':                          { dir: 'CCW', estLapSec: 88,  brakeLoad: 'heavy' },
-    'Mount Panorama (Bathurst)':           { dir: 'CCW', estLapSec: 168, brakeLoad: 'heavy' },
-    'Mount Panorama':                      { dir: 'CCW', estLapSec: 168, brakeLoad: 'heavy' },
-    'Bathurst':                            { dir: 'CCW', estLapSec: 168, brakeLoad: 'heavy' },
-    'The Bend Motorsport Park':            { dir: 'CCW', estLapSec: 145, brakeLoad: 'flowing' },
-    'The Bend':                            { dir: 'CCW', estLapSec: 145, brakeLoad: 'flowing' },
-    'Haunted Hills / Bryant Park':         { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' },
-    'Haunted Hills':                       { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' },
-    'Bryant Park':                         { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' }
-  };
-
-  function syncTrackBenchmarksToTyreProfiles(benchmarksMap) {
-    const map = benchmarksMap && typeof benchmarksMap === 'object' ? benchmarksMap : DEFAULT_TRACK_BENCHMARKS;
-    Object.entries(map).forEach(([venueKey, bm]) => {
-      if (!bm || !Number.isFinite(Number(bm.bestLapSec)) || Number(bm.bestLapSec) <= 0) return;
-      const roundedSec = Math.round(Number(bm.bestLapSec));
-      const normKey = normalizeVenueName(venueKey);
-      [venueKey, normKey].forEach((k) => {
-        if (k && CIRCUIT_TYRE_PROFILES[k]) {
-          CIRCUIT_TYRE_PROFILES[k].estLapSec = roundedSec;
-        }
-      });
-      if (normKey === 'Sandown Raceway') {
-        if (CIRCUIT_TYRE_PROFILES['Sandown International Raceway']) CIRCUIT_TYRE_PROFILES['Sandown International Raceway'].estLapSec = roundedSec;
-        if (CIRCUIT_TYRE_PROFILES['Sandown']) CIRCUIT_TYRE_PROFILES['Sandown'].estLapSec = roundedSec;
-      } else if (normKey === 'Calder Park Raceway') {
-        if (CIRCUIT_TYRE_PROFILES['Calder Park']) CIRCUIT_TYRE_PROFILES['Calder Park'].estLapSec = roundedSec;
-      } else if (normKey === 'Winton Motor Raceway') {
-        if (CIRCUIT_TYRE_PROFILES['Winton']) CIRCUIT_TYRE_PROFILES['Winton'].estLapSec = roundedSec;
-      } else if (normKey === 'Phillip Island Grand Prix Circuit') {
-        if (CIRCUIT_TYRE_PROFILES['Phillip Island']) CIRCUIT_TYRE_PROFILES['Phillip Island'].estLapSec = roundedSec;
-      } else if (normKey === 'Sydney Motorsport Park (SMSP)') {
-        if (CIRCUIT_TYRE_PROFILES['Sydney Motorsport Park']) CIRCUIT_TYRE_PROFILES['Sydney Motorsport Park'].estLapSec = roundedSec;
-        if (CIRCUIT_TYRE_PROFILES['SMSP']) CIRCUIT_TYRE_PROFILES['SMSP'].estLapSec = roundedSec;
-      }
-    });
+  function syncTrackBenchmarksToTyreProfiles() {
+    // Pure no-op: getCircuitTyreProfile reads state.trackBenchmarks inline without mutating static objects.
   }
 
   /**
@@ -1385,14 +1451,13 @@
         }
       });
     }
-    syncTrackBenchmarksToTyreProfiles(merged);
     return merged;
   }
 
   function getTrackBenchmarkForVenue(venueName = '') {
     const normVenue = normalizeVenueName(venueName);
     const map =
-      typeof state !== 'undefined' && state && state.trackBenchmarks && typeof state.trackBenchmarks === 'object'
+      state && state.trackBenchmarks && typeof state.trackBenchmarks === 'object'
         ? state.trackBenchmarks
         : DEFAULT_TRACK_BENCHMARKS;
     if (normVenue && map[normVenue]) {
@@ -1425,16 +1490,25 @@
     return `Track Benchmark PB: ${bm.bestLapStr}${suffix}`;
   }
 
-  const TRACK_DIRECTION_MAP = Object.fromEntries(
-    Object.entries(CIRCUIT_TYRE_PROFILES).map(([k, v]) => [k, v.dir])
-  );
-
   function getCircuitTyreProfile(venueName = '') {
     const clean = String(venueName || '').trim();
-    const bm = getTrackBenchmarkForVenue(clean);
-    const bmSec = bm && Number.isFinite(Number(bm.bestLapSec)) && Number(bm.bestLapSec) > 0 ? Math.round(Number(bm.bestLapSec)) : null;
+    const norm = normalizeVenueName(clean);
+    const bmMap =
+      state && state.trackBenchmarks && typeof state.trackBenchmarks === 'object'
+        ? state.trackBenchmarks
+        : DEFAULT_TRACK_BENCHMARKS;
+    const bmEntry = (norm && bmMap[norm]) || (clean && bmMap[clean]) || null;
+    const bmSec =
+      bmEntry && Number.isFinite(Number(bmEntry.bestLapSec)) && Number(bmEntry.bestLapSec) > 0
+        ? Math.round(Number(bmEntry.bestLapSec))
+        : null;
     if (CIRCUIT_TYRE_PROFILES[clean]) {
       const prof = { ...CIRCUIT_TYRE_PROFILES[clean] };
+      if (bmSec !== null) prof.estLapSec = bmSec;
+      return prof;
+    }
+    if (norm && CIRCUIT_TYRE_PROFILES[norm]) {
+      const prof = { ...CIRCUIT_TYRE_PROFILES[norm] };
       if (bmSec !== null) prof.estLapSec = bmSec;
       return prof;
     }
@@ -1448,17 +1522,14 @@
       return prof;
     }
     let fallbackDir = 'CW';
-    try {
-      if (
-        typeof state !== 'undefined' &&
-        state &&
-        state.chassis &&
-        state.chassis.trackDirections &&
-        (state.chassis.trackDirections[clean] === 'CW' || state.chassis.trackDirections[clean] === 'CCW')
-      ) {
-        fallbackDir = state.chassis.trackDirections[clean];
-      }
-    } catch (_) {}
+    if (
+      state &&
+      state.chassis &&
+      state.chassis.trackDirections &&
+      (state.chassis.trackDirections[clean] === 'CW' || state.chassis.trackDirections[clean] === 'CCW')
+    ) {
+      fallbackDir = state.chassis.trackDirections[clean];
+    }
     return { dir: fallbackDir, estLapSec: bmSec !== null ? bmSec : 85, brakeLoad: 'balanced' };
   }
 
@@ -5071,7 +5142,7 @@
     });
   }
 
-  let state = loadState();
+  state = loadState();
   // Persist the one-time seedInitializedV1 / eventArchitectureV1 / suspensionSeededV1 / peddersDynoAuditV1 / carbyJetAuditV1 / manifoldAudit2012V2 / manifoldActiveF_V1 / fuelSystemAuditV2 / brakesAuditV2 / jetLocationsV1 / spacerKitSeededV1 / calder2024CwSeededV1 migration immediately
   try {
     state.seedInitializedV1 = true;
