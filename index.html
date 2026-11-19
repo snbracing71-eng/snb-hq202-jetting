@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.9.8" />
+  <link rel="stylesheet" href="./styles.css?v=0.9.9" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -2167,368 +2167,97 @@
     </section>
 
     <!-- =========================================================
-         TAB 5: FLEET & KIT (A–Z 1-LINE COLLAPSIBLE ACCORDION BARS)
-         1) Brakes | 2) Carburettors | 3) Cloud Sync (Phone & Laptop) | 4) Corner Weights | 5) Emulsion & Brass Kit | 6) Exhausts | 7) Fuel System | 8) Jets (mm Toolbox) | 9) Manifolds | 10) Shocks | 11) Springs
+         TAB 5: MAIN & SPARES (5 TOP-LEVEL COLLAPSIBLE ACCORDION BARS)
+         1) NOTES | 2) CORNER WEIGHTS | 3) MAINTENANCE | 4) TRACK BENCHMARKS | 5) STOCK (10 Nested Hardware & Spares Sectors)
          ========================================================= -->
     <section id="tab-fleet" class="tab-panel" aria-labelledby="navTabFleet">
-      <!-- 0) BRAKES (data-fleet-acc="brakes") -->
-      <article class="fleet-acc-card" id="brakesFleetCard" data-fleet-acc-card="brakes">
+      <!-- 1) NOTES (To Buy & To Do Live Checklists) (data-fleet-acc="notes") -->
+      <article class="fleet-acc-card" id="notesFleetCard" data-fleet-acc-card="notes">
         <button
           type="button"
           class="fleet-acc-header"
-          data-fleet-acc="brakes"
+          data-fleet-acc="notes"
           aria-expanded="false"
+          aria-controls="fleetAccBody_notes"
         >
           <div class="fleet-acc-left">
-            <div class="fleet-acc-title">Brakes</div>
-            <div class="fleet-acc-sub">PBR 1&quot; Master &bull; MACCA Prop Valve &bull; DBA 4014 + Porterfield R-4 &bull; 9/16&quot; Rear Drums</div>
+            <div class="fleet-acc-title">NOTES</div>
+            <div class="fleet-acc-sub">Workshop To Buy &amp; To Do Checklists</div>
           </div>
           <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill emerald" id="fleetBrakesSummaryBadge">PBR + R4 &bull; 9/16&quot; REAR</span>
-            <span class="fleet-acc-count-pill" id="fleetBrakesCountBadge">SPEC SHEET</span>
-            <span class="fleet-acc-chevron" data-fleet-acc-chevron="brakes" aria-hidden="true">&#9654;</span>
+            <span class="fleet-acc-status-pill amber" id="fleetNotesSummaryBadge">0 TO BUY &bull; 0 TO DO</span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="notes" aria-hidden="true">&#9654;</span>
           </div>
         </button>
 
-        <div class="fleet-acc-body" id="fleetAccBody_brakes" style="display: none;">
-          <!-- Audited Brake Hardware Summary Tiles & Edit Spec Button -->
-          <div id="brakesFleetContainer" style="margin-bottom: 10px;"></div>
-          <!-- 1) Hydraulic Bias & Master Cylinder -->
-          <div class="carby-card brakes-spec-card" style="margin-bottom: 10px;">
-            <div class="session-head" style="margin-bottom: 8px;">
-              <div>
-                <div class="session-title-line">1) Hydraulic Bias &amp; Master Cylinder</div>
-                <div class="session-meta-line">Rule 7.3f Firewall Master &bull; Chassis-Rail Proportioning Valve &bull; Rear Wheel Cylinders</div>
-              </div>
-              <span class="locked-badge" id="outBrakesRearCylForceBadge">9/16&quot; (-58.7% Rear Force)</span>
-            </div>
-
-            <div class="carby-teardown-grid" style="margin-bottom: 10px;">
-              <div class="carby-teardown-cell">
-                <span class="carby-teardown-label">Master Cylinder (Rule 7.3f)</span>
-                <span class="carby-teardown-val txt-emerald" id="outBrakesMasterCyl">PBR Master Vac 25.4mm (1&quot;) Firewall (Rule 7.3f)</span>
-              </div>
-              <div class="carby-teardown-cell">
-                <span class="carby-teardown-label">Bench Curve &amp; Spare Reference</span>
-                <span class="carby-teardown-val mono" id="outBrakesPropBenchCurve">400F:250R | 1000F:450R (Spares: DART 400:300 / 1000:450 &bull; No-Spring 400:400)</span>
-              </div>
-            </div>
-
-            <div class="field-group" style="margin-bottom: 10px;">
-              <div class="field-label-row">
-                <label class="field-label" for="selectBrakesPropValve">Chassis-Rail Proportioning Valve</label>
-                <span class="field-hint emerald">Bench-Tested Curve</span>
-              </div>
-              <select id="selectBrakesPropValve" data-brakes-field="propValve">
-                <option value="MACCA Fixed Valve (In Car) — 400F:250R | 1000F:450R">MACCA Fixed Valve (In Car) &mdash; Bench Curve: 400F:250R | 1000F:450R</option>
-                <option value="DART Valve (Spare) — 400F:300R | 1000F:450R">DART Fixed Valve (Spare Ref) &mdash; Bench Curve: 400F:300R | 1000F:450R</option>
-                <option value="No-Spring Valve (Spare) — 400F:400R">No-Spring Valve (Spare Ref) &mdash; Bench Curve: 400F:400R (1:1)</option>
-              </select>
-            </div>
-
-            <div class="field-group" style="margin-bottom: 0;">
-              <div class="field-label-row">
-                <span class="field-label">Rear Wheel Cylinders (vs 7/8&quot; Standard Bore)</span>
-                <span class="field-hint amber" id="outBrakesRearCylHint">Active: 9/16&quot; (IBS-P5573, -58.7%)</span>
-              </div>
-              <div class="rear-cyl-seg" role="group" aria-label="Rear Wheel Cylinder Bore Selector">
-                <button type="button" class="seg-btn active" data-rear-cylinder="9/16&quot;" aria-pressed="true">9/16&quot; (IBS-P5573, -58.7%)</button>
-                <button type="button" class="seg-btn" data-rear-cylinder="11/16&quot;" aria-pressed="false">11/16&quot; (P10321, -38.3%)</button>
-                <button type="button" class="seg-btn" data-rear-cylinder="3/4&quot;" aria-pressed="false">3/4&quot; (P7041, -26.5%)</button>
-                <button type="button" class="seg-btn" data-rear-cylinder="13/16&quot;" aria-pressed="false">13/16&quot; (P10138, -14%)</button>
-                <button type="button" class="seg-btn" data-rear-cylinder="7/8&quot; Std" aria-pressed="false">7/8&quot; Std</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- 2) Front Disc Setup -->
-          <div class="carby-card brakes-spec-card" style="margin-bottom: 10px;">
-            <div class="session-head" style="margin-bottom: 8px;">
-              <div>
-                <div class="session-title-line">2) Front Disc Setup</div>
-                <div class="session-meta-line">PBR Cast Iron Calipers &bull; DBA 4014 HD 276mm Vent Rotors &bull; Porterfield R-4</div>
-              </div>
-              <span class="locked-badge" id="outBrakesFrontRotorOverallBadge">25.4 / 25.4 mm OK</span>
-            </div>
-
-            <div class="carby-teardown-grid" style="margin-bottom: 10px;">
-              <div class="carby-teardown-cell">
-                <span class="carby-teardown-label">Front Calipers</span>
-                <span class="carby-teardown-val">PBR Cast Iron LH 9933233 / RH 9933234 (unmodified, braided lines, zero-drag SS piston spec)</span>
-              </div>
-              <div class="carby-teardown-cell">
-                <span class="carby-teardown-label">Front Rotors Spec</span>
-                <span class="carby-teardown-val">DBA 4014 (4000 Series HD 276mm Vent) &bull; New 25.4 mm / Min Discard 22.3 mm</span>
-              </div>
-            </div>
-
-            <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
-              <div class="field-group" style="margin-bottom: 0;">
-                <div class="field-label-row">
-                  <label class="field-label" for="inputRotorMm_FL">FL Rotor (mm)</label>
-                  <span class="field-hint emerald" id="outRotorStatus_FL">25.4 mm OK (Min 22.3)</span>
+        <div class="fleet-acc-body" id="fleetAccBody_notes" style="display: none;">
+          <div class="workshop-notes-grid">
+            <!-- Panel 1: TO BUY (Parts & Consumables) -->
+            <div class="card-elevated workshop-checklist-panel" id="workshopToBuyPanel">
+              <div class="workshop-checklist-head">
+                <div>
+                  <div class="section-eyebrow" style="margin-bottom: 2px;">PARTS &amp; CONSUMABLES</div>
+                  <div class="workshop-checklist-title">TO BUY</div>
                 </div>
-                <div class="num-stepper">
-                  <button type="button" class="stepper-btn" data-stepper-target="inputRotorMm_FL" data-step="-0.1" aria-label="Decrease FL Rotor Thickness">&minus;</button>
-                  <div class="num-input-wrap">
-                    <input type="number" id="inputRotorMm_FL" class="num-input" value="25.4" min="21.0" max="25.6" step="0.1" inputmode="decimal" data-brakes-field="flRotorMm" />
-                    <span class="num-unit-badge">mm</span>
-                  </div>
-                  <button type="button" class="stepper-btn" data-stepper-target="inputRotorMm_FL" data-step="0.1" aria-label="Increase FL Rotor Thickness">+</button>
-                </div>
+                <span class="locked-badge mono" id="outToBuyCountBadge">0 OPEN</span>
               </div>
 
-              <div class="field-group" style="margin-bottom: 0;">
-                <div class="field-label-row">
-                  <label class="field-label" for="inputRotorMm_FR">FR Rotor (mm)</label>
-                  <span class="field-hint emerald" id="outRotorStatus_FR">25.4 mm OK (Min 22.3)</span>
-                </div>
-                <div class="num-stepper">
-                  <button type="button" class="stepper-btn" data-stepper-target="inputRotorMm_FR" data-step="-0.1" aria-label="Decrease FR Rotor Thickness">&minus;</button>
-                  <div class="num-input-wrap">
-                    <input type="number" id="inputRotorMm_FR" class="num-input" value="25.4" min="21.0" max="25.6" step="0.1" inputmode="decimal" data-brakes-field="frRotorMm" />
-                    <span class="num-unit-badge">mm</span>
-                  </div>
-                  <button type="button" class="stepper-btn" data-stepper-target="inputRotorMm_FR" data-step="0.1" aria-label="Increase FR Rotor Thickness">+</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="field-group" style="margin-bottom: 10px;">
-              <div class="field-label-row">
-                <label class="field-label" for="selectBrakesFrontPad">Front Pads Compound</label>
-                <span class="field-hint emerald" id="outBrakesFrontPadSpecHint">~0.50&mu; &bull; 232&ndash;648&deg;C Optimum &bull; &quot;30N&quot; Plate</span>
-              </div>
-              <select id="selectBrakesFrontPad" data-brakes-field="frontPad">
-                <option value="Porterfield R-4 Carbon Kevlar">Porterfield R-4 Carbon Kevlar (~0.50&mu;, 232&ndash;648&deg;C optimum, &quot;30N&quot; plate)</option>
-                <option value="Bendix Ultimate">Bendix Ultimate (Cold-Bite / Wet / Spare Compound)</option>
-              </select>
-            </div>
-
-            <div class="field-group" style="margin-bottom: 0;">
-              <div class="field-label-row">
-                <span class="field-label">Front Ducting: Under-Bumper Scoops + Centre-Eye Rotor Ducts</span>
-                <span class="field-hint emerald" id="outFrontDuctStateHint">100% Open</span>
-              </div>
-              <div class="duct-toggle-seg" role="group" aria-label="Front Brake Ducting State">
-                <button type="button" class="seg-btn active" data-front-duct="100% Open" aria-pressed="true">100% Open</button>
-                <button type="button" class="seg-btn" data-front-duct="50% Taped" aria-pressed="false">50% Taped</button>
-                <button type="button" class="seg-btn" data-front-duct="100% Taped" aria-pressed="false">100% Taped</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- 3) Rear Drum Setup -->
-          <div class="carby-card brakes-spec-card" style="margin-bottom: 10px;">
-            <div class="session-head" style="margin-bottom: 8px;">
-              <div>
-                <div class="session-title-line">3) Rear Drum Setup</div>
-                <div class="session-meta-line">DBA 257mm (10.12&quot;) Cast Iron Drums &bull; Rule 7.2c Manual Star-Wheel Adjust</div>
-              </div>
-              <span class="locked-badge">Rule 7.2c Legal</span>
-            </div>
-
-            <div class="carby-teardown-grid" style="margin-bottom: 10px;">
-              <div class="carby-teardown-cell">
-                <span class="carby-teardown-label">Rear Drums (Rule 7.2c)</span>
-                <span class="carby-teardown-val">DBA 257mm (10.12&quot;) Cast Iron (self-adjusters removed per Rule 7.2c)</span>
-              </div>
-              <div class="carby-teardown-cell">
-                <span class="carby-teardown-label">Shoe Orientation</span>
-                <span class="carby-teardown-val">Short Leading Shoe Forward &bull; Riveted Carbon Kevlar Linings</span>
-              </div>
-            </div>
-
-            <div class="field-group" style="margin-bottom: 10px;">
-              <div class="field-label-row">
-                <label class="field-label" for="selectBrakesRearShoe">Rear Shoes Compound</label>
-                <span class="field-hint emerald" id="outBrakesRearShoeHint">Short Leading Shoe Forward</span>
-              </div>
-              <select id="selectBrakesRearShoe" data-brakes-field="rearShoe">
-                <option value="Porterfield R-4 Carbon Kevlar Riveted">Porterfield R-4 Carbon Kevlar Riveted (Short Leading Shoe Forward)</option>
-                <option value="Porterfield R4-S">Porterfield R4-S (Lower-Torque Rear Option)</option>
-              </select>
-            </div>
-
-            <div class="field-group" style="margin-bottom: 0;">
-              <div class="field-label-row">
-                <span class="field-label">Rear Ducting: Meshed Under-Floor Scoops + 40mm Backing-Plate Tubes</span>
-                <span class="field-hint emerald" id="outRearDuctStateHint">100% Open</span>
-              </div>
-              <div class="duct-toggle-seg" role="group" aria-label="Rear Drum Ducting State">
-                <button type="button" class="seg-btn active" data-rear-duct="100% Open" aria-pressed="true">100% Open</button>
-                <button type="button" class="seg-btn" data-rear-duct="50% Taped" aria-pressed="false">50% Taped</button>
-                <button type="button" class="seg-btn" data-rear-duct="100% Taped" aria-pressed="false">100% Taped</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- 4) Thermal Paint Reference Key & Notes -->
-          <div class="carby-card brakes-spec-card" style="margin-bottom: 0;">
-            <div class="session-head" style="margin-bottom: 8px;">
-              <div>
-                <div class="session-title-line">4) Thermal Paint &amp; Temp Strip Reference Key</div>
-                <div class="session-meta-line">DBA 4014 3-Stripe Rotor Paint &bull; PBR Caliper &amp; DBA Rear Drum Stickers</div>
-              </div>
-              <span class="locked-badge">THERMAL KEY</span>
-            </div>
-
-            <div class="thermal-paint-grid">
-              <div class="thermal-paint-cell">
-                <span class="carby-teardown-label">Front Rotors (DBA 4014)</span>
-                <div class="thermal-paint-chips-row">
-                  <span class="thermal-paint-chip green">Green&rarr;White 430&deg;C</span>
-                  <span class="thermal-paint-chip orange">Orange&rarr;Yellow 560&deg;C</span>
-                  <span class="thermal-paint-chip red">Red&rarr;White 610&deg;C</span>
-                </div>
-              </div>
-              <div class="thermal-paint-cell">
-                <span class="carby-teardown-label">Front Calipers (PBR)</span>
-                <span class="carby-teardown-val mono txt-emerald">121&deg;C &rarr; 280&deg;C</span>
-              </div>
-              <div class="thermal-paint-cell">
-                <span class="carby-teardown-label">Rear Drums (DBA 257mm)</span>
-                <span class="carby-teardown-val mono">Linings <strong class="txt-amber">121&deg;C &rarr; 280&deg;C</strong> (242&ndash;254&deg;C un-ducted ref) &bull; Housing <strong class="txt-emerald">160&deg;C &rarr; 199&deg;C</strong></span>
-              </div>
-            </div>
-
-            <div class="field-group" style="margin-top: 10px; margin-bottom: 0;">
-              <div class="field-label-row">
-                <label class="field-label" for="inputBrakesNotes">Brake Bleed, Fluid &amp; Pad Bed-In Notes</label>
-                <span class="field-hint">Auto-Saved</span>
-              </div>
-              <input
-                type="text"
-                id="inputBrakesNotes"
-                class="text-input"
-                placeholder="e.g. Castrol React SRF / Motul RBF660 • R-4 requires 232°C+ bed-in..."
-                data-brakes-field="notes"
-              />
-            </div>
-          </div>
-        </div>
-      </article>
-
-      <!-- 1) CARBURETTORS (data-fleet-acc="carburettors") -->
-      <article class="fleet-acc-card" id="carbyFleetCard" data-fleet-acc-card="carburettors">
-        <button
-          type="button"
-          class="fleet-acc-header"
-          data-fleet-acc="carburettors"
-          aria-expanded="false"
-        >
-          <div class="fleet-acc-left">
-            <div class="fleet-acc-title">Carburettors</div>
-            <div class="fleet-acc-sub">40.00 mm Late-Base Stromberg BXUV-3 &bull; Audited Teardown &amp; Jet Spec</div>
-          </div>
-          <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill emerald" id="fleetCarbyActiveBadge">DME #1 &#9733; ON CAR &bull; 1.85 mm &bull; #5-DME</span>
-            <span class="fleet-acc-count-pill" id="fleetCarbyCountBadge">3 UNITS</span>
-            <span class="fleet-acc-chevron" data-fleet-acc-chevron="carburettors" aria-hidden="true">&#9654;</span>
-          </div>
-        </button>
-
-        <div class="fleet-acc-body" id="fleetAccBody_carburettors" style="display: none;">
-          <div class="homologation-banner" style="margin-bottom: 12px;">
-            <div style="font-size: 0.85rem; font-weight: 800; color: var(--amber); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px;">
-              Group 3H Late-Base 40.00 mm Stromberg BXUV-3 Homologation &amp; Teardown Spec
-            </div>
-            <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">
-              Studs: <strong>75.0 mm</strong> &bull; Venturi: <strong>&le; 30.94 mm</strong> &bull; Throttle Bore: <strong>&le; 40.00 mm Exact Ceiling</strong> &bull; Spill: <strong>15.0 mm (0.740 SG)</strong>
-            </div>
-          </div>
-
-          <div class="fleet-selector-bar" style="margin-bottom: 12px;">
-            <label class="sr-only" for="selectFleetCarby">Select Carburettor</label>
-            <select id="selectFleetCarby" class="select-input" aria-label="Select Carburettor from Fleet"></select>
-            <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddNewCarby">
-              + New
-            </button>
-          </div>
-
-          <div id="carbyFleetContainer"></div>
-        </div>
-      </article>
-
-      <!-- 2) CLOUD SYNC (PHONE & LAPTOP) (data-fleet-acc="cloud_sync") -->
-      <article class="fleet-acc-card" id="cloudSyncFleetCard" data-fleet-acc-card="cloud_sync">
-        <button
-          type="button"
-          class="fleet-acc-header"
-          data-fleet-acc="cloud_sync"
-          aria-expanded="false"
-        >
-          <div class="fleet-acc-left">
-            <div class="fleet-acc-title">CLOUD SYNC (PHONE &amp; LAPTOP)</div>
-            <div class="fleet-acc-sub">Offline-First Private GitHub Gist Sync &bull; Newer Edits Always Win</div>
-          </div>
-          <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill" id="fleetCloudSyncStatusBadge">OFFLINE READY</span>
-            <span class="fleet-acc-count-pill" id="fleetCloudSyncMetaBadge">LOCAL ONLY</span>
-            <span class="fleet-acc-chevron" data-fleet-acc-chevron="cloud_sync" aria-hidden="true">&#9654;</span>
-          </div>
-        </button>
-
-        <div class="fleet-acc-body" id="fleetAccBody_cloud_sync" style="display: none;">
-          <div class="card-elevated cloud-sync-panel-box">
-            <div class="cloud-sync-panel-head">
-              <div>
-                <div class="section-eyebrow" style="margin-bottom: 2px;">OFFLINE-FIRST CLOUD SYNC ENGINE</div>
-                <div class="cloud-sync-panel-sub">
-                  Syncs <span class="mono">snb_hq202_master_state.json</span> via private GitHub Gist. Phone queues offline at the track and auto-flushes when signal returns.
-                </div>
-              </div>
-              <span class="locked-badge mono" id="fleetCloudGistIdBadge">NO GIST LINKED</span>
-            </div>
-
-            <div class="field-group" style="margin-bottom: 10px;">
-              <div class="field-label-row">
-                <label class="field-label" for="inputCloudSyncKeyFleet">Sync Key (GitHub Gist Personal Access Token)</label>
-                <span class="field-hint emerald">Stored Only in This Device&rsquo;s localStorage</span>
-              </div>
-              <div class="cloud-sync-key-row">
+              <div class="workshop-add-row">
                 <input
-                  type="password"
-                  id="inputCloudSyncKeyFleet"
-                  class="text-input mono cloud-sync-key-input"
-                  placeholder="ghp_... or github_pat_... (gist scope)"
+                  type="text"
+                  id="inputNewToBuyText"
+                  class="text-input workshop-add-input"
+                  placeholder="Part or consumable to buy..."
+                  aria-label="New To Buy Item"
                   autocomplete="off"
-                  spellcheck="false"
                 />
                 <input
                   type="text"
-                  id="inputCloudDeviceLabelFleet"
-                  class="text-input cloud-device-label-input"
-                  placeholder="Device (e.g. Track Phone)"
+                  id="inputNewToBuyNote"
+                  class="text-input workshop-add-note-input"
+                  placeholder="Qty / Part # (Opt)"
+                  aria-label="Optional Quantity or Note for To Buy Item"
                   autocomplete="off"
                 />
+                <button type="button" class="btn btn-confirm btn-xs workshop-add-btn" id="btnAddToBuyItem">
+                  + Add
+                </button>
               </div>
+
+              <div id="workshopToBuyList" class="workshop-checklist-items"></div>
             </div>
 
-            <button type="button" class="btn btn-confirm btn-full" id="btnSaveConnectCloudFleet" style="margin-bottom: 10px;">
-              Save &amp; Connect Device
-            </button>
+            <!-- Panel 2: TO DO (Workshop Prep & Checks) -->
+            <div class="card-elevated workshop-checklist-panel" id="workshopToDoPanel">
+              <div class="workshop-checklist-head">
+                <div>
+                  <div class="section-eyebrow" style="margin-bottom: 2px;">WORKSHOP PREP &amp; CHECKS</div>
+                  <div class="workshop-checklist-title">TO DO</div>
+                </div>
+                <span class="locked-badge mono" id="outToDoCountBadge">0 OPEN</span>
+              </div>
 
-            <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
-              <button type="button" class="btn btn-primary btn-full" id="btnPushCloudFleet">
-                &#11014; Push This Device to Cloud
-              </button>
-              <button type="button" class="btn btn-amber-outline btn-full" id="btnPullCloudFleet">
-                &#11015; Pull Cloud to This Device
-              </button>
-            </div>
+              <div class="workshop-add-row">
+                <input
+                  type="text"
+                  id="inputNewToDoText"
+                  class="text-input workshop-add-input"
+                  placeholder="Workshop prep task or check..."
+                  aria-label="New To Do Item"
+                  autocomplete="off"
+                />
+                <button type="button" class="btn btn-confirm btn-xs workshop-add-btn" id="btnAddToDoItem">
+                  + Add
+                </button>
+              </div>
 
-            <div class="cloud-sync-meta-bar">
-              <div class="cloud-sync-meta-text mono" id="outCloudLastSyncedFleet">Last Synced: Never (Local Only)</div>
-              <button type="button" class="btn btn-danger btn-xs" id="btnDisconnectCloudFleet">
-                Disconnect
-              </button>
+              <div id="workshopToDoList" class="workshop-checklist-items"></div>
             </div>
           </div>
         </div>
       </article>
 
-      <!-- 3) CORNER WEIGHTS (data-fleet-acc="corner_weights") -->
+      <!-- 2) CORNER WEIGHTS (data-fleet-acc="corner_weights") -->
       <article class="fleet-acc-card" id="cornerWeightBaselineCard" data-fleet-acc-card="corner_weights">
         <button
           type="button"
@@ -2537,11 +2266,11 @@
           aria-expanded="false"
         >
           <div class="fleet-acc-left">
-            <div class="fleet-acc-title">Corner Weights</div>
+            <div class="fleet-acc-title">CORNER WEIGHTS</div>
             <div class="fleet-acc-sub">Live Spacer Calculator &bull; Locked Calder 2024 Base &amp; Saved Scale Sessions</div>
           </div>
           <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill emerald" id="cornerWtStatusBadge">1372.0 kg &bull; 49.38% RF+LR</span>
+            <span class="fleet-acc-status-pill emerald" id="cornerWtStatusBadge">1373.0 kg &bull; 50.54% RF+LR</span>
             <span class="fleet-acc-count-pill" id="fleetCornerWtCountBadge">1 SESSION</span>
             <span class="fleet-acc-chevron" data-fleet-acc-chevron="corner_weights" aria-hidden="true">&#9654;</span>
           </div>
@@ -2702,308 +2431,38 @@
         </div>
       </article>
 
-      <!-- 3) EMULSION & BRASS KIT (data-fleet-acc="emulsions") -->
-      <article class="fleet-acc-card" id="emulsionFleetCard" data-fleet-acc-card="emulsions">
+      <!-- 3) MAINTENANCE (19 Alphabetical Service & Install Items) (data-fleet-acc="maintenance") -->
+      <article class="fleet-acc-card" id="maintenanceFleetCard" data-fleet-acc-card="maintenance">
         <button
           type="button"
           class="fleet-acc-header"
-          data-fleet-acc="emulsions"
+          data-fleet-acc="maintenance"
           aria-expanded="false"
+          aria-controls="fleetAccBody_maintenance"
         >
           <div class="fleet-acc-left">
-            <div class="fleet-acc-title">Emulsion &amp; Brass Kit</div>
-            <div class="fleet-acc-sub">14 Emulsion Tubes (#1&ndash;#8) &bull; 2 Idle Tubes &bull; 4 Power Bypass</div>
+            <div class="fleet-acc-title">MAINTENANCE</div>
+            <div class="fleet-acc-sub">Service Dates, Component Installs &amp; Product Specs (A&ndash;Z)</div>
           </div>
           <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill emerald" id="fleetEmulsionActiveBadge">#5-DME IN CAR &bull; 14 TUBES + 6 BRASS</span>
-            <span class="fleet-acc-chevron" data-fleet-acc-chevron="emulsions" aria-hidden="true">&#9654;</span>
+            <span class="fleet-acc-status-pill emerald" id="fleetMaintenanceSummaryBadge">0/19 LOGGED</span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="maintenance" aria-hidden="true">&#9654;</span>
           </div>
         </button>
 
-        <div class="fleet-acc-body" id="fleetAccBody_emulsions" style="display: none;">
-          <div class="section-eyebrow" style="margin-bottom: 6px;">Emulsion Tube Library (#1&ndash;#8 &bull; 9 Profiles / 14 Tubes)</div>
-          <div class="fleet-selector-bar" style="margin-bottom: 10px;">
-            <label class="sr-only" for="selectEmulsionProfile">Select Emulsion Tube Profile (#1 to #8)</label>
-            <select id="selectEmulsionProfile" class="select-input" aria-label="Select Emulsion Tube Profile (#1 to #8)"></select>
-            <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddEmulsion">
-              + Add Tube
+        <div class="fleet-acc-body" id="fleetAccBody_maintenance" style="display: none;">
+          <div id="maintenanceFleetContainer"></div>
+
+          <div class="maintenance-add-custom-wrap" style="margin-top: 10px;">
+            <button type="button" class="btn btn-secondary btn-full" id="btnOpenAddCustomMaintenance" style="min-height: 40px; font-size: 0.85rem;">
+              + Add Custom Maintenance Item
             </button>
-          </div>
-
-          <div id="emulsionFleetContainer" style="margin-bottom: 16px;"></div>
-
-          <div class="section-eyebrow" style="margin-bottom: 6px;">Idle Tubes (#67/#69) &amp; Power Bypass Valves (#53&ndash;#67)</div>
-          <div class="fleet-selector-bar" style="margin-bottom: 10px;">
-            <label class="sr-only" for="selectBrassProfile">Select Idle Tube or Power Bypass Valve</label>
-            <select id="selectBrassProfile" class="select-input" aria-label="Select Idle Tube or Power Bypass Valve"></select>
-            <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddBrassJet">
-              + Add Brass
-            </button>
-          </div>
-
-          <div id="brassFleetContainer"></div>
-        </div>
-      </article>
-
-      <!-- 4) EXHAUSTS (data-fleet-acc="exhausts") -->
-      <article class="fleet-acc-card" id="exhaustFleetCard" data-fleet-acc-card="exhausts">
-        <button
-          type="button"
-          class="fleet-acc-header"
-          data-fleet-acc="exhausts"
-          aria-expanded="false"
-        >
-          <div class="fleet-acc-left">
-            <div class="fleet-acc-title">Exhausts</div>
-            <div class="fleet-acc-sub">Headers &amp; Collector Systems &bull; Bench &amp; Dyno Spec</div>
-          </div>
-          <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill emerald" id="fleetExhaustActiveBadge">Macca &#9733; ON CAR</span>
-            <span class="fleet-acc-count-pill" id="fleetExhaustCountBadge">4 SYSTEMS</span>
-            <span class="fleet-acc-chevron" data-fleet-acc-chevron="exhausts" aria-hidden="true">&#9654;</span>
-          </div>
-        </button>
-
-        <div class="fleet-acc-body" id="fleetAccBody_exhausts" style="display: none;">
-          <div class="fleet-selector-bar" style="margin-bottom: 12px;">
-            <label class="sr-only" for="selectFleetExhaust">Select Exhaust / Header System</label>
-            <select id="selectFleetExhaust" class="select-input" aria-label="Select Exhaust or Header System"></select>
-            <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddExhaust">
-              + New
-            </button>
-          </div>
-
-          <div id="exhaustFleetContainer"></div>
-        </div>
-      </article>
-
-      <!-- 5) FUEL SYSTEM (data-fleet-acc="fuel_system") -->
-      <article class="fleet-acc-card" id="fuelSystemFleetCard" data-fleet-acc-card="fuel_system">
-        <button
-          type="button"
-          class="fleet-acc-header"
-          data-fleet-acc="fuel_system"
-          aria-expanded="false"
-        >
-          <div class="fleet-acc-left">
-            <div class="fleet-acc-title">Fuel System</div>
-            <div class="fleet-acc-sub">74L Foam Tank &bull; Holley 12-427 Pump &bull; Sakura FS-8002 &bull; 4.3 psi</div>
-          </div>
-          <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill emerald" id="fleetFuelSystemActiveBadge">Holley 12-427 &bull; Sakura FS-8002 &bull; 4.3 psi</span>
-            <span class="fleet-acc-chevron" data-fleet-acc-chevron="fuel_system" aria-hidden="true">&#9654;</span>
-          </div>
-        </button>
-
-        <div class="fleet-acc-body" id="fleetAccBody_fuel_system" style="display: none;">
-          <div id="fuelSystemFleetContainer"></div>
-        </div>
-      </article>
-
-      <!-- 6) JETS (MM TOOLBOX) (data-fleet-acc="jets") -->
-      <article class="fleet-acc-card" id="jetsFleetCard" data-fleet-acc-card="jets">
-        <button
-          type="button"
-          class="fleet-acc-header"
-          data-fleet-acc="jets"
-          aria-expanded="false"
-        >
-          <div class="fleet-acc-left">
-            <div class="fleet-acc-title">Jets (mm Toolbox)</div>
-            <div class="fleet-acc-sub">11-Slot Tactix Drill-Gauge Matrix (1.70&ndash;2.03 mm) + Orifice Area (mm&sup2;)</div>
-          </div>
-          <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill emerald" id="toolboxSummaryBadge">DME#1: 1.85 &bull; DME#2: 1.90 &bull; BOX READY</span>
-            <span class="fleet-acc-chevron" data-fleet-acc-chevron="jets" aria-hidden="true">&#9654;</span>
-          </div>
-        </button>
-
-        <div class="fleet-acc-body" id="fleetAccBody_jets" style="display: none;">
-          <!-- Slim 1-Row Header Bar + Collapsible Custom Jet Input -->
-          <div class="jet-matrix-slim-head">
-            <div class="section-eyebrow" style="margin: 0;">11-Slot Tactix Drill-Gauge Matrix (mm)</div>
-            <button type="button" class="btn btn-amber-outline btn-xs" id="btnToggleAddCustomJet" aria-expanded="false">
-              + Add Custom mm Jet
-            </button>
-          </div>
-
-          <div class="custom-jet-inline-bar" id="addCustomJetCollapse" style="display: none;">
-            <input
-              type="number"
-              id="customJetMmInput"
-              class="num-input custom-jet-mm-inp"
-              value="1.86"
-              min="1.20"
-              max="2.60"
-              step="0.01"
-              inputmode="decimal"
-              aria-label="Custom Jet Size in mm"
-              placeholder="mm (e.g. 1.86)"
-            />
-            <input
-              type="text"
-              id="customJetLabelInput"
-              class="text-input custom-jet-note-inp"
-              placeholder="Note (e.g. Bellmouthed Drill)"
-              aria-label="Custom Jet Note"
-            />
-            <button type="button" class="btn btn-confirm btn-xs" id="btnAddCustomJet">
-              Add Jet
-            </button>
-          </div>
-
-          <div class="jet-inventory-list" id="jetInventoryList"></div>
-        </div>
-      </article>
-
-      <!-- 7) MANIFOLDS (data-fleet-acc="manifolds") -->
-      <article class="fleet-acc-card" id="manifoldFleetCard" data-fleet-acc-card="manifolds">
-        <button
-          type="button"
-          class="fleet-acc-header"
-          data-fleet-acc="manifolds"
-          aria-expanded="false"
-        >
-          <div class="fleet-acc-left">
-            <div class="fleet-acc-title">Manifolds</div>
-            <div class="fleet-acc-sub">Audited 2825951 Late HQ 202 Logs &bull; 3-Port CFM &amp; Spread</div>
-          </div>
-          <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill emerald" id="fleetManifoldActiveBadge">Manifold F &#9733; ON CAR &bull; 494.6 TOT</span>
-            <span class="fleet-acc-count-pill" id="fleetManifoldCountBadge">5 LOGS</span>
-            <span class="fleet-acc-chevron" data-fleet-acc-chevron="manifolds" aria-hidden="true">&#9654;</span>
-          </div>
-        </button>
-
-        <div class="fleet-acc-body" id="fleetAccBody_manifolds" style="display: none;">
-          <div class="fleet-selector-bar" style="margin-bottom: 12px;">
-            <label class="sr-only" for="selectFleetManifold">Select Inlet Manifold</label>
-            <select id="selectFleetManifold" class="select-input" aria-label="Select Inlet Manifold"></select>
-            <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddManifold">
-              + New
-            </button>
-          </div>
-
-          <div id="manifoldFleetContainer"></div>
-        </div>
-      </article>
-
-      <!-- 6) SHOCKS (data-fleet-acc="shocks") -->
-      <article class="fleet-acc-card" id="shockFleetCard" data-fleet-acc-card="shocks">
-        <button
-          type="button"
-          class="fleet-acc-header"
-          data-fleet-acc="shocks"
-          aria-expanded="false"
-        >
-          <div class="fleet-acc-left">
-            <div class="fleet-acc-title">Shocks</div>
-            <div class="fleet-acc-sub">Pedders GSR 9033 (Front) &amp; 9067 (Rear) &bull; 5-Velocity Factory Dyno (N)</div>
-          </div>
-          <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill emerald" id="fleetShockActiveBadge">FL:F14 FR:F16 &bull; RL:R13 RR:R14</span>
-            <span class="fleet-acc-count-pill" id="fleetShockCountBadge">29 UNITS</span>
-            <span class="fleet-acc-chevron" data-fleet-acc-chevron="shocks" aria-hidden="true">&#9654;</span>
-          </div>
-        </button>
-
-        <div class="fleet-acc-body" id="fleetAccBody_shocks" style="display: none;">
-          <div class="tyre-stock-filter-bar" role="group" aria-label="Filter Shocks Fleet" style="margin-bottom: 10px;">
-            <button type="button" class="tyre-filter-pill active" data-shock-fleet-filter="all" id="btnFilterShocksAll">
-              All (<span id="countFilterShocksAll">29</span>)
-            </button>
-            <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="F" id="btnFilterShocksFront">
-              Front (<span id="countFilterShocksFront">15</span>)
-            </button>
-            <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="R" id="btnFilterShocksRear">
-              Rear (<span id="countFilterShocksRear">14</span>)
-            </button>
-            <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="oncar" id="btnFilterShocksMounted">
-              On Car #77 (<span id="countFilterShocksMounted">4</span>)
-            </button>
-          </div>
-
-          <div class="fleet-selector-bar" style="margin-bottom: 12px;">
-            <label class="sr-only" for="selectFleetShock">Select Shock from Fleet</label>
-            <select id="selectFleetShock" class="select-input" aria-label="Select Shock from Fleet"></select>
-            <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddShock">
-              + Add Shock
-            </button>
-          </div>
-
-          <div id="shockFleetContainer"></div>
-        </div>
-      </article>
-
-      <!-- 7) SPRINGS (data-fleet-acc="springs") -->
-      <article class="fleet-acc-card" id="springFleetCard" data-fleet-acc-card="springs">
-        <button
-          type="button"
-          class="fleet-acc-header"
-          data-fleet-acc="springs"
-          aria-expanded="false"
-        >
-          <div class="fleet-acc-left">
-            <div class="fleet-acc-title">Springs &amp; Spacers</div>
-            <div class="fleet-acc-sub">Pedders 5608/5609 Load Test (mm &amp; kg/mm) &bull; 10-Piece Mitutoyo Spacer Kit (Rule 6c &le;20mm)</div>
-          </div>
-          <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill emerald" id="fleetSpringActiveBadge">FL:F11 FR:F12 &bull; RL:R6 RR:R5(+20mm)</span>
-            <span class="fleet-acc-count-pill" id="fleetSpringCountBadge">13 COILS + 10 SPACERS</span>
-            <span class="fleet-acc-chevron" data-fleet-acc-chevron="springs" aria-hidden="true">&#9654;</span>
-          </div>
-        </button>
-
-        <div class="fleet-acc-body" id="fleetAccBody_springs" style="display: none;">
-          <div class="section-eyebrow" style="margin-bottom: 6px;">Sub-Section A &bull; Pedders 5608 (Front: 216mm @ 14.57 kg/mm) &amp; 5609 (Rear: 170mm @ 2.54 kg/mm)</div>
-          <div class="tyre-stock-filter-bar" role="group" aria-label="Filter Springs Fleet" style="margin-bottom: 10px;">
-            <button type="button" class="tyre-filter-pill active" data-spring-fleet-filter="all" id="btnFilterSpringsAll">
-              All (<span id="countFilterSpringsAll">13</span>)
-            </button>
-            <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="F" id="btnFilterSpringsFront">
-              Front (<span id="countFilterSpringsFront">6</span>)
-            </button>
-            <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="R" id="btnFilterSpringsRear">
-              Rear (<span id="countFilterSpringsRear">7</span>)
-            </button>
-            <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="oncar" id="btnFilterSpringsMounted">
-              On Car #77 (<span id="countFilterSpringsMounted">4</span>)
-            </button>
-          </div>
-
-          <div class="fleet-selector-bar" style="margin-bottom: 12px;">
-            <label class="sr-only" for="selectFleetSpring">Select Spring from Fleet</label>
-            <select id="selectFleetSpring" class="select-input" aria-label="Select Spring from Fleet"></select>
-            <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddSpring">
-              + Add Spring
-            </button>
-          </div>
-
-          <div id="springFleetContainer" style="margin-bottom: 16px;"></div>
-
-          <!-- Sub-Section B: Locked 10-Piece Measured Spacer Inventory (5 Mitutoyo Pairs • Rule 6c <= 20.00mm) -->
-          <div class="spacer-kit-fleet-section" id="spacerKitFleetSection">
-            <div class="spacer-kit-head-bar">
-              <div>
-                <div class="section-eyebrow" style="margin-bottom: 2px;">Sub-Section B &bull; Locked 10-Piece Mitutoyo-Measured Spacer Inventory</div>
-                <div class="spacer-kit-sub">5 Measured Pairs (SP-F1 &amp; SP-R1..R4) + Car #77 Mounted RR ~20mm Sleeve &bull; Rule 6c Max 20.00 mm Combined</div>
-              </div>
-              <span class="locked-badge mono" id="outActiveRearSpacerKitBadge">CAR #77: RL 0mm &bull; RR 20mm</span>
-            </div>
-
-            <div class="fleet-selector-bar" style="margin-bottom: 10px;">
-              <label class="sr-only" for="selectFleetSpacerKit">Select Measured Spacer Pair</label>
-              <select id="selectFleetSpacerKit" class="select-input" aria-label="Select Measured Spacer Pair"></select>
-            </div>
-
-            <div id="spacerKitCardContainer" style="margin-bottom: 10px;"></div>
-            <div id="spacerKitMatrixContainer"></div>
           </div>
         </div>
       </article>
 
-      <!-- 8) TRACK BENCHMARKS (data-fleet-acc="track_benchmarks") -->
-      <article class="card fleet-acc-card" id="trackBenchmarksFleetCard">
+      <!-- 4) TRACK BENCHMARKS (data-fleet-acc="track_benchmarks") -->
+      <article class="fleet-acc-card" id="trackBenchmarksFleetCard" data-fleet-acc-card="track_benchmarks">
         <button
           type="button"
           class="fleet-acc-header"
@@ -3011,14 +2470,15 @@
           aria-expanded="false"
           aria-controls="fleetAccBody_track_benchmarks"
         >
-          <span class="fleet-acc-title-wrap">
-            <span class="fleet-acc-title">Track Benchmarks</span>
-          </span>
-          <span class="fleet-acc-meta">
-            <span class="fleet-acc-active-pill" id="fleetTrackBenchmarksActiveBadge">SANDOWN 1:37.6866 &bull; CALDER 1:16.66</span>
+          <div class="fleet-acc-left">
+            <div class="fleet-acc-title">TRACK BENCHMARKS</div>
+            <div class="fleet-acc-sub">21 Australian Circuits &bull; Verified Group 3H HQ 202 PB Lap Times</div>
+          </div>
+          <div class="fleet-acc-right">
+            <span class="fleet-acc-status-pill emerald" id="fleetTrackBenchmarksActiveBadge">SANDOWN 1:37.6866 &bull; CALDER 1:16.66</span>
             <span class="fleet-acc-count-pill" id="fleetTrackBenchmarksCountBadge">5 TRACKS LOGGED</span>
-            <span class="fleet-acc-chevron" data-fleet-acc-chevron="track_benchmarks" aria-hidden="true">&#9662;</span>
-          </span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="track_benchmarks" aria-hidden="true">&#9654;</span>
+          </div>
         </button>
 
         <div class="fleet-acc-body" id="fleetAccBody_track_benchmarks" style="display: none;">
@@ -3034,10 +2494,691 @@
           <div id="trackBenchmarksFleetContainer"></div>
         </div>
       </article>
+
+      <!-- 5) STOCK (Nested Hardware & Spares Inventory — 10 A-Z Sectors) (data-fleet-acc="stock") -->
+      <article class="fleet-acc-card" id="stockFleetCard" data-fleet-acc-card="stock">
+        <button
+          type="button"
+          class="fleet-acc-header"
+          data-fleet-acc="stock"
+          aria-expanded="false"
+          aria-controls="fleetAccBody_stock"
+        >
+          <div class="fleet-acc-left">
+            <div class="fleet-acc-title">STOCK</div>
+            <div class="fleet-acc-sub">Brakes, Carbies, Cloud Sync, Emulsions, Exhausts, Fuel, Jets, Manifolds, Shocks &amp; Springs</div>
+          </div>
+          <div class="fleet-acc-right">
+            <span class="fleet-acc-status-pill steel" id="fleetStockSectorsBadge">10 HARDWARE SECTORS</span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="stock" aria-hidden="true">&#9654;</span>
+          </div>
+        </button>
+
+        <div class="fleet-acc-body" id="fleetAccBody_stock" style="display: none;">
+          <div class="stock-nested-list">
+            <!-- 5.1) BRAKES (data-fleet-acc="brakes") -->
+            <article class="fleet-acc-card stock-nested-card" id="brakesFleetCard" data-fleet-acc-card="brakes">
+              <button
+                type="button"
+                class="fleet-acc-header"
+                data-fleet-acc="brakes"
+                aria-expanded="false"
+              >
+                <div class="fleet-acc-left">
+                  <div class="fleet-acc-title">Brakes</div>
+                  <div class="fleet-acc-sub">PBR 1&quot; Master &bull; MACCA Prop Valve &bull; DBA 4014 + Porterfield R-4 &bull; 9/16&quot; Rear Drums</div>
+                </div>
+                <div class="fleet-acc-right">
+                  <span class="fleet-acc-status-pill emerald" id="fleetBrakesSummaryBadge">PBR + R4 &bull; 9/16&quot; REAR</span>
+                  <span class="fleet-acc-count-pill" id="fleetBrakesCountBadge">SPEC SHEET</span>
+                  <span class="fleet-acc-chevron" data-fleet-acc-chevron="brakes" aria-hidden="true">&#9654;</span>
+                </div>
+              </button>
+
+              <div class="fleet-acc-body" id="fleetAccBody_brakes" style="display: none;">
+                <!-- Audited Brake Hardware Summary Tiles & Edit Spec Button -->
+                <div id="brakesFleetContainer" style="margin-bottom: 10px;"></div>
+                <!-- 1) Hydraulic Bias & Master Cylinder -->
+                <div class="carby-card brakes-spec-card" style="margin-bottom: 10px;">
+                  <div class="session-head" style="margin-bottom: 8px;">
+                    <div>
+                      <div class="session-title-line">1) Hydraulic Bias &amp; Master Cylinder</div>
+                      <div class="session-meta-line">Rule 7.3f Firewall Master &bull; Chassis-Rail Proportioning Valve &bull; Rear Wheel Cylinders</div>
+                    </div>
+                    <span class="locked-badge" id="outBrakesRearCylForceBadge">9/16&quot; (-58.7% Rear Force)</span>
+                  </div>
+
+                  <div class="carby-teardown-grid" style="margin-bottom: 10px;">
+                    <div class="carby-teardown-cell">
+                      <span class="carby-teardown-label">Master Cylinder (Rule 7.3f)</span>
+                      <span class="carby-teardown-val txt-emerald" id="outBrakesMasterCyl">PBR Master Vac 25.4mm (1&quot;) Firewall (Rule 7.3f)</span>
+                    </div>
+                    <div class="carby-teardown-cell">
+                      <span class="carby-teardown-label">Bench Curve &amp; Spare Reference</span>
+                      <span class="carby-teardown-val mono" id="outBrakesPropBenchCurve">400F:250R | 1000F:450R (Spares: DART 400:300 / 1000:450 &bull; No-Spring 400:400)</span>
+                    </div>
+                  </div>
+
+                  <div class="field-group" style="margin-bottom: 10px;">
+                    <div class="field-label-row">
+                      <label class="field-label" for="selectBrakesPropValve">Chassis-Rail Proportioning Valve</label>
+                      <span class="field-hint emerald">Bench-Tested Curve</span>
+                    </div>
+                    <select id="selectBrakesPropValve" data-brakes-field="propValve">
+                      <option value="MACCA Fixed Valve (In Car) — 400F:250R | 1000F:450R">MACCA Fixed Valve (In Car) &mdash; Bench Curve: 400F:250R | 1000F:450R</option>
+                      <option value="DART Valve (Spare) — 400F:300R | 1000F:450R">DART Fixed Valve (Spare Ref) &mdash; Bench Curve: 400F:300R | 1000F:450R</option>
+                      <option value="No-Spring Valve (Spare) — 400F:400R">No-Spring Valve (Spare Ref) &mdash; Bench Curve: 400F:400R (1:1)</option>
+                    </select>
+                  </div>
+
+                  <div class="field-group" style="margin-bottom: 0;">
+                    <div class="field-label-row">
+                      <span class="field-label">Rear Wheel Cylinders (vs 7/8&quot; Standard Bore)</span>
+                      <span class="field-hint amber" id="outBrakesRearCylHint">Active: 9/16&quot; (IBS-P5573, -58.7%)</span>
+                    </div>
+                    <div class="rear-cyl-seg" role="group" aria-label="Rear Wheel Cylinder Bore Selector">
+                      <button type="button" class="seg-btn active" data-rear-cylinder="9/16&quot;" aria-pressed="true">9/16&quot; (IBS-P5573, -58.7%)</button>
+                      <button type="button" class="seg-btn" data-rear-cylinder="11/16&quot;" aria-pressed="false">11/16&quot; (P10321, -38.3%)</button>
+                      <button type="button" class="seg-btn" data-rear-cylinder="3/4&quot;" aria-pressed="false">3/4&quot; (P7041, -26.5%)</button>
+                      <button type="button" class="seg-btn" data-rear-cylinder="13/16&quot;" aria-pressed="false">13/16&quot; (P10138, -14%)</button>
+                      <button type="button" class="seg-btn" data-rear-cylinder="7/8&quot; Std" aria-pressed="false">7/8&quot; Std</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2) Front Disc Setup -->
+                <div class="carby-card brakes-spec-card" style="margin-bottom: 10px;">
+                  <div class="session-head" style="margin-bottom: 8px;">
+                    <div>
+                      <div class="session-title-line">2) Front Disc Setup</div>
+                      <div class="session-meta-line">PBR Cast Iron Calipers &bull; DBA 4014 HD 276mm Vent Rotors &bull; Porterfield R-4</div>
+                    </div>
+                    <span class="locked-badge" id="outBrakesFrontRotorOverallBadge">25.4 / 25.4 mm OK</span>
+                  </div>
+
+                  <div class="carby-teardown-grid" style="margin-bottom: 10px;">
+                    <div class="carby-teardown-cell">
+                      <span class="carby-teardown-label">Front Calipers</span>
+                      <span class="carby-teardown-val">PBR Cast Iron LH 9933233 / RH 9933234 (unmodified, braided lines, zero-drag SS piston spec)</span>
+                    </div>
+                    <div class="carby-teardown-cell">
+                      <span class="carby-teardown-label">Front Rotors Spec</span>
+                      <span class="carby-teardown-val">DBA 4014 (4000 Series HD 276mm Vent) &bull; New 25.4 mm / Min Discard 22.3 mm</span>
+                    </div>
+                  </div>
+
+                  <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+                    <div class="field-group" style="margin-bottom: 0;">
+                      <div class="field-label-row">
+                        <label class="field-label" for="inputRotorMm_FL">FL Rotor (mm)</label>
+                        <span class="field-hint emerald" id="outRotorStatus_FL">25.4 mm OK (Min 22.3)</span>
+                      </div>
+                      <div class="num-stepper">
+                        <button type="button" class="stepper-btn" data-stepper-target="inputRotorMm_FL" data-step="-0.1" aria-label="Decrease FL Rotor Thickness">&minus;</button>
+                        <div class="num-input-wrap">
+                          <input type="number" id="inputRotorMm_FL" class="num-input" value="25.4" min="21.0" max="25.6" step="0.1" inputmode="decimal" data-brakes-field="flRotorMm" />
+                          <span class="num-unit-badge">mm</span>
+                        </div>
+                        <button type="button" class="stepper-btn" data-stepper-target="inputRotorMm_FL" data-step="0.1" aria-label="Increase FL Rotor Thickness">+</button>
+                      </div>
+                    </div>
+
+                    <div class="field-group" style="margin-bottom: 0;">
+                      <div class="field-label-row">
+                        <label class="field-label" for="inputRotorMm_FR">FR Rotor (mm)</label>
+                        <span class="field-hint emerald" id="outRotorStatus_FR">25.4 mm OK (Min 22.3)</span>
+                      </div>
+                      <div class="num-stepper">
+                        <button type="button" class="stepper-btn" data-stepper-target="inputRotorMm_FR" data-step="-0.1" aria-label="Decrease FR Rotor Thickness">&minus;</button>
+                        <div class="num-input-wrap">
+                          <input type="number" id="inputRotorMm_FR" class="num-input" value="25.4" min="21.0" max="25.6" step="0.1" inputmode="decimal" data-brakes-field="frRotorMm" />
+                          <span class="num-unit-badge">mm</span>
+                        </div>
+                        <button type="button" class="stepper-btn" data-stepper-target="inputRotorMm_FR" data-step="0.1" aria-label="Increase FR Rotor Thickness">+</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="field-group" style="margin-bottom: 10px;">
+                    <div class="field-label-row">
+                      <label class="field-label" for="selectBrakesFrontPad">Front Pads Compound</label>
+                      <span class="field-hint emerald" id="outBrakesFrontPadSpecHint">~0.50&mu; &bull; 232&ndash;648&deg;C Optimum &bull; &quot;30N&quot; Plate</span>
+                    </div>
+                    <select id="selectBrakesFrontPad" data-brakes-field="frontPad">
+                      <option value="Porterfield R-4 Carbon Kevlar">Porterfield R-4 Carbon Kevlar (~0.50&mu;, 232&ndash;648&deg;C optimum, &quot;30N&quot; plate)</option>
+                      <option value="Bendix Ultimate">Bendix Ultimate (Cold-Bite / Wet / Spare Compound)</option>
+                    </select>
+                  </div>
+
+                  <div class="field-group" style="margin-bottom: 0;">
+                    <div class="field-label-row">
+                      <span class="field-label">Front Ducting: Under-Bumper Scoops + Centre-Eye Rotor Ducts</span>
+                      <span class="field-hint emerald" id="outFrontDuctStateHint">100% Open</span>
+                    </div>
+                    <div class="duct-toggle-seg" role="group" aria-label="Front Brake Ducting State">
+                      <button type="button" class="seg-btn active" data-front-duct="100% Open" aria-pressed="true">100% Open</button>
+                      <button type="button" class="seg-btn" data-front-duct="50% Taped" aria-pressed="false">50% Taped</button>
+                      <button type="button" class="seg-btn" data-front-duct="100% Taped" aria-pressed="false">100% Taped</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3) Rear Drum Setup -->
+                <div class="carby-card brakes-spec-card" style="margin-bottom: 10px;">
+                  <div class="session-head" style="margin-bottom: 8px;">
+                    <div>
+                      <div class="session-title-line">3) Rear Drum Setup</div>
+                      <div class="session-meta-line">DBA 257mm (10.12&quot;) Cast Iron Drums &bull; Rule 7.2c Manual Star-Wheel Adjust</div>
+                    </div>
+                    <span class="locked-badge">Rule 7.2c Legal</span>
+                  </div>
+
+                  <div class="carby-teardown-grid" style="margin-bottom: 10px;">
+                    <div class="carby-teardown-cell">
+                      <span class="carby-teardown-label">Rear Drums (Rule 7.2c)</span>
+                      <span class="carby-teardown-val">DBA 257mm (10.12&quot;) Cast Iron (self-adjusters removed per Rule 7.2c)</span>
+                    </div>
+                    <div class="carby-teardown-cell">
+                      <span class="carby-teardown-label">Shoe Orientation</span>
+                      <span class="carby-teardown-val">Short Leading Shoe Forward &bull; Riveted Carbon Kevlar Linings</span>
+                    </div>
+                  </div>
+
+                  <div class="field-group" style="margin-bottom: 10px;">
+                    <div class="field-label-row">
+                      <label class="field-label" for="selectBrakesRearShoe">Rear Shoes Compound</label>
+                      <span class="field-hint emerald" id="outBrakesRearShoeHint">Short Leading Shoe Forward</span>
+                    </div>
+                    <select id="selectBrakesRearShoe" data-brakes-field="rearShoe">
+                      <option value="Porterfield R-4 Carbon Kevlar Riveted">Porterfield R-4 Carbon Kevlar Riveted (Short Leading Shoe Forward)</option>
+                      <option value="Porterfield R4-S">Porterfield R4-S (Lower-Torque Rear Option)</option>
+                    </select>
+                  </div>
+
+                  <div class="field-group" style="margin-bottom: 0;">
+                    <div class="field-label-row">
+                      <span class="field-label">Rear Ducting: Meshed Under-Floor Scoops + 40mm Backing-Plate Tubes</span>
+                      <span class="field-hint emerald" id="outRearDuctStateHint">100% Open</span>
+                    </div>
+                    <div class="duct-toggle-seg" role="group" aria-label="Rear Drum Ducting State">
+                      <button type="button" class="seg-btn active" data-rear-duct="100% Open" aria-pressed="true">100% Open</button>
+                      <button type="button" class="seg-btn" data-rear-duct="50% Taped" aria-pressed="false">50% Taped</button>
+                      <button type="button" class="seg-btn" data-rear-duct="100% Taped" aria-pressed="false">100% Taped</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 4) Thermal Paint Reference Key & Notes -->
+                <div class="carby-card brakes-spec-card" style="margin-bottom: 0;">
+                  <div class="session-head" style="margin-bottom: 8px;">
+                    <div>
+                      <div class="session-title-line">4) Thermal Paint &amp; Temp Strip Reference Key</div>
+                      <div class="session-meta-line">DBA 4014 3-Stripe Rotor Paint &bull; PBR Caliper &amp; DBA Rear Drum Stickers</div>
+                    </div>
+                    <span class="locked-badge">THERMAL KEY</span>
+                  </div>
+
+                  <div class="thermal-paint-grid">
+                    <div class="thermal-paint-cell">
+                      <span class="carby-teardown-label">Front Rotors (DBA 4014)</span>
+                      <div class="thermal-paint-chips-row">
+                        <span class="thermal-paint-chip green">Green&rarr;White 430&deg;C</span>
+                        <span class="thermal-paint-chip orange">Orange&rarr;Yellow 560&deg;C</span>
+                        <span class="thermal-paint-chip red">Red&rarr;White 610&deg;C</span>
+                      </div>
+                    </div>
+                    <div class="thermal-paint-cell">
+                      <span class="carby-teardown-label">Front Calipers (PBR)</span>
+                      <span class="carby-teardown-val mono txt-emerald">121&deg;C &rarr; 280&deg;C</span>
+                    </div>
+                    <div class="thermal-paint-cell">
+                      <span class="carby-teardown-label">Rear Drums (DBA 257mm)</span>
+                      <span class="carby-teardown-val mono">Linings <strong class="txt-amber">121&deg;C &rarr; 280&deg;C</strong> (242&ndash;254&deg;C un-ducted ref) &bull; Housing <strong class="txt-emerald">160&deg;C &rarr; 199&deg;C</strong></span>
+                    </div>
+                  </div>
+
+                  <div class="field-group" style="margin-top: 10px; margin-bottom: 0;">
+                    <div class="field-label-row">
+                      <label class="field-label" for="inputBrakesNotes">Brake Bleed, Fluid &amp; Pad Bed-In Notes</label>
+                      <span class="field-hint">Auto-Saved</span>
+                    </div>
+                    <input
+                      type="text"
+                      id="inputBrakesNotes"
+                      class="text-input"
+                      placeholder="e.g. Castrol React SRF / Motul RBF660 • R-4 requires 232°C+ bed-in..."
+                      data-brakes-field="notes"
+                    />
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- 5.2) CARBURETTORS (data-fleet-acc="carburettors") -->
+            <article class="fleet-acc-card stock-nested-card" id="carbyFleetCard" data-fleet-acc-card="carburettors">
+              <button
+                type="button"
+                class="fleet-acc-header"
+                data-fleet-acc="carburettors"
+                aria-expanded="false"
+              >
+                <div class="fleet-acc-left">
+                  <div class="fleet-acc-title">Carburettors</div>
+                  <div class="fleet-acc-sub">40.00 mm Late-Base Stromberg BXUV-3 &bull; Audited Teardown &amp; Jet Spec</div>
+                </div>
+                <div class="fleet-acc-right">
+                  <span class="fleet-acc-status-pill emerald" id="fleetCarbyActiveBadge">DME #1 &#9733; ON CAR &bull; 1.85 mm &bull; #5-DME</span>
+                  <span class="fleet-acc-count-pill" id="fleetCarbyCountBadge">3 UNITS</span>
+                  <span class="fleet-acc-chevron" data-fleet-acc-chevron="carburettors" aria-hidden="true">&#9654;</span>
+                </div>
+              </button>
+
+              <div class="fleet-acc-body" id="fleetAccBody_carburettors" style="display: none;">
+                <div class="homologation-banner" style="margin-bottom: 12px;">
+                  <div style="font-size: 0.85rem; font-weight: 800; color: var(--amber); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px;">
+                    Group 3H Late-Base 40.00 mm Stromberg BXUV-3 Homologation &amp; Teardown Spec
+                  </div>
+                  <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">
+                    Studs: <strong>75.0 mm</strong> &bull; Venturi: <strong>&le; 30.94 mm</strong> &bull; Throttle Bore: <strong>&le; 40.00 mm Exact Ceiling</strong> &bull; Spill: <strong>15.0 mm (0.740 SG)</strong>
+                  </div>
+                </div>
+
+                <div class="fleet-selector-bar" style="margin-bottom: 12px;">
+                  <label class="sr-only" for="selectFleetCarby">Select Carburettor</label>
+                  <select id="selectFleetCarby" class="select-input" aria-label="Select Carburettor from Fleet"></select>
+                  <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddNewCarby">
+                    + New
+                  </button>
+                </div>
+
+                <div id="carbyFleetContainer"></div>
+              </div>
+            </article>
+
+            <!-- 5.3) CLOUD SYNC (PHONE & LAPTOP) (data-fleet-acc="cloud_sync") -->
+            <article class="fleet-acc-card stock-nested-card" id="cloudSyncFleetCard" data-fleet-acc-card="cloud_sync">
+              <button
+                type="button"
+                class="fleet-acc-header"
+                data-fleet-acc="cloud_sync"
+                aria-expanded="false"
+              >
+                <div class="fleet-acc-left">
+                  <div class="fleet-acc-title">Cloud Sync (Phone &amp; Laptop)</div>
+                  <div class="fleet-acc-sub">Offline-First Private GitHub Gist Sync &bull; Newer Edits Always Win</div>
+                </div>
+                <div class="fleet-acc-right">
+                  <span class="fleet-acc-status-pill" id="fleetCloudSyncStatusBadge">OFFLINE READY</span>
+                  <span class="fleet-acc-count-pill" id="fleetCloudSyncMetaBadge">LOCAL ONLY</span>
+                  <span class="fleet-acc-chevron" data-fleet-acc-chevron="cloud_sync" aria-hidden="true">&#9654;</span>
+                </div>
+              </button>
+
+              <div class="fleet-acc-body" id="fleetAccBody_cloud_sync" style="display: none;">
+                <div class="card-elevated cloud-sync-panel-box">
+                  <div class="cloud-sync-panel-head">
+                    <div>
+                      <div class="section-eyebrow" style="margin-bottom: 2px;">OFFLINE-FIRST CLOUD SYNC ENGINE</div>
+                      <div class="cloud-sync-panel-sub">
+                        Syncs <span class="mono">snb_hq202_master_state.json</span> via private GitHub Gist. Phone queues offline at the track and auto-flushes when signal returns.
+                      </div>
+                    </div>
+                    <span class="locked-badge mono" id="fleetCloudGistIdBadge">NO GIST LINKED</span>
+                  </div>
+
+                  <div class="field-group" style="margin-bottom: 10px;">
+                    <div class="field-label-row">
+                      <label class="field-label" for="inputCloudSyncKeyFleet">Sync Key (GitHub Gist Personal Access Token)</label>
+                      <span class="field-hint emerald">Stored Only in This Device&rsquo;s localStorage</span>
+                    </div>
+                    <div class="cloud-sync-key-row">
+                      <input
+                        type="password"
+                        id="inputCloudSyncKeyFleet"
+                        class="text-input mono cloud-sync-key-input"
+                        placeholder="ghp_... or github_pat_... (gist scope)"
+                        autocomplete="off"
+                        spellcheck="false"
+                      />
+                      <input
+                        type="text"
+                        id="inputCloudDeviceLabelFleet"
+                        class="text-input cloud-device-label-input"
+                        placeholder="Device (e.g. Track Phone)"
+                        autocomplete="off"
+                      />
+                    </div>
+                  </div>
+
+                  <button type="button" class="btn btn-confirm btn-full" id="btnSaveConnectCloudFleet" style="margin-bottom: 10px;">
+                    Save &amp; Connect Device
+                  </button>
+
+                  <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+                    <button type="button" class="btn btn-primary btn-full" id="btnPushCloudFleet">
+                      &#11014; Push This Device to Cloud
+                    </button>
+                    <button type="button" class="btn btn-amber-outline btn-full" id="btnPullCloudFleet">
+                      &#11015; Pull Cloud to This Device
+                    </button>
+                  </div>
+
+                  <div class="cloud-sync-meta-bar">
+                    <div class="cloud-sync-meta-text mono" id="outCloudLastSyncedFleet">Last Synced: Never (Local Only)</div>
+                    <button type="button" class="btn btn-danger btn-xs" id="btnDisconnectCloudFleet">
+                      Disconnect
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- 5.4) EMULSION & BRASS KIT (data-fleet-acc="emulsions") -->
+            <article class="fleet-acc-card stock-nested-card" id="emulsionFleetCard" data-fleet-acc-card="emulsions">
+              <button
+                type="button"
+                class="fleet-acc-header"
+                data-fleet-acc="emulsions"
+                aria-expanded="false"
+              >
+                <div class="fleet-acc-left">
+                  <div class="fleet-acc-title">Emulsion &amp; Brass Kit</div>
+                  <div class="fleet-acc-sub">14 Emulsion Tubes (#1&ndash;#8) &bull; 2 Idle Tubes &bull; 4 Power Bypass</div>
+                </div>
+                <div class="fleet-acc-right">
+                  <span class="fleet-acc-status-pill emerald" id="fleetEmulsionActiveBadge">#5-DME IN CAR &bull; 14 TUBES + 6 BRASS</span>
+                  <span class="fleet-acc-chevron" data-fleet-acc-chevron="emulsions" aria-hidden="true">&#9654;</span>
+                </div>
+              </button>
+
+              <div class="fleet-acc-body" id="fleetAccBody_emulsions" style="display: none;">
+                <div class="section-eyebrow" style="margin-bottom: 6px;">Emulsion Tube Library (#1&ndash;#8 &bull; 9 Profiles / 14 Tubes)</div>
+                <div class="fleet-selector-bar" style="margin-bottom: 10px;">
+                  <label class="sr-only" for="selectEmulsionProfile">Select Emulsion Tube Profile (#1 to #8)</label>
+                  <select id="selectEmulsionProfile" class="select-input" aria-label="Select Emulsion Tube Profile (#1 to #8)"></select>
+                  <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddEmulsion">
+                    + Add Tube
+                  </button>
+                </div>
+
+                <div id="emulsionFleetContainer" style="margin-bottom: 16px;"></div>
+
+                <div class="section-eyebrow" style="margin-bottom: 6px;">Idle Tubes (#67/#69) &amp; Power Bypass Valves (#53&ndash;#67)</div>
+                <div class="fleet-selector-bar" style="margin-bottom: 10px;">
+                  <label class="sr-only" for="selectBrassProfile">Select Idle Tube or Power Bypass Valve</label>
+                  <select id="selectBrassProfile" class="select-input" aria-label="Select Idle Tube or Power Bypass Valve"></select>
+                  <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddBrassJet">
+                    + Add Brass
+                  </button>
+                </div>
+
+                <div id="brassFleetContainer"></div>
+              </div>
+            </article>
+
+            <!-- 5.5) EXHAUSTS (data-fleet-acc="exhausts") -->
+            <article class="fleet-acc-card stock-nested-card" id="exhaustFleetCard" data-fleet-acc-card="exhausts">
+              <button
+                type="button"
+                class="fleet-acc-header"
+                data-fleet-acc="exhausts"
+                aria-expanded="false"
+              >
+                <div class="fleet-acc-left">
+                  <div class="fleet-acc-title">Exhausts</div>
+                  <div class="fleet-acc-sub">Headers &amp; Collector Systems &bull; Bench &amp; Dyno Spec</div>
+                </div>
+                <div class="fleet-acc-right">
+                  <span class="fleet-acc-status-pill emerald" id="fleetExhaustActiveBadge">Macca &#9733; ON CAR</span>
+                  <span class="fleet-acc-count-pill" id="fleetExhaustCountBadge">4 SYSTEMS</span>
+                  <span class="fleet-acc-chevron" data-fleet-acc-chevron="exhausts" aria-hidden="true">&#9654;</span>
+                </div>
+              </button>
+
+              <div class="fleet-acc-body" id="fleetAccBody_exhausts" style="display: none;">
+                <div class="fleet-selector-bar" style="margin-bottom: 12px;">
+                  <label class="sr-only" for="selectFleetExhaust">Select Exhaust / Header System</label>
+                  <select id="selectFleetExhaust" class="select-input" aria-label="Select Exhaust or Header System"></select>
+                  <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddExhaust">
+                    + New
+                  </button>
+                </div>
+
+                <div id="exhaustFleetContainer"></div>
+              </div>
+            </article>
+
+            <!-- 5.6) FUEL SYSTEM (data-fleet-acc="fuel_system") -->
+            <article class="fleet-acc-card stock-nested-card" id="fuelSystemFleetCard" data-fleet-acc-card="fuel_system">
+              <button
+                type="button"
+                class="fleet-acc-header"
+                data-fleet-acc="fuel_system"
+                aria-expanded="false"
+              >
+                <div class="fleet-acc-left">
+                  <div class="fleet-acc-title">Fuel System</div>
+                  <div class="fleet-acc-sub">74L Foam Tank &bull; Holley 12-427 Pump &bull; Sakura FS-8002 &bull; 4.3 psi</div>
+                </div>
+                <div class="fleet-acc-right">
+                  <span class="fleet-acc-status-pill emerald" id="fleetFuelSystemActiveBadge">Holley 12-427 &bull; Sakura FS-8002 &bull; 4.3 psi</span>
+                  <span class="fleet-acc-chevron" data-fleet-acc-chevron="fuel_system" aria-hidden="true">&#9654;</span>
+                </div>
+              </button>
+
+              <div class="fleet-acc-body" id="fleetAccBody_fuel_system" style="display: none;">
+                <div id="fuelSystemFleetContainer"></div>
+              </div>
+            </article>
+
+            <!-- 5.7) JETS (MM TOOLBOX) (data-fleet-acc="jets") -->
+            <article class="fleet-acc-card stock-nested-card" id="jetsFleetCard" data-fleet-acc-card="jets">
+              <button
+                type="button"
+                class="fleet-acc-header"
+                data-fleet-acc="jets"
+                aria-expanded="false"
+              >
+                <div class="fleet-acc-left">
+                  <div class="fleet-acc-title">Jets (mm Toolbox)</div>
+                  <div class="fleet-acc-sub">11-Slot Tactix Drill-Gauge Matrix (1.70&ndash;2.03 mm) + Orifice Area (mm&sup2;)</div>
+                </div>
+                <div class="fleet-acc-right">
+                  <span class="fleet-acc-status-pill emerald" id="toolboxSummaryBadge">DME#1: 1.85 &bull; DME#2: 1.90 &bull; BOX READY</span>
+                  <span class="fleet-acc-chevron" data-fleet-acc-chevron="jets" aria-hidden="true">&#9654;</span>
+                </div>
+              </button>
+
+              <div class="fleet-acc-body" id="fleetAccBody_jets" style="display: none;">
+                <!-- Slim 1-Row Header Bar + Collapsible Custom Jet Input -->
+                <div class="jet-matrix-slim-head">
+                  <div class="section-eyebrow" style="margin: 0;">11-Slot Tactix Drill-Gauge Matrix (mm)</div>
+                  <button type="button" class="btn btn-amber-outline btn-xs" id="btnToggleAddCustomJet" aria-expanded="false">
+                    + Add Custom mm Jet
+                  </button>
+                </div>
+
+                <div class="custom-jet-inline-bar" id="addCustomJetCollapse" style="display: none;">
+                  <input
+                    type="number"
+                    id="customJetMmInput"
+                    class="num-input custom-jet-mm-inp"
+                    value="1.86"
+                    min="1.20"
+                    max="2.60"
+                    step="0.01"
+                    inputmode="decimal"
+                    aria-label="Custom Jet Size in mm"
+                    placeholder="mm (e.g. 1.86)"
+                  />
+                  <input
+                    type="text"
+                    id="customJetLabelInput"
+                    class="text-input custom-jet-note-inp"
+                    placeholder="Note (e.g. Bellmouthed Drill)"
+                    aria-label="Custom Jet Note"
+                  />
+                  <button type="button" class="btn btn-confirm btn-xs" id="btnAddCustomJet">
+                    Add Jet
+                  </button>
+                </div>
+
+                <div class="jet-inventory-list" id="jetInventoryList"></div>
+              </div>
+            </article>
+
+            <!-- 5.8) MANIFOLDS (data-fleet-acc="manifolds") -->
+            <article class="fleet-acc-card stock-nested-card" id="manifoldFleetCard" data-fleet-acc-card="manifolds">
+              <button
+                type="button"
+                class="fleet-acc-header"
+                data-fleet-acc="manifolds"
+                aria-expanded="false"
+              >
+                <div class="fleet-acc-left">
+                  <div class="fleet-acc-title">Manifolds</div>
+                  <div class="fleet-acc-sub">Audited 2825951 Late HQ 202 Logs &bull; 3-Port CFM &amp; Spread</div>
+                </div>
+                <div class="fleet-acc-right">
+                  <span class="fleet-acc-status-pill emerald" id="fleetManifoldActiveBadge">Manifold F &#9733; ON CAR &bull; 494.6 TOT</span>
+                  <span class="fleet-acc-count-pill" id="fleetManifoldCountBadge">5 LOGS</span>
+                  <span class="fleet-acc-chevron" data-fleet-acc-chevron="manifolds" aria-hidden="true">&#9654;</span>
+                </div>
+              </button>
+
+              <div class="fleet-acc-body" id="fleetAccBody_manifolds" style="display: none;">
+                <div class="fleet-selector-bar" style="margin-bottom: 12px;">
+                  <label class="sr-only" for="selectFleetManifold">Select Inlet Manifold</label>
+                  <select id="selectFleetManifold" class="select-input" aria-label="Select Inlet Manifold"></select>
+                  <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddManifold">
+                    + New
+                  </button>
+                </div>
+
+                <div id="manifoldFleetContainer"></div>
+              </div>
+            </article>
+
+            <!-- 5.9) SHOCKS (data-fleet-acc="shocks") -->
+            <article class="fleet-acc-card stock-nested-card" id="shockFleetCard" data-fleet-acc-card="shocks">
+              <button
+                type="button"
+                class="fleet-acc-header"
+                data-fleet-acc="shocks"
+                aria-expanded="false"
+              >
+                <div class="fleet-acc-left">
+                  <div class="fleet-acc-title">Shocks</div>
+                  <div class="fleet-acc-sub">Pedders GSR 9033 (Front) &amp; 9067 (Rear) &bull; 5-Velocity Factory Dyno (N)</div>
+                </div>
+                <div class="fleet-acc-right">
+                  <span class="fleet-acc-status-pill emerald" id="fleetShockActiveBadge">FL:F14 FR:F16 &bull; RL:R13 RR:R14</span>
+                  <span class="fleet-acc-count-pill" id="fleetShockCountBadge">29 UNITS</span>
+                  <span class="fleet-acc-chevron" data-fleet-acc-chevron="shocks" aria-hidden="true">&#9654;</span>
+                </div>
+              </button>
+
+              <div class="fleet-acc-body" id="fleetAccBody_shocks" style="display: none;">
+                <div class="tyre-stock-filter-bar" role="group" aria-label="Filter Shocks Fleet" style="margin-bottom: 10px;">
+                  <button type="button" class="tyre-filter-pill active" data-shock-fleet-filter="all" id="btnFilterShocksAll">
+                    All (<span id="countFilterShocksAll">29</span>)
+                  </button>
+                  <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="F" id="btnFilterShocksFront">
+                    Front (<span id="countFilterShocksFront">15</span>)
+                  </button>
+                  <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="R" id="btnFilterShocksRear">
+                    Rear (<span id="countFilterShocksRear">14</span>)
+                  </button>
+                  <button type="button" class="tyre-filter-pill" data-shock-fleet-filter="oncar" id="btnFilterShocksMounted">
+                    On Car #77 (<span id="countFilterShocksMounted">4</span>)
+                  </button>
+                </div>
+
+                <div class="fleet-selector-bar" style="margin-bottom: 12px;">
+                  <label class="sr-only" for="selectFleetShock">Select Shock from Fleet</label>
+                  <select id="selectFleetShock" class="select-input" aria-label="Select Shock from Fleet"></select>
+                  <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddShock">
+                    + Add Shock
+                  </button>
+                </div>
+
+                <div id="shockFleetContainer"></div>
+              </div>
+            </article>
+
+            <!-- 5.10) SPRINGS (data-fleet-acc="springs") -->
+            <article class="fleet-acc-card stock-nested-card" id="springFleetCard" data-fleet-acc-card="springs">
+              <button
+                type="button"
+                class="fleet-acc-header"
+                data-fleet-acc="springs"
+                aria-expanded="false"
+              >
+                <div class="fleet-acc-left">
+                  <div class="fleet-acc-title">Springs</div>
+                  <div class="fleet-acc-sub">Pedders 5608/5609 Load Test (mm &amp; kg/mm) &bull; 10-Piece Mitutoyo Spacer Kit (Rule 6c &le;20mm)</div>
+                </div>
+                <div class="fleet-acc-right">
+                  <span class="fleet-acc-status-pill emerald" id="fleetSpringActiveBadge">FL:F11 FR:F12 &bull; RL:R6 RR:R5(+20mm)</span>
+                  <span class="fleet-acc-count-pill" id="fleetSpringCountBadge">13 COILS + 10 SPACERS</span>
+                  <span class="fleet-acc-chevron" data-fleet-acc-chevron="springs" aria-hidden="true">&#9654;</span>
+                </div>
+              </button>
+
+              <div class="fleet-acc-body" id="fleetAccBody_springs" style="display: none;">
+                <div class="section-eyebrow" style="margin-bottom: 6px;">Sub-Section A &bull; Pedders 5608 (Front: 216mm @ 14.57 kg/mm) &amp; 5609 (Rear: 170mm @ 2.54 kg/mm)</div>
+                <div class="tyre-stock-filter-bar" role="group" aria-label="Filter Springs Fleet" style="margin-bottom: 10px;">
+                  <button type="button" class="tyre-filter-pill active" data-spring-fleet-filter="all" id="btnFilterSpringsAll">
+                    All (<span id="countFilterSpringsAll">13</span>)
+                  </button>
+                  <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="F" id="btnFilterSpringsFront">
+                    Front (<span id="countFilterSpringsFront">6</span>)
+                  </button>
+                  <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="R" id="btnFilterSpringsRear">
+                    Rear (<span id="countFilterSpringsRear">7</span>)
+                  </button>
+                  <button type="button" class="tyre-filter-pill" data-spring-fleet-filter="oncar" id="btnFilterSpringsMounted">
+                    On Car #77 (<span id="countFilterSpringsMounted">4</span>)
+                  </button>
+                </div>
+
+                <div class="fleet-selector-bar" style="margin-bottom: 12px;">
+                  <label class="sr-only" for="selectFleetSpring">Select Spring from Fleet</label>
+                  <select id="selectFleetSpring" class="select-input" aria-label="Select Spring from Fleet"></select>
+                  <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddSpring">
+                    + Add Spring
+                  </button>
+                </div>
+
+                <div id="springFleetContainer" style="margin-bottom: 16px;"></div>
+
+                <!-- Sub-Section B: Locked 10-Piece Measured Spacer Inventory (5 Mitutoyo Pairs • Rule 6c <= 20.00mm) -->
+                <div class="spacer-kit-fleet-section" id="spacerKitFleetSection">
+                  <div class="spacer-kit-head-bar">
+                    <div>
+                      <div class="section-eyebrow" style="margin-bottom: 2px;">Sub-Section B &bull; Locked 10-Piece Mitutoyo-Measured Spacer Inventory</div>
+                      <div class="spacer-kit-sub">5 Measured Pairs (SP-F1 &amp; SP-R1..R4) + Car #77 Mounted RR ~20mm Sleeve &bull; Rule 6c Max 20.00 mm Combined</div>
+                    </div>
+                    <span class="locked-badge mono" id="outActiveRearSpacerKitBadge">CAR #77: RL 0mm &bull; RR 20mm</span>
+                  </div>
+
+                  <div class="fleet-selector-bar" style="margin-bottom: 10px;">
+                    <label class="sr-only" for="selectFleetSpacerKit">Select Measured Spacer Pair</label>
+                    <select id="selectFleetSpacerKit" class="select-input" aria-label="Select Measured Spacer Pair"></select>
+                  </div>
+
+                  <div id="spacerKitCardContainer" style="margin-bottom: 10px;"></div>
+                  <div id="spacerKitMatrixContainer"></div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </article>
     </section>
   </main>
 
-  <!-- Sticky Bottom 5-Tab Navigation (Single Row: Tune | Fuel & Wt | Tyres / Springs | Session Log | Fleet & Kit) -->
+  <!-- Sticky Bottom 5-Tab Navigation (Single Row: Tune | Fuel & Wt | Tyres / Springs | Session Log | Main & Spares) -->
   <nav class="bottom-tab-bar" role="navigation" aria-label="Primary App Tabs">
     <div class="bottom-tab-inner">
       <button type="button" class="tab-btn active" id="navTabCalc" data-tab="tab-calc" aria-controls="tab-calc" aria-selected="true">
@@ -3079,7 +3220,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
         </svg>
-        <span>Fleet &amp; Kit</span>
+        <span>Main &amp; Spares</span>
       </button>
     </div>
   </nav>
@@ -5308,9 +5449,75 @@
     </div>
   </div>
 
+  <!-- =========================================================
+       MODAL: LOG / EDIT MAINTENANCE ITEM (#modalEditMaintenance)
+       ========================================================= -->
+  <div class="modal-backdrop" id="modalEditMaintenance" role="dialog" aria-modal="true" aria-labelledby="modalEditMaintenanceTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">MAIN &amp; SPARES &bull; SERVICE &amp; INSTALL LOG</div>
+          <h2 class="section-title" id="modalEditMaintenanceTitle">Log Maintenance Entry</h2>
+        </div>
+        <button type="button" class="btn btn-danger" data-close-modal="modalEditMaintenance" aria-label="Close Maintenance Modal">
+          Close
+        </button>
+      </div>
+
+      <input type="hidden" id="editMaintItemIdHidden" />
+
+      <div class="field-group" style="margin-bottom: 10px;">
+        <div class="field-label-row">
+          <label class="field-label" for="editMaintItemName">Maintenance / Component Item</label>
+          <span class="field-hint amber" id="editMaintItemModeHint">A&ndash;Z Service Log</span>
+        </div>
+        <input
+          type="text"
+          id="editMaintItemName"
+          class="text-input"
+          placeholder="e.g. Engine Oil and Filter"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="field-group" style="margin-bottom: 10px;">
+        <div class="field-label-row">
+          <label class="field-label" for="editMaintDateDone">Date Done</label>
+          <button type="button" class="btn btn-amber-outline btn-xs" id="btnMaintDateToday" style="min-height: 28px; padding: 2px 10px;">
+            Today
+          </button>
+        </div>
+        <input type="date" id="editMaintDateDone" class="text-input mono" />
+      </div>
+
+      <div class="field-group" style="margin-bottom: 12px;">
+        <div class="field-label-row">
+          <label class="field-label" for="editMaintProductNotes">Product / Brand / Part # &amp; Notes</label>
+          <span class="field-hint emerald">Appends to Service History</span>
+        </div>
+        <input
+          type="text"
+          id="editMaintProductNotes"
+          class="text-input"
+          placeholder="e.g. Penrite Racing 20W-60 + Ryco Z30 • Fresh before Sandown"
+          autocomplete="off"
+        />
+      </div>
+
+      <div id="editMaintHistoryBox" class="maint-history-box" style="display: none; margin-bottom: 14px;">
+        <div class="section-eyebrow" style="margin-bottom: 6px;">PREVIOUS SERVICE &amp; INSTALL HISTORY</div>
+        <div id="editMaintHistoryList" class="maint-history-list"></div>
+      </div>
+
+      <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveMaintenanceEntry">
+        Save Service Entry
+      </button>
+    </div>
+  </div>
+
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.9.8"></script>
+  <script src="./app.js?v=0.9.9"></script>
 </body>
 </html>

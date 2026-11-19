@@ -2805,6 +2805,162 @@
     };
   }
 
+  const DEFAULT_MAINTENANCE_ITEMS_AZ = [
+    'Air Filter',
+    'Coil',
+    'Diff Oil',
+    'Engine Install Date',
+    'Engine Oil and Filter',
+    'Front Brake Pads',
+    'Front Brake Rotors',
+    'Fuel Filter',
+    'Gearbox Install Date',
+    'Gearbox Oil',
+    'Points',
+    'Radiator Flush',
+    'Rear Drums',
+    'Rear Pads',
+    'Resistor',
+    'Rotor Button',
+    'Spark Plug Leads',
+    'Spark Plugs',
+    'Trailing Arms'
+  ];
+
+  function makeMaintenanceIdFromName(name) {
+    return (
+      'maint_' +
+      String(name || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '')
+    );
+  }
+
+  function createDefaultWorkshopNotes() {
+    return {
+      toBuy: [],
+      toDo: []
+    };
+  }
+
+  function normalizeWorkshopNotes(raw) {
+    const def = createDefaultWorkshopNotes();
+    if (!raw || typeof raw !== 'object') return def;
+    const normList = (arr, prefix) => {
+      if (!Array.isArray(arr)) return [];
+      const seen = new Set();
+      const out = [];
+      arr.forEach((item, idx) => {
+        if (!item || typeof item !== 'object') return;
+        const text = typeof item.text === 'string' ? item.text.trim() : '';
+        if (!text) return;
+        const id =
+          typeof item.id === 'string' && item.id.trim()
+            ? item.id.trim()
+            : `${prefix}_${Date.now()}_${idx}`;
+        if (seen.has(id)) return;
+        seen.add(id);
+        out.push({
+          id,
+          text,
+          note: typeof item.note === 'string' ? item.note.trim() : '',
+          done: Boolean(item.done),
+          createdAt:
+            typeof item.createdAt === 'string' && item.createdAt.trim()
+              ? item.createdAt.trim()
+              : getLocalTodayIso()
+        });
+      });
+      return out;
+    };
+    return {
+      toBuy: normList(raw.toBuy, 'buy'),
+      toDo: normList(raw.toDo, 'todo')
+    };
+  }
+
+  function createDefaultMaintenanceLog() {
+    return DEFAULT_MAINTENANCE_ITEMS_AZ.slice()
+      .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
+      .map((name) => ({
+        id: makeMaintenanceIdFromName(name),
+        name,
+        dateDone: '',
+        product: '',
+        notes: '',
+        isCustom: false,
+        history: []
+      }));
+  }
+
+  function normalizeMaintenanceLog(raw) {
+    const seedList = createDefaultMaintenanceLog();
+    const byNameKey = new Map();
+    seedList.forEach((item) => {
+      byNameKey.set(item.name.toLowerCase(), { ...item, history: [] });
+    });
+
+    if (Array.isArray(raw)) {
+      raw.forEach((item, idx) => {
+        if (!item || typeof item !== 'object') return;
+        const rawName = typeof item.name === 'string' ? item.name.trim() : '';
+        if (!rawName) return;
+        const key = rawName.toLowerCase();
+        const existingSeed = byNameKey.get(key);
+        const dateDone =
+          typeof item.dateDone === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(item.dateDone.trim())
+            ? item.dateDone.trim()
+            : typeof item.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(item.date.trim())
+            ? item.date.trim()
+            : '';
+        const product =
+          typeof item.product === 'string' && item.product.trim()
+            ? item.product.trim()
+            : typeof item.notes === 'string' && item.notes.trim()
+            ? item.notes.trim()
+            : '';
+        const notes =
+          typeof item.notes === 'string' && item.notes.trim()
+            ? item.notes.trim()
+            : product;
+        const history = Array.isArray(item.history)
+          ? item.history
+              .filter((h) => h && typeof h === 'object' && (h.dateDone || h.product || h.notes))
+              .map((h) => ({
+                dateDone: typeof h.dateDone === 'string' ? h.dateDone.trim() : '',
+                product: typeof h.product === 'string' ? h.product.trim() : typeof h.notes === 'string' ? h.notes.trim() : '',
+                loggedAt: typeof h.loggedAt === 'string' ? h.loggedAt : ''
+              }))
+          : [];
+        if (existingSeed) {
+          existingSeed.dateDone = dateDone;
+          existingSeed.product = product;
+          existingSeed.notes = notes;
+          existingSeed.history = history;
+        } else {
+          byNameKey.set(key, {
+            id:
+              typeof item.id === 'string' && item.id.trim()
+                ? item.id.trim()
+                : `${makeMaintenanceIdFromName(rawName)}_${idx}`,
+            name: rawName,
+            dateDone,
+            product,
+            notes,
+            isCustom: true,
+            history
+          });
+        }
+      });
+    }
+
+    return Array.from(byNameKey.values()).sort((a, b) =>
+      String(a.name || '').localeCompare(String(b.name || ''), undefined, { sensitivity: 'base' })
+    );
+  }
+
   function normalizeBrakeTemps(raw) {
     if (!raw || typeof raw !== 'object') {
       return { FL: null, FR: null, RL: null, RR: null };
@@ -5247,6 +5403,9 @@
       t.totalLaps = (Number(t.baseLaps) || 0) + sessLaps;
     });
 
+    candidate.workshopNotes = normalizeWorkshopNotes(candidate.workshopNotes);
+    candidate.maintenanceLog = normalizeMaintenanceLog(candidate.maintenanceLog);
+
     candidate.carbyJetAuditV1 = true;
     candidate.manifoldAudit2012V2 = true;
     candidate.manifoldActiveF_V1 = true;
@@ -5328,6 +5487,8 @@
       activeExhaustId: 'Macca',
       brakes: createDefaultBrakes(),
       trackBenchmarks: createDefaultTrackBenchmarks(),
+      workshopNotes: createDefaultWorkshopNotes(),
+      maintenanceLog: createDefaultMaintenanceLog(),
       tyrePool: createDefaultTyrePool(),
       sessions: createDefaultSessions(),
       dynoPulls: createDefaultDynoPulls(),
@@ -5371,12 +5532,15 @@
     confirmDeleteTyreId: null,
     confirmDeleteShockId: null,
     confirmDeleteSpringId: null,
+    confirmDeleteNoteId: null,
+    confirmDeleteMaintId: null,
     expandedTyreId: null,
     expandedEventId: null,
     expandedSessionId: null,
     expandedEventIds: new Set(),
     expandedShockDynoIds: new Set(),
     openFleetSectionId: null,
+    openStockSectorId: null,
     pendingActionAfterNewEvent: null,
     tyreStockFilter: 'all', // 'all' | 'buffed' | 'wet'
     shockFleetFilter: 'all', // 'all' | 'F' | 'R' | 'mounted'
@@ -8895,7 +9059,7 @@
                 <span class="jet-role-tag">${escapeHtml(slot.role)}</span>
               </div>
               <div class="jet-name-big">End of Tactix Box Range</div>
-              <div class="jet-card-meta"><span>Enable more mm jets in Fleet &amp; Kit</span></div>
+              <div class="jet-card-meta"><span>Enable more mm jets in Main &amp; Spares</span></div>
             </div>
           `;
         }
@@ -10939,7 +11103,7 @@
     }
     if (chosen && chosen.status === 'other_car') {
       renderCornerSuspensionSelectors();
-      showToast(`${chosen.code} is marked In Other Car / Unavailable — edit status in Fleet & Kit first`);
+      showToast(`${chosen.code} is marked In Other Car / Unavailable — edit status in Main & Spares first`);
       return;
     }
 
@@ -10991,7 +11155,7 @@
     const chosen = getSpringById(cleanId);
     if (chosen && chosen.status === 'other_car') {
       renderCornerSuspensionSelectors();
-      showToast(`${chosen.code} is marked In Other Car / Unavailable — edit status in Fleet & Kit first`);
+      showToast(`${chosen.code} is marked In Other Car / Unavailable — edit status in Main & Spares first`);
       return;
     }
 
@@ -11282,28 +11446,62 @@
     };
   }
 
+  const TOP_LEVEL_FLEET_SECTIONS = new Set([
+    'notes',
+    'corner_weights',
+    'maintenance',
+    'track_benchmarks',
+    'stock'
+  ]);
+
+  const NESTED_STOCK_SECTORS = new Set([
+    'brakes',
+    'carburettors',
+    'cloud_sync',
+    'emulsions',
+    'exhausts',
+    'fuel_system',
+    'jets',
+    'manifolds',
+    'shocks',
+    'springs'
+  ]);
+
   function toggleFleetAccordion(sectionId) {
     if (!sectionId) return;
-    ui.openFleetSectionId = ui.openFleetSectionId === sectionId ? null : sectionId;
+    if (NESTED_STOCK_SECTORS.has(sectionId)) {
+      ui.openFleetSectionId = 'stock';
+      ui.openStockSectorId = ui.openStockSectorId === sectionId ? null : sectionId;
+    } else if (TOP_LEVEL_FLEET_SECTIONS.has(sectionId)) {
+      ui.openFleetSectionId = ui.openFleetSectionId === sectionId ? null : sectionId;
+    } else {
+      ui.openFleetSectionId = ui.openFleetSectionId === sectionId ? null : sectionId;
+    }
     syncFleetAccordionUi();
   }
 
   function syncFleetAccordionUi() {
-    const openId = ui.openFleetSectionId || null;
+    const openTopId = ui.openFleetSectionId || null;
+    const openNestedId = ui.openStockSectorId || null;
     document.querySelectorAll('#tab-fleet .fleet-acc-card').forEach((card) => {
-      const headerBtn = card.querySelector('[data-fleet-acc]');
+      const headerBtn = card.querySelector(':scope > [data-fleet-acc]') || card.querySelector('[data-fleet-acc]');
       const secId = headerBtn ? headerBtn.getAttribute('data-fleet-acc') : null;
-      const isOpen = Boolean(secId && secId === openId);
+      const isNested = NESTED_STOCK_SECTORS.has(secId);
+      const isOpen = Boolean(
+        secId && (isNested ? secId === openNestedId : secId === openTopId)
+      );
       card.classList.toggle('is-open', isOpen);
       card.classList.toggle('open', isOpen);
       if (headerBtn) {
         headerBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
       }
-      const bodyEl = secId ? $(`fleetAccBody_${secId}`) : card.querySelector('.fleet-acc-body');
+      const bodyEl = secId ? $(`fleetAccBody_${secId}`) : card.querySelector(':scope > .fleet-acc-body');
       if (bodyEl) {
         bodyEl.style.display = isOpen ? 'block' : 'none';
       }
-      const chevEl = secId ? card.querySelector(`[data-fleet-acc-chevron="${secId}"]`) : card.querySelector('.fleet-acc-chevron');
+      const chevEl = secId
+        ? card.querySelector(`[data-fleet-acc-chevron="${secId}"]`)
+        : card.querySelector('.fleet-acc-chevron');
       if (chevEl) {
         chevEl.innerHTML = isOpen ? '&#9660;' : '&#9654;';
       }
@@ -15139,6 +15337,8 @@
     syncFlatSessionsFromEvents(state);
     state.spacerKit = normalizeSpacerKit(state.spacerKit);
     state.brakes = normalizeBrakes(state.brakes);
+    state.workshopNotes = normalizeWorkshopNotes(state.workshopNotes);
+    state.maintenanceLog = normalizeMaintenanceLog(state.maintenanceLog);
     state.cornerWeights = ensureCornerWeightBaselineState();
     state.cornerWeights.trimDeltas = normalizeTrimDeltas(state.cornerWeights.trimDeltas);
     state.cornerWeightBaseline = state.cornerWeights;
@@ -17720,6 +17920,19 @@
         `- Spacer ${spItem.code} (${spItem.name} | ${spItem.end} | Qty ${spItem.qty} | ${spItem.thicknessMm.toFixed(2)}mm | Lift ${spItem.liftMmEst}): ${spItem.status}`
       );
     });
+    const wnDump = normalizeWorkshopNotes(state.workshopNotes);
+    const toBuyDump = (wnDump.toBuy || []).map((i) => `${i.done ? '[✓]' : '[ ]'} ${i.text}${i.note ? ` (${i.note})` : ''}`).join(' | ') || 'None';
+    const toDoDump = (wnDump.toDo || []).map((i) => `${i.done ? '[✓]' : '[ ]'} ${i.text}`).join(' | ') || 'None';
+    lines.push(`- Workshop Notes TO BUY (${(wnDump.toBuy || []).length}): ${toBuyDump}`);
+    lines.push(`- Workshop Notes TO DO (${(wnDump.toDo || []).length}): ${toDoDump}`);
+    const maintDump = normalizeMaintenanceLog(state.maintenanceLog);
+    const loggedMaint = maintDump.filter((m) => Boolean(m.dateDone || m.product || m.notes));
+    lines.push(`- Maintenance & Install Log (${loggedMaint.length}/${maintDump.length} Logged A-Z):`);
+    maintDump.forEach((m) => {
+      lines.push(
+        `  * ${m.name}: ${m.dateDone ? formatIsoDateDisplay(m.dateDone) : 'Not Logged'}${m.product || m.notes ? ` — ${m.product || m.notes}` : ''}`
+      );
+    });
     lines.push('');
 
     // 6. All Logged Events & Sessions
@@ -20221,66 +20434,430 @@
     container.innerHTML = `<div class="track-benchmark-list">${rowsHtml}</div>${addDrawerHtml}`;
   }
 
+  function ensureWorkshopNotesState() {
+    if (!state.workshopNotes || typeof state.workshopNotes !== 'object') {
+      state.workshopNotes = createDefaultWorkshopNotes();
+    } else {
+      state.workshopNotes = normalizeWorkshopNotes(state.workshopNotes);
+    }
+    return state.workshopNotes;
+  }
+
+  function renderWorkshopNotesFleet() {
+    const wn = ensureWorkshopNotesState();
+    const toBuyList = Array.isArray(wn.toBuy) ? wn.toBuy : [];
+    const toDoList = Array.isArray(wn.toDo) ? wn.toDo : [];
+
+    const openBuyCount = toBuyList.filter((i) => !i.done).length;
+    const openDoCount = toDoList.filter((i) => !i.done).length;
+
+    const summaryBadge = $('fleetNotesSummaryBadge');
+    if (summaryBadge) {
+      summaryBadge.textContent = `${openBuyCount} TO BUY • ${openDoCount} TO DO`;
+      summaryBadge.className = `fleet-acc-status-pill ${openBuyCount + openDoCount > 0 ? 'amber' : 'emerald'}`;
+    }
+
+    const buyBadge = $('outToBuyCountBadge');
+    if (buyBadge) {
+      buyBadge.textContent = `${openBuyCount} OPEN • ${toBuyList.length} TOTAL`;
+    }
+    const doBadge = $('outToDoCountBadge');
+    if (doBadge) {
+      doBadge.textContent = `${openDoCount} OPEN • ${toDoList.length} TOTAL`;
+    }
+
+    const renderChecklistRows = (items, listKey, emptyMsg) => {
+      if (items.length === 0) {
+        return `<div class="workshop-empty-hint">${escapeHtml(emptyMsg)}</div>`;
+      }
+      return items
+        .map((item) => {
+          const isConfirmDel = ui.confirmDeleteNoteId === `${listKey}:${item.id}`;
+          return `
+            <div class="workshop-note-row ${item.done ? 'is-done' : ''}">
+              <button
+                type="button"
+                class="workshop-note-check-btn"
+                data-toggle-workshop-note="${escapeHtml(listKey)}"
+                data-workshop-note-id="${escapeHtml(item.id)}"
+                aria-label="Toggle completed for ${escapeHtml(item.text)}"
+                aria-pressed="${item.done ? 'true' : 'false'}"
+              >&#10003;</button>
+              <div
+                class="workshop-note-content"
+                data-toggle-workshop-note="${escapeHtml(listKey)}"
+                data-workshop-note-id="${escapeHtml(item.id)}"
+              >
+                <div class="workshop-note-text">${escapeHtml(item.text)}</div>
+                ${item.note ? `<div class="workshop-note-sub mono">${escapeHtml(item.note)}</div>` : ''}
+              </div>
+              <button
+                type="button"
+                class="btn-icon-delete ${isConfirmDel ? 'confirm-delete' : ''}"
+                data-delete-workshop-note="${escapeHtml(listKey)}"
+                data-workshop-note-id="${escapeHtml(item.id)}"
+                title="${isConfirmDel ? 'Tap again to confirm delete' : 'Delete item'}"
+                aria-label="Delete item"
+                style="${isConfirmDel ? 'width: auto; padding: 0 10px; background: var(--accent-red); color: #fff; font-weight: 800;' : ''}"
+              >${isConfirmDel ? 'Confirm &#10005;' : '&#10005;'}</button>
+            </div>
+          `;
+        })
+        .join('');
+    };
+
+    const buyContainer = $('workshopToBuyList');
+    if (buyContainer) {
+      buyContainer.innerHTML = renderChecklistRows(
+        toBuyList,
+        'toBuy',
+        'No parts or consumables queued to buy.'
+      );
+    }
+
+    const doContainer = $('workshopToDoList');
+    if (doContainer) {
+      doContainer.innerHTML = renderChecklistRows(
+        toDoList,
+        'toDo',
+        'No workshop prep or check tasks pending.'
+      );
+    }
+  }
+
+  function addWorkshopNoteItem(listKey) {
+    const wn = ensureWorkshopNotesState();
+    const isBuy = listKey === 'toBuy';
+    const textInput = $(isBuy ? 'inputNewToBuyText' : 'inputNewToDoText');
+    const noteInput = isBuy ? $('inputNewToBuyNote') : null;
+    const rawText = textInput ? String(textInput.value || '').trim() : '';
+    const rawNote = noteInput ? String(noteInput.value || '').trim() : '';
+
+    if (!rawText) {
+      showToast(isBuy ? 'Enter a part or consumable to buy' : 'Enter a workshop task to do');
+      if (textInput) textInput.focus();
+      return;
+    }
+
+    const targetArr = isBuy ? wn.toBuy : wn.toDo;
+    targetArr.unshift({
+      id: `${isBuy ? 'buy' : 'todo'}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      text: rawText,
+      note: rawNote,
+      done: false,
+      createdAt: getLocalTodayIso()
+    });
+
+    if (textInput) textInput.value = '';
+    if (noteInput) noteInput.value = '';
+    ui.confirmDeleteNoteId = null;
+    saveState();
+    renderWorkshopNotesFleet();
+    showToast(`Added to ${isBuy ? 'TO BUY' : 'TO DO'}: ${rawText}`);
+  }
+
+  function toggleWorkshopNoteItem(listKey, noteId) {
+    const wn = ensureWorkshopNotesState();
+    const arr = listKey === 'toBuy' ? wn.toBuy : wn.toDo;
+    const item = arr.find((i) => i.id === noteId);
+    if (!item) return;
+    item.done = !item.done;
+    ui.confirmDeleteNoteId = null;
+    saveState();
+    renderWorkshopNotesFleet();
+  }
+
+  function deleteWorkshopNoteItem(listKey, noteId) {
+    const wn = ensureWorkshopNotesState();
+    const confirmKey = `${listKey}:${noteId}`;
+    if (ui.confirmDeleteNoteId !== confirmKey) {
+      ui.confirmDeleteNoteId = confirmKey;
+      renderWorkshopNotesFleet();
+      showToast('Tap Confirm ✕ again to delete item');
+      return;
+    }
+    if (listKey === 'toBuy') {
+      wn.toBuy = wn.toBuy.filter((i) => i.id !== noteId);
+    } else {
+      wn.toDo = wn.toDo.filter((i) => i.id !== noteId);
+    }
+    ui.confirmDeleteNoteId = null;
+    saveState();
+    renderWorkshopNotesFleet();
+    showToast('Removed checklist item');
+  }
+
+  function ensureMaintenanceLogState() {
+    state.maintenanceLog = normalizeMaintenanceLog(state.maintenanceLog);
+    return state.maintenanceLog;
+  }
+
+  function renderMaintenanceFleet() {
+    const list = ensureMaintenanceLogState();
+    const totalCount = list.length;
+    const loggedCount = list.filter((item) => Boolean(item.dateDone || item.product || item.notes)).length;
+
+    const badge = $('fleetMaintenanceSummaryBadge');
+    if (badge) {
+      badge.textContent = `${loggedCount}/${totalCount} LOGGED`;
+      badge.className = `fleet-acc-status-pill ${loggedCount > 0 ? 'emerald' : 'amber'}`;
+    }
+
+    const container = $('maintenanceFleetContainer');
+    if (!container) return;
+
+    const rowsHtml = list
+      .map((item) => {
+        const hasDate = Boolean(item.dateDone);
+        const dispDate = hasDate ? (formatIsoDateDisplay(item.dateDone) || item.dateDone) : 'Not Logged';
+        const prodText = item.product || item.notes || '';
+        const isLogged = Boolean(hasDate || prodText);
+        const histCount = Array.isArray(item.history) ? item.history.length : 0;
+        const isConfirmDel = ui.confirmDeleteMaintId === item.id;
+
+        return `
+          <div class="maintenance-item-row ${isLogged ? 'is-logged' : ''}">
+            <div class="maintenance-item-left">
+              <div class="maintenance-item-top">
+                <span class="maintenance-item-name">${escapeHtml(item.name)}</span>
+                <span class="maintenance-date-badge mono ${hasDate ? '' : 'unlogged'}">${escapeHtml(dispDate)}</span>
+                ${histCount > 1 ? `<span class="maintenance-item-history-tag mono">(${histCount} logs)</span>` : ''}
+              </div>
+              <div class="maintenance-item-product ${prodText ? '' : 'muted'}">
+                ${prodText ? escapeHtml(prodText) : 'No service date or product spec logged yet.'}
+              </div>
+            </div>
+            <div class="maintenance-item-actions">
+              <button
+                type="button"
+                class="btn btn-amber-outline btn-xs"
+                data-edit-maintenance="${escapeHtml(item.id)}"
+                style="min-height: 34px; padding: 4px 10px;"
+              >
+                Log / Edit
+              </button>
+              ${
+                item.isCustom
+                  ? `<button
+                      type="button"
+                      class="btn-icon-delete ${isConfirmDel ? 'confirm-delete' : ''}"
+                      data-delete-maintenance="${escapeHtml(item.id)}"
+                      title="${isConfirmDel ? 'Tap again to confirm delete' : 'Remove Custom Item'}"
+                      aria-label="Remove Custom Item"
+                      style="${isConfirmDel ? 'width: auto; padding: 0 8px; background: var(--accent-red); color: #fff; font-weight: 800;' : ''}"
+                    >${isConfirmDel ? 'Confirm &#10005;' : '&#10005;'}</button>`
+                  : ''
+              }
+            </div>
+          </div>
+        `;
+      })
+      .join('');
+
+    container.innerHTML = `<div class="maintenance-list">${rowsHtml}</div>`;
+  }
+
+  function openEditMaintenanceModal(maintId) {
+    const list = ensureMaintenanceLogState();
+    const isNew = !maintId || maintId === '__NEW__';
+    const existing = isNew ? null : list.find((m) => m.id === maintId);
+
+    if ($('editMaintItemIdHidden')) {
+      $('editMaintItemIdHidden').value = existing ? existing.id : '__NEW__';
+    }
+    if ($('modalEditMaintenanceTitle')) {
+      $('modalEditMaintenanceTitle').textContent = existing
+        ? `Log / Edit: ${existing.name}`
+        : 'Add Custom Maintenance Item';
+    }
+    if ($('editMaintItemName')) {
+      $('editMaintItemName').value = existing ? existing.name : '';
+      $('editMaintItemName').disabled = Boolean(existing && !existing.isCustom);
+    }
+    if ($('editMaintItemModeHint')) {
+      $('editMaintItemModeHint').textContent = existing && !existing.isCustom
+        ? 'Core A–Z Item'
+        : 'Custom Item';
+    }
+    if ($('editMaintDateDone')) {
+      $('editMaintDateDone').value = (existing && existing.dateDone) ? existing.dateDone : getLocalTodayIso();
+    }
+    if ($('editMaintProductNotes')) {
+      $('editMaintProductNotes').value = existing ? (existing.product || existing.notes || '') : '';
+    }
+
+    const histBox = $('editMaintHistoryBox');
+    const histList = $('editMaintHistoryList');
+    if (histBox && histList) {
+      const history = existing && Array.isArray(existing.history) ? existing.history : [];
+      if (history.length > 0) {
+        histBox.style.display = 'block';
+        histList.innerHTML = history
+          .map((h) => {
+            const dStr = h.dateDone ? (formatIsoDateDisplay(h.dateDone) || h.dateDone) : 'No Date';
+            return `
+              <div class="maint-history-entry">
+                <span class="mono txt-emerald" style="font-weight: 800; flex-shrink: 0;">${escapeHtml(dStr)}</span>
+                <span style="color: var(--text-primary); text-align: right;">${escapeHtml(h.product || 'Logged Service')}</span>
+              </div>
+            `;
+          })
+          .join('');
+      } else {
+        histBox.style.display = 'none';
+        histList.innerHTML = '';
+      }
+    }
+
+    openModal('modalEditMaintenance');
+  }
+
+  function saveEditMaintenanceModal() {
+    const list = ensureMaintenanceLogState();
+    const rawId = $('editMaintItemIdHidden') ? String($('editMaintItemIdHidden').value || '').trim() : '__NEW__';
+    const rawName = $('editMaintItemName') ? String($('editMaintItemName').value || '').trim() : '';
+    const rawDate = $('editMaintDateDone') ? String($('editMaintDateDone').value || '').trim() : '';
+    const rawProduct = $('editMaintProductNotes') ? String($('editMaintProductNotes').value || '').trim() : '';
+
+    let target = rawId !== '__NEW__' ? list.find((m) => m.id === rawId) : null;
+    if (!target) {
+      if (!rawName) {
+        showToast('Enter a Maintenance Item name');
+        return;
+      }
+      const matchByName = list.find((m) => m.name.toLowerCase() === rawName.toLowerCase());
+      if (matchByName) {
+        target = matchByName;
+      } else {
+        target = {
+          id: `${makeMaintenanceIdFromName(rawName)}_${Date.now()}`,
+          name: rawName,
+          dateDone: '',
+          product: '',
+          notes: '',
+          isCustom: true,
+          history: []
+        };
+        list.push(target);
+      }
+    } else if (target.isCustom && rawName) {
+      target.name = rawName;
+    }
+
+    target.dateDone = /^\d{4}-\d{2}-\d{2}$/.test(rawDate) ? rawDate : '';
+    target.product = rawProduct;
+    target.notes = rawProduct;
+
+    if (!Array.isArray(target.history)) {
+      target.history = [];
+    }
+    if (target.dateDone || target.product) {
+      const topHist = target.history[0];
+      const isDuplicateTop =
+        topHist && topHist.dateDone === target.dateDone && topHist.product === target.product;
+      if (!isDuplicateTop) {
+        target.history.unshift({
+          dateDone: target.dateDone,
+          product: target.product,
+          loggedAt: new Date().toISOString()
+        });
+      }
+    }
+
+    state.maintenanceLog = normalizeMaintenanceLog(list);
+    saveState();
+    closeModal('modalEditMaintenance');
+    renderMaintenanceFleet();
+    showToast(`Saved ${target.name}${target.dateDone ? ` (${formatIsoDateDisplay(target.dateDone)})` : ''}`);
+  }
+
+  function deleteCustomMaintenanceItem(maintId) {
+    const list = ensureMaintenanceLogState();
+    const item = list.find((m) => m.id === maintId);
+    if (!item || !item.isCustom) return;
+    if (ui.confirmDeleteMaintId !== maintId) {
+      ui.confirmDeleteMaintId = maintId;
+      renderMaintenanceFleet();
+      showToast(`Tap Confirm ✕ again to delete ${item.name}`);
+      return;
+    }
+    state.maintenanceLog = list.filter((m) => m.id !== maintId);
+    ui.confirmDeleteMaintId = null;
+    saveState();
+    renderMaintenanceFleet();
+    showToast(`Deleted ${item.name}`);
+  }
+
   function renderFleetAndKit() {
     try {
-      renderBrakesFleet();
+      renderWorkshopNotesFleet();
     } catch (err) {
-      console.error('Fleet section error (Brakes):', err);
-    }
-    try {
-      renderCarbyFleet();
-    } catch (err) {
-      console.error('Fleet section error (Carburettors):', err);
+      console.error('Main & Spares section error (Notes):', err);
     }
     try {
       renderCornerWeightBaselineCard();
     } catch (err) {
-      console.error('Fleet section error (Corner Weights):', err);
+      console.error('Main & Spares section error (Corner Weights):', err);
     }
     try {
-      renderEmulsionBrassFleet();
+      renderMaintenanceFleet();
     } catch (err) {
-      console.error('Fleet section error (Emulsion & Brass Kit):', err);
-    }
-    try {
-      renderExhaustFleet();
-    } catch (err) {
-      console.error('Fleet section error (Exhausts):', err);
-    }
-    try {
-      renderFuelSystemFleet();
-    } catch (err) {
-      console.error('Fleet section error (Fuel System):', err);
-    }
-    try {
-      renderJetInventory();
-    } catch (err) {
-      console.error('Fleet section error (Jets):', err);
-    }
-    try {
-      renderManifoldFleet();
-    } catch (err) {
-      console.error('Fleet section error (Manifolds):', err);
-    }
-    try {
-      renderShockFleet();
-    } catch (err) {
-      console.error('Fleet section error (Shocks):', err);
-    }
-    try {
-      renderSpringFleet();
-    } catch (err) {
-      console.error('Fleet section error (Springs):', err);
+      console.error('Main & Spares section error (Maintenance):', err);
     }
     try {
       renderTrackBenchmarksFleet();
     } catch (err) {
-      console.error('Fleet section error (Track Benchmarks):', err);
+      console.error('Main & Spares section error (Track Benchmarks):', err);
+    }
+    try {
+      renderBrakesFleet();
+    } catch (err) {
+      console.error('Main & Spares section error (Brakes):', err);
+    }
+    try {
+      renderCarbyFleet();
+    } catch (err) {
+      console.error('Main & Spares section error (Carburettors):', err);
+    }
+    try {
+      renderEmulsionBrassFleet();
+    } catch (err) {
+      console.error('Main & Spares section error (Emulsion & Brass Kit):', err);
+    }
+    try {
+      renderExhaustFleet();
+    } catch (err) {
+      console.error('Main & Spares section error (Exhausts):', err);
+    }
+    try {
+      renderFuelSystemFleet();
+    } catch (err) {
+      console.error('Main & Spares section error (Fuel System):', err);
+    }
+    try {
+      renderJetInventory();
+    } catch (err) {
+      console.error('Main & Spares section error (Jets):', err);
+    }
+    try {
+      renderManifoldFleet();
+    } catch (err) {
+      console.error('Main & Spares section error (Manifolds):', err);
+    }
+    try {
+      renderShockFleet();
+    } catch (err) {
+      console.error('Main & Spares section error (Shocks):', err);
+    }
+    try {
+      renderSpringFleet();
+    } catch (err) {
+      console.error('Main & Spares section error (Springs):', err);
     }
     try {
       syncFleetAccordionUi();
     } catch (err) {
-      console.error('Fleet section error (Accordion Sync):', err);
+      console.error('Main & Spares section error (Accordion Sync):', err);
     }
   }
 
@@ -21104,6 +21681,36 @@
       const fleetAccHeader = e.target.closest('[data-fleet-acc]');
       if (fleetAccHeader) {
         toggleFleetAccordion(fleetAccHeader.getAttribute('data-fleet-acc'));
+        return;
+      }
+
+      const toggleNoteBtn = e.target.closest('[data-toggle-workshop-note]');
+      if (toggleNoteBtn) {
+        toggleWorkshopNoteItem(
+          toggleNoteBtn.getAttribute('data-toggle-workshop-note'),
+          toggleNoteBtn.getAttribute('data-workshop-note-id')
+        );
+        return;
+      }
+
+      const delNoteBtn = e.target.closest('[data-delete-workshop-note]');
+      if (delNoteBtn) {
+        deleteWorkshopNoteItem(
+          delNoteBtn.getAttribute('data-delete-workshop-note'),
+          delNoteBtn.getAttribute('data-workshop-note-id')
+        );
+        return;
+      }
+
+      const editMaintBtn = e.target.closest('[data-edit-maintenance]');
+      if (editMaintBtn) {
+        openEditMaintenanceModal(editMaintBtn.getAttribute('data-edit-maintenance'));
+        return;
+      }
+
+      const delMaintBtn = e.target.closest('[data-delete-maintenance]');
+      if (delMaintBtn) {
+        deleteCustomMaintenanceItem(delMaintBtn.getAttribute('data-delete-maintenance'));
         return;
       }
 
@@ -22145,6 +22752,46 @@
       $('btnSaveExhaustModal').addEventListener('click', saveEditExhaustModal);
     }
 
+    // Main & Spares: NOTES (To Buy & To Do) & MAINTENANCE listeners
+    if ($('btnAddToBuyItem')) {
+      $('btnAddToBuyItem').addEventListener('click', () => addWorkshopNoteItem('toBuy'));
+    }
+    ['inputNewToBuyText', 'inputNewToBuyNote'].forEach((id) => {
+      const el = $(id);
+      if (el) {
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            addWorkshopNoteItem('toBuy');
+          }
+        });
+      }
+    });
+    if ($('btnAddToDoItem')) {
+      $('btnAddToDoItem').addEventListener('click', () => addWorkshopNoteItem('toDo'));
+    }
+    if ($('inputNewToDoText')) {
+      $('inputNewToDoText').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addWorkshopNoteItem('toDo');
+        }
+      });
+    }
+    if ($('btnOpenAddCustomMaintenance')) {
+      $('btnOpenAddCustomMaintenance').addEventListener('click', () => openEditMaintenanceModal('__NEW__'));
+    }
+    if ($('btnMaintDateToday')) {
+      $('btnMaintDateToday').addEventListener('click', () => {
+        if ($('editMaintDateDone')) {
+          $('editMaintDateDone').value = getLocalTodayIso();
+        }
+      });
+    }
+    if ($('btnSaveMaintenanceEntry')) {
+      $('btnSaveMaintenanceEntry').addEventListener('click', saveEditMaintenanceModal);
+    }
+
     if ($('btnToggleEditBaseWeatherOnly')) {
       $('btnToggleEditBaseWeatherOnly').addEventListener('click', () => {
         ui.editBaseWeatherOnly = !ui.editBaseWeatherOnly;
@@ -22285,6 +22932,9 @@
           mountedSpacers: { ...DEFAULT_MOUNTED_SPACERS },
           cornerWeights: createDefaultCornerWeightBaseline(),
           cornerWeightBaseline: createDefaultCornerWeightBaseline(),
+          trackBenchmarks: createDefaultTrackBenchmarks(),
+          workshopNotes: createDefaultWorkshopNotes(),
+          maintenanceLog: createDefaultMaintenanceLog(),
           activeManifoldId: 'MAN_F',
           activeExhaustId: 'Macca',
           sessions: flattenEventsToSessions(defaultEvents),

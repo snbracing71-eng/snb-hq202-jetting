@@ -5655,8 +5655,8 @@ button:disabled.btn-stage-locked,
   border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
-.fleet-acc-card.is-open .fleet-acc-body,
-.fleet-acc-card.open .fleet-acc-body {
+.fleet-acc-card.is-open > .fleet-acc-body,
+.fleet-acc-card.open > .fleet-acc-body {
   display: block !important;
   max-height: none !important;
   overflow: visible !important;
@@ -7331,3 +7331,311 @@ button:disabled.btn-stage-locked,
   font-weight: 800;
   color: var(--text-secondary);
 }
+
+/* =========================================================
+   V0.9.9 — MAIN & SPARES: NOTES (TO BUY / TO DO), MAINTENANCE (19 ITEMS) & STOCK
+   ========================================================= */
+.stock-nested-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stock-nested-card {
+  border-color: #2E3B50;
+  background: linear-gradient(180deg, #161D29 0%, #0E131B 100%);
+}
+
+.stock-nested-card > .fleet-acc-header {
+  padding: 10px 12px;
+  background: linear-gradient(180deg, #1D2635 0%, #131924 55%, #0D1219 100%);
+}
+
+.stock-nested-card > .fleet-acc-header:hover {
+  background: linear-gradient(180deg, #242F42 0%, #171F2C 55%, #101620 100%);
+}
+
+.workshop-notes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 720px) {
+  .workshop-notes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.workshop-checklist-panel {
+  padding: 11px 12px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #171F2C 0%, #0E131B 100%);
+  border: 1.5px solid #35455D;
+  border-top-color: #4D6282;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 4px 10px rgba(0, 0, 0, 0.45);
+}
+
+.workshop-checklist-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.workshop-checklist-title {
+  font-size: 0.98rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: #F8FAFC;
+  text-transform: uppercase;
+}
+
+.workshop-add-row {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.workshop-add-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.workshop-add-note-input {
+  flex: 0 0 130px;
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .workshop-add-row {
+    flex-wrap: wrap;
+  }
+  .workshop-add-note-input {
+    flex: 1 1 110px;
+  }
+}
+
+.workshop-add-btn {
+  flex-shrink: 0;
+  min-height: 38px;
+  padding: 0 12px;
+  font-size: 0.85rem;
+  font-weight: 900;
+}
+
+.workshop-checklist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.workshop-note-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #1E2736 0%, #121822 100%);
+  border: 1px solid #2F3D52;
+  border-top-color: #435672;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.workshop-note-row.is-done {
+  opacity: 0.72;
+  background: linear-gradient(180deg, #131923 0%, #0C1017 100%);
+  border-color: #232E3E;
+}
+
+.workshop-note-check-btn {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 900;
+  color: transparent;
+  background: linear-gradient(180deg, #0D1219 0%, #161E2B 100%);
+  border: 1.5px solid #4A5E7D;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.65);
+  cursor: pointer;
+}
+
+.workshop-note-row.is-done .workshop-note-check-btn {
+  color: #071712;
+  background: linear-gradient(180deg, #34D399 0%, #10B981 60%, #059669 100%);
+  border-color: #6EE7B7;
+  box-shadow:
+    0 0 8px rgba(16, 185, 129, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.workshop-note-content {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: pointer;
+}
+
+.workshop-note-text {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #F8FAFC;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.workshop-note-row.is-done .workshop-note-text {
+  text-decoration: line-through;
+  color: #94A3B8;
+}
+
+.workshop-note-sub {
+  font-size: 0.835rem;
+  font-weight: 700;
+  color: #FCD34D;
+}
+
+.workshop-empty-hint {
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #94A3B8;
+  background: rgba(15, 20, 29, 0.6);
+  border: 1px dashed #2E3B50;
+}
+
+/* MAINTENANCE A–Z LIST */
+.maintenance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.maintenance-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #1B2432 0%, #111721 100%);
+  border: 1px solid #2F3D52;
+  border-top-color: #455875;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 3px 7px rgba(0, 0, 0, 0.45);
+}
+
+.maintenance-item-row.is-logged {
+  border-color: rgba(16, 185, 129, 0.45);
+  border-top-color: rgba(110, 231, 183, 0.55);
+}
+
+.maintenance-item-left {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.maintenance-item-top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.maintenance-item-name {
+  font-size: 0.92rem;
+  font-weight: 900;
+  color: #F8FAFC;
+}
+
+.maintenance-date-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.835rem;
+  font-weight: 800;
+  color: #6EE7B7;
+  background: rgba(16, 185, 129, 0.16);
+  border: 1px solid rgba(52, 211, 153, 0.48);
+}
+
+.maintenance-date-badge.unlogged {
+  color: #94A3B8;
+  background: rgba(15, 23, 42, 0.65);
+  border-color: #2E3B50;
+}
+
+.maintenance-item-product {
+  font-size: 0.835rem;
+  font-weight: 700;
+  color: #CBD5E1;
+  line-height: 1.32;
+  word-break: break-word;
+}
+
+.maintenance-item-product.muted {
+  color: #64748B;
+  font-style: italic;
+}
+
+.maintenance-item-history-tag {
+  font-size: 0.835rem;
+  font-weight: 700;
+  color: #FCD34D;
+}
+
+.maintenance-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.maint-history-box {
+  padding: 10px 11px;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #131923 0%, #0C1017 100%);
+  border: 1px solid #2C384B;
+}
+
+.maint-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.maint-history-entry {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  background: rgba(24, 32, 45, 0.85);
+  border: 1px solid #2A3649;
+  font-size: 0.835rem;
+}
+
