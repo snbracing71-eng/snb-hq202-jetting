@@ -56,11 +56,11 @@
       sessionName: 'Heat 2 (HQ Nationals)'
     },
     'Mount Panorama (Bathurst)': {
-      bestLapStr: '3:03.5070',
-      bestLapSec: 183.507,
-      lapNumber: 3,
-      date: '2016-03-27',
-      sessionName: 'Practice 4 (Bathurst Motor Festival)'
+      bestLapStr: '2:58.4930',
+      bestLapSec: 178.493,
+      lapNumber: 5,
+      date: '2017-04-15',
+      sessionName: 'Holden HQ Race 2'
     },
     'CARCO.com.au Raceway (Wanneroo)': {
       bestLapStr: '1:12.4850',
@@ -201,9 +201,9 @@
     'SMSP':                                { dir: 'CCW', estLapSec: 119, brakeLoad: 'flowing' },
     'Townsville Reid Park':                { dir: 'CCW', estLapSec: 88,  brakeLoad: 'heavy' },
     'Townsville':                          { dir: 'CCW', estLapSec: 88,  brakeLoad: 'heavy' },
-    'Mount Panorama (Bathurst)':           { dir: 'CCW', estLapSec: 184, brakeLoad: 'heavy' },
-    'Mount Panorama':                      { dir: 'CCW', estLapSec: 184, brakeLoad: 'heavy' },
-    'Bathurst':                            { dir: 'CCW', estLapSec: 184, brakeLoad: 'heavy' },
+    'Mount Panorama (Bathurst)':           { dir: 'CCW', estLapSec: 178, brakeLoad: 'heavy' },
+    'Mount Panorama':                      { dir: 'CCW', estLapSec: 178, brakeLoad: 'heavy' },
+    'Bathurst':                            { dir: 'CCW', estLapSec: 178, brakeLoad: 'heavy' },
     'The Bend Motorsport Park':            { dir: 'CCW', estLapSec: 145, brakeLoad: 'flowing' },
     'The Bend':                            { dir: 'CCW', estLapSec: 145, brakeLoad: 'flowing' },
     'Haunted Hills / Bryant Park':         { dir: 'CW',  estLapSec: 65,  brakeLoad: 'balanced' },
@@ -4300,6 +4300,14 @@
     candidate.cornerWeightBaseline = normalizedCw;
     candidate.brakes = normalizeBrakes(candidate.brakes);
     candidate.trackBenchmarks = normalizeTrackBenchmarks(candidate.trackBenchmarks);
+    if (!candidate.bathurstBenchmarkFixV1) {
+      const bathurstDef = DEFAULT_TRACK_BENCHMARKS['Mount Panorama (Bathurst)'];
+      const currentBathurst = candidate.trackBenchmarks['Mount Panorama (Bathurst)'];
+      if (!currentBathurst || !(Number(currentBathurst.bestLapSec) < bathurstDef.bestLapSec)) {
+        candidate.trackBenchmarks['Mount Panorama (Bathurst)'] = { ...bathurstDef };
+      }
+      candidate.bathurstBenchmarkFixV1 = true;
+    }
 
     const defTyrePool = createDefaultTyrePool();
     if (!Array.isArray(candidate.tyrePool) || candidate.tyrePool.length === 0) {
@@ -5073,6 +5081,7 @@
     candidate.fuelSystemAuditV2 = true;
     candidate.brakesAuditV2 = true;
     candidate.jetLocationsV1 = true;
+    candidate.bathurstBenchmarkFixV1 = true;
     return candidate;
   }
 
@@ -5110,6 +5119,7 @@
       fuelSystemAuditV2: true,
       brakesAuditV2: true,
       jetLocationsV1: true,
+      bathurstBenchmarkFixV1: true,
       activeEventId: null,
       activeSessionId: null,
       events: createDefaultEvents(),
@@ -5143,7 +5153,7 @@
   }
 
   state = loadState();
-  // Persist the one-time seedInitializedV1 / eventArchitectureV1 / suspensionSeededV1 / peddersDynoAuditV1 / carbyJetAuditV1 / manifoldAudit2012V2 / manifoldActiveF_V1 / fuelSystemAuditV2 / brakesAuditV2 / jetLocationsV1 / spacerKitSeededV1 / calder2024CwSeededV1 migration immediately
+  // Persist the one-time seedInitializedV1 / eventArchitectureV1 / suspensionSeededV1 / peddersDynoAuditV1 / carbyJetAuditV1 / manifoldAudit2012V2 / manifoldActiveF_V1 / fuelSystemAuditV2 / brakesAuditV2 / jetLocationsV1 / spacerKitSeededV1 / calder2024CwSeededV1 / bathurstBenchmarkFixV1 migration immediately
   try {
     state.seedInitializedV1 = true;
     state.peddersDynoAuditV1 = true;
@@ -5155,6 +5165,7 @@
     state.fuelSystemAuditV2 = true;
     state.brakesAuditV2 = true;
     state.jetLocationsV1 = true;
+    state.bathurstBenchmarkFixV1 = true;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (_) {}
 
