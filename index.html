@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=0.9.7" />
+  <link rel="stylesheet" href="./styles.css?v=0.9.8" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -74,7 +74,7 @@
           type="button"
           id="btnInstallPwa"
           class="btn btn-amber-outline"
-          style="display: none; padding: 6px 10px; font-size: 0.72rem;"
+          style="display: none; padding: 6px 10px; font-size: 13.5px;"
           aria-label="Install SNB HQ202 App"
         >
           Install
@@ -840,12 +840,12 @@
               <span class="field-hint emerald" id="postFuelScaleFactHint">Auto-updates Weekend Scale Fact + Dry Wt</span>
             </div>
             <div class="num-stepper">
-              <button type="button" class="stepper-btn" data-stepper-target="inputPostScaleWeightKg" data-step="-0.5" aria-label="Decrease Post-Race Official Scale Weight">&minus;</button>
+              <button type="button" class="stepper-btn" data-stepper-target="inputPostScaleWeightKg" data-step="-0.1" aria-label="Decrease Post-Race Official Scale Weight">&minus;</button>
               <div class="num-input-wrap">
-                <input type="number" id="inputPostScaleWeightKg" class="num-input" value="" placeholder="&mdash; (Not re-weighed)" min="500.0" max="1650.0" step="0.5" inputmode="decimal" />
+                <input type="number" id="inputPostScaleWeightKg" class="num-input" value="" placeholder="&mdash; (Not re-weighed)" min="500.0" max="1650.0" step="0.1" inputmode="decimal" />
                 <span class="num-unit-badge">kg</span>
               </div>
-              <button type="button" class="stepper-btn" data-stepper-target="inputPostScaleWeightKg" data-step="0.5" aria-label="Increase Post-Race Official Scale Weight">+</button>
+              <button type="button" class="stepper-btn" data-stepper-target="inputPostScaleWeightKg" data-step="0.1" aria-label="Increase Post-Race Official Scale Weight">+</button>
             </div>
           </div>
         </div>
@@ -970,12 +970,12 @@
                 <span class="field-hint">Car + Driver</span>
               </div>
               <div class="num-stepper">
-                <button type="button" class="stepper-btn" data-stepper-target="inputScaleCheckKg" data-step="-0.5" aria-label="Decrease Official Track Scale Weight">&minus;</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputScaleCheckKg" data-step="-0.1" aria-label="Decrease Official Track Scale Weight">&minus;</button>
                 <div class="num-input-wrap">
-                  <input type="number" id="inputScaleCheckKg" class="num-input" value="1377.0" min="0.0" max="1650.0" step="0.5" placeholder="Not weighed" inputmode="decimal" />
+                  <input type="number" id="inputScaleCheckKg" class="num-input" value="1377.0" min="0.0" max="1650.0" step="0.1" placeholder="Not weighed" inputmode="decimal" />
                   <span class="num-unit-badge">kg</span>
                 </div>
-                <button type="button" class="stepper-btn" data-stepper-target="inputScaleCheckKg" data-step="0.5" aria-label="Increase Official Track Scale Weight">+</button>
+                <button type="button" class="stepper-btn" data-stepper-target="inputScaleCheckKg" data-step="0.1" aria-label="Increase Official Track Scale Weight">+</button>
               </div>
             </div>
 
@@ -1998,7 +1998,16 @@
           </button>
         </div>
 
-        <!-- Dynamic 3D Compact Collapsible Tyre Stock Accordion List -->
+        <!-- Dropdown Selector (#selectTyreStockItem) — renders ONLY the selected tyre's card/drawer underneath -->
+        <div class="field-group tyre-stock-select-group" style="margin-bottom: 12px;">
+          <div class="field-label-row">
+            <label class="field-label" for="selectTyreStockItem">Select Tyre to Inspect / Edit Wear &amp; Laps</label>
+            <span class="field-hint emerald" id="tyreStockSelectHint">Tap to switch tyre</span>
+          </div>
+          <select id="selectTyreStockItem" class="select-input" aria-label="Select Tyre from Stock to View or Edit"></select>
+        </div>
+
+        <!-- Single Selected Tyre Card / Drawer -->
         <div id="tyreStockListContainer" class="tyre-stock-list"></div>
 
         <!-- Export Tyre Stock CSV Footer Button -->
@@ -2421,10 +2430,10 @@
 
         <div class="fleet-acc-body" id="fleetAccBody_carburettors" style="display: none;">
           <div class="homologation-banner" style="margin-bottom: 12px;">
-            <div style="font-size: 0.75rem; font-weight: 800; color: var(--amber); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px;">
+            <div style="font-size: 0.85rem; font-weight: 800; color: var(--amber); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px;">
               Group 3H Late-Base 40.00 mm Stromberg BXUV-3 Homologation &amp; Teardown Spec
             </div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">
+            <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">
               Studs: <strong>75.0 mm</strong> &bull; Venturi: <strong>&le; 30.94 mm</strong> &bull; Throttle Bore: <strong>&le; 40.00 mm Exact Ceiling</strong> &bull; Spill: <strong>15.0 mm (0.740 SG)</strong>
             </div>
           </div>
@@ -3015,12 +3024,12 @@
         <div class="fleet-acc-body" id="fleetAccBody_track_benchmarks" style="display: none;">
           <div class="section-header" style="margin-bottom: 8px;">
             <div>
-              <div class="section-eyebrow">HQ 202 PERSONAL BEST LAPS &bull; AUTO-PULLED INTO SESSION 1 NOTES</div>
+              <div class="section-eyebrow">HQ 202 PERSONAL BEST LAPS &bull; TRACK PB BENCHMARKS</div>
               <h2 class="section-title">All-Time Circuit Benchmarks (Car #71 / #77)</h2>
             </div>
           </div>
-          <p class="fleet-helper-copy" style="margin: 0 0 10px; font-size: 0.76rem; color: var(--text-secondary); line-height: 1.4;">
-            Verified fastest Group 3H HQ 202 lap at each circuit. Automatically pulled into Session 1 Pre-Race Notes when starting an event and promoted whenever a faster Post-Session Lap is logged.
+          <p class="fleet-helper-copy" style="margin: 0 0 10px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">
+            Verified fastest Group 3H HQ 202 lap at each circuit. Used for live Track PB badges and automatically promoted whenever a faster Post-Session Lap is logged.
           </p>
           <div id="trackBenchmarksFleetContainer"></div>
         </div>
@@ -3090,7 +3099,7 @@
         </button>
       </div>
 
-      <p style="margin: 0 0 12px; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45;">
+      <p style="margin: 0 0 12px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.45;">
         Post-Session Tune for <strong id="postRaceModalSessionLabel" class="txt-emerald">Practice 1 (1 DME)</strong>: Enter peak WOT gauges below, then save &amp; lock to unlock Post-Session Fuel &amp; Weight.
       </p>
 
@@ -3174,7 +3183,7 @@
             id="btnTogglePostMidSweep"
             aria-expanded="false"
             aria-controls="postMidSweepWrap"
-            style="min-height: 42px; font-size: 0.78rem;"
+            style="min-height: 42px; font-size: 13.5px;"
           >
             + Staggered Mid-Range RPM AFRs (3500&ndash;5500 RPM, Optional)
           </button>
@@ -3250,13 +3259,13 @@
         </div>
       </div>
 
-      <!-- 5B. Session Fastest Lap & On Lap # (Auto-Checks Track Benchmark PB) -->
+      <!-- 5B. Session Fastest Lap, On Lap # & Finishing Position (Auto-Checks Track Benchmark PB) -->
       <div class="card-elevated post-race-section-card" style="margin-bottom: 12px;">
         <div class="field-label-row" style="margin-bottom: 8px;">
-          <span class="section-eyebrow" style="margin-bottom: 0;">Session Fastest Lap &amp; Track Benchmark Check (Optional)</span>
+          <span class="section-eyebrow" style="margin-bottom: 0;">Session Fastest Lap, Lap # &amp; Finishing Position (Optional)</span>
           <span class="field-hint emerald" id="modalPostTrackPbHint">Track PB: &mdash;</span>
         </div>
-        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 0;">
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
           <div class="field-group" style="margin-bottom: 0;">
             <label class="field-label" for="modalPostBestLap">Session Fastest Lap</label>
             <input
@@ -3288,6 +3297,20 @@
             </div>
           </div>
         </div>
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="modalPostFinishPos">Finishing Position</label>
+            <span class="field-hint">e.g. P1, P2, P4, or 1&ndash;40</span>
+          </div>
+          <input
+            type="text"
+            id="modalPostFinishPos"
+            class="text-input mono"
+            placeholder="e.g. P1, P2, P4, or 1–40"
+            inputmode="text"
+            autocomplete="off"
+          />
+        </div>
       </div>
 
       <!-- 6. Post-Tune Notes (Optional) -->
@@ -3300,7 +3323,7 @@
           type="text"
           id="modalPostNotes"
           class="text-input"
-          placeholder="e.g. Car strong off hairpin, 12.75 AFR down chute, P2"
+          placeholder="e.g. Car strong off hairpin, 12.75 AFR down chute"
           autocomplete="off"
         />
       </div>
@@ -3327,7 +3350,7 @@
         </button>
       </div>
 
-      <p style="margin: 0 0 12px; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45;">
+      <p style="margin: 0 0 12px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.45;">
         Post-Session Fuel &amp; Weight for <strong id="postFuelModalSessionLabel" class="txt-emerald">Practice 1 (1 DME)</strong>: Enter pumped-out fuel &amp; optional post-race scale weight below, then save &amp; lock to jump straight to Post-Session Tyres.
       </p>
 
@@ -3403,12 +3426,12 @@
             <span class="field-hint amber" id="modalPostScaleHint">Updates Weekend Track Scale</span>
           </div>
           <div class="num-stepper">
-            <button type="button" class="stepper-btn" data-stepper-target="modalPostScaleKg" data-step="-0.5" aria-label="Decrease Post-Race Scale Wt">&minus;</button>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostScaleKg" data-step="-0.1" aria-label="Decrease Post-Race Scale Wt">&minus;</button>
             <div class="num-input-wrap">
-              <input type="number" id="modalPostScaleKg" class="num-input" value="" placeholder="Not Weighed" min="1200" max="1600" step="0.5" />
+              <input type="number" id="modalPostScaleKg" class="num-input" value="" placeholder="Not Weighed" min="1200" max="1600" step="0.1" />
               <span class="num-unit-badge">kg</span>
             </div>
-            <button type="button" class="stepper-btn" data-stepper-target="modalPostScaleKg" data-step="0.5" aria-label="Increase Post-Race Scale Wt">+</button>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostScaleKg" data-step="0.1" aria-label="Increase Post-Race Scale Wt">+</button>
           </div>
         </div>
       </div>
@@ -3432,7 +3455,7 @@
       <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveModalPostFuel">
         SAVE &amp; LOCK POST-FUEL &rarr; GO TO POST TYRES
       </button>
-      <button type="button" class="btn btn-secondary btn-full" id="btnSkipModalPostFuel" style="margin-top: 8px; min-height: 42px; font-size: 0.78rem;">
+      <button type="button" class="btn btn-secondary btn-full" id="btnSkipModalPostFuel" style="margin-top: 8px; min-height: 42px; font-size: 13.5px;">
         No Pump-Out This Run (Keep Est &amp; Go to Post Tyres)
       </button>
     </div>
@@ -4340,7 +4363,7 @@
         <button type="button" class="btn btn-danger" id="btnCloseNewEventModal" style="padding: 6px 12px;">Close</button>
       </div>
 
-      <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0 0 12px 0; line-height: 1.45;">
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0 0 12px 0; line-height: 1.45;">
         Starting an Event sets the circuit &amp; date across Calculator, Fuel &amp; Wt, and Tyres. Once started, you will select each session you commence from the session dropdown until you tap <strong>END EVENT</strong>.
       </p>
 
@@ -4458,7 +4481,7 @@
         <div style="font-size: 1.02rem; font-weight: 900; color: #f8fafc; margin-bottom: 4px;" id="endEventSummaryVenue">
           Calder Park Raceway
         </div>
-        <div class="tabular" style="font-size: 0.82rem; font-weight: 700; color: var(--accent-emerald);" id="endEventSummaryMeta">
+        <div class="tabular" style="font-size: 0.85rem; font-weight: 700; color: var(--accent-emerald);" id="endEventSummaryMeta">
           13 Nov 2026 &bull; 4 Sessions Logged
         </div>
       </div>
@@ -4589,7 +4612,7 @@
         <button type="button" class="btn btn-secondary" id="btnCancelChangeSessionName" style="padding: 6px 12px;">Cancel</button>
       </div>
 
-      <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0 0 12px 0; line-height: 1.45;">
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0 0 12px 0; line-height: 1.45;">
         Picked the wrong session by mistake? Select the correct session name for this active run below.
       </p>
 
@@ -4991,7 +5014,7 @@
         </button>
       </div>
 
-      <p style="margin: 0 0 12px; font-size: 0.77rem; color: var(--text-secondary); line-height: 1.45;">
+      <p style="margin: 0 0 12px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.45;">
         Enter your car&rsquo;s <strong>No-Spacers (RL 0mm / RR 0mm)</strong> 4-corner pad weights and scale conditions below. Once saved, tap any <strong>0mm / 10mm / 20mm</strong> rear spacer button in Corner Weights to calculate live corner loads.
       </p>
 
@@ -5015,7 +5038,7 @@
             <label class="field-label" for="newScaleDriverKg">Driver Wt (kg)</label>
           </div>
           <div class="num-input-wrap">
-            <input type="number" id="newScaleDriverKg" class="num-input" value="95.0" min="0" max="200" step="0.5" inputmode="decimal" />
+            <input type="number" id="newScaleDriverKg" class="num-input" value="95.0" min="0" max="200" step="0.1" inputmode="decimal" />
             <span class="num-unit-badge">kg</span>
           </div>
         </div>
@@ -5025,7 +5048,7 @@
             <label class="field-label" for="newScaleFuelL">Fuel in Car (L)</label>
           </div>
           <div class="num-input-wrap">
-            <input type="number" id="newScaleFuelL" class="num-input" value="20.0" min="0" max="74" step="0.5" inputmode="decimal" />
+            <input type="number" id="newScaleFuelL" class="num-input" value="20.0" min="0" max="74" step="0.1" inputmode="decimal" />
             <span class="num-unit-badge">L</span>
           </div>
         </div>
@@ -5035,7 +5058,7 @@
             <label class="field-label" for="newScaleBallastKg">Ballast (kg)</label>
           </div>
           <div class="num-input-wrap">
-            <input type="number" id="newScaleBallastKg" class="num-input" value="0.0" min="0" max="150" step="0.5" inputmode="decimal" />
+            <input type="number" id="newScaleBallastKg" class="num-input" value="0.0" min="0" max="150" step="0.1" inputmode="decimal" />
             <span class="num-unit-badge">kg</span>
           </div>
         </div>
@@ -5052,7 +5075,7 @@
             <span class="field-hint">Front Left</span>
           </div>
           <div class="num-input-wrap">
-            <input type="number" id="newScaleFL" class="num-input" value="352.0" min="100" max="800" step="0.5" inputmode="decimal" />
+            <input type="number" id="newScaleFL" class="num-input" value="352.0" min="100" max="800" step="0.1" inputmode="decimal" />
             <span class="num-unit-badge">kg</span>
           </div>
         </div>
@@ -5063,7 +5086,7 @@
             <span class="field-hint">Front Right</span>
           </div>
           <div class="num-input-wrap">
-            <input type="number" id="newScaleFR" class="num-input" value="382.0" min="100" max="800" step="0.5" inputmode="decimal" />
+            <input type="number" id="newScaleFR" class="num-input" value="382.0" min="100" max="800" step="0.1" inputmode="decimal" />
             <span class="num-unit-badge">kg</span>
           </div>
         </div>
@@ -5076,7 +5099,7 @@
             <span class="field-hint">Rear Left</span>
           </div>
           <div class="num-input-wrap">
-            <input type="number" id="newScaleRL" class="num-input" value="313.0" min="100" max="800" step="0.5" inputmode="decimal" />
+            <input type="number" id="newScaleRL" class="num-input" value="313.0" min="100" max="800" step="0.1" inputmode="decimal" />
             <span class="num-unit-badge">kg</span>
           </div>
         </div>
@@ -5087,7 +5110,7 @@
             <span class="field-hint">Rear Right</span>
           </div>
           <div class="num-input-wrap">
-            <input type="number" id="newScaleRR" class="num-input" value="326.0" min="100" max="800" step="0.5" inputmode="decimal" />
+            <input type="number" id="newScaleRR" class="num-input" value="326.0" min="100" max="800" step="0.1" inputmode="decimal" />
             <span class="num-unit-badge">kg</span>
           </div>
         </div>
@@ -5128,7 +5151,7 @@
         </button>
       </div>
 
-      <p style="margin: 0 0 10px; font-size: 0.78rem; color: var(--text-secondary); line-height: 1.45;">
+      <p style="margin: 0 0 10px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.45;">
         Tap <strong>COPY DATA DUMP TO CLIPBOARD</strong> below and paste directly into chat so AI can review your complete Events, Sessions, Self-Learned Carby/Track Factors, Fuel &amp; Scale Facts, 4-Corner Tyres, and 4-Corner Shocks &amp; Springs.
       </p>
 
@@ -5225,7 +5248,7 @@
         </button>
       </div>
 
-      <p style="margin: 0 0 12px; font-size: 0.78rem; color: var(--text-secondary); line-height: 1.45;">
+      <p style="margin: 0 0 12px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.45;">
         Keep your Track Phone and Workshop Laptop 100% synced via a private GitHub Gist (<code class="mono">snb_hq202_master_state.json</code>). Works 100% offline at the track and auto-flushes queued changes as soon as signal returns.
       </p>
 
@@ -5288,6 +5311,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=0.9.7"></script>
+  <script src="./app.js?v=0.9.8"></script>
 </body>
 </html>

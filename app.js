@@ -898,6 +898,8 @@
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
+            spacers: { RL: 0, RR: 20 },
+            spacerNote: 'Spacers: RL 0mm, RR 20mm',
             preRaceNotes: 'Mounted KB1-KB4 @ 30.0 psi cold square (22°C track), 1.85 mm jet + #5-DME emulsion in DME #1.',
             postRaceNotes: 'Crisp morning air at Calder; DME #1 + Macca manifold/exhaust baseline shakedown.',
             notes: 'Crisp morning air at Calder; DME #1 + Macca manifold/exhaust baseline shakedown.'
@@ -932,6 +934,7 @@
             afr5500: 12.72,
             afrWot: 12.72,
             peakRpm: 5950,
+            finishPos: 'P2',
             afrStatus: 'verified',
             litresToPourL: 28.0,
             startingFuelReqL: 28.0,
@@ -958,9 +961,11 @@
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
+            spacers: { RL: 0, RR: 20 },
+            spacerNote: 'Spacers: RL 0mm, RR 20mm',
             preRaceNotes: 'Hot-cycled paddock set targeting 44.0 psi square (26°C track), +0.5° timing.',
-            postRaceNotes: 'Qualified P2; hot targets held 44.0 psi square across all 4 corners.',
-            notes: 'Qualified P2; hot targets held 44.0 psi square across all 4 corners.'
+            postRaceNotes: 'Qualified P2; hot targets held 44.0 psi square across all 4 corners. • Finished P2',
+            notes: 'Qualified P2; hot targets held 44.0 psi square across all 4 corners. • Finished P2'
           },
           {
             id: 'calder_r1',
@@ -1018,6 +1023,8 @@
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
+            spacers: { RL: 0, RR: 20 },
+            spacerNote: 'Spacers: RL 0mm, RR 20mm',
             preRaceNotes: 'Verified 1.85 mm bellmouthed jet + #5-DME emulsion for pack slipstream protection; 36.0 L fuel in.',
             postRaceNotes: 'Safe rich slipstream setup (1.85 mm bellmouthed jet + #5-DME); 4.3 psi steady at carby inlet.',
             notes: 'Safe rich slipstream setup (1.85 mm bellmouthed jet + #5-DME); 4.3 psi steady at carby inlet.'
@@ -1055,6 +1062,7 @@
             bestLapStr: '1:16.66',
             bestLapSec: 76.66,
             bestLapNum: 10,
+            finishPos: 'P1',
             isNewTrackPb: true,
             afrStatus: 'verified',
             litresToPourL: 33.2,
@@ -1082,9 +1090,11 @@
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
+            spacers: { RL: 0, RR: 20 },
+            spacerNote: 'Spacers: RL 0mm, RR 20mm',
             preRaceNotes: 'Stepped leaner for 93.9% RAD; hot-bled paddock set targeting 44.0 psi square (32°C track).',
-            postRaceNotes: 'Dead in 12.8-12.9 HQ 202 sweet spot, P1 finish.',
-            notes: 'Dead in 12.8-12.9 HQ 202 sweet spot, P1 finish.'
+            postRaceNotes: 'Dead in 12.8-12.9 HQ 202 sweet spot, P1 finish. • Fastest: 1:16.66 on Lap 10 • Finished P1',
+            notes: 'Dead in 12.8-12.9 HQ 202 sweet spot, P1 finish. • Fastest: 1:16.66 on Lap 10 • Finished P1'
           }
         ]
       },
@@ -1152,6 +1162,8 @@
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
+            spacers: { RL: 0, RR: 20 },
+            spacerNote: 'Spacers: RL 0mm, RR 20mm',
             preRaceNotes: 'Bolted on SNB Carby (1.89 mm jet) + Winton CW cold stagger (FL 29.6, RL 29.8 @ 19°C track).',
             postRaceNotes: 'Cold Winton morning; SNB Carby crisp off the sweeper.',
             notes: 'Cold Winton morning; SNB Carby crisp off the sweeper.'
@@ -1212,6 +1224,8 @@
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
+            spacers: { RL: 0, RR: 20 },
+            spacerNote: 'Spacers: RL 0mm, RR 20mm',
             preRaceNotes: 'Hot-cycled paddock tyres from Practice 1 targeting 44.0 psi square; kept 1.89 mm jet & bumped timing to 33.5°.',
             postRaceNotes: 'Front-row qualifying lap; 1.44 L/lap verified on pump-out.',
             notes: 'Front-row qualifying lap; 1.44 L/lap verified on pump-out.'
@@ -1249,6 +1263,7 @@
             bestLapStr: '1:45.4210',
             bestLapSec: 105.421,
             bestLapNum: 6,
+            finishPos: 'P1',
             isNewTrackPb: true,
             afrStatus: 'verified',
             litresToPourL: 34.8,
@@ -1276,13 +1291,133 @@
             },
             shocks: { FL: 'shk_F29', FR: 'shk_F27', RL: 'shk_R26', RR: 'shk_R25' },
             springs: { FL: 'spr_F11', FR: 'spr_F12', RL: 'spr_R6', RR: 'spr_R5' },
+            spacers: { RL: 0, RR: 20 },
+            spacerNote: 'Spacers: RL 0mm, RR 20mm',
             preRaceNotes: 'Hot-bled paddock tyres targeting 44.0 psi square (29°C track); poured 35.0 L for 12 laps.',
-            postRaceNotes: 'Left tyres at hot-set from Qualifying; 12-lap race win with +5.1 kg scale margin. Fastest Lap: 1:45.4210 (Lap 6)',
-            notes: 'Left tyres at hot-set from Qualifying; 12-lap race win with +5.1 kg scale margin. Fastest Lap: 1:45.4210 (Lap 6)'
+            postRaceNotes: 'Left tyres at hot-set from Qualifying; 12-lap race win with +5.1 kg scale margin. • Fastest: 1:45.4210 on Lap 6 • Finished P1',
+            notes: 'Left tyres at hot-set from Qualifying; 12-lap race win with +5.1 kg scale margin. • Fastest: 1:45.4210 on Lap 6 • Finished P1'
           }
         ]
       }
     ];
+  }
+
+  const WEEKDAY_OFFSET_MAP = {
+    mon: 0,
+    tue: 1,
+    wed: 2,
+    thu: 3,
+    fri: 4,
+    sat: 5,
+    sun: 6
+  };
+
+  function parseSessionTimeMinutes(rawTime) {
+    if (!rawTime || typeof rawTime !== 'string') return { dayRank: -1, minutes: -1 };
+    const str = rawTime.trim();
+    if (!str) return { dayRank: -1, minutes: -1 };
+    let dayRank = -1;
+    const dayMatch = str.match(/\b(mon|tue|wed|thu|fri|sat|sun)\b/i);
+    if (dayMatch) {
+      dayRank = WEEKDAY_OFFSET_MAP[dayMatch[1].toLowerCase()] ?? -1;
+    }
+    const timeMatch = str.match(/(\d{1,2})\s*:\s*(\d{2})(?:\s*(am|pm))?/i);
+    if (!timeMatch) return { dayRank, minutes: -1 };
+    let hh = parseInt(timeMatch[1], 10);
+    const mm = parseInt(timeMatch[2], 10);
+    const ampm = timeMatch[3] ? timeMatch[3].toLowerCase() : '';
+    if (ampm === 'pm' && hh < 12) hh += 12;
+    if (ampm === 'am' && hh === 12) hh = 0;
+    if (!Number.isFinite(hh) || !Number.isFinite(mm)) return { dayRank, minutes: -1 };
+    return { dayRank, minutes: hh * 60 + mm };
+  }
+
+  function extractNumericIdFallback(rawId) {
+    if (!rawId) return null;
+    const m = String(rawId).match(/run_(\d{10,15})/i);
+    if (m) {
+      const ts = Number(m[1]);
+      if (Number.isFinite(ts)) return ts;
+    }
+    return null;
+  }
+
+  /**
+   * Chronological session sorting helper: sorts sessions strictly newest-first by actual session date & time
+   * (`date + timestamp`, parsing `YYYY-MM-DD` and time strings cleanly, falling back to session progression,
+   * `id` timestamp, or array order only when dates and timestamps tie).
+   */
+  function sortSessionsDesc(sessions) {
+    if (!Array.isArray(sessions)) return [];
+    return sessions
+      .map((s, idx) => {
+        const iso = resolveSessionIsoDate(s, '1970-01-01');
+        const tInfo = parseSessionTimeMinutes(s && (s.timestamp || s.time));
+        const idNum = extractNumericIdFallback(s && s.id);
+        const progWeight = typeof getSessionOrderWeight === 'function' ? getSessionOrderWeight(s) : 0;
+        return { s, idx, iso, tInfo, idNum, progWeight };
+      })
+      .sort((a, b) => {
+        if (a.iso !== b.iso) {
+          return b.iso.localeCompare(a.iso);
+        }
+        if (a.tInfo.dayRank !== -1 && b.tInfo.dayRank !== -1 && a.tInfo.dayRank !== b.tInfo.dayRank) {
+          return b.tInfo.dayRank - a.tInfo.dayRank;
+        }
+        if (a.tInfo.minutes !== -1 && b.tInfo.minutes !== -1 && a.tInfo.minutes !== b.tInfo.minutes) {
+          return b.tInfo.minutes - a.tInfo.minutes;
+        }
+        if (a.progWeight !== b.progWeight) {
+          return b.progWeight - a.progWeight;
+        }
+        if (a.idNum !== null && b.idNum !== null && a.idNum !== b.idNum) {
+          return b.idNum - a.idNum;
+        }
+        return b.idx - a.idx;
+      })
+      .map((item) => item.s);
+  }
+
+  function sortEventsDesc(events, activeEventId = null) {
+    if (!Array.isArray(events)) return [];
+    const fallbackIso = getLocalTodayIso();
+    return events
+      .map((evt, idx) => ({ evt, idx }))
+      .sort((a, b) => {
+        const isLiveA = Boolean(!a.evt.locked && activeEventId && a.evt.id === activeEventId);
+        const isLiveB = Boolean(!b.evt.locked && activeEventId && b.evt.id === activeEventId);
+        if (isLiveA !== isLiveB) return isLiveA ? -1 : 1;
+        const dateA = resolveSessionIsoDate({ date: a.evt.eventDate }, fallbackIso);
+        const dateB = resolveSessionIsoDate({ date: b.evt.eventDate }, fallbackIso);
+        if (dateA !== dateB) return dateB.localeCompare(dateA);
+        return a.idx - b.idx;
+      })
+      .map((item) => item.evt);
+  }
+
+  function formatRearSpacerNote(spacersObj, rawSpacerNote = '') {
+    const sp = normalizeRearSpacersMap(spacersObj, DEFAULT_MOUNTED_SPACERS);
+    const stdNote = `Spacers: RL ${sp.RL}mm, RR ${sp.RR}mm`;
+    const customTrim = typeof rawSpacerNote === 'string' ? rawSpacerNote.trim() : '';
+    if (customTrim && !/^spacers:\s*rl\s*\d+mm,\s*rr\s*\d+mm$/i.test(customTrim)) {
+      return customTrim;
+    }
+    return stdNote;
+  }
+
+  function normalizeFinishPos(rawPos) {
+    if (rawPos === null || rawPos === undefined) return null;
+    const str = String(rawPos).trim();
+    if (!str) return null;
+    if (/^\d{1,2}$/.test(str)) {
+      const n = parseInt(str, 10);
+      if (n >= 1 && n <= 99) return `P${n}`;
+    }
+    if (/^p\s*(\d{1,2})$/i.test(str)) {
+      const m = str.match(/^p\s*(\d{1,2})$/i);
+      return `P${parseInt(m[1], 10)}`;
+    }
+    return str.toUpperCase();
   }
 
   function flattenEventsToSessions(events) {
@@ -1299,13 +1434,13 @@
         s.eventTitle = evt.eventTitle || '';
         s.eventLocked = Boolean(evt.locked);
         s.venue = normalizeVenueName(s.venue || evtVenue);
-        s.sessionDateIso = s.sessionDateIso || s.sessionIsoDate || evtIso;
+        s.sessionDateIso = resolveSessionIsoDate(s, evtIso);
         s.sessionIsoDate = s.sessionDateIso;
         s.sessionDate = s.sessionDate || formatIsoDateDisplay(s.sessionDateIso) || evtDisp;
         flat.push(s);
       });
     });
-    return flat;
+    return sortSessionsDesc(flat);
   }
 
   function createDefaultSessions() {
@@ -4551,21 +4686,31 @@
         s.tyreCondition === 'wet' ||
         (tyres && ['FL', 'FR', 'RL', 'RR'].some((c) => tyres[c] && /^KW/i.test(String(tyres[c].tyreId || ''))));
 
-      const preRaceNotes =
+      const stripPreRaceBenchmarkNote = (txt) => {
+        if (!txt || typeof txt !== 'string') return '';
+        return txt
+          .replace(/\s*(?:•|\||—|-)?\s*Track Benchmark PB:\s*[^•|]+/gi, '')
+          .replace(/^Track Benchmark PB:\s*[^•|]+\s*(?:•|\||—|-)?\s*/i, '')
+          .trim();
+      };
+
+      const preRaceNotes = stripPreRaceBenchmarkNote(
         typeof s.preRaceNotes === 'string'
           ? s.preRaceNotes.trim()
           : defMatch && typeof defMatch.preRaceNotes === 'string'
           ? defMatch.preRaceNotes
-          : '';
-      const postRaceNotes =
+          : ''
+      );
+      const postRaceNotes = stripPreRaceBenchmarkNote(
         typeof s.postRaceNotes === 'string'
           ? s.postRaceNotes.trim()
           : defMatch && typeof defMatch.postRaceNotes === 'string'
           ? defMatch.postRaceNotes
           : typeof s.notes === 'string'
           ? s.notes.trim()
-          : '';
-      const combinedNotes = postRaceNotes || (typeof s.notes === 'string' ? s.notes.trim() : '') || preRaceNotes || '';
+          : ''
+      );
+      const combinedNotes = postRaceNotes || stripPreRaceBenchmarkNote(typeof s.notes === 'string' ? s.notes.trim() : '') || preRaceNotes || '';
 
       const shocks = normalizeCornerUnitMap(
         s.shocks,
@@ -4578,6 +4723,10 @@
       const spacers = normalizeRearSpacersMap(
         s.spacers,
         defMatch && defMatch.spacers ? defMatch.spacers : DEFAULT_MOUNTED_SPACERS
+      );
+      const spacerNote = formatRearSpacerNote(
+        spacers,
+        s.spacerNote || (defMatch && defMatch.spacerNote) || ''
       );
       const handlingTags = normalizeHandlingTagsArray(
         s.handlingTags !== undefined ? s.handlingTags : defMatch && defMatch.handlingTags ? defMatch.handlingTags : []
@@ -4644,6 +4793,13 @@
         rawLapNum !== null && rawLapNum !== undefined && rawLapNum !== '' && Number.isFinite(Number(rawLapNum)) && Number(rawLapNum) > 0
           ? Math.round(Number(rawLapNum))
           : null;
+      let finishPos = normalizeFinishPos(s.finishPos ?? (defMatch ? defMatch.finishPos : null));
+      if (!finishPos && combinedNotes) {
+        const finMatch = combinedNotes.match(/\b(?:Finished|Qualified)\s+(P\d{1,2})\b/i) || combinedNotes.match(/\b(P\d{1,2})\s+finish\b/i);
+        if (finMatch) {
+          finishPos = normalizeFinishPos(finMatch[1]);
+        }
+      }
       const isNewTrackPb =
         s.isNewTrackPb !== undefined
           ? Boolean(s.isNewTrackPb)
@@ -4677,6 +4833,7 @@
         bestLapStr,
         bestLapSec: rawBestLapSec,
         bestLapNum,
+        finishPos,
         isNewTrackPb,
         afrStatus: s.afrStatus || 'verified',
         litresToPourL,
@@ -4698,6 +4855,7 @@
         shocks,
         springs,
         spacers,
+        spacerNote,
         handlingTags,
         brakeTemps,
         brakeBiasTag,
@@ -4735,72 +4893,82 @@
     // NEVER re-seed just because candidate.events.length === 0!
     if (!candidate.seedInitializedV1) {
       const rawEvents = Array.isArray(candidate.events) && candidate.events.length > 0 ? candidate.events : defaultEvents;
-      candidate.events = rawEvents.map((evt, idx) => {
-        const evtVenue = normalizeVenueName(evt.venue || 'Calder Park Raceway');
-        const evtIso =
-          typeof evt.eventDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(evt.eventDate.trim())
-            ? evt.eventDate.trim()
-            : todayIso;
-        const evtId = String(evt.id || `evt_${idx + 1}`);
-        const locked = evt.locked !== undefined ? Boolean(evt.locked) : true;
-        const sessions = Array.isArray(evt.sessions)
-          ? evt.sessions.map((s) => {
-              const hydrated = hydrateSingleSession(s, evtVenue, evtIso);
-              hydrated.eventId = evtId;
-              hydrated.eventTitle = evt.eventTitle || '';
-              hydrated.eventLocked = locked;
-              if (locked) {
-                hydrated.status = 'completed';
-              }
-              return hydrated;
-            })
-          : [];
-        return {
-          id: evtId,
-          venue: evtVenue,
-          eventDate: evtIso,
-          eventTitle: typeof evt.eventTitle === 'string' ? evt.eventTitle.trim() : '',
-          locked,
-          endedAt: evt.endedAt || (locked ? `${evtIso}T17:00:00` : null),
-          sessions
-        };
-      });
+      candidate.events = sortEventsDesc(
+        rawEvents.map((evt, idx) => {
+          const evtVenue = normalizeVenueName(evt.venue || 'Calder Park Raceway');
+          const evtIso =
+            typeof evt.eventDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(evt.eventDate.trim())
+              ? evt.eventDate.trim()
+              : todayIso;
+          const evtId = String(evt.id || `evt_${idx + 1}`);
+          const locked = evt.locked !== undefined ? Boolean(evt.locked) : true;
+          const sessions = Array.isArray(evt.sessions)
+            ? sortSessionsDesc(
+                evt.sessions.map((s) => {
+                  const hydrated = hydrateSingleSession(s, evtVenue, evtIso);
+                  hydrated.eventId = evtId;
+                  hydrated.eventTitle = evt.eventTitle || '';
+                  hydrated.eventLocked = locked;
+                  if (locked) {
+                    hydrated.status = 'completed';
+                  }
+                  return hydrated;
+                })
+              )
+            : [];
+          return {
+            id: evtId,
+            venue: evtVenue,
+            eventDate: evtIso,
+            eventTitle: typeof evt.eventTitle === 'string' ? evt.eventTitle.trim() : '',
+            locked,
+            endedAt: evt.endedAt || (locked ? `${evtIso}T17:00:00` : null),
+            sessions
+          };
+        }),
+        null
+      );
       candidate.activeEventId = null;
       candidate.activeSessionId = null;
       candidate.eventArchitectureV1 = true;
       candidate.seedInitializedV1 = true;
       candidate.awaitingPostRaceId = null;
     } else if (Array.isArray(candidate.events)) {
-      candidate.events = candidate.events.map((evt, idx) => {
-        const evtVenue = normalizeVenueName(evt.venue || 'Calder Park Raceway');
-        const evtIso =
-          typeof evt.eventDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(evt.eventDate.trim())
-            ? evt.eventDate.trim()
-            : todayIso;
-        const evtId = String(evt.id || `evt_${idx + 1}`);
-        const locked = Boolean(evt.locked);
-        const sessions = Array.isArray(evt.sessions)
-          ? evt.sessions.map((s) => {
-              const hydrated = hydrateSingleSession(s, evtVenue, evtIso);
-              hydrated.eventId = evtId;
-              hydrated.eventTitle = evt.eventTitle || '';
-              hydrated.eventLocked = locked;
-              if (locked) {
-                hydrated.status = 'completed';
-              }
-              return hydrated;
-            })
-          : [];
-        return {
-          id: evtId,
-          venue: evtVenue,
-          eventDate: evtIso,
-          eventTitle: typeof evt.eventTitle === 'string' ? evt.eventTitle.trim() : '',
-          locked,
-          endedAt: evt.endedAt || (locked ? `${evtIso}T17:00:00` : null),
-          sessions
-        };
-      });
+      candidate.events = sortEventsDesc(
+        candidate.events.map((evt, idx) => {
+          const evtVenue = normalizeVenueName(evt.venue || 'Calder Park Raceway');
+          const evtIso =
+            typeof evt.eventDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(evt.eventDate.trim())
+              ? evt.eventDate.trim()
+              : todayIso;
+          const evtId = String(evt.id || `evt_${idx + 1}`);
+          const locked = Boolean(evt.locked);
+          const sessions = Array.isArray(evt.sessions)
+            ? sortSessionsDesc(
+                evt.sessions.map((s) => {
+                  const hydrated = hydrateSingleSession(s, evtVenue, evtIso);
+                  hydrated.eventId = evtId;
+                  hydrated.eventTitle = evt.eventTitle || '';
+                  hydrated.eventLocked = locked;
+                  if (locked) {
+                    hydrated.status = 'completed';
+                  }
+                  return hydrated;
+                })
+              )
+            : [];
+          return {
+            id: evtId,
+            venue: evtVenue,
+            eventDate: evtIso,
+            eventTitle: typeof evt.eventTitle === 'string' ? evt.eventTitle.trim() : '',
+            locked,
+            endedAt: evt.endedAt || (locked ? `${evtIso}T17:00:00` : null),
+            sessions
+          };
+        }),
+        candidate.activeEventId
+      );
       const activeEvt = candidate.activeEventId
         ? candidate.events.find((e) => e.id === candidate.activeEventId && !e.locked)
         : null;
@@ -5099,6 +5267,12 @@
     if (!Array.isArray(st.events)) {
       st.events = [];
     }
+    st.events.forEach((evt) => {
+      if (evt && Array.isArray(evt.sessions)) {
+        evt.sessions = sortSessionsDesc(evt.sessions);
+      }
+    });
+    st.events = sortEventsDesc(st.events, st.activeEventId);
     st.sessions = flattenEventsToSessions(st.events);
     return st.sessions;
   }
@@ -7149,7 +7323,8 @@
       gateBetween.style.display = 'block';
       liveView.style.display = 'none';
 
-      const lastCompleted = sessions.length > 0 ? sessions[sessions.length - 1] : null;
+      const sortedEventSessions = sortSessionsDesc(sessions);
+      const lastCompleted = sortedEventSessions.length > 0 ? sortedEventSessions[0] : null;
       if ($('gateBLiveEventBannerPill')) {
         $('gateBLiveEventBannerPill').textContent = '\uD83D\uDFE2 LIVE EVENT ACTIVE';
       }
@@ -7177,14 +7352,6 @@
       if ($('gateBaseFuelVal')) $('gateBaseFuelVal').textContent = summary.fuelMain;
       if ($('gateBaseFuelSub')) $('gateBaseFuelSub').textContent = summary.fuelSub;
       if ($('gateBaseTyreVal')) $('gateBaseTyreVal').textContent = summary.tyreStr;
-
-      if (sessions.length === 0 && $('gateBPreRaceNotesInput')) {
-        const bmNote = formatTrackBenchmarkSession1Note(liveEvt.venue);
-        const curGateNote = String($('gateBPreRaceNotesInput').value || '').trim();
-        if (bmNote && !curGateNote) {
-          $('gateBPreRaceNotesInput').value = bmNote;
-        }
-      }
 
       const gateBSel = $('gateBCommenceSessionSelect');
       if (gateBSel) {
@@ -7784,20 +7951,11 @@
     const evtIso = targetEvt.eventDate || getLocalTodayIso();
     const evtDisp = formatIsoDateDisplay(evtIso) || evtIso;
     const cleanName = (sessionName || 'Practice 1').trim() || 'Practice 1';
-    const rawPreNotes = typeof initialPreNotes === 'string' ? initialPreNotes.trim() : '';
-    const isFirstSessionOfEvent = targetEvt.sessions.length === 0;
-    const s1BenchmarkNote = isFirstSessionOfEvent ? formatTrackBenchmarkSession1Note(venue) : '';
-    let preNotes = rawPreNotes;
-    if (s1BenchmarkNote) {
-      if (!preNotes) {
-        preNotes = s1BenchmarkNote;
-      } else if (!/track\s+benchmark\s+pb\s*:/i.test(preNotes)) {
-        preNotes = `${s1BenchmarkNote} • ${preNotes}`;
-      }
-    }
+    const preNotes = typeof initialPreNotes === 'string' ? initialPreNotes.trim() : '';
 
-    // Carry forward from previous completed session in event (if any) or Locked Baseline + Track Profile
-    const prevSess = targetEvt.sessions.length > 0 ? targetEvt.sessions[targetEvt.sessions.length - 1] : null;
+    // Carry forward from most recent completed session in event (if any) or Locked Baseline + Track Profile
+    const sortedExistingSessions = sortSessionsDesc(targetEvt.sessions);
+    const prevSess = sortedExistingSessions.length > 0 ? sortedExistingSessions[0] : null;
     const base = state.baseline || createDefaultBaseline();
     const ch = state.chassis || createDefaultChassisState();
     const prof = ensureTrackProfile(venue);
@@ -7979,6 +8137,7 @@
       bestLapStr: null,
       bestLapSec: null,
       bestLapNum: null,
+      finishPos: null,
       isNewTrackPb: false,
       afrStatus: 'estimated',
       litresToPourL: Number(fuelSnap.litresToPourL.toFixed(1)),
@@ -8000,6 +8159,7 @@
       shocks: { ...mountedShocks },
       springs: { ...mountedSprings },
       spacers: { ...mountedSpacers },
+      spacerNote: formatRearSpacerNote(mountedSpacers),
       handlingTags: [],
       brakeTemps: { FL: null, FR: null, RL: null, RR: null },
       brakeBiasTag: null,
@@ -8017,6 +8177,7 @@
     };
 
     targetEvt.sessions.push(created);
+    targetEvt.sessions = sortSessionsDesc(targetEvt.sessions);
     state.activeSessionId = created.id;
     state.awaitingPostRaceId = created.id;
     syncFlatSessionsFromEvents(state);
@@ -8099,10 +8260,11 @@
       sessions: []
     };
 
-    state.events.unshift(newEvt);
+    state.events.push(newEvt);
     state.activeEventId = newEvt.id;
     state.activeSessionId = null;
     state.awaitingPostRaceId = null;
+    state.events = sortEventsDesc(state.events, state.activeEventId);
     ui.expandedEventIds.add(newEvt.id);
 
     // Sync circuit's saved L/lap & cold tyre baselines immediately
@@ -8183,11 +8345,10 @@
       return;
     }
 
+    const sortedSessions = sortSessionsDesc(liveEvt.sessions || []);
     const lastSess =
       (completedSess && typeof completedSess === 'object' ? completedSess : null) ||
-      (Array.isArray(liveEvt.sessions) && liveEvt.sessions.length > 0
-        ? liveEvt.sessions[liveEvt.sessions.length - 1]
-        : null);
+      (sortedSessions.length > 0 ? sortedSessions[0] : null);
 
     const completedName =
       typeof completedSess === 'string' && completedSess.trim()
@@ -8385,6 +8546,7 @@
     state.activeSessionId = null;
     state.awaitingPostRaceId = null;
     ui.editingSessionId = null;
+    syncFlatSessionsFromEvents(state);
     ui.expandedEventIds.add(endedId);
 
     saveState();
@@ -8446,6 +8608,8 @@
     existing.sessionDateIso = targetEvt.eventDate || existing.sessionDateIso || getLocalTodayIso();
     existing.sessionIsoDate = existing.sessionDateIso;
     existing.sessionDate = formatIsoDateDisplay(existing.sessionDateIso) || existing.sessionDateIso;
+    existing.spacers = normalizeRearSpacersMap(existing.spacers, ensureMountedSpacersState());
+    existing.spacerNote = formatRearSpacerNote(existing.spacers, existing.spacerNote);
 
     if (!existing.emulsionId) {
       existing.emulsionId = ($('selectCalcEmulsion') && $('selectCalcEmulsion').value) || state.baseline.emulsionId || 'E5_DME';
@@ -9968,9 +10132,24 @@
     syncTyreConditionUi();
   }
 
+  function formatTyreStockOptionText(t, mountedMap) {
+    if (!t) return '';
+    const mounted = mountedMap || ensureMountedTyresState();
+    const totalLaps = getTyreCumulativeLaps(t.id);
+    const isWet = t.spec === 'wet';
+    const treadMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : isWet ? 8.0 : 5.0;
+    const duro = Number.isFinite(Number(t.durometer)) ? Math.round(Number(t.durometer)) : isWet ? 60 : 62;
+    const mountedCorner = Object.entries(mounted).find(([, tid]) => tid === t.id);
+    const posStr = mountedCorner ? `Mounted ${mountedCorner[0]}` : 'Spare Rack';
+    const specStr = isWet ? 'WET KW' : 'BUFFED KB';
+    const warnStr = treadMm < 1.5 ? ' [ILLEGAL <1.5mm!]' : treadMm <= 2.0 ? ' [LOW TREAD]' : '';
+    return `${t.label || t.code || t.id} (${specStr} • ${posStr}) — ${treadMm.toFixed(1)}mm • ${duro}A • ${totalLaps} Laps${warnStr}`;
+  }
+
   function updateAccordionRowSummaryInPlace(tyreId) {
     const t = getTyreById(tyreId);
     if (!t) return;
+    const mounted = ensureMountedTyresState();
     const totalLaps = getTyreCumulativeLaps(t.id);
     const treadMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : 5.0;
     const duro = Number.isFinite(Number(t.durometer)) ? Math.round(Number(t.durometer)) : 62;
@@ -10001,10 +10180,27 @@
       const loggedLaps = Math.max(0, totalLaps - baseLaps);
       totalLapsHintEl.textContent = `Total: ${totalLaps} (${loggedLaps} logged)`;
     }
+
+    const selectEl = $('selectTyreStockItem');
+    if (selectEl) {
+      const opt = Array.from(selectEl.options).find((o) => o.value === tyreId);
+      if (opt) {
+        opt.textContent = formatTyreStockOptionText(t, mounted);
+      }
+    }
+    const hintEl = $('tyreStockSelectHint');
+    if (hintEl) {
+      const mountedCorner = Object.entries(mounted).find(([, tid]) => tid === t.id);
+      hintEl.textContent = mountedCorner
+        ? `Mounted on ${mountedCorner[0]} • ${totalLaps} Total Laps`
+        : `Spare Rack • ${totalLaps} Total Laps`;
+    }
   }
 
   function renderTyreStockList() {
     const container = $('tyreStockListContainer');
+    const selectEl = $('selectTyreStockItem');
+    const hintEl = $('tyreStockSelectHint');
     const countBadge = $('tyreStockCountBadge');
     const mounted = ensureMountedTyresState();
     const pool = state.tyrePool || [];
@@ -10039,6 +10235,13 @@
     });
 
     if (filteredPool.length === 0) {
+      if (selectEl) {
+        selectEl.innerHTML = `<option value="">— No tyres match this filter —</option>`;
+        selectEl.value = '';
+      }
+      if (hintEl) {
+        hintEl.textContent = '0 in filter';
+      }
       container.innerHTML = `
         <div class="card-elevated" style="text-align: center; padding: 14px;">
           <div style="font-size: 14px; font-weight: 800; color: var(--text-secondary);">
@@ -10059,200 +10262,214 @@
       return String(a.id).localeCompare(String(b.id), undefined, { numeric: true });
     });
 
-    container.innerHTML = sortedPool
-      .map((t) => {
-        const totalLaps = getTyreCumulativeLaps(t.id);
-        const baseLaps = Number.isFinite(Number(t.baseLaps)) ? Math.max(0, Math.round(Number(t.baseLaps))) : 0;
-        const loggedLaps = Math.max(0, totalLaps - baseLaps);
-        const mountedCorner = Object.entries(mounted).find(([, tid]) => tid === t.id);
-        const isMounted = Boolean(mountedCorner);
-        const isWet = t.spec === 'wet';
-        const isExpanded = ui.expandedTyreId === t.id;
+    if (!ui.expandedTyreId || !sortedPool.some((item) => item.id === ui.expandedTyreId)) {
+      ui.expandedTyreId = sortedPool[0].id;
+    }
+    const selectedTyre = sortedPool.find((item) => item.id === ui.expandedTyreId) || sortedPool[0];
+    ui.expandedTyreId = selectedTyre.id;
 
-        const posBadgeHtml = isMounted
-          ? `<span class="tyre-pos-badge mounted" id="stockPosBadge_${escapeHtml(t.id)}">${mountedCorner[0]}</span>`
-          : `<span class="tyre-pos-badge spare" id="stockPosBadge_${escapeHtml(t.id)}">SPARE</span>`;
+    if (selectEl) {
+      selectEl.innerHTML = sortedPool
+        .map(
+          (item) =>
+            `<option value="${escapeHtml(item.id)}"${item.id === selectedTyre.id ? ' selected' : ''}>${escapeHtml(
+              formatTyreStockOptionText(item, mounted)
+            )}</option>`
+        )
+        .join('');
+      selectEl.value = selectedTyre.id;
+    }
 
-        const specTagHtml = `<span class="tyre-spec-tag ${isWet ? 'wet' : 'buffed'}" id="accSpecTag_${escapeHtml(t.id)}">${isWet ? 'WET' : 'BUFFED'}</span>`;
+    const t = selectedTyre;
+    const totalLaps = getTyreCumulativeLaps(t.id);
+    const baseLaps = Number.isFinite(Number(t.baseLaps)) ? Math.max(0, Math.round(Number(t.baseLaps))) : 0;
+    const loggedLaps = Math.max(0, totalLaps - baseLaps);
+    const mountedCorner = Object.entries(mounted).find(([, tid]) => tid === t.id);
+    const isMounted = Boolean(mountedCorner);
+    const isWet = t.spec === 'wet';
 
-        const treadMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : isWet ? 8.0 : 5.0;
-        const duro = Number.isFinite(Number(t.durometer)) ? Math.round(Number(t.durometer)) : isWet ? 60 : 62;
-        const purchaseDate = t.purchaseDate || getLocalTodayIso();
-        const treadStatus = getTreadStatusInfo(treadMm);
-        const isConfirmingDelete = ui.confirmDeleteTyreId === t.id;
+    if (hintEl) {
+      hintEl.textContent = isMounted
+        ? `Mounted on ${mountedCorner[0]} • ${totalLaps} Total Laps`
+        : `Spare Rack • ${totalLaps} Total Laps`;
+    }
 
-        const mmClass = treadMm < 1.5 ? 'txt-danger' : treadMm <= 2.0 ? 'txt-amber' : 'txt-emerald';
-        const itemClasses = [
-          'tyre-acc-item',
-          isMounted ? 'is-mounted' : '',
-          isExpanded ? 'is-open' : '',
-          treadStatus.cardClass
-        ]
-          .filter(Boolean)
-          .join(' ');
+    const posBadgeHtml = isMounted
+      ? `<span class="tyre-pos-badge mounted" id="stockPosBadge_${escapeHtml(t.id)}">MOUNTED ${mountedCorner[0]}</span>`
+      : `<span class="tyre-pos-badge spare" id="stockPosBadge_${escapeHtml(t.id)}">SPARE RACK</span>`;
 
-        return `
-          <article class="${itemClasses}" id="tyreStockCard_${escapeHtml(t.id)}" data-tyre-stock-card="${escapeHtml(t.id)}">
-            <button
-              type="button"
-              class="tyre-acc-summary"
-              data-toggle-tyre-acc="${escapeHtml(t.id)}"
-              aria-expanded="${isExpanded ? 'true' : 'false'}"
-            >
-              <div class="tyre-acc-left">
-                <span class="tyre-acc-chevron">▸</span>
-                <span class="tread-dot ${treadStatus.dotClass}" id="accDot_${escapeHtml(t.id)}"></span>
-                <span class="tyre-acc-code" id="accCode_${escapeHtml(t.id)}">${escapeHtml(t.label || t.code || t.id)}</span>
-                ${specTagHtml}
-                ${posBadgeHtml}
+    const specTagHtml = `<span class="tyre-spec-tag ${isWet ? 'wet' : 'buffed'}" id="accSpecTag_${escapeHtml(t.id)}">${isWet ? 'WET' : 'BUFFED'}</span>`;
+
+    const treadMm = Number.isFinite(Number(t.treadMm)) ? Number(t.treadMm) : isWet ? 8.0 : 5.0;
+    const duro = Number.isFinite(Number(t.durometer)) ? Math.round(Number(t.durometer)) : isWet ? 60 : 62;
+    const purchaseDate = t.purchaseDate || getLocalTodayIso();
+    const treadStatus = getTreadStatusInfo(treadMm);
+    const isConfirmingDelete = ui.confirmDeleteTyreId === t.id;
+
+    const mmClass = treadMm < 1.5 ? 'txt-danger' : treadMm <= 2.0 ? 'txt-amber' : 'txt-emerald';
+    const itemClasses = [
+      'tyre-acc-item',
+      isMounted ? 'is-mounted' : '',
+      'is-open',
+      treadStatus.cardClass
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+    container.innerHTML = `
+      <article class="${itemClasses}" id="tyreStockCard_${escapeHtml(t.id)}" data-tyre-stock-card="${escapeHtml(t.id)}">
+        <div class="tyre-acc-summary">
+          <div class="tyre-acc-left">
+            <span class="tread-dot ${treadStatus.dotClass}" id="accDot_${escapeHtml(t.id)}"></span>
+            <span class="tyre-acc-code" id="accCode_${escapeHtml(t.id)}">${escapeHtml(t.label || t.code || t.id)}</span>
+            ${specTagHtml}
+            ${posBadgeHtml}
+          </div>
+          <div class="tyre-acc-metrics" id="accMetrics_${escapeHtml(t.id)}">
+            <span class="${mmClass}">${treadMm.toFixed(1)}mm</span> &bull; ${duro}A &bull; ${totalLaps} Laps
+          </div>
+        </div>
+
+        <div class="tyre-acc-drawer" style="display: flex;">
+          <!-- Row 1 (2-col): Tyre Code + Type | Purchased Date -->
+          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 0;">
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="stockLabel_${escapeHtml(t.id)}">Tyre Code &amp; Spec</label>
+                <span class="field-hint">${isWet ? 'Full-Tread Wet' : 'Buffed Dry'}</span>
               </div>
-              <div class="tyre-acc-metrics" id="accMetrics_${escapeHtml(t.id)}">
-                <span class="${mmClass}">${treadMm.toFixed(1)}mm</span> &bull; ${duro}A &bull; ${totalLaps} Laps
-              </div>
-            </button>
-
-            <div class="tyre-acc-drawer" style="display: ${isExpanded ? 'flex' : 'none'};">
-              <!-- Row 1 (2-col): Tyre Code + Type | Purchased Date -->
-              <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 0;">
-                <div class="field-group" style="margin-bottom: 0;">
-                  <div class="field-label-row">
-                    <label class="field-label" for="stockLabel_${escapeHtml(t.id)}">Tyre Code &amp; Spec</label>
-                    <span class="field-hint">${isWet ? 'Full-Tread Wet' : 'Buffed Dry'}</span>
-                  </div>
-                  <div class="tyre-drawer-code-row">
-                    <input
-                      type="text"
-                      id="stockLabel_${escapeHtml(t.id)}"
-                      class="tyre-stock-name-input"
-                      data-tyre-label="${escapeHtml(t.id)}"
-                      value="${escapeHtml(t.label || t.code || t.id)}"
-                      aria-label="Tyre Code for ${escapeHtml(t.id)}"
-                    />
-                    <div class="tyre-spec-mini-toggle" role="group" aria-label="Tyre Spec Type">
-                      <button
-                        type="button"
-                        class="tyre-spec-mini-btn ${!isWet ? 'active-buffed' : ''}"
-                        data-tyre-spec-id="${escapeHtml(t.id)}"
-                        data-tyre-spec-val="buffed"
-                      >Buffed</button>
-                      <button
-                        type="button"
-                        class="tyre-spec-mini-btn ${isWet ? 'active-wet' : ''}"
-                        data-tyre-spec-id="${escapeHtml(t.id)}"
-                        data-tyre-spec-val="wet"
-                      >Wet</button>
-                    </div>
-                  </div>
+              <div class="tyre-drawer-code-row">
+                <input
+                  type="text"
+                  id="stockLabel_${escapeHtml(t.id)}"
+                  class="tyre-stock-name-input"
+                  data-tyre-label="${escapeHtml(t.id)}"
+                  value="${escapeHtml(t.label || t.code || t.id)}"
+                  aria-label="Tyre Code for ${escapeHtml(t.id)}"
+                />
+                <div class="tyre-spec-mini-toggle" role="group" aria-label="Tyre Spec Type">
+                  <button
+                    type="button"
+                    class="tyre-spec-mini-btn ${!isWet ? 'active-buffed' : ''}"
+                    data-tyre-spec-id="${escapeHtml(t.id)}"
+                    data-tyre-spec-val="buffed"
+                  >Buffed</button>
+                  <button
+                    type="button"
+                    class="tyre-spec-mini-btn ${isWet ? 'active-wet' : ''}"
+                    data-tyre-spec-id="${escapeHtml(t.id)}"
+                    data-tyre-spec-val="wet"
+                  >Wet</button>
                 </div>
-
-                <div class="field-group" style="margin-bottom: 0;">
-                  <div class="field-label-row">
-                    <label class="field-label" for="stockDate_${escapeHtml(t.id)}">Purchased Date</label>
-                    <span class="field-hint">Batch</span>
-                  </div>
-                  <input
-                    type="date"
-                    id="stockDate_${escapeHtml(t.id)}"
-                    class="text-input"
-                    value="${escapeHtml(purchaseDate)}"
-                    data-tyre-date="${escapeHtml(t.id)}"
-                  />
-                </div>
-              </div>
-
-              <!-- Row 2 (2-col wide steppers so 4.8 and 62 NEVER clip): Tread Depth (mm) | Hardness (Shore A) -->
-              <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 0;">
-                <div class="field-group" style="margin-bottom: 0;">
-                  <div class="field-label-row">
-                    <label class="field-label" for="stockTread_${escapeHtml(t.id)}">Tread Depth (mm)</label>
-                    <span class="${treadStatus.hintClass}" id="stockTreadStatus_${escapeHtml(t.id)}">${escapeHtml(treadStatus.text)}</span>
-                  </div>
-                  <div class="num-stepper">
-                    <button type="button" class="stepper-btn" data-stepper-target="stockTread_${escapeHtml(t.id)}" data-step="-0.1" aria-label="Decrease ${escapeHtml(t.label || t.id)} Tread">&minus;</button>
-                    <div class="num-input-wrap">
-                      <input
-                        type="number"
-                        id="stockTread_${escapeHtml(t.id)}"
-                        class="num-input"
-                        value="${treadMm.toFixed(1)}"
-                        min="0.0"
-                        max="10.0"
-                        step="0.1"
-                        inputmode="decimal"
-                        data-tyre-tread="${escapeHtml(t.id)}"
-                      />
-                      <span class="num-unit-badge">mm</span>
-                    </div>
-                    <button type="button" class="stepper-btn" data-stepper-target="stockTread_${escapeHtml(t.id)}" data-step="0.1" aria-label="Increase ${escapeHtml(t.label || t.id)} Tread">+</button>
-                  </div>
-                </div>
-
-                <div class="field-group" style="margin-bottom: 0;">
-                  <div class="field-label-row">
-                    <label class="field-label" for="stockHardness_${escapeHtml(t.id)}">Hardness (Shore A)</label>
-                    <span class="field-hint amber" id="stockHardnessStatus_${escapeHtml(t.id)}">${duro} Shore A</span>
-                  </div>
-                  <div class="num-stepper">
-                    <button type="button" class="stepper-btn" data-stepper-target="stockHardness_${escapeHtml(t.id)}" data-step="-1" aria-label="Decrease ${escapeHtml(t.label || t.id)} Hardness">&minus;</button>
-                    <div class="num-input-wrap">
-                      <input
-                        type="number"
-                        id="stockHardness_${escapeHtml(t.id)}"
-                        class="num-input"
-                        value="${duro}"
-                        min="40"
-                        max="95"
-                        step="1"
-                        inputmode="numeric"
-                        data-tyre-hardness="${escapeHtml(t.id)}"
-                      />
-                      <span class="num-unit-badge">A</span>
-                    </div>
-                    <button type="button" class="stepper-btn" data-stepper-target="stockHardness_${escapeHtml(t.id)}" data-step="1" aria-label="Increase ${escapeHtml(t.label || t.id)} Hardness">+</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Row 3: Prior/Base Laps adjustment + 3D anodized RED Delete Tyre button (2-tap confirm) -->
-              <div class="tyre-drawer-bottom-row">
-                <div class="field-group" style="margin-bottom: 0;">
-                  <div class="field-label-row">
-                    <label class="field-label" for="stockBaseLaps_${escapeHtml(t.id)}">Prior / Base Laps</label>
-                    <span class="field-hint" id="stockTotalLaps_${escapeHtml(t.id)}">Total: ${totalLaps} (${loggedLaps} logged)</span>
-                  </div>
-                  <div class="num-stepper">
-                    <button type="button" class="stepper-btn" data-stepper-target="stockBaseLaps_${escapeHtml(t.id)}" data-step="-1" aria-label="Decrease ${escapeHtml(t.label || t.id)} Base Laps">&minus;</button>
-                    <div class="num-input-wrap">
-                      <input
-                        type="number"
-                        id="stockBaseLaps_${escapeHtml(t.id)}"
-                        class="num-input"
-                        value="${baseLaps}"
-                        min="0"
-                        max="500"
-                        step="1"
-                        inputmode="numeric"
-                        data-tyre-baselaps="${escapeHtml(t.id)}"
-                      />
-                      <span class="num-unit-badge">laps</span>
-                    </div>
-                    <button type="button" class="stepper-btn" data-stepper-target="stockBaseLaps_${escapeHtml(t.id)}" data-step="1" aria-label="Increase ${escapeHtml(t.label || t.id)} Base Laps">+</button>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  class="btn-icon-delete"
-                  data-delete-tyre="${escapeHtml(t.id)}"
-                  title="Remove Tyre"
-                  aria-label="Remove Tyre"
-                >&#10005;</button>
               </div>
             </div>
-          </article>
-        `;
-      })
-      .join('');
+
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="stockDate_${escapeHtml(t.id)}">Purchased Date</label>
+                <span class="field-hint">Batch</span>
+              </div>
+              <input
+                type="date"
+                id="stockDate_${escapeHtml(t.id)}"
+                class="text-input"
+                value="${escapeHtml(purchaseDate)}"
+                data-tyre-date="${escapeHtml(t.id)}"
+              />
+            </div>
+          </div>
+
+          <!-- Row 2 (2-col wide steppers so 4.8 and 62 NEVER clip): Tread Depth (mm) | Hardness (Shore A) -->
+          <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 0;">
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="stockTread_${escapeHtml(t.id)}">Tread Depth (mm)</label>
+                <span class="${treadStatus.hintClass}" id="stockTreadStatus_${escapeHtml(t.id)}">${escapeHtml(treadStatus.text)}</span>
+              </div>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="stockTread_${escapeHtml(t.id)}" data-step="-0.1" aria-label="Decrease ${escapeHtml(t.label || t.id)} Tread">&minus;</button>
+                <div class="num-input-wrap">
+                  <input
+                    type="number"
+                    id="stockTread_${escapeHtml(t.id)}"
+                    class="num-input"
+                    value="${treadMm.toFixed(1)}"
+                    min="0.0"
+                    max="10.0"
+                    step="0.1"
+                    inputmode="decimal"
+                    data-tyre-tread="${escapeHtml(t.id)}"
+                  />
+                  <span class="num-unit-badge">mm</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="stockTread_${escapeHtml(t.id)}" data-step="0.1" aria-label="Increase ${escapeHtml(t.label || t.id)} Tread">+</button>
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="stockHardness_${escapeHtml(t.id)}">Hardness (Shore A)</label>
+                <span class="field-hint amber" id="stockHardnessStatus_${escapeHtml(t.id)}">${duro} Shore A</span>
+              </div>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="stockHardness_${escapeHtml(t.id)}" data-step="-1" aria-label="Decrease ${escapeHtml(t.label || t.id)} Hardness">&minus;</button>
+                <div class="num-input-wrap">
+                  <input
+                    type="number"
+                    id="stockHardness_${escapeHtml(t.id)}"
+                    class="num-input"
+                    value="${duro}"
+                    min="40"
+                    max="95"
+                    step="1"
+                    inputmode="numeric"
+                    data-tyre-hardness="${escapeHtml(t.id)}"
+                  />
+                  <span class="num-unit-badge">A</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="stockHardness_${escapeHtml(t.id)}" data-step="1" aria-label="Increase ${escapeHtml(t.label || t.id)} Hardness">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 3: Prior/Base Laps adjustment + 3D anodized RED Delete Tyre button (2-tap confirm) -->
+          <div class="tyre-drawer-bottom-row">
+            <div class="field-group" style="margin-bottom: 0;">
+              <div class="field-label-row">
+                <label class="field-label" for="stockBaseLaps_${escapeHtml(t.id)}">Prior / Base Laps</label>
+                <span class="field-hint" id="stockTotalLaps_${escapeHtml(t.id)}">Total: ${totalLaps} (${loggedLaps} logged)</span>
+              </div>
+              <div class="num-stepper">
+                <button type="button" class="stepper-btn" data-stepper-target="stockBaseLaps_${escapeHtml(t.id)}" data-step="-1" aria-label="Decrease ${escapeHtml(t.label || t.id)} Base Laps">&minus;</button>
+                <div class="num-input-wrap">
+                  <input
+                    type="number"
+                    id="stockBaseLaps_${escapeHtml(t.id)}"
+                    class="num-input"
+                    value="${baseLaps}"
+                    min="0"
+                    max="500"
+                    step="1"
+                    inputmode="numeric"
+                    data-tyre-baselaps="${escapeHtml(t.id)}"
+                  />
+                  <span class="num-unit-badge">laps</span>
+                </div>
+                <button type="button" class="stepper-btn" data-stepper-target="stockBaseLaps_${escapeHtml(t.id)}" data-step="1" aria-label="Increase ${escapeHtml(t.label || t.id)} Base Laps">+</button>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="${isConfirmingDelete ? 'btn btn-danger btn-xs' : 'btn-icon-delete'}"
+              data-delete-tyre="${escapeHtml(t.id)}"
+              title="${isConfirmingDelete ? 'Tap again to confirm removal' : 'Remove Tyre'}"
+              aria-label="${isConfirmingDelete ? 'Confirm Remove Tyre' : 'Remove Tyre'}"
+            >${isConfirmingDelete ? 'Confirm ✕' : '&#10005;'}</button>
+          </div>
+        </div>
+      </article>
+    `;
   }
 
   function addInlineTyreToStock() {
@@ -10305,7 +10522,11 @@
       toggleBtn.textContent = '+ Add New Tyre';
     }
 
+    if (ui.tyreStockFilter && ui.tyreStockFilter !== 'all' && ui.tyreStockFilter !== spec) {
+      ui.tyreStockFilter = 'all';
+    }
     ui.expandedTyreId = newTyre.id;
+    ui.confirmDeleteTyreId = null;
     saveState();
     renderMountedTyreSelectors();
     renderTyreStockList();
@@ -10319,15 +10540,19 @@
     if (!tyre) return;
 
     const removedLabel = tyre.label || tyre.code || tyre.id;
-    if (typeof window.confirm === 'function' && !window.confirm(`Remove tyre ${removedLabel} from stock?`)) {
+    if (ui.confirmDeleteTyreId !== tyreId) {
+      ui.confirmDeleteTyreId = tyreId;
+      renderTyreStockList();
+      renderTyrePoolModal();
+      showToast(`Tap red "Confirm ✕" again to delete ${removedLabel} from Tyre Stock`);
       return;
     }
 
     ui.confirmDeleteTyreId = null;
-    if (ui.expandedTyreId === tyreId) {
-      ui.expandedTyreId = null;
-    }
     state.tyrePool = (state.tyrePool || []).filter((t) => t.id !== tyreId);
+    if (ui.expandedTyreId === tyreId) {
+      ui.expandedTyreId = state.tyrePool[0] ? state.tyrePool[0].id : null;
+    }
 
     if (state.chassis && state.chassis.mountedTyres) {
       const mt = state.chassis.mountedTyres;
@@ -11120,7 +11345,7 @@
                 </div>
                 <div class="mono" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                   <span class="txt-emerald"><strong>${Number(sp.thicknessMm).toFixed(2)} mm</strong> (${escapeHtml(sp.liftText)})</span>
-                  <span class="locked-badge ${isIllegalStack ? 'amber' : ''}" style="font-size: 0.6rem; padding: 1px 6px;">${escapeHtml(sp.legalityNote)}</span>
+                  <span class="locked-badge ${isIllegalStack ? 'amber' : ''}" style="font-size: 0.85rem; padding: 1px 6px;">${escapeHtml(sp.legalityNote)}</span>
                 </div>
               </div>
             `;
@@ -11295,8 +11520,8 @@
               <div class="cw-session-row-left">
                 <div class="cw-session-row-title-line">
                   <span class="cw-session-row-name mono">${escapeHtml(s.name)}</span>
-                  ${s.locked ? '<span class="locked-badge mono" style="font-size: 0.6rem; padding: 1px 6px;">LOCKED</span>' : ''}
-                  ${isActive ? '<span class="locked-badge emerald mono" style="font-size: 0.6rem; padding: 1px 6px;">ACTIVE</span>' : ''}
+                  ${s.locked ? '<span class="locked-badge mono" style="font-size: 0.85rem; padding: 1px 6px;">LOCKED</span>' : ''}
+                  ${isActive ? '<span class="locked-badge emerald mono" style="font-size: 0.85rem; padding: 1px 6px;">ACTIVE</span>' : ''}
                 </div>
                 <div class="cw-session-row-meta mono">${escapeHtml(summaryLine)}</div>
               </div>
@@ -12348,7 +12573,7 @@
         const sessLaps = Math.max(0, totalLaps - (Number(t.baseLaps) || 0));
         const mountedCorner = Object.entries(mounted).find(([, tid]) => tid === t.id);
         const cornerBadge = mountedCorner
-          ? `<span class="locked-badge" style="font-size: 12px; padding: 3px 8px;">Mounted: ${mountedCorner[0]}</span>`
+          ? `<span class="locked-badge" style="font-size: 13.5px; padding: 3px 8px;">Mounted: ${mountedCorner[0]}</span>`
           : t.retired
           ? `<span class="afr-status-badge estimated">RETIRED</span>`
           : `<span class="afr-status-badge verified">SPARE IN POOL</span>`;
@@ -12370,7 +12595,7 @@
             </div>
             <div class="form-grid-2 compact-pair-grid" style="gap: 8px;">
               <div class="field-group" style="margin-bottom: 0;">
-                <label class="field-label" style="font-size: 13px;" for="poolTread_${escapeHtml(t.id)}">Tread Depth (mm)</label>
+                <label class="field-label" style="font-size: 13.5px;" for="poolTread_${escapeHtml(t.id)}">Tread Depth (mm)</label>
                 <div class="num-stepper">
                   <button type="button" class="stepper-btn" data-stepper-target="poolTread_${escapeHtml(t.id)}" data-step="-0.1">&minus;</button>
                   <div class="num-input-wrap">
@@ -12381,7 +12606,7 @@
                 </div>
               </div>
               <div class="field-group" style="margin-bottom: 0;">
-                <label class="field-label" style="font-size: 13px;" for="poolBaseLaps_${escapeHtml(t.id)}">Prior / Base Laps</label>
+                <label class="field-label" style="font-size: 13.5px;" for="poolBaseLaps_${escapeHtml(t.id)}">Prior / Base Laps</label>
                 <div class="num-stepper">
                   <button type="button" class="stepper-btn" data-stepper-target="poolBaseLaps_${escapeHtml(t.id)}" data-step="-1">&minus;</button>
                   <div class="num-input-wrap">
@@ -12393,7 +12618,7 @@
               </div>
             </div>
             <div style="display: flex; justify-content: flex-end; gap: 8px;">
-              <button type="button" class="btn-icon-delete" data-delete-tyre="${escapeHtml(t.id)}" title="Remove Tyre" aria-label="Remove Tyre">&#10005;</button>
+              <button type="button" class="btn-icon-delete ${ui.confirmDeleteTyreId === t.id ? 'confirm-delete' : ''}" data-delete-tyre="${escapeHtml(t.id)}" title="${ui.confirmDeleteTyreId === t.id ? 'Tap again to confirm delete' : 'Remove Tyre'}" aria-label="Remove Tyre" style="${ui.confirmDeleteTyreId === t.id ? 'width: auto; padding: 0 10px; background: var(--accent-red); color: #fff; font-weight: 800;' : ''}">${ui.confirmDeleteTyreId === t.id ? 'Confirm &#10005;' : '&#10005;'}</button>
             </div>
           </div>
         `;
@@ -13567,6 +13792,7 @@
       shocks: { ...tyreSnap.shocks },
       springs: { ...tyreSnap.springs },
       spacers: { ...(tyreSnap.spacers || ensureMountedSpacersState()) },
+      spacerNote: formatRearSpacerNote(tyreSnap.spacers || ensureMountedSpacersState()),
       appendPreRaceNote: notes,
       tyresPreLocked: true
     });
@@ -13687,6 +13913,8 @@
     const targetStr = ` (Targets ${frontTgt.toFixed(1)}F / ${rearTgt.toFixed(1)}R PSI)`;
     const lapsStr = Number.isFinite(Number(s.racedLaps)) && Number(s.racedLaps) > 0 ? ` • ${Math.round(Number(s.racedLaps))} Laps` : '';
     const modeTag = s.isStoneColdSession === false ? ' • Session 2+ Hot-Cycled' : ' • Session 1 Stone-Cold';
+    const spacerDisplay = formatRearSpacerNote(s.spacers, s.spacerNote);
+    const spacerTag = spacerDisplay ? ` • ${spacerDisplay}` : '';
 
     const pillsHtml = ['FL', 'FR', 'RL', 'RR']
       .map((c) => {
@@ -13698,7 +13926,6 @@
             ? Number(cr.targetHot)
             : axleTgt;
         const hasCold =
-          s.isStoneColdSession !== false &&
           cr.cold !== null &&
           cr.cold !== undefined &&
           cr.cold !== '' &&
@@ -13709,15 +13936,15 @@
 
         let valHtml = '';
         if (hasCold && hasHot) {
-          valHtml = `${Number(cr.cold).toFixed(1)}C &rarr; ${Number(cr.hot).toFixed(1)}H`;
+          valHtml = `Cold ${Number(cr.cold).toFixed(1)} &rarr; Hot ${Number(cr.hot).toFixed(1)} psi`;
         } else if (!hasCold && hasHot) {
-          valHtml = `${Number(cr.hot).toFixed(1)}H`;
+          valHtml = `Hot ${Number(cr.hot).toFixed(1)} psi`;
         } else if (hasCold && !hasHot) {
-          valHtml = `${Number(cr.cold).toFixed(1)}C &rarr; &mdash;`;
+          valHtml = `Cold ${Number(cr.cold).toFixed(1)} &rarr; &mdash;`;
         } else {
-          valHtml = `&mdash;H`;
+          valHtml = `&mdash; psi`;
         }
-        const subTgtStr = `Tgt ${cornerTgt.toFixed(1)}`;
+        const subTgtStr = `Tgt ${cornerTgt.toFixed(1)} psi`;
 
         return `
           <div class="unified-tyre-pill tyre-4col-cell">
@@ -13744,7 +13971,7 @@
 
     return `
       <div class="unified-session-subblock">
-        <div class="unified-subblock-title">4-Corner Tyres${escapeHtml(targetStr)}${escapeHtml(trackTempStr)}${escapeHtml(lapsStr)}${escapeHtml(modeTag)}</div>
+        <div class="unified-subblock-title">4-Corner Tyres${escapeHtml(targetStr)}${escapeHtml(trackTempStr)}${escapeHtml(lapsStr)}${escapeHtml(modeTag)}${escapeHtml(spacerTag)}</div>
         <div class="unified-tyre-grid unified-4col-grid">${pillsHtml}</div>
         ${handlingHtml}
       </div>
@@ -13755,6 +13982,7 @@
     const shMap = (s && s.shocks && typeof s.shocks === 'object') ? s.shocks : DEFAULT_MOUNTED_SHOCKS;
     const spMap = (s && s.springs && typeof s.springs === 'object') ? s.springs : DEFAULT_MOUNTED_SPRINGS;
     const spacerMap = normalizeRearSpacersMap(s && s.spacers, DEFAULT_MOUNTED_SPACERS);
+    const spacerSummary = formatRearSpacerNote(spacerMap, s && s.spacerNote);
 
     const pillsHtml = ['FL', 'FR', 'RL', 'RR']
       .map((c) => {
@@ -13790,7 +14018,7 @@
 
     return `
       <div class="unified-session-subblock">
-        <div class="unified-subblock-title">4-CORNER SHOCKS &amp; SPRINGS</div>
+        <div class="unified-subblock-title">4-CORNER SHOCKS &amp; SPRINGS &bull; <span class="mono txt-amber">${escapeHtml(spacerSummary)}</span></div>
         <div class="unified-tyre-grid unified-4col-grid">${pillsHtml}</div>
       </div>
     `;
@@ -13917,7 +14145,14 @@
       });
     }
     const spacerMap = normalizeRearSpacersMap(s.spacers, DEFAULT_MOUNTED_SPACERS);
-    tyreParts.push(`RL ${spacerMap.RL}mm`, `RR ${spacerMap.RR}mm`, `${spacerMap.RL}mm`, `${spacerMap.RR}mm`, 'spacer');
+    tyreParts.push(
+      `RL ${spacerMap.RL}mm`,
+      `RR ${spacerMap.RR}mm`,
+      `${spacerMap.RL}mm`,
+      `${spacerMap.RR}mm`,
+      s.spacerNote || '',
+      'spacer'
+    );
     const hTags = normalizeHandlingTagsArray(s.handlingTags);
     if (hTags.length > 0) {
       tyreParts.push(...hTags);
@@ -13945,6 +14180,7 @@
     const psiStr = Number.isFinite(Number(s.fuelPsi)) ? Number(s.fuelPsi).toFixed(1) : '';
     const waterStr = s.waterTempC !== null && s.waterTempC !== undefined && s.waterTempC !== '' ? `${s.waterTempC}c` : '';
     const bestLapSearchStr = s.bestLapStr ? `${s.bestLapStr} ${s.bestLapNum ? `lap ${s.bestLapNum}` : ''} ${s.isNewTrackPb ? 'pb benchmark' : ''}` : '';
+    const finishPosStr = s.finishPos ? `finished ${s.finishPos} ${s.finishPos}` : '';
 
     return [
       (evt && evt.eventTitle) || s.eventTitle || '',
@@ -13971,6 +14207,7 @@
       psiStr,
       waterStr,
       bestLapSearchStr,
+      finishPosStr,
       s.afrStatus || '',
       tyreParts.join(' '),
       s.preRaceNotes || '',
@@ -14027,23 +14264,32 @@
       Number.isFinite(Number(s.bestLapSec)) && Number(s.bestLapSec) >= 35
         ? Number(s.bestLapSec)
         : parseLapTimeToSeconds(s.bestLapStr);
-    if (sBestSec !== null) {
-      const sBestStr = s.bestLapStr || formatSecondsToLapStr(sBestSec);
-      const lapNumPart = s.bestLapNum ? ` (Lap ${s.bestLapNum})` : '';
-      const trackBm = getTrackBenchmarkForVenue(venueLabel);
-      const isCurrentPbMatch =
-        Boolean(s.isNewTrackPb) ||
-        (trackBm && Number.isFinite(Number(trackBm.bestLapSec)) && Math.abs(sBestSec - Number(trackBm.bestLapSec)) < 0.0005);
+    const cleanFinishPos = normalizeFinishPos(s.finishPos);
+    if (sBestSec !== null || cleanFinishPos) {
+      let lapPillHtml = '';
       let pbComparisonHtml = '';
-      if (isCurrentPbMatch) {
-        pbComparisonHtml = `<span class="session-track-pb-badge">🏆 NEW TRACK PB!</span>`;
-      } else if (trackBm && Number.isFinite(Number(trackBm.bestLapSec)) && sBestSec > Number(trackBm.bestLapSec)) {
-        const deltaSec = (sBestSec - Number(trackBm.bestLapSec)).toFixed(2);
-        pbComparisonHtml = `<span class="session-pb-delta-pill">(+${deltaSec}s vs PB ${escapeHtml(trackBm.bestLapStr)})</span>`;
+      if (sBestSec !== null) {
+        const sBestStr = s.bestLapStr || formatSecondsToLapStr(sBestSec);
+        const lapNumPart = s.bestLapNum ? ` on Lap ${s.bestLapNum}` : '';
+        lapPillHtml = `<span class="session-best-lap-pill">⏱ Fastest: ${escapeHtml(sBestStr)}${escapeHtml(lapNumPart)}</span>`;
+        const trackBm = getTrackBenchmarkForVenue(venueLabel);
+        const isCurrentPbMatch =
+          Boolean(s.isNewTrackPb) ||
+          (trackBm && Number.isFinite(Number(trackBm.bestLapSec)) && Math.abs(sBestSec - Number(trackBm.bestLapSec)) < 0.0005);
+        if (isCurrentPbMatch) {
+          pbComparisonHtml = `<span class="session-track-pb-badge">🏆 NEW TRACK PB!</span>`;
+        } else if (trackBm && Number.isFinite(Number(trackBm.bestLapSec)) && sBestSec > Number(trackBm.bestLapSec)) {
+          const deltaSec = (sBestSec - Number(trackBm.bestLapSec)).toFixed(2);
+          pbComparisonHtml = `<span class="session-pb-delta-pill">(+${deltaSec}s vs PB ${escapeHtml(trackBm.bestLapStr)})</span>`;
+        }
       }
+      const finishPillHtml = cleanFinishPos
+        ? `<span class="session-best-lap-pill">🏁 Finished ${escapeHtml(cleanFinishPos)}</span>`
+        : '';
       bestLapBlockHtml = `
         <div class="session-best-lap-strip">
-          <span class="session-best-lap-pill">⏱ Fastest: ${escapeHtml(sBestStr)}${escapeHtml(lapNumPart)}</span>
+          ${lapPillHtml}
+          ${finishPillHtml}
           ${pbComparisonHtml}
         </div>
       `;
@@ -14120,7 +14366,7 @@
         <div class="session-head">
           <div>
             <div class="session-title-line">
-              ${escapeHtml(s.sessionName)} &bull; <span class="txt-amber">${escapeHtml(carbyDisp)} (${escapeHtml(emulDisp)})</span> &bull; <span style="font-size: 0.82em; color: var(--text-secondary);">${escapeHtml(getManifoldDisplayName(s.manifoldId || 'MAN_B'))} / ${escapeHtml(s.exhaustId || 'Macca')} Exh</span>
+              ${escapeHtml(s.sessionName)} &bull; <span class="txt-amber">${escapeHtml(carbyDisp)} (${escapeHtml(emulDisp)})</span> &bull; <span style="font-size: 0.85em; color: var(--text-secondary);">${escapeHtml(getManifoldDisplayName(s.manifoldId || 'MAN_B'))} / ${escapeHtml(s.exhaustId || 'Macca')} Exh</span>
             </div>
             <div class="session-meta-line">
               <strong>${escapeHtml(venueLabel)}</strong> &bull; ${escapeHtml(dateLabel)}${escapeHtml(timePart)} &bull;
@@ -14131,10 +14377,10 @@
           <div style="text-align: right; flex-shrink: 0;">
             ${
               isActiveRun
-                ? '<span class="in-session-locked-pill" style="padding: 2px 7px; font-size: 0.65rem;">ACTIVE SESSION</span>'
+                ? '<span class="in-session-locked-pill" style="padding: 2px 7px; font-size: 0.835rem;">ACTIVE SESSION</span>'
                 : isBaseline
                 ? '<span class="locked-badge">Baseline</span>'
-                : `<span class="mono ${endCylClass}" style="font-size: 0.75rem; font-weight: 800;">#1/#6: ${prot.endCylAfr.toFixed(2)}</span>`
+                : `<span class="mono ${endCylClass}" style="font-size: 0.835rem; font-weight: 800;">#1/#6: ${prot.endCylAfr.toFixed(2)}</span>`
             }
             <div style="margin-top: 4px;">
               <span class="afr-status-badge ${wfStatusBadgeClass}">
@@ -14190,8 +14436,11 @@
     const carbyDisp = getCarbyDisplayName(s.carbyId || 'DME1');
     const rawJet = formatJetPureMm(s.jetMm || 1.85);
     const wotAfrStr = Number.isFinite(Number(s.afrWot)) ? `${Number(s.afrWot).toFixed(2)} AFR` : '— AFR';
-    const lapPart = s.bestLapStr ? ` • ⏱ ${s.bestLapStr}${s.isNewTrackPb ? ' 🏆' : ''}` : '';
-    const quickGlanceStr = `${carbyDisp} • ${rawJet} • ${wotAfrStr}${lapPart}`;
+    const lapPart = s.bestLapStr
+      ? ` • ⏱ ${s.bestLapStr}${s.bestLapNum ? ` (L${s.bestLapNum})` : ''}${s.isNewTrackPb ? ' 🏆' : ''}`
+      : '';
+    const finishPart = s.finishPos ? ` • ${s.finishPos}` : '';
+    const quickGlanceStr = `${carbyDisp} • ${rawJet} • ${wotAfrStr}${lapPart}${finishPart}`;
 
     let statusPillHtml = '';
     if (isActiveRun && s.status !== 'completed') {
@@ -14342,16 +14591,8 @@
         }
       }
 
-      // Order sessions inside the Event newest-to-oldest (Race 3 -> Race 2 -> Race 1 -> Qualifying -> Practice 1)
-      const orderedSessions = matchedSessions
-        .map((s, sIdx) => ({ s, sIdx }))
-        .sort((a, b) => {
-          const weightA = getSessionOrderWeight(a.s);
-          const weightB = getSessionOrderWeight(b.s);
-          if (weightA !== weightB) return weightB - weightA;
-          return b.sIdx - a.sIdx;
-        })
-        .map((item) => item.s);
+      // Order sessions strictly newest-first by actual session date & time via sortSessionsDesc
+      const orderedSessions = sortSessionsDesc(matchedSessions);
 
       filteredEventEntries.push({
         evt,
@@ -14448,7 +14689,7 @@
                   ? `<div class="event-session-list">${orderedSessions
                       .map((s) => renderCompactSessionAccordionItemHtml(s, Boolean(evt.locked)))
                       .join('')}</div>`
-                  : `<div style="padding: 10px 6px 14px; font-size: 0.78rem; color: var(--text-secondary);">No sessions logged in this event yet.</div>`
+                  : `<div style="padding: 10px 6px 14px; font-size: 0.85rem; color: var(--text-secondary);">No sessions logged in this event yet.</div>`
               }
             </div>
           </section>
@@ -14535,7 +14776,7 @@
           </div>
         </div>
 
-        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+        <div class="form-grid-2 compact-pair-grid" style="grid-template-columns: 1.35fr 0.8fr 0.85fr; margin-bottom: 10px;">
           <div class="field-group" style="margin-bottom: 0;">
             <label class="field-label" for="inlineBestLap_${escapeHtml(s.id)}">Session Fastest Lap</label>
             <input type="text" id="inlineBestLap_${escapeHtml(s.id)}" class="text-input mono" value="${escapeHtml(s.bestLapStr || '')}" placeholder="e.g. 1:37.68" />
@@ -14543,6 +14784,10 @@
           <div class="field-group" style="margin-bottom: 0;">
             <label class="field-label" for="inlineBestLapNum_${escapeHtml(s.id)}">On Lap #</label>
             <input type="number" id="inlineBestLapNum_${escapeHtml(s.id)}" class="text-input mono" value="${s.bestLapNum !== null && s.bestLapNum !== undefined ? escapeHtml(String(s.bestLapNum)) : ''}" placeholder="Lap #" min="1" max="50" step="1" />
+          </div>
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="inlineFinishPos_${escapeHtml(s.id)}">Finishing Position</label>
+            <input type="text" id="inlineFinishPos_${escapeHtml(s.id)}" class="text-input mono" value="${escapeHtml(s.finishPos || '')}" placeholder="e.g. P1, P4" />
           </div>
         </div>
 
@@ -14605,6 +14850,7 @@
       'Fastest_Lap',
       'Fastest_Lap_Sec',
       'Fastest_Lap_Num',
+      'Finish_Pos',
       'Track_PB_Status',
       'Carby_ID',
       'Emulsion_Tube',
@@ -14676,6 +14922,7 @@
       'RR_Spring',
       'RL_Spacer_mm',
       'RR_Spacer_mm',
+      'Spacer_Note',
       'Handling_Tags',
       'FL_Rotor_C',
       'FR_Rotor_C',
@@ -14790,6 +15037,7 @@
         sBestStr,
         sBestSec !== null ? sBestSec.toFixed(4) : '',
         s.bestLapNum !== null && s.bestLapNum !== undefined ? String(s.bestLapNum) : '',
+        normalizeFinishPos(s.finishPos) || '',
         pbStatusCsv,
         getCarbyDisplayName(s.carbyId),
         formatEmulsionShort(s.emulsionId || 'E5_DME'),
@@ -14863,6 +15111,7 @@
         fmtCornerSpring('RR'),
         String(spacerMap.RL),
         String(spacerMap.RR),
+        formatRearSpacerNote(spacerMap, s.spacerNote),
         handlingTagsCsv,
         bt.FL !== null ? String(bt.FL) : '',
         bt.FR !== null ? String(bt.FR) : '',
@@ -14980,7 +15229,7 @@
         const d = defaults[rpm];
         return `
           <div class="card-elevated" style="margin-bottom: 8px;">
-            <div style="font-size: 0.78rem; font-weight: 800; color: var(--amber); margin-bottom: 6px;">${rpm} RPM Telemetry</div>
+            <div style="font-size: 0.85rem; font-weight: 800; color: var(--amber); margin-bottom: 6px;">${rpm} RPM Telemetry</div>
             <div class="form-grid-2 stack-mobile" style="margin-bottom: 8px;">
               <div>
                 <label class="field-label" for="dynoHp_${rpm}">RWHP</label>
@@ -15043,12 +15292,12 @@
                 <div style="font-size: 0.84rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                   ${escapeHtml(p.name)}
                 </div>
-                <div class="mono" style="font-size: 0.71rem; color: var(--text-muted);">
+                <div class="mono" style="font-size: 0.85rem; color: var(--text-muted);">
                   Peak ${peakHp.toFixed(1)} HP &bull; ${peakTq.toFixed(1)} ft&middot;lb &bull; ${p.rad.toFixed(1)}% RAD
                 </div>
               </div>
             </div>
-            <span style="font-size: 0.72rem; font-weight: 800; color: ${p.visible ? 'var(--emerald)' : 'var(--text-muted)'};">
+            <span style="font-size: 0.85rem; font-weight: 800; color: ${p.visible ? 'var(--emerald)' : 'var(--text-muted)'};">
               ${p.visible ? 'ON' : 'OFF'}
             </span>
           </button>
@@ -15602,7 +15851,7 @@
           </div>
         </div>
 
-        ${c.notes ? `<p style="margin: 8px 0 10px; font-size: 0.78rem; color: var(--text-secondary);">${escapeHtml(c.notes)}</p>` : ''}
+        ${c.notes ? `<p style="margin: 8px 0 10px; font-size: 0.85rem; color: var(--text-secondary);">${escapeHtml(c.notes)}</p>` : ''}
 
         <div class="form-grid-2">
           <button type="button" class="btn ${isOnCar ? 'btn-confirm' : 'btn-amber-outline'}" data-load-carby-anchor="${escapeHtml(c.id)}">
@@ -15763,7 +16012,7 @@
             </div>
             <span class="locked-badge">${escapeHtml(br.stamp)} STAMP</span>
           </div>
-          <p style="margin: 4px 0 8px; font-size: 0.78rem; color: var(--text-secondary);">${escapeHtml(br.notes || '')}</p>
+          <p style="margin: 4px 0 8px; font-size: 0.85rem; color: var(--text-secondary);">${escapeHtml(br.notes || '')}</p>
           <div style="display: flex; justify-content: flex-end;">
             <button type="button" class="btn btn-secondary btn-xs" data-edit-brass="${escapeHtml(br.id)}">
               Edit ${escapeHtml(br.type)} ${escapeHtml(br.stamp)}
@@ -15840,7 +16089,7 @@
           </div>
         </div>
 
-        ${serviceNotes ? `<p style="margin: 8px 0 10px; font-size: 0.78rem; color: var(--text-secondary);">${escapeHtml(serviceNotes)}</p>` : ''}
+        ${serviceNotes ? `<p style="margin: 8px 0 10px; font-size: 0.85rem; color: var(--text-secondary);">${escapeHtml(serviceNotes)}</p>` : ''}
 
         <div style="display: flex; justify-content: flex-end;">
           <button type="button" class="btn btn-secondary" data-edit-fuel-system="1">
@@ -15960,12 +16209,12 @@
           </div>
           <div class="telem-cell">
             <span class="telem-label">GASKET STACK &amp; CASTING</span>
-            <span class="telem-val" style="font-size: 0.82rem; line-height: 1.25;">${escapeHtml(gasketStackStr)}</span>
+            <span class="telem-val" style="font-size: 0.85rem; line-height: 1.25;">${escapeHtml(gasketStackStr)}</span>
             <span class="telem-sub">${escapeHtml(castingSpec)} &bull; ${escapeHtml(testDateStr)}</span>
           </div>
         </div>
 
-        ${m.notes ? `<p style="margin: 6px 0 10px; font-size: 0.78rem; color: var(--text-secondary);">${escapeHtml(m.notes)}</p>` : ''}
+        ${m.notes ? `<p style="margin: 6px 0 10px; font-size: 0.85rem; color: var(--text-secondary);">${escapeHtml(m.notes)}</p>` : ''}
 
         <div class="form-grid-2">
           <button type="button" class="btn ${isOnCar ? 'btn-confirm' : 'btn-amber-outline'}" data-set-manifold-on-car="${escapeHtml(m.id)}">
@@ -16065,7 +16314,7 @@
           </div>
         </div>
 
-        ${x.notes ? `<p style="margin: 6px 0 10px; font-size: 0.78rem; color: var(--text-secondary);">${escapeHtml(x.notes)}</p>` : ''}
+        ${x.notes ? `<p style="margin: 6px 0 10px; font-size: 0.85rem; color: var(--text-secondary);">${escapeHtml(x.notes)}</p>` : ''}
 
         <div class="form-grid-2">
           <button type="button" class="btn ${isOnCar ? 'btn-confirm' : 'btn-amber-outline'}" data-set-exhaust-on-car="${escapeHtml(x.id)}">
@@ -16431,26 +16680,26 @@
           ? `Comp 0.1/0.3/1.0: +${item.compN[1]}/+${item.compN[2]}/+${item.compN[4]}N • Reb: ${item.rebN[1]}/${item.rebN[2]}/${item.rebN[4]}N`
           : formatShockKingBadge(item);
         const diffChip = isFiniteSpecNum(item.diffPctVsNom)
-          ? `<span class="mono ${Number(item.diffPctVsNom) > 20 ? 'txt-amber' : 'txt-emerald'}" style="font-size: 0.68rem; font-weight: 800;">${escapeHtml(formatSignedPct(item.diffPctVsNom))}</span>`
+          ? `<span class="mono ${Number(item.diffPctVsNom) > 20 ? 'txt-amber' : 'txt-emerald'}" style="font-size: 0.85rem; font-weight: 800;">${escapeHtml(formatSignedPct(item.diffPctVsNom))}</span>`
           : '';
 
         return `
           <div class="pedders-shock-row ${isSelected ? 'is-selected' : ''} ${itemCorner ? 'is-on-car' : ''} ${itemBin ? 'is-bin' : ''}">
             <div class="pedders-shock-row-summary" data-toggle-shock-dyno-row="${escapeHtml(item.id)}">
               <div class="pedders-shock-row-left">
-                <span class="locked-badge mono" style="font-size: 0.66rem; padding: 2px 7px;">${escapeHtml(item.code)}</span>
-                <span class="mono" style="font-size: 0.7rem; color: #E2E8F0;">${escapeHtml(compactCurveStr)}</span>
+                <span class="locked-badge mono" style="font-size: 0.85rem; padding: 2px 7px;">${escapeHtml(item.code)}</span>
+                <span class="mono" style="font-size: 0.85rem; color: #E2E8F0;">${escapeHtml(compactCurveStr)}</span>
                 ${diffChip}
               </div>
               <div class="pedders-shock-row-right">
                 <span class="pedders-loc-pill ${itemPill.cls}">${escapeHtml(itemPill.text)}</span>
-                <span class="mono" style="font-size: 0.68rem; color: #94A3B8;">${isExpanded ? '&#9660;' : '&#9654;'}</span>
+                <span class="mono" style="font-size: 0.85rem; color: #94A3B8;">${isExpanded ? '&#9660;' : '&#9654;'}</span>
               </div>
             </div>
             ${
               isExpanded
                 ? `<div class="pedders-shock-row-drawer">
-                    ${item.pairTag ? `<div style="font-size: 0.69rem; font-weight: 800; color: #7DD3FC; margin-bottom: 4px;">${escapeHtml(item.pairTag)}</div>` : ''}
+                    ${item.pairTag ? `<div style="font-size: 0.85rem; font-weight: 800; color: #7DD3FC; margin-bottom: 4px;">${escapeHtml(item.pairTag)}</div>` : ''}
                     ${renderPedders5VelocityTableHtml(item, itemEnd)}
                   </div>`
                 : ''
@@ -16513,7 +16762,7 @@
 
         ${renderPedders5VelocityTableHtml(sh, normEnd)}
 
-        ${sh.notes ? `<p style="margin: 6px 0 10px; font-size: 0.76rem; color: var(--text-secondary);">${escapeHtml(sh.notes)}</p>` : ''}
+        ${sh.notes ? `<p style="margin: 6px 0 10px; font-size: 0.85rem; color: var(--text-secondary);">${escapeHtml(sh.notes)}</p>` : ''}
 
         <div class="form-grid-2">
           <button type="button" class="btn btn-secondary" data-edit-shock="${escapeHtml(sh.id)}">
@@ -16526,10 +16775,10 @@
 
         <div class="pedders-dyno-matrix-section">
           <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
-            <span style="font-size: 0.69rem; font-weight: 900; letter-spacing: 0.05em; color: #94A3B8; text-transform: uppercase;">
+            <span style="font-size: 0.85rem; font-weight: 900; letter-spacing: 0.05em; color: #94A3B8; text-transform: uppercase;">
               PEDDERS DYNO SHEET MATRIX (${poolForSelect.length} SHOWN &bull; TAP ROW FOR ALL 5 VELOCITIES)
             </span>
-            <span class="mono" style="font-size: 0.66rem; color: #64748B;">v = 0.05, 0.1, 0.3, 0.6, 1.0 m/s</span>
+            <span class="mono" style="font-size: 0.85rem; color: #64748B;">v = 0.05, 0.1, 0.3, 0.6, 1.0 m/s</span>
           </div>
           <div class="pedders-dyno-matrix-list">
             ${matrixRowsHtml}
@@ -16836,10 +17085,10 @@
           <div class="pedders-shock-row ${isSel ? 'is-selected' : ''} ${itemCorner ? 'is-on-car' : ''}" data-select-spring-row="${escapeHtml(item.id)}">
             <div class="pedders-shock-row-summary">
               <div class="pedders-shock-row-left">
-                <span class="locked-badge mono" style="font-size: 0.66rem; padding: 2px 7px;">${escapeHtml(item.code)}</span>
-                <span class="mono txt-amber" style="font-size: 0.71rem; font-weight: 800;">${escapeHtml(htStr)}</span>
-                <span class="mono txt-emerald" style="font-size: 0.71rem; font-weight: 800;">${escapeHtml(rateStr)}</span>
-                ${item.pairTag ? `<span style="font-size: 0.67rem; color: #94A3B8;">&bull; ${escapeHtml(item.pairTag)}</span>` : ''}
+                <span class="locked-badge mono" style="font-size: 0.85rem; padding: 2px 7px;">${escapeHtml(item.code)}</span>
+                <span class="mono txt-amber" style="font-size: 0.85rem; font-weight: 800;">${escapeHtml(htStr)}</span>
+                <span class="mono txt-emerald" style="font-size: 0.85rem; font-weight: 800;">${escapeHtml(rateStr)}</span>
+                ${item.pairTag ? `<span style="font-size: 0.85rem; color: #94A3B8;">&bull; ${escapeHtml(item.pairTag)}</span>` : ''}
               </div>
               <div class="pedders-shock-row-right">
                 <span class="pedders-loc-pill ${itemPill.cls}">${escapeHtml(itemPill.text)}</span>
@@ -16883,7 +17132,7 @@
           </div>
           <div class="telem-cell">
             <span class="telem-label">PAIRED WITH / OPTION</span>
-            <span class="telem-val" style="font-size: 0.78rem;">${sp.pairTag ? escapeHtml(sp.pairTag) : `Unit ${escapeHtml(sp.code)}`}</span>
+            <span class="telem-val" style="font-size: 0.85rem;">${sp.pairTag ? escapeHtml(sp.pairTag) : `Unit ${escapeHtml(sp.code)}`}</span>
             <span class="telem-sub">Origin ${sp.origin ? escapeHtml(sp.origin) : '—'}</span>
           </div>
           <div class="telem-cell">
@@ -16893,7 +17142,7 @@
           </div>
         </div>
 
-        ${sp.notes ? `<p style="margin: 6px 0 10px; font-size: 0.76rem; color: var(--text-secondary);">${escapeHtml(sp.notes)}</p>` : ''}
+        ${sp.notes ? `<p style="margin: 6px 0 10px; font-size: 0.85rem; color: var(--text-secondary);">${escapeHtml(sp.notes)}</p>` : ''}
 
         <div class="form-grid-2">
           <button type="button" class="btn btn-secondary" data-edit-spring="${escapeHtml(sp.id)}">
@@ -16906,10 +17155,10 @@
 
         <div class="pedders-dyno-matrix-section">
           <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
-            <span style="font-size: 0.69rem; font-weight: 900; letter-spacing: 0.05em; color: #94A3B8; text-transform: uppercase;">
+            <span style="font-size: 0.85rem; font-weight: 900; letter-spacing: 0.05em; color: #94A3B8; text-transform: uppercase;">
               PEDDERS SPRING LOAD TEST SHEET (${poolForSelect.length} COILS SHOWN)
             </span>
-            <span class="mono" style="font-size: 0.66rem; color: #64748B;">5608F: 216mm @ 14.57 kg/mm &bull; 5609R: 170mm @ 2.54 kg/mm</span>
+            <span class="mono" style="font-size: 0.85rem; color: #64748B;">5608F: 216mm @ 14.57 kg/mm &bull; 5609R: 170mm @ 2.54 kg/mm</span>
           </div>
           <div class="pedders-dyno-matrix-list">
             ${springMatrixRowsHtml}
@@ -16986,7 +17235,7 @@
             </div>
           </div>
 
-          ${sel.notes ? `<p style="margin: 6px 0 0; font-size: 0.76rem; color: var(--text-secondary);">${escapeHtml(sel.notes)}</p>` : ''}
+          ${sel.notes ? `<p style="margin: 6px 0 0; font-size: 0.85rem; color: var(--text-secondary);">${escapeHtml(sel.notes)}</p>` : ''}
         </div>
       `;
     }
@@ -17000,10 +17249,10 @@
             <div class="spacer-kit-row ${isSelected ? 'is-selected' : ''}" data-select-spacer-kit="${escapeHtml(item.id)}" style="cursor: pointer;">
               <div>
                 <div class="spacer-kit-row-title">
-                  <span class="locked-badge" style="font-size: 0.63rem; padding: 1px 6px;">${escapeHtml(item.code)}</span>
+                  <span class="locked-badge" style="font-size: 0.85rem; padding: 1px 6px;">${escapeHtml(item.code)}</span>
                   <span>${escapeHtml(item.name)}</span>
                   <span class="mono txt-emerald">${item.thicknessMm.toFixed(2)} mm</span>
-                  <span class="mono" style="font-size: 0.7rem; color: var(--text-muted);">(Lift ${escapeHtml(item.liftMmEst)} &bull; Qty ${item.qty})</span>
+                  <span class="mono" style="font-size: 0.85rem; color: var(--text-muted);">(Lift ${escapeHtml(item.liftMmEst)} &bull; Qty ${item.qty})</span>
                 </div>
                 <div class="spacer-kit-row-meta">
                   ${escapeHtml(item.end)} &bull; ${escapeHtml(item.motionRatioNote || '')}
@@ -17474,14 +17723,16 @@
     lines.push('');
 
     // 6. All Logged Events & Sessions
+    syncFlatSessionsFromEvents(state);
     lines.push(`[6] COMPLETE EVENT & SESSION LOG (${(state.events || []).length} Events, ${(state.sessions || []).length} Sessions)`);
-    (state.events || []).forEach((evt, eIdx) => {
+    sortEventsDesc(state.events || [], state.activeEventId).forEach((evt, eIdx) => {
       lines.push(`=== EVENT ${eIdx + 1}: ${evt.venue} | ${evt.eventDate} | ${evt.eventTitle || 'Race Weekend'} [${evt.locked ? 'LOCKED' : 'LIVE'}] ===`);
-      (evt.sessions || []).forEach((s) => {
+      sortSessionsDesc(evt.sessions || []).forEach((s) => {
         const t = s.tyres || {};
         const shMap = s.shocks || DEFAULT_MOUNTED_SHOCKS;
         const spMap = s.springs || DEFAULT_MOUNTED_SPRINGS;
         const spacerMap = normalizeRearSpacersMap(s.spacers, DEFAULT_MOUNTED_SPACERS);
+        const spacerNoteStr = formatRearSpacerNote(spacerMap, s.spacerNote);
         const hTags = normalizeHandlingTagsArray(s.handlingTags);
         const fTgt = Number.isFinite(Number(s.hotTargetFront))
           ? Number(s.hotTargetFront)
@@ -17504,7 +17755,7 @@
               ? Number(cr.targetHot)
               : axleTgt;
           const cVal =
-            s.isStoneColdSession !== false && cr.cold !== null && cr.cold !== undefined && Number.isFinite(Number(cr.cold)) && Number(cr.cold) > 0
+            cr.cold !== null && cr.cold !== undefined && Number.isFinite(Number(cr.cold)) && Number(cr.cold) > 0
               ? Number(cr.cold)
               : null;
           const hVal = cr.hot !== null && cr.hot !== undefined && Number.isFinite(Number(cr.hot)) && Number(cr.hot) > 0 ? Number(cr.hot) : null;
@@ -17538,16 +17789,17 @@
             : parseLapTimeToSeconds(s.bestLapStr);
         const sBestDumpPart =
           sBestSecDump !== null
-            ? ` | Fastest_Lap ${s.bestLapStr || formatSecondsToLapStr(sBestSecDump)}${s.bestLapNum ? ` (Lap ${s.bestLapNum})` : ''}${s.isNewTrackPb ? ' [TRACK PB]' : ''}`
+            ? ` | Fastest_Lap ${s.bestLapStr || formatSecondsToLapStr(sBestSecDump)}${s.bestLapNum ? ` on Lap ${s.bestLapNum}` : ''}${s.isNewTrackPb ? ' [TRACK PB]' : ''}`
             : '';
+        const finishDumpPart = s.finishPos ? ` | Finish_Pos ${s.finishPos}` : '';
         lines.push(
-          `  * ${s.sessionName} (${s.timestamp || ''}) [${s.afrStatus}]${sBestDumpPart}: ${getCarbyDisplayName(s.carbyId)} (${formatEmulsionShort(s.emulsionId || 'E5_DME')}) + ${s.manifoldId || 'Macca'} + ${s.exhaustId || 'Macca'} | Main Jet ${formatJetPureMm(s.jetMm)} (${orificeAreaMm2(s.jetMm).toFixed(3)} mm²) | RAD ${Number(s.rad).toFixed(1)}% | SG ${Number(s.fuelSg).toFixed(3)} | Timing ${Number(s.timing).toFixed(1)}° | Fuel ${Number(s.fuelPsi ?? 4.3).toFixed(1)}psi | H2O ${s.waterTempC ?? '—'}°C | WOT AFR ${Number(s.afrWot).toFixed(2)} @ ${s.peakRpm || 5900} RPM (#1/#6 ${(Number(s.afrWot) + END_CYL_LEAN_OFFSET).toFixed(2)})`
+          `  * ${s.sessionName} (${s.timestamp || ''}) [${s.afrStatus}]${sBestDumpPart}${finishDumpPart}: ${getCarbyDisplayName(s.carbyId)} (${formatEmulsionShort(s.emulsionId || 'E5_DME')}) + ${s.manifoldId || 'Macca'} + ${s.exhaustId || 'Macca'} | Main Jet ${formatJetPureMm(s.jetMm)} (${orificeAreaMm2(s.jetMm).toFixed(3)} mm²) | RAD ${Number(s.rad).toFixed(1)}% | SG ${Number(s.fuelSg).toFixed(3)} | Timing ${Number(s.timing).toFixed(1)}° | Fuel ${Number(s.fuelPsi ?? 4.3).toFixed(1)}psi | H2O ${s.waterTempC ?? '—'}°C | WOT AFR ${Number(s.afrWot).toFixed(2)} @ ${s.peakRpm || 5900} RPM (#1/#6 ${(Number(s.afrWot) + END_CYL_LEAN_OFFSET).toFixed(2)})`
         );
         lines.push(
           `    Fuel/Wt: Pour ${s.litresToPourL ?? '—'}L | In ${s.fuelInL ?? '—'}L -> Out ${s.fuelOutL ?? '—'}L | Used ${s.fuelUsedL ?? '—'}L (${s.racedLaps ?? '—'} laps = ${s.measuredBurnLPerLap ?? '—'} L/lap) | Scale/Est Wt: ${s.scaleWeightKg ?? '—'} / ${s.postRaceEstKg ?? '—'} kg`
         );
         lines.push(`    Tyres (${modeStr} • Track_Temp_C: ${trackTempStr} • Targets ${fTgt.toFixed(1)}F / ${rTgt.toFixed(1)}R PSI • ${s.tyreCondition === 'wet' ? 'KW Wet' : 'KB Dry'}): ${fmtT('FL')} | ${fmtT('FR')} | ${fmtT('RL')} | ${fmtT('RR')}`);
-        lines.push(`    Suspension (RL_Spacer_mm:${spacerMap.RL}mm | RR_Spacer_mm:${spacerMap.RR}mm): ${fmtSusp('FL')} | ${fmtSusp('FR')} | ${fmtSusp('RL')} | ${fmtSusp('RR')}`);
+        lines.push(`    Suspension (${spacerNoteStr}): ${fmtSusp('FL')} | ${fmtSusp('FR')} | ${fmtSusp('RL')} | ${fmtSusp('RR')}`);
         const bt = normalizeBrakeTemps(s.brakeTemps);
         const bBias = normalizeBrakeBiasTag(s.brakeBiasTag);
         const bSnap = s.brakes || getActiveBrakesSnapshot();
@@ -17787,7 +18039,7 @@
     const linked =
       activeSess ||
       (state.awaitingPostRaceId && liveSessions.find((s) => s.id === state.awaitingPostRaceId)) ||
-      liveSessions[liveSessions.length - 1] ||
+      liveSessions[0] ||
       null;
 
     if (!linked) {
@@ -17883,6 +18135,9 @@
           ? String(Math.round(Number(linked.bestLapNum)))
           : '';
     }
+    if ($('modalPostFinishPos')) {
+      $('modalPostFinishPos').value = linked.finishPos || '';
+    }
     if ($('modalPostTrackPbHint')) {
       const curBm = getTrackBenchmarkForVenue(sessionVenue);
       $('modalPostTrackPbHint').textContent = curBm
@@ -17919,11 +18174,13 @@
   }
 
   /**
-   * Saves Session Fastest Lap + On Lap # onto a session, updates post-race notes without duplicating,
-   * compares against state.trackBenchmarks[venue], and promotes to a new Track PB if faster.
+   * Saves Session Fastest Lap + On Lap # + Finishing Position onto a session,
+   * formats `Fastest: [lap] on Lap [#] • Finished [Pos]` (omitting blank parts cleanly),
+   * updates post-race notes without duplicating, compares against state.trackBenchmarks[venue],
+   * and promotes to a new Track PB if faster.
    */
-  function applySessionFastestLapAndCheckBenchmark(sess, rawLapInput, rawLapNumInput, rawNotesInput, ownerEvtOpt) {
-    if (!sess) return { promotedPb: false, venue: '', bestLapStr: null };
+  function applySessionFastestLapAndCheckBenchmark(sess, rawLapInput, rawLapNumInput, rawFinishPosInput, rawNotesInput, ownerEvtOpt) {
+    if (!sess) return { promotedPb: false, venue: '', bestLapStr: null, finishPos: '' };
     const ownerEvt = ownerEvtOpt || findEventForSession(sess.id);
     const venue = normalizeVenueName(sess.venue || (ownerEvt && ownerEvt.venue) || 'Calder Park Raceway');
     const cleanLapInput = String(rawLapInput || '').trim();
@@ -17933,12 +18190,16 @@
       rawNumVal !== '' && Number.isFinite(Number(rawNumVal)) && Number(rawNumVal) >= 1
         ? Math.min(99, Math.max(1, Math.round(Number(rawNumVal))))
         : null;
+    const finishPos = normalizeFinishPos(rawFinishPosInput);
+    sess.finishPos = finishPos;
 
     let cleanPostNotes = String(rawNotesInput ?? sess.postRaceNotes ?? sess.notes ?? '').trim();
-    // Strip any prior auto-appended "Fastest Lap: ..." clause so re-saves never duplicate
+    // Strip any prior auto-generated Fastest / Finished summary clauses so re-saves never duplicate
     cleanPostNotes = cleanPostNotes
-      .replace(/\s*(?:•|\||—|-)?\s*Fastest Lap:\s*[0-9:.]+(?:\s*\(Lap\s*\d+\))?/gi, '')
-      .replace(/^Fastest Lap:\s*[0-9:.]+(?:\s*\(Lap\s*\d+\))?\s*(?:•|\||—|-)?\s*/i, '')
+      .replace(/\s*(?:•|\||—|-)?\s*Fastest(?: Lap)?:\s*[0-9:.]+(?:\s*(?:on Lap\s*\d+|\(Lap\s*\d+\)))?(?:\s*(?:•|\||—|-)\s*Finished\s+[A-Za-z0-9-]+)?/gi, '')
+      .replace(/^Fastest(?: Lap)?:\s*[0-9:.]+(?:\s*(?:on Lap\s*\d+|\(Lap\s*\d+\)))?(?:\s*(?:•|\||—|-)\s*Finished\s+[A-Za-z0-9-]+)?\s*(?:•|\||—|-)?\s*/i, '')
+      .replace(/\s*(?:•|\||—|-)?\s*Finished\s+(?:P\d+|\d+(?:st|nd|rd|th)|DNF|DNS)\b/gi, '')
+      .replace(/^Finished\s+(?:P\d+|\d+(?:st|nd|rd|th)|DNF|DNS)\b\s*(?:•|\||—|-)?\s*/i, '')
       .trim();
 
     if (parsedSec === null) {
@@ -17948,9 +18209,18 @@
         sess.bestLapNum = null;
         sess.isNewTrackPb = false;
       }
-      sess.postRaceNotes = cleanPostNotes;
-      sess.notes = cleanPostNotes || sess.preRaceNotes || '';
-      return { promotedPb: false, venue, bestLapStr: null };
+      const summaryParts = [];
+      if (sess.bestLapStr) {
+        summaryParts.push(`Fastest: ${sess.bestLapStr}${sess.bestLapNum ? ` on Lap ${sess.bestLapNum}` : ''}`);
+      }
+      if (finishPos) {
+        summaryParts.push(`Finished ${finishPos}`);
+      }
+      const summaryClause = summaryParts.join(' • ');
+      const combinedPostNotes = [cleanPostNotes, summaryClause].filter(Boolean).join(' • ');
+      sess.postRaceNotes = combinedPostNotes;
+      sess.notes = combinedPostNotes || sess.preRaceNotes || '';
+      return { promotedPb: false, venue, bestLapStr: sess.bestLapStr || null, finishPos };
     }
 
     const bestLapStr = formatSecondsToLapStr(parsedSec, cleanLapInput);
@@ -17958,8 +18228,12 @@
     sess.bestLapSec = parsedSec;
     sess.bestLapNum = parsedLapNum;
 
-    const lapNoteClause = `Fastest Lap: ${bestLapStr}${parsedLapNum ? ` (Lap ${parsedLapNum})` : ''}`;
-    const combinedPostNotes = cleanPostNotes ? `${cleanPostNotes} • ${lapNoteClause}` : lapNoteClause;
+    const summaryParts = [`Fastest: ${bestLapStr}${parsedLapNum ? ` on Lap ${parsedLapNum}` : ''}`];
+    if (finishPos) {
+      summaryParts.push(`Finished ${finishPos}`);
+    }
+    const summaryClause = summaryParts.join(' • ');
+    const combinedPostNotes = cleanPostNotes ? `${cleanPostNotes} • ${summaryClause}` : summaryClause;
     sess.postRaceNotes = combinedPostNotes;
     sess.notes = combinedPostNotes;
 
@@ -18002,7 +18276,7 @@
       sess.isNewTrackPb = false;
     }
 
-    return { promotedPb, venue, bestLapStr };
+    return { promotedPb, venue, bestLapStr, finishPos };
   }
 
   /**
@@ -18017,7 +18291,7 @@
       getActiveSession() ||
       (ui.postRaceTargetSessionId && liveSessions.find((s) => s.id === ui.postRaceTargetSessionId)) ||
       (state.awaitingPostRaceId && liveSessions.find((s) => s.id === state.awaitingPostRaceId)) ||
-      liveSessions[liveSessions.length - 1] ||
+      liveSessions[0] ||
       null;
 
     if (!linked) return;
@@ -18037,6 +18311,7 @@
     const postNotesVal = ($('modalPostNotes') && $('modalPostNotes').value.trim()) || '';
     const rawBestLapVal = ($('modalPostBestLap') && $('modalPostBestLap').value.trim()) || '';
     const rawBestLapNumVal = ($('modalPostBestLapNum') && $('modalPostBestLapNum').value.trim()) || '';
+    const rawFinishPosVal = ($('modalPostFinishPos') && $('modalPostFinishPos').value.trim()) || '';
 
     const a35 = readOptionalAfr('modalPost3500');
     const a40 = readOptionalAfr('modalPost4000');
@@ -18044,7 +18319,7 @@
     const a50 = readOptionalAfr('modalPost5000');
     const a55 = readOptionalAfr('modalPost5500');
 
-    let pbResult = { promotedPb: false, venue: '', bestLapStr: null };
+    let pbResult = { promotedPb: false, venue: '', bestLapStr: null, finishPos: '' };
     if (!isSessionLocked(linked.id)) {
       linked.afr3500 = a35;
       linked.afr4000 = a40;
@@ -18065,6 +18340,7 @@
         linked,
         rawBestLapVal,
         rawBestLapNumVal,
+        rawFinishPosVal,
         postNotesVal,
         liveEvt
       );
@@ -18427,6 +18703,11 @@
             Number(prevCorner.cold) > 0
           ? Number(prevCorner.cold)
           : null
+        : prevCorner.cold !== null &&
+          prevCorner.cold !== undefined &&
+          Number.isFinite(Number(prevCorner.cold)) &&
+          Number(prevCorner.cold) > 0
+        ? Number(prevCorner.cold)
         : null;
 
       let nextColdPsi = null;
@@ -18448,7 +18729,7 @@
         targetHot: cornerTargetHot,
         cold: coldPsi,
         hot: hotPsi,
-        build: isStoneCold && coldPsi !== null && hotPsi !== null ? Number((hotPsi - coldPsi).toFixed(1)) : null,
+        build: coldPsi !== null && hotPsi !== null ? Number((hotPsi - coldPsi).toFixed(1)) : null,
         diff: hotPsi !== null ? Number((hotPsi - cornerTargetHot).toFixed(1)) : null,
         nextCold: nextColdPsi,
         pyro: mergedPyro
@@ -18468,6 +18749,7 @@
     linked.shocks = { ...tyreSnap.shocks };
     linked.springs = { ...tyreSnap.springs };
     linked.spacers = { ...(tyreSnap.spacers || ensureMountedSpacersState()) };
+    linked.spacerNote = formatRearSpacerNote(linked.spacers, linked.spacerNote);
     linked.handlingTags = normalizeHandlingTagsArray(ui.selectedHandlingTags);
     linked.brakeTemps = readPostBrakeTempInputs();
     linked.brakeBiasTag = normalizeBrakeBiasTag(ui.selectedBrakeBiasTag);
@@ -19609,8 +19891,11 @@
     'inputPumpBeforeL',
     'inputPumpAfterL',
     'inputScaleCheckFuelL',
+    'inputScaleCheckKg',
+    'inputPostScaleWeightKg',
     'modalPostFuelInL',
     'modalPostFuelOutL',
+    'modalPostScaleKg',
     'editManifoldCfmFront',
     'editManifoldCfmMiddle',
     'editManifoldCfmRear'
@@ -19927,7 +20212,7 @@
           type="button"
           class="btn btn-secondary btn-full"
           data-toggle-add-track-benchmark="1"
-          style="margin-top: 8px; min-height: 38px; font-size: 0.76rem;"
+          style="margin-top: 8px; min-height: 38px; font-size: 0.85rem;"
         >
           + Add / Override Circuit Benchmark PB
         </button>
@@ -20380,6 +20665,7 @@
           const notesInput = $(`inlineNotes_${sid}`);
           const bestLapInput = $(`inlineBestLap_${sid}`);
           const bestLapNumInput = $(`inlineBestLapNum_${sid}`);
+          const finishPosInput = $(`inlineFinishPos_${sid}`);
           if (nameInput && nameInput.value.trim()) {
             sess.sessionName = nameInput.value.trim();
           }
@@ -20391,6 +20677,7 @@
             sess,
             bestLapInput ? bestLapInput.value.trim() : (sess.bestLapStr || ''),
             bestLapNumInput ? bestLapNumInput.value.trim() : (sess.bestLapNum ?? ''),
+            finishPosInput ? finishPosInput.value.trim() : (sess.finishPos || ''),
             rawPostNotes
           );
 
@@ -21093,6 +21380,13 @@
       }
 
       if (!target.id) return;
+
+      if (target.id === 'selectTyreStockItem' && e.type === 'change') {
+        ui.expandedTyreId = target.value;
+        ui.confirmDeleteTyreId = null;
+        renderTyreStockList();
+        return;
+      }
 
       if (target.id === 'inputRaceLaps') {
         const syncedLaps = Math.max(1, Math.round(readNum('inputRaceLaps', 12)));
