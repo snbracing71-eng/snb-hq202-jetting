@@ -25,8 +25,8 @@
   --touch-min: 48px;
   --input-min: 58px;
   --stepper-size: 58px;
-  --font-sans: Arial, sans-serif;
-  --font-mono: Arial, sans-serif;
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-mono: Arial, Helvetica, sans-serif;
 }
 
 *,
@@ -53,13 +53,13 @@ td,
 .locked-badge,
 .afr-status-badge,
 .mono {
-  font-family: Arial, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 html {
   background-color: var(--bg-base);
   color: var(--text);
-  font-family: Arial, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   font-size: 16px;
   line-height: 1.45;
   -webkit-text-size-adjust: 100%;
@@ -71,7 +71,7 @@ body {
   padding: 0;
   background: radial-gradient(circle at 50% 0%, #151C28 0%, #07090D 72%);
   color: var(--text);
-  font-family: Arial, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   min-height: 100dvh;
   overflow-x: hidden;
   /* Generous >= 140px bottom clearance so fixed bottom tab bar never clips lowest inputs */
@@ -84,7 +84,7 @@ body {
 }
 
 .mono {
-  font-family: Arial, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   font-variant-numeric: tabular-nums;
 }
 
@@ -230,7 +230,7 @@ body {
   padding: 6px 11px;
   border-radius: 8px;
   font-family: inherit;
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -475,7 +475,7 @@ body {
 
 .telem-label {
   display: block;
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -532,7 +532,7 @@ body {
   margin-bottom: 2px;
   padding: 4px 8px;
   border-radius: 6px;
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.04em;
   line-height: 1.25;
@@ -1346,7 +1346,7 @@ textarea:focus-visible {
 }
 
 .compact-pair-grid .field-hint {
-  font-size: 13.33px;
+  font-size: 13.5px;
 }
 
 .compact-pair-grid .num-stepper {
@@ -1377,7 +1377,7 @@ textarea:focus-visible {
 }
 
 .compact-pair-grid .num-unit-badge {
-  font-size: 13.33px;
+  font-size: 13.5px;
 }
 
 @media (max-width: 430px) {
@@ -1537,7 +1537,7 @@ textarea:focus-visible {
 }
 
 .jet-role-tag {
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1741,7 +1741,7 @@ textarea:focus-visible {
 
 .afr-pill-rpm {
   display: block;
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 800;
   color: var(--text-muted);
 }
@@ -2044,7 +2044,7 @@ textarea:focus-visible {
 }
 
 .fuel-telem-2col .telem-label {
-  font-size: 13.33px;
+  font-size: 13.5px;
   letter-spacing: 0.05em;
 }
 
@@ -2064,7 +2064,7 @@ textarea:focus-visible {
 }
 
 .fuel-telem-2col .telem-sub {
-  font-size: 13.33px;
+  font-size: 13.5px;
   line-height: 1.3;
 }
 
@@ -2090,7 +2090,7 @@ textarea:focus-visible {
 }
 
 .unified-subblock-title {
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -2121,7 +2121,7 @@ textarea:focus-visible {
   background: linear-gradient(180deg, #151C28 0%, #0C1018 100%);
   border: 1px solid #35445B;
   font-family: var(--font-mono);
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 800;
   color: #F8FAFC;
   display: flex;
@@ -2135,7 +2135,7 @@ textarea:focus-visible {
 }
 
 .unified-tyre-corner {
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.04em;
   color: #FDE047;
@@ -2147,7 +2147,7 @@ textarea:focus-visible {
 }
 
 .unified-tyre-val {
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   color: #F8FAFC;
   line-height: 1.2;
@@ -2156,7 +2156,7 @@ textarea:focus-visible {
 }
 
 .unified-tyre-next {
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 700;
   color: #94A3B8;
   line-height: 1.15;
@@ -2166,7 +2166,7 @@ textarea:focus-visible {
 
 .unified-susp-id-line {
   font-family: var(--font-mono);
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 800;
   color: #E2E8F0;
   line-height: 1.25;
@@ -2176,7 +2176,7 @@ textarea:focus-visible {
 
 .car-orientation-banner {
   text-align: center;
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.12em;
   color: var(--amber-bright);
@@ -2241,7 +2241,7 @@ textarea:focus-visible {
 }
 
 .tyre-corner-head .afr-status-badge {
-  font-size: 13.33px;
+  font-size: 13.5px;
   padding: 2px 6px;
   white-space: nowrap;
   flex-shrink: 0;
@@ -2284,7 +2284,7 @@ textarea:focus-visible {
 }
 
 .tyre-corner-card .num-unit-badge {
-  font-size: 13.33px;
+  font-size: 13.5px;
 }
 
 @media (max-width: 480px) {
@@ -2415,7 +2415,7 @@ textarea:focus-visible {
     inset 0 -3px 4px rgba(0, 0, 0, 0.8);
   color: var(--text-secondary);
   font-family: inherit;
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.01em;
   line-height: 1.15;
@@ -2435,7 +2435,7 @@ textarea:focus-visible {
 
 @media (max-width: 420px) {
   .tab-btn {
-    font-size: 13.33px;
+    font-size: 13.5px;
     letter-spacing: 0;
     padding: 5px 1px;
   }
@@ -2664,7 +2664,7 @@ textarea:focus-visible {
 }
 
 .wet-severity-title {
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -2696,7 +2696,7 @@ textarea:focus-visible {
 }
 
 .wet-preset-name {
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -2704,7 +2704,7 @@ textarea:focus-visible {
 
 .wet-preset-sub {
   font-family: var(--font-mono);
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 800;
   opacity: 0.9;
 }
@@ -2742,7 +2742,7 @@ textarea:focus-visible {
 .btn-clear-cold-psi {
   min-height: 40px;
   padding: 6px 12px;
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -2783,7 +2783,7 @@ textarea:focus-visible {
 }
 
 .tyre-mount-label {
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -2796,7 +2796,7 @@ textarea:focus-visible {
   padding: 2px 7px;
   border-radius: 999px;
   font-family: var(--font-mono);
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   background: rgba(16, 185, 129, 0.16);
   border: 1px solid rgba(52, 211, 153, 0.45);
@@ -2872,7 +2872,7 @@ textarea:focus-visible {
 }
 
 .tyre-pool-meta {
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 700;
   color: #94A3B8;
 }
@@ -2912,7 +2912,7 @@ textarea:focus-visible {
   border: 1px solid #3E4A5E;
   color: #CBD5E1;
   font-family: inherit;
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.02em;
   cursor: pointer;
@@ -2997,7 +2997,7 @@ textarea:focus-visible {
 }
 
 .tyre-acc-chevron {
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   color: #94A3B8;
   width: 14px;
@@ -3044,7 +3044,7 @@ textarea:focus-visible {
   align-items: center;
   padding: 2px 6px;
   border-radius: 5px;
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -3069,7 +3069,7 @@ textarea:focus-visible {
   align-items: center;
   padding: 2px 7px;
   border-radius: 999px;
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -3108,7 +3108,7 @@ textarea:focus-visible {
     font-size: 15px;
   }
   .tyre-acc-metrics {
-    font-size: 13.33px;
+    font-size: 13.5px;
   }
 }
 
@@ -3146,7 +3146,7 @@ textarea:focus-visible {
   border: 1px solid transparent;
   color: #94A3B8;
   font-family: inherit;
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 900;
   cursor: pointer;
 }
@@ -3198,7 +3198,7 @@ textarea:focus-visible {
 
 .tyre-acc-drawer .compact-pair-grid .num-unit-badge,
 .tyre-add-inline-panel .compact-pair-grid .num-unit-badge {
-  font-size: 13.33px;
+  font-size: 13.5px;
   display: inline-block;
 }
 
@@ -3358,7 +3358,7 @@ textarea:focus-visible {
 }
 
 .log-empty-state-sub {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   color: var(--text-secondary);
   margin-bottom: 14px;
 }
@@ -3402,7 +3402,7 @@ textarea:focus-visible {
 }
 
 .pit-admin-summary-hint {
-  font-size: 13.33px;
+  font-size: 13.5px;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: none;
@@ -3433,7 +3433,7 @@ textarea:focus-visible {
   flex-shrink: 0;
   min-height: 42px;
   padding: 0 12px;
-  font-size: 13.33px;
+  font-size: 13.5px;
   white-space: nowrap;
 }
 
@@ -3541,7 +3541,7 @@ textarea:focus-visible {
 }
 
 .event-bar-eyebrow {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -3549,7 +3549,7 @@ textarea:focus-visible {
 }
 
 .event-bar-hint {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #94A3B8;
 }
@@ -3581,7 +3581,7 @@ textarea:focus-visible {
   gap: 6px;
   padding: 3px 9px;
   border-radius: 999px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -3608,7 +3608,7 @@ textarea:focus-visible {
 }
 
 .live-event-date-tag {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #A7F3D0;
 }
@@ -3626,7 +3626,7 @@ textarea:focus-visible {
 }
 
 .live-event-sub-title {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #CBD5E1;
   margin-top: 2px;
@@ -3636,7 +3636,7 @@ textarea:focus-visible {
   flex-shrink: 0;
   min-height: 42px;
   padding: 8px 13px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -3655,7 +3655,7 @@ textarea:focus-visible {
 .live-next-session-btn {
   min-height: 44px;
   padding: 8px 10px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   white-space: nowrap;
 }
@@ -3672,7 +3672,7 @@ textarea:focus-visible {
   background: linear-gradient(180deg, rgba(153, 27, 27, 0.35) 0%, rgba(69, 10, 10, 0.55) 100%);
   border: 1.5px solid #F87171;
   color: #FECACA;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   line-height: 1.45;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
@@ -3741,7 +3741,7 @@ textarea:focus-visible {
 }
 
 .event-header-sub {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #CBD5E1;
   margin-top: 3px;
@@ -3760,7 +3760,7 @@ textarea:focus-visible {
   gap: 4px;
   padding: 3px 8px;
   border-radius: 999px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -3786,7 +3786,7 @@ textarea:focus-visible {
   border-radius: 8px;
   background: rgba(9, 11, 14, 0.65);
   border: 1px solid #475873;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   color: #E2E8F0;
   white-space: nowrap;
@@ -3877,7 +3877,7 @@ textarea:focus-visible {
 }
 
 .session-acc-chevron {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   color: #FDE047;
   width: 14px;
@@ -3897,7 +3897,7 @@ textarea:focus-visible {
 
 .session-row-time {
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #94A3B8;
   white-space: nowrap;
@@ -3913,7 +3913,7 @@ textarea:focus-visible {
 
 .session-row-summary-pill {
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   padding: 3px 8px;
   border-radius: 7px;
@@ -3924,7 +3924,7 @@ textarea:focus-visible {
 }
 
 .session-row-status-pill {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.05em;
   padding: 2px 6px;
@@ -3950,7 +3950,7 @@ textarea:focus-visible {
   min-width: 28px !important;
   height: 28px !important;
   min-height: 28px !important;
-  font-size: 13.33px !important;
+  font-size: 13.5px !important;
   border-radius: 6px !important;
   padding: 0 !important;
   flex-shrink: 0;
@@ -3976,7 +3976,7 @@ textarea:focus-visible {
   background: linear-gradient(180deg, #1E2530 0%, #12171F 100%);
   border: 1.5px solid #475873;
   color: #94A3B8;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   letter-spacing: 0.03em;
   white-space: nowrap;
@@ -4023,7 +4023,7 @@ textarea:focus-visible {
 }
 
 .event-gate-eyebrow {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -4042,7 +4042,7 @@ textarea:focus-visible {
 
 .event-gate-subtitle {
   margin: 0 0 16px;
-  font-size: 0.84rem;
+  font-size: 13.5px;
   font-weight: 600;
   line-height: 1.45;
   color: #CBD5E1;
@@ -4059,7 +4059,7 @@ textarea:focus-visible {
 }
 
 .gate-baseline-head {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -4125,7 +4125,7 @@ textarea:focus-visible {
   gap: 6px;
   padding: 4px 11px;
   border-radius: 8px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -4144,7 +4144,7 @@ textarea:focus-visible {
   padding: 4px 10px;
   min-height: 28px;
   border-radius: 7px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -4180,14 +4180,14 @@ textarea:focus-visible {
   border-radius: 8px;
   background: rgba(9, 11, 14, 0.62);
   border: 1px solid #3B4961;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   line-height: 1.38;
   color: #E2E8F0;
 }
 
 .session-note-tag {
   display: inline-block;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -4206,7 +4206,7 @@ textarea:focus-visible {
 .delete-confirm-step-banner {
   padding: 12px 13px;
   border-radius: 10px;
-  font-size: 0.84rem;
+  font-size: 13.5px;
   font-weight: 700;
   line-height: 1.45;
 }
@@ -4251,7 +4251,7 @@ button:disabled.btn-stage-locked,
   border: 1px solid #475569;
   border-radius: 6px;
   padding: 3px 9px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   letter-spacing: 0.03em;
   color: #FBBF24;
@@ -4280,13 +4280,13 @@ button:disabled.btn-stage-locked,
    ========================================================= */
 
 .bottom-tab-bar .tab-btn {
-  font-size: 13.33px;
+  font-size: 13.5px;
   letter-spacing: -0.01em;
 }
 
 @media (max-width: 420px) {
   .bottom-tab-bar .tab-btn {
-    font-size: 13.33px;
+    font-size: 13.5px;
     padding: 5px 1px;
   }
 }
@@ -4335,7 +4335,7 @@ button:disabled.btn-stage-locked,
 }
 
 .scale-fact-eyebrow {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -4343,7 +4343,7 @@ button:disabled.btn-stage-locked,
 }
 
 .scale-fact-source {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #ecfdf5;
   line-height: 1.25;
@@ -4378,7 +4378,7 @@ button:disabled.btn-stage-locked,
 }
 
 .corner-susp-label {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -4389,7 +4389,7 @@ button:disabled.btn-stage-locked,
 
 .corner-susp-badge {
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #fbbf24;
   background: rgba(245, 158, 11, 0.14);
@@ -4405,7 +4405,7 @@ button:disabled.btn-stage-locked,
 .corner-susp-select {
   min-height: 36px;
   padding: 4px 26px 4px 8px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
 }
 
@@ -4441,7 +4441,7 @@ button:disabled.btn-stage-locked,
   border: 1.5px solid #334155;
   color: #e2e8f0;
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   line-height: 1.42;
   resize: vertical;
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.85);
@@ -4529,7 +4529,7 @@ button:disabled.btn-stage-locked,
 }
 
 .preset-pill-main {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.01em;
   line-height: 1.15;
@@ -4537,7 +4537,7 @@ button:disabled.btn-stage-locked,
 }
 
 .preset-pill-sub {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   font-family: var(--font-mono);
   opacity: 0.9;
@@ -4566,7 +4566,7 @@ button:disabled.btn-stage-locked,
 }
 
 .mini-car-head {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -4592,7 +4592,7 @@ button:disabled.btn-stage-locked,
   border-radius: 4px;
   background: rgba(15, 23, 42, 0.82);
   border: 1px solid rgba(71, 85, 105, 0.45);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #94a3b8;
 }
@@ -4600,7 +4600,7 @@ button:disabled.btn-stage-locked,
 .mini-car-cell strong,
 .mini-corner-psi {
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   color: #ecfdf5;
 }
@@ -4622,7 +4622,7 @@ button:disabled.btn-stage-locked,
 }
 
 .circuit-dir-venue {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   color: #f8fafc;
   line-height: 1.15;
@@ -4633,7 +4633,7 @@ button:disabled.btn-stage-locked,
 
 .circuit-dir-detail {
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #6ee7b7;
   line-height: 1.15;
@@ -4669,7 +4669,7 @@ button:disabled.btn-stage-locked,
     linear-gradient(180deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.92) 100%);
   border: none;
   color: #e2e8f0;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   letter-spacing: 0.02em;
   cursor: pointer;
@@ -4683,7 +4683,7 @@ button:disabled.btn-stage-locked,
 
 .pyro-mini-summary {
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #94a3b8;
   white-space: nowrap;
@@ -4713,7 +4713,7 @@ button:disabled.btn-stage-locked,
 }
 
 .pyro-col-label {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.04em;
   color: #94a3b8;
@@ -4765,7 +4765,7 @@ button:disabled.btn-stage-locked,
   padding: 3px 6px;
   border-radius: 5px;
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   line-height: 1.25;
   text-align: center;
@@ -4792,7 +4792,7 @@ button:disabled.btn-stage-locked,
 
 .pyro-spread-line {
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #cbd5e1;
   text-align: center;
@@ -4807,7 +4807,7 @@ button:disabled.btn-stage-locked,
   display: inline-block;
   margin-top: 2px;
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #fbbf24;
 }
@@ -4828,7 +4828,7 @@ button:disabled.btn-stage-locked,
 }
 
 .post-step2-eyebrow {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -4837,7 +4837,7 @@ button:disabled.btn-stage-locked,
 }
 
 .post-step2-title {
-  font-size: 0.84rem;
+  font-size: 13.5px;
   font-weight: 900;
   color: #ffffff;
   line-height: 1.35;
@@ -4879,7 +4879,7 @@ button:disabled.btn-stage-locked,
 
 .top-wf-step-tag {
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -4923,7 +4923,7 @@ button:disabled.btn-stage-locked,
   padding: 6px 10px;
   border-radius: 8px;
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -4970,7 +4970,7 @@ button:disabled.btn-stage-locked,
   padding: 8px 11px;
   border-radius: 9px;
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   line-height: 1.35;
   color: #ecfdf5;
@@ -5013,7 +5013,7 @@ button:disabled.btn-stage-locked,
   padding: 1px 6px;
   border-radius: 5px;
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.02em;
   color: #6ee7b7;
@@ -5055,7 +5055,7 @@ button:disabled.btn-stage-locked,
   padding: 4px 4px;
   border-radius: 7px;
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.02em;
   color: #CBD5E1;
@@ -5139,7 +5139,7 @@ button:disabled.btn-stage-locked,
 }
 
 .ai-spacer-eyebrow {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.06em;
   color: var(--amber-bright);
@@ -5148,7 +5148,7 @@ button:disabled.btn-stage-locked,
 
 .ai-spacer-values {
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   color: #FFFFFF;
 }
@@ -5159,7 +5159,7 @@ button:disabled.btn-stage-locked,
   padding: 1px 6px;
   border-radius: 5px;
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -5175,7 +5175,7 @@ button:disabled.btn-stage-locked,
 }
 
 .ai-spacer-reason-line {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #CBD5E1;
   line-height: 1.32;
@@ -5187,7 +5187,7 @@ button:disabled.btn-stage-locked,
   padding: 6px 11px;
   border-radius: 8px;
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   color: #FEF08A;
   background:
@@ -5243,7 +5243,7 @@ button:disabled.btn-stage-locked,
   min-height: 36px;
   padding: 6px 9px;
   border-radius: 8px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #E2E8F0;
   background: linear-gradient(180deg, #263142 0%, #161D28 55%, #0F141D 100%);
@@ -5295,7 +5295,7 @@ button:disabled.btn-stage-locked,
   align-items: center;
   padding: 2px 7px;
   border-radius: 6px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #FEF08A;
   background: rgba(245, 158, 11, 0.16);
@@ -5339,7 +5339,7 @@ button:disabled.btn-stage-locked,
 }
 
 .cw-axle-eyebrow {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -5371,7 +5371,7 @@ button:disabled.btn-stage-locked,
   align-items: center;
   padding: 2px 8px;
   border-radius: 6px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   color: #6EE7B7;
   background: rgba(16, 185, 129, 0.18);
@@ -5392,7 +5392,7 @@ button:disabled.btn-stage-locked,
 
 .cw-axle-sub {
   margin-top: 4px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #CBD5E1;
 }
@@ -5450,7 +5450,7 @@ button:disabled.btn-stage-locked,
 }
 
 .cw-hub-label {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -5486,7 +5486,7 @@ button:disabled.btn-stage-locked,
 
 .cw-hub-sub {
   margin-top: 2px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #CBD5E1;
 }
@@ -5494,7 +5494,7 @@ button:disabled.btn-stage-locked,
 .corner-wt-wedge-est {
   padding: 9px 10px;
   border-radius: 8px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   line-height: 1.45;
   color: #E2E8F0;
@@ -5575,7 +5575,7 @@ button:disabled.btn-stage-locked,
 }
 
 .fleet-acc-sub {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #94A3B8;
   white-space: nowrap;
@@ -5595,7 +5595,7 @@ button:disabled.btn-stage-locked,
   align-items: center;
   padding: 3px 8px;
   border-radius: 999px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -5628,7 +5628,7 @@ button:disabled.btn-stage-locked,
   align-items: center;
   padding: 3px 7px;
   border-radius: 6px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   letter-spacing: 0.03em;
   color: #CBD5E1;
@@ -5643,7 +5643,7 @@ button:disabled.btn-stage-locked,
   justify-content: center;
   width: 20px;
   height: 20px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   color: #F59E0B;
   transition: transform 0.16s ease;
@@ -5678,7 +5678,7 @@ button:disabled.btn-stage-locked,
   gap: 4px;
   padding: 5px 10px;
   border-radius: 8px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #94A3B8;
   background: linear-gradient(180deg, #1B2330 0%, #10161F 100%);
@@ -5696,7 +5696,7 @@ button:disabled.btn-stage-locked,
 
 .cw-updated-badge {
   margin-left: auto;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #94A3B8;
   padding: 3px 7px;
@@ -5725,14 +5725,14 @@ button:disabled.btn-stage-locked,
 }
 
 .cw-rh-cell label {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #94A3B8;
 }
 
 .cw-rh-input {
   padding: 6px 6px !important;
-  font-size: 0.835rem !important;
+  font-size: 13.5px !important;
   text-align: center;
 }
 
@@ -5752,7 +5752,7 @@ button:disabled.btn-stage-locked,
   border-radius: 8px;
   background: linear-gradient(180deg, #171F2C 0%, #0E131B 100%);
   border: 1px solid #2C384B;
-  font-size: 0.835rem;
+  font-size: 13.5px;
 }
 
 @media (max-width: 480px) {
@@ -5764,10 +5764,10 @@ button:disabled.btn-stage-locked,
     font-size: 0.88rem;
   }
   .fleet-acc-sub {
-    font-size: 0.835rem;
+    font-size: 13.5px;
   }
   .fleet-acc-status-pill {
-    font-size: 0.835rem;
+    font-size: 13.5px;
     padding: 2px 6px;
   }
   .fleet-acc-count-pill {
@@ -5790,7 +5790,7 @@ button:disabled.btn-stage-locked,
 }
 
 .no-jet-safety-title {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -5800,7 +5800,7 @@ button:disabled.btn-stage-locked,
 
 .no-jet-safety-desc {
   margin: 0;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   line-height: 1.42;
   color: #FEF3C7;
 }
@@ -5811,7 +5811,7 @@ button:disabled.btn-stage-locked,
   gap: 4px;
   padding: 3px 8px;
   border-radius: 999px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -5827,7 +5827,7 @@ button:disabled.btn-stage-locked,
   gap: 4px;
   padding: 2px 7px;
   border-radius: 999px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -5873,7 +5873,7 @@ button:disabled.btn-stage-locked,
 
 .carby-teardown-lbl {
   display: block;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -5883,7 +5883,7 @@ button:disabled.btn-stage-locked,
 
 .carby-teardown-val {
   display: block;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #E2E8F0;
   line-height: 1.35;
@@ -5936,7 +5936,7 @@ button:disabled.btn-stage-locked,
 }
 
 .emulsion-code-pill {
-  font-size: 0.84rem;
+  font-size: 13.5px;
   font-weight: 900;
   color: #F8FAFC;
   letter-spacing: 0.02em;
@@ -5950,7 +5950,7 @@ button:disabled.btn-stage-locked,
 }
 
 .emulsion-badge {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   padding: 2px 7px;
   border-radius: 999px;
@@ -5974,7 +5974,7 @@ button:disabled.btn-stage-locked,
 }
 
 .emulsion-pattern-row {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #E2E8F0;
   margin-bottom: 5px;
@@ -5985,7 +5985,7 @@ button:disabled.btn-stage-locked,
   border-radius: 7px;
   background: rgba(10, 14, 20, 0.72);
   border: 1px solid #243042;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   line-height: 1.38;
   color: #94A3B8;
 }
@@ -6005,7 +6005,7 @@ button:disabled.btn-stage-locked,
   gap: 5px;
   padding: 3px 8px;
   border-radius: 999px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -6047,7 +6047,7 @@ button:disabled.btn-stage-locked,
 }
 
 .jet-matrix-slim-title {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -6115,13 +6115,13 @@ button:disabled.btn-stage-locked,
 
 .jet-inv-area-sub {
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #94A3B8;
 }
 
 .jet-inv-note-sub {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #64748B;
   white-space: nowrap;
@@ -6133,7 +6133,7 @@ button:disabled.btn-stage-locked,
 .emulsion-location-select {
   min-height: 36px;
   padding: 5px 28px 5px 10px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.02em;
   border-radius: 8px;
@@ -6185,7 +6185,7 @@ button:disabled.btn-stage-locked,
 }
 
 .cw-setup-context-eyebrow {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -6194,7 +6194,7 @@ button:disabled.btn-stage-locked,
 }
 
 .cw-setup-context-text {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #E2E8F0;
   line-height: 1.38;
@@ -6224,7 +6224,7 @@ button:disabled.btn-stage-locked,
 }
 
 .cw-trim-sub {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #94A3B8;
   line-height: 1.3;
@@ -6239,7 +6239,7 @@ button:disabled.btn-stage-locked,
 
 .cw-wheel-toggle .seg-btn {
   min-height: 40px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   padding: 6px 8px;
 }
@@ -6250,7 +6250,7 @@ button:disabled.btn-stage-locked,
 }
 
 .cw-trim-alert-title {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -6258,7 +6258,7 @@ button:disabled.btn-stage-locked,
 }
 
 .cw-trim-alert-body {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   line-height: 1.4;
 }
 
@@ -6296,7 +6296,7 @@ button:disabled.btn-stage-locked,
   align-items: center;
   padding: 2px 7px;
   border-radius: 999px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -6350,7 +6350,7 @@ button:disabled.btn-stage-locked,
 }
 
 .spacer-kit-sub {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #94A3B8;
   line-height: 1.35;
@@ -6388,7 +6388,7 @@ button:disabled.btn-stage-locked,
   align-items: center;
   padding: 2px 7px;
   border-radius: 999px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -6436,7 +6436,7 @@ button:disabled.btn-stage-locked,
   text-align: center;
   padding: 8px 6px;
   border-radius: 8px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   letter-spacing: 0.02em;
   line-height: 1.25;
@@ -6490,7 +6490,7 @@ button:disabled.btn-stage-locked,
 }
 
 .thermal-paint-title {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.04em;
   color: #E2E8F0;
@@ -6508,7 +6508,7 @@ button:disabled.btn-stage-locked,
   align-items: center;
   padding: 3px 8px;
   border-radius: 999px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   letter-spacing: 0.02em;
   border: 1px solid #334155;
@@ -6560,7 +6560,7 @@ button:disabled.btn-stage-locked,
   gap: 8px;
   padding: 8px 10px;
   border-radius: 8px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.04em;
   color: #F8FAFC;
@@ -6594,7 +6594,7 @@ button:disabled.btn-stage-locked,
   justify-content: center;
   padding: 7px 6px;
   border-radius: 8px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #CBD5E1;
   background: linear-gradient(180deg, #1D2635 0%, #101620 100%);
@@ -6621,7 +6621,7 @@ button:disabled.btn-stage-locked,
 .brake-live-diag-banner {
   padding: 8px 10px;
   border-radius: 8px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   line-height: 1.38;
   border: 1px solid rgba(56, 189, 248, 0.48);
@@ -6652,7 +6652,7 @@ button:disabled.btn-stage-locked,
   margin-top: 6px;
   padding: 7px 9px;
   border-radius: 7px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   line-height: 1.35;
   border: 1px solid rgba(56, 189, 248, 0.42);
@@ -6703,7 +6703,7 @@ button:disabled.btn-stage-locked,
 }
 
 .cw-active-session-eyebrow {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -6711,7 +6711,7 @@ button:disabled.btn-stage-locked,
 }
 
 .cw-active-session-text {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   line-height: 1.4;
   color: #F1F5F9;
@@ -6764,7 +6764,7 @@ button:disabled.btn-stage-locked,
 }
 
 .cw-pad-corner-title {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -6776,7 +6776,7 @@ button:disabled.btn-stage-locked,
   align-items: center;
   padding: 2px 7px;
   border-radius: 999px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.03em;
   border: 1px solid #334155;
@@ -6813,13 +6813,13 @@ button:disabled.btn-stage-locked,
 }
 
 .cw-pad-kg-unit {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #64748B;
 }
 
 .cw-pad-base-sub {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #64748B;
 }
@@ -6843,7 +6843,7 @@ button:disabled.btn-stage-locked,
 }
 
 .cw-saved-sessions-sub {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   color: #94A3B8;
   margin-top: 2px;
 }
@@ -6896,7 +6896,7 @@ button:disabled.btn-stage-locked,
 }
 
 .cw-session-row-name {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   color: #F8FAFC;
 }
@@ -6906,7 +6906,7 @@ button:disabled.btn-stage-locked,
 }
 
 .cw-session-row-meta {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   line-height: 1.38;
   color: #CBD5E1;
 }
@@ -6949,7 +6949,7 @@ button:disabled.btn-stage-locked,
   gap: 6px;
   padding: 6px 9px;
   border-radius: 7px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   background: rgba(15, 23, 42, 0.72);
   border: 1px solid #233044;
   color: #E2E8F0;
@@ -6968,7 +6968,7 @@ button:disabled.btn-stage-locked,
   justify-content: center;
   padding: 2px 7px;
   border-radius: 999px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -7029,7 +7029,7 @@ button:disabled.btn-stage-locked,
   padding: 6px 10px;
   background: linear-gradient(180deg, #1A2434 0%, #111824 100%);
   border-bottom: 1px solid #263449;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -7039,7 +7039,7 @@ button:disabled.btn-stage-locked,
 .pedders-dyno-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.835rem;
+  font-size: 13.5px;
 }
 
 .pedders-dyno-table th,
@@ -7057,7 +7057,7 @@ button:disabled.btn-stage-locked,
 }
 
 .pedders-dyno-table th {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   color: #7DD3FC;
   background: rgba(15, 23, 42, 0.6);
@@ -7142,7 +7142,7 @@ button:disabled.btn-stage-locked,
   margin: 6px 0 8px;
   padding: 7px 10px;
   border-radius: 8px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   line-height: 1.35;
   border: 1px solid rgba(239, 68, 68, 0.75);
@@ -7160,7 +7160,7 @@ button:disabled.btn-stage-locked,
   padding: 3px 9px;
   border-radius: 999px;
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   letter-spacing: 0.03em;
   color: #FDE68A;
@@ -7192,7 +7192,7 @@ button:disabled.btn-stage-locked,
   align-items: center;
   gap: 5px;
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #F8FAFC;
 }
@@ -7204,7 +7204,7 @@ button:disabled.btn-stage-locked,
   padding: 2px 8px;
   border-radius: 999px;
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.04em;
   color: #064E3B;
@@ -7218,7 +7218,7 @@ button:disabled.btn-stage-locked,
   padding: 2px 7px;
   border-radius: 999px;
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #94A3B8;
   background: rgba(30, 41, 59, 0.85);
@@ -7247,13 +7247,13 @@ button:disabled.btn-stage-locked,
 }
 
 .track-benchmark-venue {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: var(--text-primary);
 }
 
 .track-benchmark-meta {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   color: var(--text-secondary);
   margin-top: 2px;
 }
@@ -7265,7 +7265,7 @@ button:disabled.btn-stage-locked,
   padding: 3px 9px;
   border-radius: 7px;
   font-family: var(--font-mono);
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 900;
   color: #6EE7B7;
   background: rgba(16, 185, 129, 0.14);
@@ -7297,7 +7297,7 @@ button:disabled.btn-stage-locked,
 }
 
 .cloud-sync-panel-sub {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   color: var(--text-secondary);
   line-height: 1.4;
 }
@@ -7327,7 +7327,7 @@ button:disabled.btn-stage-locked,
 }
 
 .cloud-sync-meta-text {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: var(--text-secondary);
 }
@@ -7504,7 +7504,7 @@ button:disabled.btn-stage-locked,
 }
 
 .workshop-note-sub {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #FCD34D;
 }
@@ -7573,7 +7573,7 @@ button:disabled.btn-stage-locked,
   align-items: center;
   padding: 2px 8px;
   border-radius: 6px;
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 800;
   color: #6EE7B7;
   background: rgba(16, 185, 129, 0.16);
@@ -7587,7 +7587,7 @@ button:disabled.btn-stage-locked,
 }
 
 .maintenance-item-product {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #CBD5E1;
   line-height: 1.32;
@@ -7600,7 +7600,7 @@ button:disabled.btn-stage-locked,
 }
 
 .maintenance-item-history-tag {
-  font-size: 0.835rem;
+  font-size: 13.5px;
   font-weight: 700;
   color: #FCD34D;
 }
@@ -7636,6 +7636,85 @@ button:disabled.btn-stage-locked,
   border-radius: 7px;
   background: rgba(24, 32, 45, 0.85);
   border: 1px solid #2A3649;
-  font-size: 0.835rem;
+  font-size: 13.5px;
+}
+
+/* Engines & Cylinder Heads Fleet Cards */
+.engine-seals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+  gap: 7px;
+  margin-top: 6px;
+}
+
+.engine-seal-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 9px;
+  border-radius: 7px;
+  background: rgba(11, 15, 22, 0.82);
+  border: 1px solid #2D3B50;
+}
+
+.engine-seal-lbl {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.engine-seal-val {
+  font-size: 14.5px;
+  font-weight: 900;
+  color: #6EE7B7;
+  font-variant-numeric: tabular-nums;
+}
+
+.head-flow-bench-box {
+  margin-top: 8px;
+  margin-bottom: 10px;
+  padding: 10px 11px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #121822 0%, #0B0F16 100%);
+  border: 1.5px solid #2E3D52;
+}
+
+.head-flow-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 7px;
+}
+
+@media (max-width: 440px) {
+  .head-flow-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.head-flow-cell {
+  padding: 6px 8px;
+  border-radius: 7px;
+  background: rgba(20, 27, 38, 0.9);
+  border: 1px solid #2C394E;
+  text-align: center;
+}
+
+.head-flow-lift {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #94A3B8;
+}
+
+.head-flow-cfm {
+  display: block;
+  font-size: 15.5px;
+  font-weight: 900;
+  color: #34D399;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
 }
 

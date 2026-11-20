@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.0.0" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.1" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -2495,7 +2495,7 @@
         </div>
       </article>
 
-      <!-- 5) STOCK (Nested Hardware & Spares Inventory — 10 A-Z Sectors) (data-fleet-acc="stock") -->
+      <!-- 5) STOCK (Nested Hardware & Spares Inventory — 12 A-Z Sectors) (data-fleet-acc="stock") -->
       <article class="fleet-acc-card" id="stockFleetCard" data-fleet-acc-card="stock">
         <button
           type="button"
@@ -2506,10 +2506,10 @@
         >
           <div class="fleet-acc-left">
             <div class="fleet-acc-title">STOCK</div>
-            <div class="fleet-acc-sub">Brakes, Carbies, Cloud Sync, Emulsions, Exhausts, Fuel, Jets, Manifolds, Shocks &amp; Springs</div>
+            <div class="fleet-acc-sub">Brakes, Carbies, Cloud Sync, Cylinder Heads, Emulsions, Engines, Exhausts, Fuel, Jets, Manifolds, Shocks &amp; Springs</div>
           </div>
           <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill steel" id="fleetStockSectorsBadge">10 HARDWARE SECTORS</span>
+            <span class="fleet-acc-status-pill steel" id="fleetStockSectorsBadge">12 HARDWARE SECTORS</span>
             <span class="fleet-acc-chevron" data-fleet-acc-chevron="stock" aria-hidden="true">&#9654;</span>
           </div>
         </button>
@@ -2873,7 +2873,40 @@
               </div>
             </article>
 
-            <!-- 5.4) EMULSION & BRASS KIT (data-fleet-acc="emulsions") -->
+            <!-- 5.4) CYLINDER HEADS (data-fleet-acc="cylinder_heads") -->
+            <article class="fleet-acc-card stock-nested-card" id="cylinderHeadsFleetCard" data-fleet-acc-card="cylinder_heads">
+              <button
+                type="button"
+                class="fleet-acc-header"
+                data-fleet-acc="cylinder_heads"
+                aria-expanded="false"
+                aria-controls="fleetAccBody_cylinder_heads"
+              >
+                <div class="fleet-acc-left">
+                  <div class="fleet-acc-title">Cylinder Heads</div>
+                  <div class="fleet-acc-sub">9937262 &amp; 2811930 Castings &bull; Chamber cc, Valve Specs &amp; Adstud 25&quot; H2O Flow Bench</div>
+                </div>
+                <div class="fleet-acc-right">
+                  <span class="fleet-acc-status-pill emerald" id="fleetCylinderHeadsActiveBadge">3 HEADS / CORES &bull; FLOW BENCH @ 25&quot; H2O</span>
+                  <span class="fleet-acc-count-pill" id="fleetCylinderHeadsCountBadge">3 HEADS</span>
+                  <span class="fleet-acc-chevron" data-fleet-acc-chevron="cylinder_heads" aria-hidden="true">&#9654;</span>
+                </div>
+              </button>
+
+              <div class="fleet-acc-body" id="fleetAccBody_cylinder_heads" style="display: none;">
+                <div class="fleet-selector-bar" style="margin-bottom: 12px;">
+                  <label class="sr-only" for="selectFleetCylinderHead">Select Cylinder Head / Core</label>
+                  <select id="selectFleetCylinderHead" class="select-input" aria-label="Select Cylinder Head or Core"></select>
+                  <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddCylinderHead">
+                    + Add Head Core
+                  </button>
+                </div>
+
+                <div id="cylinderHeadsFleetContainer"></div>
+              </div>
+            </article>
+
+            <!-- 5.5) EMULSION & BRASS KIT (data-fleet-acc="emulsions") -->
             <article class="fleet-acc-card stock-nested-card" id="emulsionFleetCard" data-fleet-acc-card="emulsions">
               <button
                 type="button"
@@ -2916,7 +2949,40 @@
               </div>
             </article>
 
-            <!-- 5.5) EXHAUSTS (data-fleet-acc="exhausts") -->
+            <!-- 5.6) ENGINES (data-fleet-acc="engines") -->
+            <article class="fleet-acc-card stock-nested-card" id="enginesFleetCard" data-fleet-acc-card="engines">
+              <button
+                type="button"
+                class="fleet-acc-header"
+                data-fleet-acc="engines"
+                aria-expanded="false"
+                aria-controls="fleetAccBody_engines"
+              >
+                <div class="fleet-acc-left">
+                  <div class="fleet-acc-title">Engines</div>
+                  <div class="fleet-acc-sub">Group 3H Sealed Holden 202 (3.3L) Race Engines &bull; Cam, Unswept Volume &amp; Seals</div>
+                </div>
+                <div class="fleet-acc-right">
+                  <span class="fleet-acc-status-pill emerald" id="fleetEnginesActiveBadge">2 SEALED ENGINES &bull; ACTIVE: WL239326</span>
+                  <span class="fleet-acc-count-pill" id="fleetEnginesCountBadge">2 ENGINES</span>
+                  <span class="fleet-acc-chevron" data-fleet-acc-chevron="engines" aria-hidden="true">&#9654;</span>
+                </div>
+              </button>
+
+              <div class="fleet-acc-body" id="fleetAccBody_engines" style="display: none;">
+                <div class="fleet-selector-bar" style="margin-bottom: 12px;">
+                  <label class="sr-only" for="selectFleetEngine">Select Sealed Engine</label>
+                  <select id="selectFleetEngine" class="select-input" aria-label="Select Sealed Race Engine"></select>
+                  <button type="button" class="btn btn-amber-outline fleet-add-btn" id="btnAddEngine">
+                    + Add Engine
+                  </button>
+                </div>
+
+                <div id="enginesFleetContainer"></div>
+              </div>
+            </article>
+
+            <!-- 5.7) EXHAUSTS (data-fleet-acc="exhausts") -->
             <article class="fleet-acc-card stock-nested-card" id="exhaustFleetCard" data-fleet-acc-card="exhausts">
               <button
                 type="button"
@@ -2929,8 +2995,8 @@
                   <div class="fleet-acc-sub">Headers &amp; Collector Systems &bull; Bench &amp; Dyno Spec</div>
                 </div>
                 <div class="fleet-acc-right">
-                  <span class="fleet-acc-status-pill emerald" id="fleetExhaustActiveBadge">Macca &#9733; ON CAR</span>
-                  <span class="fleet-acc-count-pill" id="fleetExhaustCountBadge">4 SYSTEMS</span>
+                  <span class="fleet-acc-status-pill emerald" id="fleetExhaustActiveBadge">Macca Exhaust &#9733; ON CAR #77</span>
+                  <span class="fleet-acc-count-pill" id="fleetExhaustCountBadge">5 SYSTEMS</span>
                   <span class="fleet-acc-chevron" data-fleet-acc-chevron="exhausts" aria-hidden="true">&#9654;</span>
                 </div>
               </button>
@@ -3505,12 +3571,12 @@
             <span class="field-hint emerald">Pre-filled from Litres to Pour</span>
           </div>
           <div class="num-stepper">
-            <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelInL" data-step="-0.5" aria-label="Decrease Fuel In Tank Before Run">&minus;</button>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelInL" data-step="-0.1" aria-label="Decrease Fuel In Tank Before Run">&minus;</button>
             <div class="num-input-wrap">
               <input type="number" id="modalPostFuelInL" class="num-input" value="16.0" min="0" max="80" step="0.1" />
               <span class="num-unit-badge">L</span>
             </div>
-            <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelInL" data-step="0.5" aria-label="Increase Fuel In Tank Before Run">+</button>
+            <button type="button" class="stepper-btn" data-stepper-target="modalPostFuelInL" data-step="0.1" aria-label="Increase Fuel In Tank Before Run">+</button>
           </div>
         </div>
 
@@ -5515,9 +5581,230 @@
     </div>
   </div>
 
+  <!-- =========================================================
+       MODAL: ADD / EDIT SEALED ENGINE (#modalEditEngine)
+       ========================================================= -->
+  <div class="modal-backdrop" id="modalEditEngine" role="dialog" aria-modal="true" aria-labelledby="modalEditEngineTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">GROUP 3H HQ HOLDEN 202 (3.3L) &bull; SEALED ENGINE SPEC</div>
+          <h2 class="section-title" id="modalEditEngineTitle">Edit Sealed Engine Spec</h2>
+        </div>
+        <button type="button" class="btn btn-danger" data-close-modal="modalEditEngine" aria-label="Close Engine Spec Modal">
+          Close
+        </button>
+      </div>
+
+      <input type="hidden" id="editEngineIdHidden" />
+
+      <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editEngineCode">Engine Number / Code</label>
+            <span class="field-hint amber">Block Stamp</span>
+          </div>
+          <input type="text" id="editEngineCode" class="text-input mono" placeholder="e.g. WL239326 or HL1134" autocomplete="off" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editEngineSealForm">Seal Form &amp; Log Book</label>
+            <span class="field-hint emerald">HQRA Seal Sheet</span>
+          </div>
+          <input type="text" id="editEngineSealForm" class="text-input mono" placeholder="e.g. HQ 1128 • Log Book 20110214" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editEngineBlock">Block &amp; Sleeves</label>
+          <input type="text" id="editEngineBlock" class="text-input" placeholder="e.g. Blue 202 / 3.3L (NIL sleeves)" autocomplete="off" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editEngineBoreStroke">Bore &amp; Stroke</label>
+          <input type="text" id="editEngineBoreStroke" class="text-input mono" placeholder="e.g. Bore 93.70 mm (3.689&quot;) | Stroke 82.55 mm (3.250&quot;)" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom: 10px;">
+        <label class="field-label" for="editEngineBottomEnd">Bottom End (Pistons, Rods, Crank &amp; Oil System)</label>
+        <input type="text" id="editEngineBottomEnd" class="text-input" placeholder="e.g. Non-forged cast pistons (7.2 cc dish), std 202 red rods &amp; crank" autocomplete="off" />
+      </div>
+
+      <div class="field-group" style="margin-bottom: 10px;">
+        <label class="field-label" for="editEngineCamshaft">Camshaft &amp; Lifters Spec</label>
+        <input type="text" id="editEngineCamshaft" class="text-input" placeholder="e.g. VIC 507 (Control 933) — In 6.62 mm / Ex 6.67 mm, 21.40 mm lifters" autocomplete="off" />
+      </div>
+
+      <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editEngineHeadVolume">Head Casting &amp; Unswept Volume</label>
+          <input type="text" id="editEngineHeadVolume" class="text-input" placeholder="e.g. 9937262 (39.8 cc + 7.2 cc = 47.00 cc total)" autocomplete="off" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editEngineValves">Valve Sizes &amp; Stems</label>
+          <input type="text" id="editEngineValves" class="text-input mono" placeholder="e.g. In 41.05 mm (1.616&quot;), Ex 34.91 mm (1.374&quot;), 8.66 mm stems" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom: 10px;">
+        <label class="field-label" for="editEngineSealReg">Seal Registration (Date, Sealer &amp; 5 Seal Numbers)</label>
+        <input type="text" id="editEngineSealReg" class="text-input mono" placeholder="e.g. 18/07/2025 by Laurie Griffin: Head 277358, Sump LH 277317, Sump RH 277332, Timing 277312, Oil Pump 277322" autocomplete="off" />
+      </div>
+
+      <div class="field-group" style="margin-bottom: 14px;">
+        <label class="field-label" for="editEngineNotes">Dyno &amp; Track Notes</label>
+        <input type="text" id="editEngineNotes" class="text-input" placeholder="e.g. Swapped in mid-SMSP Nationals; made 99.4 rwkW at Chev's..." autocomplete="off" />
+      </div>
+
+      <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveEngineModal">
+        Save Engine Spec
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL: ADD / EDIT CYLINDER HEAD CORE (#modalEditCylinderHead)
+       ========================================================= -->
+  <div class="modal-backdrop" id="modalEditCylinderHead" role="dialog" aria-modal="true" aria-labelledby="modalEditCylinderHeadTitle">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <div>
+          <div class="section-eyebrow">9937262 &amp; 2811930 CASTINGS &bull; FLOW BENCH @ 25&quot; H2O</div>
+          <h2 class="section-title" id="modalEditCylinderHeadTitle">Edit Cylinder Head Core</h2>
+        </div>
+        <button type="button" class="btn btn-danger" data-close-modal="modalEditCylinderHead" aria-label="Close Cylinder Head Modal">
+          Close
+        </button>
+      </div>
+
+      <input type="hidden" id="editHeadIdHidden" />
+
+      <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editHeadName">Head Name / Label</label>
+            <span class="field-hint amber">Required</span>
+          </div>
+          <input type="text" id="editHeadName" class="text-input" placeholder="e.g. Head #4 — 9937262 Core" autocomplete="off" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editHeadCasting">Casting Number</label>
+            <span class="field-hint emerald">9937262 / 2811930</span>
+          </div>
+          <input type="text" id="editHeadCasting" class="text-input mono" placeholder="e.g. 9937262 or 2811930" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editHeadAssignment">Engine / Core Assignment</label>
+          <input type="text" id="editHeadAssignment" class="text-input" placeholder="e.g. ON ENGINE WL239326 or FLOW BENCH CORE" autocomplete="off" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editHeadSealOrJob">Seal # or Flow Job #</label>
+          <input type="text" id="editHeadSealOrJob" class="text-input mono" placeholder="e.g. Seal 277358 or Adstud Job 17753 / 18043" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editHeadChamberSummary">Chamber &amp; Unswept Volume</label>
+          <input type="text" id="editHeadChamberSummary" class="text-input" placeholder="e.g. 39.8 cc (47.00 cc unswept with 7.2 cc pistons)" autocomplete="off" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editHeadStatus">Current Status</label>
+          <input type="text" id="editHeadStatus" class="text-input" placeholder="e.g. Sealed on Car #77 (18/07/2025)" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editHeadInletValve">Inlet Valve Spec (Max 1.675&quot; / 42.55 mm)</label>
+          <input type="text" id="editHeadInletValve" class="text-input mono" placeholder="e.g. 41.05 mm (1.616&quot;) or 1.650&quot; (41.91 mm) Peppro" autocomplete="off" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="editHeadExhaustValve">Exhaust Valve &amp; Stems</label>
+          <input type="text" id="editHeadExhaustValve" class="text-input mono" placeholder="e.g. 34.91 mm (1.374&quot;) • 8.66 mm stems" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="card-elevated" style="margin-bottom: 10px;">
+        <div class="section-eyebrow" style="margin-bottom: 6px;">Intake Flow Bench @ 25&quot; H2O (CFM at 0.05&quot; to 0.40&quot; Lift — Optional)</div>
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 8px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="editHeadFlow005">0.05&quot; Lift (CFM)</label>
+            <input type="number" id="editHeadFlow005" class="num-input" placeholder="&mdash;" step="0.01" inputmode="decimal" />
+          </div>
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="editHeadFlow010">0.10&quot; Lift (CFM)</label>
+            <input type="number" id="editHeadFlow010" class="num-input" placeholder="&mdash;" step="0.01" inputmode="decimal" />
+          </div>
+        </div>
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 8px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="editHeadFlow015">0.15&quot; Lift (CFM)</label>
+            <input type="number" id="editHeadFlow015" class="num-input" placeholder="&mdash;" step="0.01" inputmode="decimal" />
+          </div>
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="editHeadFlow020">0.20&quot; Lift (CFM)</label>
+            <input type="number" id="editHeadFlow020" class="num-input" placeholder="&mdash;" step="0.01" inputmode="decimal" />
+          </div>
+        </div>
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 8px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="editHeadFlow025">0.25&quot; Lift (CFM)</label>
+            <input type="number" id="editHeadFlow025" class="num-input" placeholder="&mdash;" step="0.01" inputmode="decimal" />
+          </div>
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="editHeadFlow030">0.30&quot; Lift (CFM)</label>
+            <input type="number" id="editHeadFlow030" class="num-input" placeholder="&mdash;" step="0.01" inputmode="decimal" />
+          </div>
+        </div>
+        <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 8px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="editHeadFlow035">0.35&quot; Lift (CFM)</label>
+            <input type="number" id="editHeadFlow035" class="num-input" placeholder="&mdash;" step="0.01" inputmode="decimal" />
+          </div>
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="editHeadFlow040">0.40&quot; Lift (CFM)</label>
+            <input type="number" id="editHeadFlow040" class="num-input" placeholder="&mdash;" step="0.01" inputmode="decimal" />
+          </div>
+        </div>
+        <div class="form-grid-2 compact-pair-grid">
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="editHeadFlowMeanLow">Mean 0.05&ndash;0.20&quot; (CFM)</label>
+            <input type="number" id="editHeadFlowMeanLow" class="num-input" placeholder="Auto / Optional" step="0.01" inputmode="decimal" />
+          </div>
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="editHeadFlow28H2O">Peak @ 28&quot; H2O (CFM)</label>
+            <input type="number" id="editHeadFlow28H2O" class="num-input" placeholder="e.g. 136.14" step="0.01" inputmode="decimal" />
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom: 14px;">
+        <label class="field-label" for="editHeadNotes">Development, Seat Throat &amp; Target Notes</label>
+        <input type="text" id="editHeadNotes" class="text-input" placeholder="e.g. HSD HQ Spec Ex-CV Centre Head (30° seat throat) comparison &amp; 1.675&quot; / 38.2 cc target..." autocomplete="off" />
+      </div>
+
+      <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnSaveCylinderHeadModal">
+        Save Cylinder Head Core
+      </button>
+    </div>
+  </div>
+
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=1.0.0"></script>
+  <script src="./app.js?v=1.0.1"></script>
 </body>
 </html>

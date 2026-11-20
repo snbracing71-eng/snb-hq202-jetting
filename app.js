@@ -3182,19 +3182,168 @@
     return map[raw] || raw;
   }
 
+  function createDefaultEngines() {
+    return [
+      {
+        id: 'WL239326',
+        code: 'WL239326',
+        name: 'Engine #1 — WL239326',
+        onCar: true,
+        status: 'ON CAR #77',
+        role: 'Active Race Engine',
+        sealForm: 'HQ 1128',
+        block: 'Blue 202 / 3.3L (NIL sleeves)',
+        bore: '93.70 mm (3.689")',
+        stroke: '82.55 mm (3.250")',
+        boreStroke: 'Bore: 93.70 mm (3.689") | Stroke: 82.55 mm (3.250")',
+        bottomEnd:
+          'Non-forged cast pistons (7.2 cc concave dish), standard 202 red rods (no linishing / no shot peening), standard 202 red crank, standard pickup & unmodified oil galleries',
+        camshaft:
+          'VIC 507 (Control 933) — Inlet lift 6.62 mm (0.89 mm @ .035"), Exhaust lift 6.67 mm (0.73 mm @ .035"), 21.40 mm hydraulic lifters',
+        headVolume:
+          'Casting 9937262 (39.8 cc chamber + 7.2 cc piston dish = 47.00 cc total unswept volume, +2.00 cc buffer over 45.00 cc min)',
+        valves: 'Inlet 41.05 mm (1.616"), Exhaust 34.91 mm (1.374"), 8.66 mm stems',
+        sealRegistration:
+          '18/07/2025 by Laurie Griffin, Log Book 20110214, Prev Tech 1116: Head 277358, Sump LH 277317, Sump RH 277332, Timing Cover 277312, Oil Pump 277322',
+        seals: {
+          date: '18/07/2025',
+          sealer: 'Laurie Griffin',
+          logBook: '20110214',
+          prevTech: '1116',
+          head: '277358',
+          sumpLH: '277317',
+          sumpRH: '277332',
+          timingCover: '277312',
+          oilPump: '277322'
+        },
+        notes:
+          'Swapped in mid-SMSP Nationals and was immediately faster than HL1134; made 99.4 rwkW at Chev\'s (19/07/2025, Run 358, 1.75 jet, 18° static / 35° total) before refitting the higher-power Macca exhaust.'
+      },
+      {
+        id: 'HL1134',
+        code: 'HL1134',
+        name: 'Engine #2 — HL1134',
+        onCar: false,
+        status: 'SPARE',
+        role: 'Spare Sealed Engine',
+        sealForm: 'HQ 1130',
+        block: 'Red 202 (NIL sleeves)',
+        bore: '93.84 mm (3.6945", at 93.83 mm ceiling)',
+        stroke: '82.55 mm (3.250")',
+        boreStroke: 'Bore: 93.84 mm (3.6945", at 93.83 mm ceiling) | Stroke: 82.55 mm (3.250")',
+        bottomEnd:
+          'Non-forged cast flat-top pistons (0.0 cc dish), standard 202 red rods & crank, unmodified oil pickup & galleries',
+        camshaft:
+          'RAQ092 — Inlet lift 6.75 mm (0.89 mm @ .035"), Exhaust lift 6.74 mm (0.72 mm @ .035"), 21.25 mm hydraulic lifters',
+        headVolume:
+          'Casting 9937262 (46.4 cc chamber + 0.0 cc piston = 46.40 cc total unswept volume)',
+        valves: 'Inlet 41.05 mm (1.616"), Exhaust 34.91 mm (1.374"), 8.66 mm stems',
+        sealRegistration:
+          '12/08/2025 by Laurie Griffin: Head 277373, Sump LH 277364, Sump RH 277369, Timing Cover 277354, Oil Pump 277371',
+        seals: {
+          date: '12/08/2025',
+          sealer: 'Laurie Griffin',
+          logBook: '',
+          prevTech: '',
+          head: '277373',
+          sumpLH: '277364',
+          sumpRH: '277369',
+          timingCover: '277354',
+          oilPump: '277371'
+        },
+        notes:
+          'Ran first half of 2025 SMSP Nationals; deeper open 46.4 cc chamber over flat-top piston was slower out of corners than WL239326 (39.8 cc + 7.2 cc dish).'
+      }
+    ];
+  }
+
+  function createDefaultCylinderHeads() {
+    return [
+      {
+        id: 'HEAD_WL239326',
+        name: 'Head #1 — 9937262 Sealed Race Head',
+        casting: '9937262',
+        assignment: 'ON ENGINE WL239326',
+        sealOrJob: 'Seal 277358 (Form HQ 1128)',
+        chamberCc: 39.8,
+        chamberSummary: '39.8 cc (47.00 cc unswept with 7.2 cc pistons)',
+        inletValve: '41.05 mm (1.616")',
+        exhaustValve: '34.91 mm (1.374") • 8.66 mm stems',
+        status: 'Sealed on Car #77 (18/07/2025)',
+        onCar: true,
+        flow25H2O: null,
+        notes:
+          'Sealed on Active Race Engine WL239326 (18/07/2025 by Laurie Griffin, Seal 277358). 39.8 cc chamber + 7.2 cc concave piston dish = 47.00 cc total unswept volume (+2.00 cc buffer over 45.00 cc min).'
+      },
+      {
+        id: 'HEAD_HL1134',
+        name: 'Head #2 — 9937262 Sealed Spare Head',
+        casting: '9937262',
+        assignment: 'ON ENGINE HL1134',
+        sealOrJob: 'Seal 277373 (Form HQ 1130)',
+        chamberCc: 46.4,
+        chamberSummary: '46.4 cc (46.40 cc unswept with flat-top pistons)',
+        inletValve: '41.05 mm (1.616")',
+        exhaustValve: '34.91 mm (1.374") • 8.66 mm stems',
+        status: 'Sealed on Spare Engine (12/08/2025)',
+        onCar: false,
+        flow25H2O: null,
+        notes:
+          'Sealed on Spare Engine HL1134 (12/08/2025 by Laurie Griffin, Seal 277373). Deeper open 46.4 cc chamber over 0.0 cc flat-top piston = 46.40 cc total unswept volume.'
+      },
+      {
+        id: 'HEAD_MOE_MACCA_6L',
+        name: 'Head #3 — 9937262 6L Moe Eng / Macca Flow Head',
+        casting: '9937262 6L',
+        assignment: 'MOE / MACCA FLOW BENCH CORE',
+        sealOrJob: 'Adstud Job 17753 / 18043',
+        chamberCc: null,
+        chamberSummary: 'Next Target: 38.2 cc chamber (45.4 cc unswept on 7.2 cc pistons)',
+        inletValve: '1.650" (41.91 mm) Peppro Inlet Valve, machined by Moe Eng (MOE / MACCA)',
+        exhaustValve: '34.91 mm (1.374") • 8.66 mm stems',
+        status: 'Verified Intake Flow @ 25" H2O (Adstud Development Co.)',
+        onCar: false,
+        flow25H2O: {
+          '0.05': 23.72,
+          '0.10': 45.45,
+          '0.15': 66.16,
+          '0.20': 86.43,
+          '0.25': 104.52,
+          '0.30': 117.59,
+          '0.35': 126.63,
+          '0.40': 128.64,
+          meanLowMid: 58.26,
+          cfm28H2O: 136.14
+        },
+        notes:
+          'HSD HQ Spec Ex-CV Centre Head (30° seat throat) flows ~10–15% stronger in 0.05"–0.30" low/mid lift before crossing at 0.31". Next 9937262 core target: full legal 1.675" (42.55 mm) inlet valve + 38.2 cc chamber (45.4 cc unswept on 7.2 cc pistons).'
+      }
+    ];
+  }
+
   function createDefaultExhausts() {
     return [
       {
         id: 'Macca',
-        name: 'Macca',
+        name: 'Macca Exhaust',
         onCar: true,
         flowCfm: null,
-        spec: 'Main #1 Race System (On Car)',
-        notes: 'Main #1 exhaust currently on car.'
+        spec: 'ACTIVE ON CAR #77 • Main #1 Race Extractors & Collector',
+        notes:
+          'ACTIVE ON CAR #77 — Re-fitted at the end of the 19/07/2025 Chev\'s dyno session on WL239326 because it made stronger overall power than the McLeans pipes.'
+      },
+      {
+        id: 'McLeans',
+        name: 'McLeans Headers (Long & Short Pipes)',
+        onCar: false,
+        flowCfm: null,
+        spec: 'SPARE / TESTED • Tuned Extractors (Long & Short Collector Pipes)',
+        notes:
+          'SPARE / TESTED — Verified 19/07/2025 Chev\'s dyno on WL239326: 99.4 rwkW (Long Pipe, Run 358, 1.75 jet, 18° static / 35° total) vs 98.1 rwkW (Short Pipe, Run 361). Replaced at end of session by higher-power Macca Exhaust.'
       },
       {
         id: 'DME',
-        name: 'DME',
+        name: 'DME Exhaust',
         onCar: false,
         flowCfm: null,
         spec: 'Test / Spare Header System',
@@ -3202,7 +3351,7 @@
       },
       {
         id: 'Pounder',
-        name: 'Pounder',
+        name: 'Pounder Exhaust',
         onCar: false,
         flowCfm: null,
         spec: 'Test / Spare Header System',
@@ -3210,7 +3359,7 @@
       },
       {
         id: 'Grunt',
-        name: 'Grunt',
+        name: 'Grunt Exhaust',
         onCar: false,
         flowCfm: null,
         spec: 'Test / Spare Header System',
@@ -5331,28 +5480,59 @@
       m.onCar = m.id === candidate.activeManifoldId;
     });
 
-    // Hydrate Exhausts / Headers ("Macca" ON CAR + "DME", "Pounder", "Grunt")
+    // Hydrate Exhausts / Headers ("Macca Exhaust" ON CAR #77 + "McLeans Headers (Long & Short Pipes)" SPARE / TESTED + "DME Exhaust", "Pounder Exhaust", "Grunt Exhaust")
     const defExhausts = createDefaultExhausts();
+    const needsExhaustRosterAudit2025V1 = !candidate.exhaustRosterAudit2025V1;
     if (!Array.isArray(candidate.exhausts) || candidate.exhausts.length === 0) {
-      candidate.exhausts = defExhausts;
+      candidate.exhausts = defExhausts.map((de) => ({ ...de }));
     } else {
       const seenExhIds = new Set();
       candidate.exhausts = candidate.exhausts
         .map((ex, idx) => {
-          const id = String(ex.id || ex.name || `Exh_${idx + 1}`).trim();
-          const name = String(ex.name || id).trim();
+          const rawId = String(ex.id || ex.name || `Exh_${idx + 1}`).trim();
+          const defMatch = defExhausts.find(
+            (de) =>
+              de.id.toLowerCase() === rawId.toLowerCase() ||
+              de.name.toLowerCase() === String(ex.name || '').trim().toLowerCase() ||
+              (/mcleans/i.test(rawId) && de.id === 'McLeans')
+          );
+          const id = defMatch ? defMatch.id : rawId;
+          const name =
+            needsExhaustRosterAudit2025V1 && defMatch
+              ? defMatch.name
+              : typeof ex.name === 'string' && ex.name.trim()
+              ? ex.name.trim()
+              : defMatch
+              ? defMatch.name
+              : id;
           const rawCfm = ex.flowCfm;
           const flowCfm =
             rawCfm !== null && rawCfm !== undefined && rawCfm !== '' && Number.isFinite(Number(rawCfm)) && Number(rawCfm) > 0
               ? Number(Number(rawCfm).toFixed(1))
               : null;
+          const spec =
+            needsExhaustRosterAudit2025V1 && defMatch
+              ? defMatch.spec
+              : typeof ex.spec === 'string' && ex.spec.trim()
+              ? ex.spec.trim()
+              : defMatch
+              ? defMatch.spec
+              : 'Test / Spare Header System';
+          const notes =
+            needsExhaustRosterAudit2025V1 && defMatch
+              ? defMatch.notes
+              : typeof ex.notes === 'string' && ex.notes.trim()
+              ? ex.notes.trim()
+              : defMatch
+              ? defMatch.notes
+              : '';
           return {
             id,
             name,
             onCar: Boolean(ex.onCar),
             flowCfm,
-            spec: typeof ex.spec === 'string' && ex.spec.trim() ? ex.spec.trim() : 'Test / Spare Header System',
-            notes: typeof ex.notes === 'string' ? ex.notes : ''
+            spec,
+            notes
           };
         })
         .filter((ex) => {
@@ -5363,17 +5543,160 @@
 
       defExhausts.forEach((de) => {
         if (!candidate.exhausts.some((existing) => existing.id.toLowerCase() === de.id.toLowerCase())) {
-          candidate.exhausts.push(de);
+          candidate.exhausts.push({ ...de });
         }
       });
+    }
+    if (needsExhaustRosterAudit2025V1) {
+      candidate.activeExhaustId = 'Macca';
     }
     const activeExhaust =
       candidate.exhausts.find((ex) => ex.id === candidate.activeExhaustId) ||
       candidate.exhausts.find((ex) => ex.onCar) ||
+      candidate.exhausts.find((ex) => ex.id === 'Macca') ||
       candidate.exhausts[0];
     candidate.activeExhaustId = activeExhaust ? activeExhaust.id : 'Macca';
     candidate.exhausts.forEach((ex) => {
       ex.onCar = ex.id === candidate.activeExhaustId;
+    });
+
+    // Hydrate Sealed Engines (Non-destructive merge of WL239326 Active & HL1134 Spare)
+    const defEngines = createDefaultEngines();
+    if (!Array.isArray(candidate.engines) || candidate.engines.length === 0) {
+      candidate.engines = defEngines.map((de) => ({ ...de, seals: de.seals ? { ...de.seals } : null }));
+    } else {
+      const seenEngIds = new Set();
+      candidate.engines = candidate.engines
+        .filter((eng) => eng && typeof eng === 'object')
+        .map((eng, idx) => {
+          const rawCode = String(eng.code || eng.id || `ENG_${idx + 1}`).trim();
+          const defEng = defEngines.find(
+            (de) => de.id.toLowerCase() === String(eng.id || '').trim().toLowerCase() || de.code.toLowerCase() === rawCode.toLowerCase()
+          );
+          const id = defEng ? defEng.id : String(eng.id || rawCode).trim();
+          const code = defEng ? defEng.code : rawCode;
+          return {
+            ...(defEng || {}),
+            ...eng,
+            id,
+            code,
+            name: typeof eng.name === 'string' && eng.name.trim() ? eng.name.trim() : defEng ? defEng.name : `Engine — ${code}`,
+            sealForm: typeof eng.sealForm === 'string' && eng.sealForm.trim() ? eng.sealForm.trim() : defEng ? defEng.sealForm : '',
+            block: typeof eng.block === 'string' && eng.block.trim() ? eng.block.trim() : defEng ? defEng.block : '',
+            bore: typeof eng.bore === 'string' && eng.bore.trim() ? eng.bore.trim() : defEng ? defEng.bore : '',
+            stroke: typeof eng.stroke === 'string' && eng.stroke.trim() ? eng.stroke.trim() : defEng ? defEng.stroke : '',
+            boreStroke:
+              typeof eng.boreStroke === 'string' && eng.boreStroke.trim()
+                ? eng.boreStroke.trim()
+                : defEng
+                ? defEng.boreStroke
+                : `Bore: ${eng.bore || '93.70 mm'} | Stroke: ${eng.stroke || '82.55 mm'}`,
+            bottomEnd: typeof eng.bottomEnd === 'string' && eng.bottomEnd.trim() ? eng.bottomEnd.trim() : defEng ? defEng.bottomEnd : '',
+            camshaft: typeof eng.camshaft === 'string' && eng.camshaft.trim() ? eng.camshaft.trim() : defEng ? defEng.camshaft : '',
+            headVolume: typeof eng.headVolume === 'string' && eng.headVolume.trim() ? eng.headVolume.trim() : defEng ? defEng.headVolume : '',
+            valves: typeof eng.valves === 'string' && eng.valves.trim() ? eng.valves.trim() : defEng ? defEng.valves : '',
+            sealRegistration:
+              typeof eng.sealRegistration === 'string' && eng.sealRegistration.trim()
+                ? eng.sealRegistration.trim()
+                : defEng
+                ? defEng.sealRegistration
+                : '',
+            seals:
+              eng.seals && typeof eng.seals === 'object'
+                ? { ...(defEng && defEng.seals ? defEng.seals : {}), ...eng.seals }
+                : defEng && defEng.seals
+                ? { ...defEng.seals }
+                : null,
+            notes: typeof eng.notes === 'string' && eng.notes.trim() ? eng.notes.trim() : defEng ? defEng.notes : ''
+          };
+        })
+        .filter((eng) => {
+          if (seenEngIds.has(eng.id)) return false;
+          seenEngIds.add(eng.id);
+          return true;
+        });
+
+      defEngines.forEach((de) => {
+        if (!candidate.engines.some((e) => e.id.toLowerCase() === de.id.toLowerCase() || e.code.toLowerCase() === de.code.toLowerCase())) {
+          candidate.engines.push({ ...de, seals: de.seals ? { ...de.seals } : null });
+        }
+      });
+    }
+    const activeEngine =
+      candidate.engines.find((e) => e.id === candidate.activeEngineId || e.code === candidate.activeEngineId) ||
+      candidate.engines.find((e) => e.onCar) ||
+      candidate.engines.find((e) => e.id === 'WL239326') ||
+      candidate.engines[0];
+    candidate.activeEngineId = activeEngine ? activeEngine.id : 'WL239326';
+    candidate.engines.forEach((e) => {
+      e.onCar = e.id === candidate.activeEngineId;
+      e.status = e.onCar ? 'ON CAR #77' : 'SPARE';
+      e.role = e.onCar ? 'Active Race Engine' : 'Spare Sealed Engine';
+    });
+
+    // Hydrate Cylinder Heads / Flow Bench Cores (Non-destructive merge)
+    const defHeads = createDefaultCylinderHeads();
+    if (!Array.isArray(candidate.cylinderHeads) || candidate.cylinderHeads.length === 0) {
+      candidate.cylinderHeads = defHeads.map((dh) => ({
+        ...dh,
+        flow25H2O: dh.flow25H2O ? { ...dh.flow25H2O } : null
+      }));
+    } else {
+      const seenHeadIds = new Set();
+      candidate.cylinderHeads = candidate.cylinderHeads
+        .filter((hd) => hd && typeof hd === 'object')
+        .map((hd, idx) => {
+          const rawId = String(hd.id || `HEAD_${idx + 1}`).trim();
+          const defHead = defHeads.find((dh) => dh.id.toLowerCase() === rawId.toLowerCase());
+          const id = defHead ? defHead.id : rawId;
+          const flowObj =
+            hd.flow25H2O && typeof hd.flow25H2O === 'object'
+              ? { ...(defHead && defHead.flow25H2O ? defHead.flow25H2O : {}), ...hd.flow25H2O }
+              : defHead && defHead.flow25H2O
+              ? { ...defHead.flow25H2O }
+              : null;
+          return {
+            ...(defHead || {}),
+            ...hd,
+            id,
+            name: typeof hd.name === 'string' && hd.name.trim() ? hd.name.trim() : defHead ? defHead.name : id,
+            casting: typeof hd.casting === 'string' && hd.casting.trim() ? hd.casting.trim() : defHead ? defHead.casting : '9937262',
+            assignment: typeof hd.assignment === 'string' && hd.assignment.trim() ? hd.assignment.trim() : defHead ? defHead.assignment : '',
+            sealOrJob: typeof hd.sealOrJob === 'string' && hd.sealOrJob.trim() ? hd.sealOrJob.trim() : defHead ? defHead.sealOrJob : '',
+            chamberSummary:
+              typeof hd.chamberSummary === 'string' && hd.chamberSummary.trim()
+                ? hd.chamberSummary.trim()
+                : defHead
+                ? defHead.chamberSummary
+                : '',
+            inletValve: typeof hd.inletValve === 'string' && hd.inletValve.trim() ? hd.inletValve.trim() : defHead ? defHead.inletValve : '',
+            exhaustValve: typeof hd.exhaustValve === 'string' && hd.exhaustValve.trim() ? hd.exhaustValve.trim() : defHead ? defHead.exhaustValve : '',
+            status: typeof hd.status === 'string' && hd.status.trim() ? hd.status.trim() : defHead ? defHead.status : '',
+            flow25H2O: flowObj,
+            notes: typeof hd.notes === 'string' && hd.notes.trim() ? hd.notes.trim() : defHead ? defHead.notes : ''
+          };
+        })
+        .filter((hd) => {
+          if (seenHeadIds.has(hd.id)) return false;
+          seenHeadIds.add(hd.id);
+          return true;
+        });
+
+      defHeads.forEach((dh) => {
+        if (!candidate.cylinderHeads.some((h) => h.id.toLowerCase() === dh.id.toLowerCase())) {
+          candidate.cylinderHeads.push({
+            ...dh,
+            flow25H2O: dh.flow25H2O ? { ...dh.flow25H2O } : null
+          });
+        }
+      });
+    }
+    candidate.cylinderHeads.forEach((hd) => {
+      if (hd.id === 'HEAD_WL239326') {
+        hd.onCar = candidate.activeEngineId === 'WL239326';
+      } else if (hd.id === 'HEAD_HL1134') {
+        hd.onCar = candidate.activeEngineId === 'HL1134';
+      }
     });
 
     // Hydrate Shocks & Springs Inventory + suspensionSeededV2 + peddersDynoAuditV1 migration
@@ -6509,6 +6832,8 @@
     candidate.brakesAuditV2 = true;
     candidate.jetLocationsV1 = true;
     candidate.bathurstBenchmarkFixV1 = true;
+    candidate.exhaustRosterAudit2025V1 = true;
+    candidate.enginesHeadsSeededV1 = true;
     candidate.lastModifiedAt =
       Number.isFinite(Number(candidate.lastModifiedAt)) && Number(candidate.lastModifiedAt) > 0
         ? Math.round(Number(candidate.lastModifiedAt))
@@ -6532,6 +6857,58 @@
     return st.sessions;
   }
 
+  const DEFAULT_STATE = {
+    seedInitializedV1: false,
+    eventArchitectureV1: true,
+    suspensionSeededV1: true,
+    suspensionSeededV2: true,
+    peddersDynoAuditV1: true,
+    carbyJetAuditV1: true,
+    manifoldAudit2012V2: true,
+    manifoldActiveF_V1: true,
+    fuelSystemAuditV2: true,
+    brakesAuditV2: true,
+    jetLocationsV1: true,
+    bathurstBenchmarkFixV1: true,
+    exhaustRosterAudit2025V1: true,
+    enginesHeadsSeededV1: true,
+    lastModifiedAt: 0,
+    activeEventId: null,
+    activeSessionId: null,
+    events: createDefaultEvents(),
+    baseline: createDefaultBaseline(),
+    targetAfr: 12.75,
+    awaitingPostRaceId: null,
+    jets: createDefaultJets(),
+    emulsions: createDefaultEmulsions(),
+    brassJets: createDefaultBrassJets(),
+    fuelSystem: createDefaultFuelSystem(),
+    carbies: createDefaultCarbies(),
+    manifolds: createDefaultManifolds(),
+    engines: createDefaultEngines(),
+    activeEngineId: 'WL239326',
+    cylinderHeads: createDefaultCylinderHeads(),
+    exhausts: createDefaultExhausts(),
+    shocks: createDefaultShocks(),
+    springs: createDefaultSprings(),
+    spacerKit: createDefaultSpacerKit(),
+    mountedShocks: { ...DEFAULT_MOUNTED_SHOCKS },
+    mountedSprings: { ...DEFAULT_MOUNTED_SPRINGS },
+    mountedSpacers: { ...DEFAULT_MOUNTED_SPACERS },
+    cornerWeights: createDefaultCornerWeightBaseline(),
+    cornerWeightBaseline: createDefaultCornerWeightBaseline(),
+    activeManifoldId: 'MAN_F',
+    activeExhaustId: 'Macca',
+    brakes: createDefaultBrakes(),
+    trackBenchmarks: createDefaultTrackBenchmarks(),
+    workshopNotes: createDefaultWorkshopNotes(),
+    maintenanceLog: createDefaultMaintenanceLog(),
+    tyrePool: createDefaultTyrePool(),
+    sessions: createDefaultSessions(),
+    dynoPulls: createDefaultDynoPulls(),
+    chassis: createDefaultChassisState()
+  };
+
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -6544,56 +6921,11 @@
     } catch (err) {
       console.warn('Restoring default state due to storage parse issue:', err);
     }
-    return hydrateState({
-      seedInitializedV1: false,
-      eventArchitectureV1: true,
-      suspensionSeededV1: true,
-      suspensionSeededV2: true,
-      peddersDynoAuditV1: true,
-      carbyJetAuditV1: true,
-      manifoldAudit2012V2: true,
-      manifoldActiveF_V1: true,
-      fuelSystemAuditV2: true,
-      brakesAuditV2: true,
-      jetLocationsV1: true,
-      bathurstBenchmarkFixV1: true,
-      lastModifiedAt: 0,
-      activeEventId: null,
-      activeSessionId: null,
-      events: createDefaultEvents(),
-      baseline: createDefaultBaseline(),
-      targetAfr: 12.75,
-      awaitingPostRaceId: null,
-      jets: createDefaultJets(),
-      emulsions: createDefaultEmulsions(),
-      brassJets: createDefaultBrassJets(),
-      fuelSystem: createDefaultFuelSystem(),
-      carbies: createDefaultCarbies(),
-      manifolds: createDefaultManifolds(),
-      exhausts: createDefaultExhausts(),
-      shocks: createDefaultShocks(),
-      springs: createDefaultSprings(),
-      spacerKit: createDefaultSpacerKit(),
-      mountedShocks: { ...DEFAULT_MOUNTED_SHOCKS },
-      mountedSprings: { ...DEFAULT_MOUNTED_SPRINGS },
-      mountedSpacers: { ...DEFAULT_MOUNTED_SPACERS },
-      cornerWeights: createDefaultCornerWeightBaseline(),
-      cornerWeightBaseline: createDefaultCornerWeightBaseline(),
-      activeManifoldId: 'MAN_F',
-      activeExhaustId: 'Macca',
-      brakes: createDefaultBrakes(),
-      trackBenchmarks: createDefaultTrackBenchmarks(),
-      workshopNotes: createDefaultWorkshopNotes(),
-      maintenanceLog: createDefaultMaintenanceLog(),
-      tyrePool: createDefaultTyrePool(),
-      sessions: createDefaultSessions(),
-      dynoPulls: createDefaultDynoPulls(),
-      chassis: createDefaultChassisState()
-    });
+    return hydrateState(JSON.parse(JSON.stringify(DEFAULT_STATE)));
   }
 
   state = loadState();
-  // Persist the one-time seedInitializedV1 / eventArchitectureV1 / suspensionSeededV1 / peddersDynoAuditV1 / carbyJetAuditV1 / manifoldAudit2012V2 / manifoldActiveF_V1 / fuelSystemAuditV2 / brakesAuditV2 / jetLocationsV1 / spacerKitSeededV1 / calder2024CwSeededV1 / bathurstBenchmarkFixV1 migration immediately
+  // Persist the one-time seedInitializedV1 / eventArchitectureV1 / suspensionSeededV1 / peddersDynoAuditV1 / carbyJetAuditV1 / manifoldAudit2012V2 / manifoldActiveF_V1 / fuelSystemAuditV2 / brakesAuditV2 / jetLocationsV1 / spacerKitSeededV1 / calder2024CwSeededV1 / bathurstBenchmarkFixV1 / exhaustRosterAudit2025V1 / enginesHeadsSeededV1 migration immediately
   try {
     state.seedInitializedV1 = true;
     state.peddersDynoAuditV1 = true;
@@ -6606,6 +6938,8 @@
     state.brakesAuditV2 = true;
     state.jetLocationsV1 = true;
     state.bathurstBenchmarkFixV1 = true;
+    state.exhaustRosterAudit2025V1 = true;
+    state.enginesHeadsSeededV1 = true;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (_) {}
 
@@ -6650,11 +6984,14 @@
     logSearchYear: 'ALL',
     logSearchQuery: '',
     selectedFleetCarbyId: state.baseline.carbyId || 'DME1',
+    selectedFleetCylinderHeadId:
+      (state.cylinderHeads && state.cylinderHeads[0] && state.cylinderHeads[0].id) || 'HEAD_WL239326',
     selectedFleetEmulsionId:
       (state.baseline && state.baseline.emulsionId && state.baseline.emulsionId !== 'TBD')
         ? state.baseline.emulsionId
         : 'E5_DME',
     selectedFleetBrassId: 'idle_69',
+    selectedFleetEngineId: state.activeEngineId || 'WL239326',
     selectedFleetManifoldId: state.activeManifoldId || 'MAN_F',
     selectedFleetExhaustId: state.activeExhaustId || 'Macca',
     selectedFleetShockId: (state.mountedShocks && state.mountedShocks.FL) || 'shk_F14',
@@ -7266,6 +7603,8 @@
     state.brakesAuditV2 = true;
     state.jetLocationsV1 = true;
     state.bathurstBenchmarkFixV1 = true;
+    state.exhaustRosterAudit2025V1 = true;
+    state.enginesHeadsSeededV1 = true;
     if (!options || !options.skipTimestamp) {
       state.lastModifiedAt = Date.now();
     }
@@ -12554,7 +12893,9 @@
     'brakes',
     'carburettors',
     'cloud_sync',
+    'cylinder_heads',
     'emulsions',
+    'engines',
     'exhausts',
     'fuel_system',
     'jets',
@@ -16588,7 +16929,7 @@
             <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
               <span class="pull-swatch" style="background: ${escapeHtml(p.color)};"></span>
               <div style="min-width: 0;">
-                <div style="font-size: 0.84rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                <div style="font-size: 13.5px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                   ${escapeHtml(p.name)}
                 </div>
                 <div class="mono" style="font-size: 0.85rem; color: var(--text-muted);">
@@ -17527,6 +17868,619 @@
     `;
   }
 
+  function renderEnginesFleet() {
+    const container = $('enginesFleetContainer');
+    const selectEl = $('selectFleetEngine');
+    if (!container) return;
+
+    if (!Array.isArray(state.engines) || state.engines.length === 0) {
+      state.engines = createDefaultEngines();
+    }
+    const activeId =
+      state.activeEngineId ||
+      (state.engines.find((e) => e.onCar) && state.engines.find((e) => e.onCar).id) ||
+      (state.engines[0] && state.engines[0].id) ||
+      'WL239326';
+    state.activeEngineId = activeId;
+    state.engines.forEach((e) => {
+      e.onCar = e.id === activeId;
+      e.status = e.onCar ? 'ON CAR #77' : 'SPARE';
+    });
+
+    const activeEngObj = state.engines.find((e) => e.id === activeId) || state.engines[0];
+    const eng = syncSelectAndPickItem(
+      selectEl,
+      state.engines,
+      ui.selectedFleetEngineId,
+      (item) => {
+        const isOnCar = item.id === activeId;
+        const statusTag = isOnCar ? ' ★ ON CAR #77 (Active Race Engine)' : ' • SPARE ENGINE';
+        const formTag = item.sealForm ? ` — Seal Form ${item.sealForm}` : '';
+        return `${item.name || item.code}${statusTag}${formTag}`;
+      },
+      activeId
+    );
+    if (!eng) return;
+    ui.selectedFleetEngineId = eng.id;
+
+    const badge = $('fleetEnginesActiveBadge');
+    if (badge && activeEngObj) {
+      badge.textContent = `${state.engines.length} SEALED ENGINE${state.engines.length === 1 ? '' : 'S'} • ACTIVE: ${activeEngObj.code}`;
+    }
+    const countBadge = $('fleetEnginesCountBadge');
+    if (countBadge) {
+      countBadge.textContent = `${state.engines.length} ENGINE${state.engines.length === 1 ? '' : 'S'}`;
+    }
+
+    const isOnCar = eng.id === activeId;
+    const otherEng = state.engines.find((e) => e.id !== eng.id) || null;
+    const canDelete = !isOnCar && state.engines.length > 2;
+    const statusBadgeText = isOnCar ? '★ ON CAR #77' : 'SPARE';
+    const seals = eng.seals && typeof eng.seals === 'object' ? eng.seals : null;
+
+    container.innerHTML = `
+      <div class="carby-card" style="margin-bottom: 0;">
+        <div class="session-head" style="margin-bottom: 8px;">
+          <div>
+            <div class="session-title-line">
+              ${escapeHtml(eng.name || `Engine — ${eng.code}`)}
+              <span class="locked-badge" style="margin-left: 6px; ${isOnCar ? '' : 'color: #FCD34D; border-color: rgba(245, 158, 11, 0.55); background: rgba(120, 53, 15, 0.45);'}">${escapeHtml(statusBadgeText)}</span>
+            </div>
+            <div class="session-meta-line">
+              ${escapeHtml(isOnCar ? 'ON CAR #77 — Active Race Engine' : 'SPARE ENGINE')}${eng.sealForm ? ` &bull; Seal Form <strong>${escapeHtml(eng.sealForm)}</strong>` : ''}
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            ${eng.sealForm ? `<span class="locked-badge mono">${escapeHtml(eng.sealForm)}</span>` : ''}
+            ${
+              canDelete
+                ? `<button type="button" class="btn-icon-delete" data-delete-fleet-engine="${escapeHtml(eng.id)}" title="Remove ${escapeHtml(eng.code)}" aria-label="Remove ${escapeHtml(eng.code)}">&#10005;</button>`
+                : ''
+            }
+          </div>
+        </div>
+
+        <div class="carby-teardown-grid" style="margin-bottom: 10px;">
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Block, Bore &amp; Stroke</span>
+            <span class="carby-teardown-val"><strong>${escapeHtml(eng.block || 'Holden 202 / 3.3L')}</strong> &bull; ${escapeHtml(eng.boreStroke || `Bore: ${eng.bore || '—'} | Stroke: ${eng.stroke || '82.55 mm (3.250")'}`)}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Bottom End (Pistons, Rods, Crank &amp; Oil)</span>
+            <span class="carby-teardown-val">${escapeHtml(eng.bottomEnd || '—')}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Camshaft &amp; Lifters</span>
+            <span class="carby-teardown-val txt-amber">${escapeHtml(eng.camshaft || '—')}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Head &amp; Unswept Volume (Min 45.00 cc)</span>
+            <span class="carby-teardown-val txt-emerald">${escapeHtml(eng.headVolume || '—')}</span>
+          </div>
+          <div class="carby-teardown-cell" style="grid-column: 1 / -1;">
+            <span class="carby-teardown-label">Valves &amp; Stem Spec</span>
+            <span class="carby-teardown-val mono">${escapeHtml(eng.valves || '—')}</span>
+          </div>
+          <div class="carby-teardown-cell" style="grid-column: 1 / -1;">
+            <span class="carby-teardown-label">HQRA Seal Registration</span>
+            <span class="carby-teardown-val">${escapeHtml(eng.sealRegistration || '—')}</span>
+            ${
+              seals && (seals.head || seals.sumpLH || seals.sumpRH || seals.timingCover || seals.oilPump)
+                ? `
+                  <div class="engine-seals-grid">
+                    <div class="engine-seal-pill">
+                      <span class="engine-seal-lbl">Head Seal</span>
+                      <span class="engine-seal-val mono">${escapeHtml(seals.head || '—')}</span>
+                    </div>
+                    <div class="engine-seal-pill">
+                      <span class="engine-seal-lbl">Sump LH</span>
+                      <span class="engine-seal-val mono">${escapeHtml(seals.sumpLH || '—')}</span>
+                    </div>
+                    <div class="engine-seal-pill">
+                      <span class="engine-seal-lbl">Sump RH</span>
+                      <span class="engine-seal-val mono">${escapeHtml(seals.sumpRH || '—')}</span>
+                    </div>
+                    <div class="engine-seal-pill">
+                      <span class="engine-seal-lbl">Timing Cover</span>
+                      <span class="engine-seal-val mono">${escapeHtml(seals.timingCover || '—')}</span>
+                    </div>
+                    <div class="engine-seal-pill">
+                      <span class="engine-seal-lbl">Oil Pump</span>
+                      <span class="engine-seal-val mono">${escapeHtml(seals.oilPump || '—')}</span>
+                    </div>
+                  </div>
+                `
+                : ''
+            }
+          </div>
+        </div>
+
+        ${eng.notes ? `<p style="margin: 6px 0 12px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.45;"><strong>Dyno &amp; Track Notes:</strong> ${escapeHtml(eng.notes)}</p>` : ''}
+
+        <div class="form-grid-2">
+          ${
+            isOnCar
+              ? otherEng
+                ? `<button type="button" class="btn btn-amber-outline" data-set-engine-on-car="${escapeHtml(otherEng.id)}">
+                    Swap Active Engine to ${escapeHtml(otherEng.code)} on Car #77
+                  </button>`
+                : `<button type="button" class="btn btn-confirm" data-set-engine-on-car="${escapeHtml(eng.id)}">
+                    ★ ${escapeHtml(eng.code)} Active on Car #77
+                  </button>`
+              : `<button type="button" class="btn btn-confirm" data-set-engine-on-car="${escapeHtml(eng.id)}">
+                  Set ${escapeHtml(eng.code)} Active on Car #77
+                </button>`
+          }
+          <button type="button" class="btn btn-secondary" data-edit-engine="${escapeHtml(eng.id)}">
+            Edit Selected Engine
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function setEngineActiveOnCar(engineId) {
+    const targetId = engineId || ui.selectedFleetEngineId;
+    if (!targetId || !Array.isArray(state.engines)) return;
+    const targetEng = state.engines.find((e) => e.id === targetId || e.code === targetId);
+    if (!targetEng) return;
+
+    state.activeEngineId = targetEng.id;
+    state.engines.forEach((e) => {
+      e.onCar = e.id === targetEng.id;
+      e.status = e.onCar ? 'ON CAR #77' : 'SPARE';
+      e.role = e.onCar ? 'Active Race Engine' : 'Spare Sealed Engine';
+    });
+    if (Array.isArray(state.cylinderHeads)) {
+      state.cylinderHeads.forEach((hd) => {
+        if (hd.id === 'HEAD_WL239326') {
+          hd.onCar = targetEng.id === 'WL239326';
+          hd.status = hd.onCar ? 'Sealed on Car #77 (18/07/2025)' : 'Sealed on Spare Engine WL239326 (18/07/2025)';
+        } else if (hd.id === 'HEAD_HL1134') {
+          hd.onCar = targetEng.id === 'HL1134';
+          hd.status = hd.onCar ? 'Sealed on Car #77 (12/08/2025)' : 'Sealed on Spare Engine (12/08/2025)';
+        }
+      });
+    }
+    ui.selectedFleetEngineId = targetEng.id;
+    saveState();
+    renderEnginesFleet();
+    renderCylinderHeadsFleet();
+    showToast(`Engine ${targetEng.code} set ★ ON CAR #77 (saved sessions preserved)`);
+  }
+
+  function deleteFleetEngineById(engineId) {
+    const targetId = engineId || ui.selectedFleetEngineId;
+    if (!targetId || !Array.isArray(state.engines) || state.engines.length <= 1) return;
+    if (state.activeEngineId === targetId) {
+      showToast('Cannot delete the Engine currently Active on Car #77');
+      return;
+    }
+    const targetObj = state.engines.find((e) => e.id === targetId);
+    state.engines = state.engines.filter((e) => e.id !== targetId);
+    ui.selectedFleetEngineId = state.activeEngineId || state.engines[0].id;
+    saveState();
+    renderEnginesFleet();
+    showToast(`Removed ${targetObj ? targetObj.code : targetId} from Engines`);
+  }
+
+  function openEditEngineModal(engineId) {
+    const isNew = !engineId || engineId === '__NEW__';
+    const eng = isNew
+      ? {
+          id: '__NEW__',
+          code: '',
+          sealForm: '',
+          block: 'Holden 202 / 3.3L (NIL sleeves)',
+          boreStroke: 'Bore: 93.70 mm (3.689") | Stroke: 82.55 mm (3.250")',
+          bottomEnd: 'Non-forged cast pistons, standard 202 red rods & crank',
+          camshaft: 'VIC 507 / RAQ092 Control Camshaft',
+          headVolume: 'Casting 9937262 (≥ 45.00 cc total unswept volume)',
+          valves: 'Inlet 41.05 mm (1.616"), Exhaust 34.91 mm (1.374"), 8.66 mm stems',
+          sealRegistration: '',
+          notes: ''
+        }
+      : (state.engines || []).find((e) => e.id === engineId);
+    if (!eng) return;
+
+    if ($('editEngineIdHidden')) $('editEngineIdHidden').value = isNew ? '__NEW__' : eng.id;
+    if ($('modalEditEngineTitle')) {
+      $('modalEditEngineTitle').textContent = isNew
+        ? 'Add Sealed HQ 202 Engine'
+        : `Edit ${eng.code} Sealed Engine Spec`;
+    }
+    if ($('editEngineCode')) $('editEngineCode').value = isNew ? '' : eng.code || eng.id;
+    if ($('editEngineSealForm')) $('editEngineSealForm').value = eng.sealForm || '';
+    if ($('editEngineBlock')) $('editEngineBlock').value = eng.block || '';
+    if ($('editEngineBoreStroke')) {
+      $('editEngineBoreStroke').value =
+        eng.boreStroke || (eng.bore ? `Bore: ${eng.bore} | Stroke: ${eng.stroke || '82.55 mm (3.250")'}` : '');
+    }
+    if ($('editEngineBottomEnd')) $('editEngineBottomEnd').value = eng.bottomEnd || '';
+    if ($('editEngineCamshaft')) $('editEngineCamshaft').value = eng.camshaft || '';
+    if ($('editEngineHeadVolume')) $('editEngineHeadVolume').value = eng.headVolume || '';
+    if ($('editEngineValves')) $('editEngineValves').value = eng.valves || '';
+    if ($('editEngineSealReg')) $('editEngineSealReg').value = eng.sealRegistration || '';
+    if ($('editEngineNotes')) $('editEngineNotes').value = eng.notes || '';
+
+    openModal('modalEditEngine');
+  }
+
+  function saveEditEngineModal() {
+    const id = $('editEngineIdHidden') ? $('editEngineIdHidden').value : '';
+    const isNew = !id || id === '__NEW__';
+    const rawCode = ($('editEngineCode') ? $('editEngineCode').value : '').trim();
+    if (!rawCode) {
+      showToast('Enter an Engine Number / Code (e.g. WL239326)');
+      return;
+    }
+
+    if (!Array.isArray(state.engines)) {
+      state.engines = createDefaultEngines();
+    }
+
+    let eng = isNew ? null : state.engines.find((e) => e.id === id);
+    if (isNew) {
+      if (state.engines.some((e) => e.id.toLowerCase() === rawCode.toLowerCase() || e.code.toLowerCase() === rawCode.toLowerCase())) {
+        showToast(`Engine ${rawCode} is already in the Engines roster`);
+        return;
+      }
+      eng = {
+        id: rawCode,
+        code: rawCode,
+        name: `Engine #${state.engines.length + 1} — ${rawCode}`,
+        onCar: false,
+        status: 'SPARE',
+        role: 'Spare Sealed Engine',
+        seals: null
+      };
+      state.engines.push(eng);
+      ui.selectedFleetEngineId = eng.id;
+    } else if (eng) {
+      eng.code = rawCode;
+      if (!eng.name || /Engine #\d+/i.test(eng.name)) {
+        const idx = state.engines.findIndex((e) => e.id === eng.id);
+        eng.name = `Engine #${idx >= 0 ? idx + 1 : 1} — ${rawCode}`;
+      }
+    }
+    if (!eng) return;
+
+    eng.sealForm = ($('editEngineSealForm') ? $('editEngineSealForm').value.trim() : '');
+    eng.block = ($('editEngineBlock') ? $('editEngineBlock').value.trim() : '') || 'Holden 202 / 3.3L';
+    eng.boreStroke = ($('editEngineBoreStroke') ? $('editEngineBoreStroke').value.trim() : '');
+    eng.bottomEnd = ($('editEngineBottomEnd') ? $('editEngineBottomEnd').value.trim() : '');
+    eng.camshaft = ($('editEngineCamshaft') ? $('editEngineCamshaft').value.trim() : '');
+    eng.headVolume = ($('editEngineHeadVolume') ? $('editEngineHeadVolume').value.trim() : '');
+    eng.valves = ($('editEngineValves') ? $('editEngineValves').value.trim() : '');
+    eng.sealRegistration = ($('editEngineSealReg') ? $('editEngineSealReg').value.trim() : '');
+    eng.notes = ($('editEngineNotes') ? $('editEngineNotes').value.trim() : '');
+
+    saveState();
+    closeModal('modalEditEngine');
+    renderEnginesFleet();
+    showToast(`${isNew ? 'Added' : 'Saved'} Engine ${eng.code}`);
+  }
+
+  function renderCylinderHeadsFleet() {
+    const container = $('cylinderHeadsFleetContainer');
+    const selectEl = $('selectFleetCylinderHead');
+    if (!container) return;
+
+    if (!Array.isArray(state.cylinderHeads) || state.cylinderHeads.length === 0) {
+      state.cylinderHeads = createDefaultCylinderHeads();
+    }
+
+    const defaultHeadId =
+      (state.cylinderHeads.find((h) => h.onCar) && state.cylinderHeads.find((h) => h.onCar).id) ||
+      (state.cylinderHeads[0] && state.cylinderHeads[0].id) ||
+      'HEAD_WL239326';
+
+    const hd = syncSelectAndPickItem(
+      selectEl,
+      state.cylinderHeads,
+      ui.selectedFleetCylinderHeadId,
+      (item) => {
+        const assignPart = item.assignment ? ` (${item.assignment}${item.sealOrJob ? ` — ${item.sealOrJob}` : ''})` : '';
+        return `${item.name}${assignPart}`;
+      },
+      defaultHeadId
+    );
+    if (!hd) return;
+    ui.selectedFleetCylinderHeadId = hd.id;
+
+    const badge = $('fleetCylinderHeadsActiveBadge');
+    if (badge) {
+      badge.textContent = `${state.cylinderHeads.length} HEADS / CORES • FLOW BENCH @ 25" H2O`;
+    }
+    const countBadge = $('fleetCylinderHeadsCountBadge');
+    if (countBadge) {
+      countBadge.textContent = `${state.cylinderHeads.length} HEAD${state.cylinderHeads.length === 1 ? '' : 'S'}`;
+    }
+
+    const isOnCar = Boolean(hd.onCar);
+    const canDelete = !isOnCar && state.cylinderHeads.length > 1 && !['HEAD_WL239326', 'HEAD_HL1134', 'HEAD_MOE_MACCA_6L'].includes(hd.id);
+    const flow = hd.flow25H2O && typeof hd.flow25H2O === 'object' ? hd.flow25H2O : null;
+    const liftKeys = ['0.05', '0.10', '0.15', '0.20', '0.25', '0.30', '0.35', '0.40'];
+    const hasFlowNumbers = Boolean(flow && liftKeys.some((k) => Number.isFinite(Number(flow[k])) && Number(flow[k]) > 0));
+
+    let flowBenchHtml = '';
+    if (hasFlowNumbers) {
+      const meanLowVal =
+        Number.isFinite(Number(flow.meanLowMid)) && Number(flow.meanLowMid) > 0
+          ? Number(flow.meanLowMid).toFixed(2)
+          : (() => {
+              const vals = ['0.05', '0.10', '0.15', '0.20']
+                .map((k) => Number(flow[k]))
+                .filter((v) => Number.isFinite(v) && v > 0);
+              return vals.length > 0 ? (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2) : null;
+            })();
+      const cfm28Val =
+        Number.isFinite(Number(flow.cfm28H2O)) && Number(flow.cfm28H2O) > 0
+          ? Number(flow.cfm28H2O).toFixed(2)
+          : null;
+
+      flowBenchHtml = `
+        <div class="head-flow-bench-box">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+            <span class="section-eyebrow" style="margin: 0;">Verified Intake Flow @ 25&quot; H2O (Adstud Development Co.)</span>
+            <span class="locked-badge mono">
+              ${meanLowVal ? `Mean 0.05–0.20&quot;: ${meanLowVal} CFM` : '25&quot; H2O'}
+              ${cfm28Val ? ` &bull; ${cfm28Val} CFM @ 28&quot; H2O` : ''}
+            </span>
+          </div>
+          <div class="head-flow-grid">
+            ${liftKeys
+              .map((lift) => {
+                const v = Number(flow[lift]);
+                const cfmTxt = Number.isFinite(v) && v > 0 ? `${v.toFixed(2)} CFM` : '—';
+                return `
+                  <div class="head-flow-cell">
+                    <span class="head-flow-lift mono">${lift}&quot; Lift</span>
+                    <span class="head-flow-cfm mono">${cfmTxt}</span>
+                  </div>
+                `;
+              })
+              .join('')}
+          </div>
+        </div>
+      `;
+    } else {
+      flowBenchHtml = `
+        <div class="head-flow-bench-box" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <span style="font-size: 13.5px; color: var(--text-secondary);">
+            <strong>Flow Bench @ 25&quot; H2O:</strong> Sealed head on engine (no separate flow bench sheet logged yet — tap <strong>Edit Head Core</strong> to enter 0.05&quot;&ndash;0.40&quot; CFM).
+          </span>
+          <button type="button" class="btn btn-amber-outline btn-xs" data-edit-cylinder-head="${escapeHtml(hd.id)}">
+            + Enter 25&quot; H2O Flow
+          </button>
+        </div>
+      `;
+    }
+
+    container.innerHTML = `
+      <div class="carby-card" style="margin-bottom: 0;">
+        <div class="session-head" style="margin-bottom: 8px;">
+          <div>
+            <div class="session-title-line">
+              ${escapeHtml(hd.name)}
+              ${isOnCar ? '<span class="locked-badge" style="margin-left: 6px;">★ ON CAR #77</span>' : ''}
+            </div>
+            <div class="session-meta-line">
+              Casting <strong>${escapeHtml(hd.casting || '9937262')}</strong> &bull; ${escapeHtml(hd.assignment || 'HQ 202 Head Core')} ${hd.sealOrJob ? `&bull; <strong>${escapeHtml(hd.sealOrJob)}</strong>` : ''}
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="locked-badge mono" style="${isOnCar ? '' : 'color: #FCD34D; border-color: rgba(245, 158, 11, 0.5);'}">${escapeHtml(hd.sealOrJob || hd.casting || '9937262')}</span>
+            ${
+              canDelete
+                ? `<button type="button" class="btn-icon-delete" data-delete-fleet-head="${escapeHtml(hd.id)}" title="Remove ${escapeHtml(hd.name)}" aria-label="Remove ${escapeHtml(hd.name)}">&#10005;</button>`
+                : ''
+            }
+          </div>
+        </div>
+
+        <div class="carby-teardown-grid" style="margin-bottom: 8px;">
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Chamber &amp; Unswept Volume</span>
+            <span class="carby-teardown-val txt-emerald">${escapeHtml(hd.chamberSummary || '—')}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Status &amp; Allocation</span>
+            <span class="carby-teardown-val">${escapeHtml(hd.status || '—')}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Inlet Valve Spec (Max 1.675&quot; / 42.55 mm)</span>
+            <span class="carby-teardown-val txt-amber mono">${escapeHtml(hd.inletValve || '41.05 mm (1.616")')}</span>
+          </div>
+          <div class="carby-teardown-cell">
+            <span class="carby-teardown-label">Exhaust Valve &amp; Stems</span>
+            <span class="carby-teardown-val mono">${escapeHtml(hd.exhaustValve || '34.91 mm (1.374") • 8.66 mm stems')}</span>
+          </div>
+        </div>
+
+        ${flowBenchHtml}
+
+        ${hd.notes ? `<p style="margin: 6px 0 12px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.45;"><strong>Development &amp; Target Notes:</strong> ${escapeHtml(hd.notes)}</p>` : ''}
+
+        <div class="form-grid-2">
+          <button type="button" class="btn btn-secondary" data-edit-cylinder-head="${escapeHtml(hd.id)}">
+            Edit Selected Head Core
+          </button>
+          <button type="button" class="btn btn-amber-outline" data-edit-cylinder-head="__NEW__">
+            + Add Head Core (9937262 / 2811930)
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function openEditCylinderHeadModal(headId) {
+    const isNew = !headId || headId === '__NEW__';
+    const hd = isNew
+      ? {
+          id: '__NEW__',
+          name: '',
+          casting: '9937262',
+          assignment: 'SPARE / FLOW BENCH CORE',
+          sealOrJob: '',
+          chamberSummary: '38.2 cc target (45.4 cc unswept on 7.2 cc pistons)',
+          inletValve: '1.675" (42.55 mm) Inlet Valve Target',
+          exhaustValve: '34.91 mm (1.374") • 8.66 mm stems',
+          status: 'Sourced Core / In Machining',
+          flow25H2O: null,
+          notes: ''
+        }
+      : (state.cylinderHeads || []).find((h) => h.id === headId);
+    if (!hd) return;
+
+    if ($('editHeadIdHidden')) $('editHeadIdHidden').value = isNew ? '__NEW__' : hd.id;
+    if ($('modalEditCylinderHeadTitle')) {
+      $('modalEditCylinderHeadTitle').textContent = isNew
+        ? '+ Add Cylinder Head Core (9937262 / 2811930)'
+        : `Edit ${hd.name}`;
+    }
+    if ($('editHeadName')) $('editHeadName').value = isNew ? '' : hd.name || '';
+    if ($('editHeadCasting')) $('editHeadCasting').value = hd.casting || '9937262';
+    if ($('editHeadAssignment')) $('editHeadAssignment').value = hd.assignment || '';
+    if ($('editHeadSealOrJob')) $('editHeadSealOrJob').value = hd.sealOrJob || '';
+    if ($('editHeadChamberSummary')) $('editHeadChamberSummary').value = hd.chamberSummary || '';
+    if ($('editHeadStatus')) $('editHeadStatus').value = hd.status || '';
+    if ($('editHeadInletValve')) $('editHeadInletValve').value = hd.inletValve || '';
+    if ($('editHeadExhaustValve')) $('editHeadExhaustValve').value = hd.exhaustValve || '';
+    if ($('editHeadNotes')) $('editHeadNotes').value = hd.notes || '';
+
+    const fl = hd.flow25H2O && typeof hd.flow25H2O === 'object' ? hd.flow25H2O : {};
+    const liftMap = [
+      ['0.05', 'editHeadFlow005'],
+      ['0.10', 'editHeadFlow010'],
+      ['0.15', 'editHeadFlow015'],
+      ['0.20', 'editHeadFlow020'],
+      ['0.25', 'editHeadFlow025'],
+      ['0.30', 'editHeadFlow030'],
+      ['0.35', 'editHeadFlow035'],
+      ['0.40', 'editHeadFlow040']
+    ];
+    liftMap.forEach(([k, elId]) => {
+      const el = $(elId);
+      if (el) {
+        el.value = Number.isFinite(Number(fl[k])) && Number(fl[k]) > 0 ? Number(fl[k]).toFixed(2) : '';
+      }
+    });
+    if ($('editHeadFlowMeanLow')) {
+      $('editHeadFlowMeanLow').value =
+        Number.isFinite(Number(fl.meanLowMid)) && Number(fl.meanLowMid) > 0 ? Number(fl.meanLowMid).toFixed(2) : '';
+    }
+    if ($('editHeadFlow28H2O')) {
+      $('editHeadFlow28H2O').value =
+        Number.isFinite(Number(fl.cfm28H2O)) && Number(fl.cfm28H2O) > 0 ? Number(fl.cfm28H2O).toFixed(2) : '';
+    }
+
+    openModal('modalEditCylinderHead');
+  }
+
+  function saveEditCylinderHeadModal() {
+    const id = $('editHeadIdHidden') ? $('editHeadIdHidden').value : '';
+    const isNew = !id || id === '__NEW__';
+    const rawName = ($('editHeadName') ? $('editHeadName').value : '').trim();
+    const rawCasting = ($('editHeadCasting') ? $('editHeadCasting').value : '').trim() || '9937262';
+    if (!rawName) {
+      showToast('Enter a Head Name / Label');
+      return;
+    }
+
+    if (!Array.isArray(state.cylinderHeads)) {
+      state.cylinderHeads = createDefaultCylinderHeads();
+    }
+
+    let hd = isNew ? null : state.cylinderHeads.find((h) => h.id === id);
+    if (isNew) {
+      const newId = `HEAD_${Date.now()}`;
+      hd = {
+        id: newId,
+        name: rawName,
+        casting: rawCasting,
+        onCar: false
+      };
+      state.cylinderHeads.push(hd);
+      ui.selectedFleetCylinderHeadId = hd.id;
+    } else if (hd) {
+      hd.name = rawName;
+      hd.casting = rawCasting;
+    }
+    if (!hd) return;
+
+    hd.assignment = ($('editHeadAssignment') ? $('editHeadAssignment').value.trim() : '') || 'FLOW BENCH CORE';
+    hd.sealOrJob = ($('editHeadSealOrJob') ? $('editHeadSealOrJob').value.trim() : '');
+    hd.chamberSummary = ($('editHeadChamberSummary') ? $('editHeadChamberSummary').value.trim() : '');
+    hd.status = ($('editHeadStatus') ? $('editHeadStatus').value.trim() : '');
+    hd.inletValve = ($('editHeadInletValve') ? $('editHeadInletValve').value.trim() : '');
+    hd.exhaustValve = ($('editHeadExhaustValve') ? $('editHeadExhaustValve').value.trim() : '');
+    hd.notes = ($('editHeadNotes') ? $('editHeadNotes').value.trim() : '');
+
+    const liftMap = [
+      ['0.05', 'editHeadFlow005'],
+      ['0.10', 'editHeadFlow010'],
+      ['0.15', 'editHeadFlow015'],
+      ['0.20', 'editHeadFlow020'],
+      ['0.25', 'editHeadFlow025'],
+      ['0.30', 'editHeadFlow030'],
+      ['0.35', 'editHeadFlow035'],
+      ['0.40', 'editHeadFlow040']
+    ];
+    const flowObj = {};
+    let hasAnyFlow = false;
+    liftMap.forEach(([k, elId]) => {
+      const el = $(elId);
+      const val = el && el.value.trim() !== '' ? parseFloat(el.value) : NaN;
+      if (Number.isFinite(val) && val > 0) {
+        flowObj[k] = Number(val.toFixed(2));
+        hasAnyFlow = true;
+      }
+    });
+    const meanRaw = $('editHeadFlowMeanLow') && $('editHeadFlowMeanLow').value.trim() !== ''
+      ? parseFloat($('editHeadFlowMeanLow').value)
+      : NaN;
+    if (Number.isFinite(meanRaw) && meanRaw > 0) {
+      flowObj.meanLowMid = Number(meanRaw.toFixed(2));
+      hasAnyFlow = true;
+    } else if (hasAnyFlow) {
+      const lowVals = ['0.05', '0.10', '0.15', '0.20']
+        .map((k) => flowObj[k])
+        .filter((v) => Number.isFinite(v) && v > 0);
+      if (lowVals.length === 4) {
+        flowObj.meanLowMid = Number((lowVals.reduce((a, b) => a + b, 0) / 4).toFixed(2));
+      }
+    }
+    const cfm28Raw = $('editHeadFlow28H2O') && $('editHeadFlow28H2O').value.trim() !== ''
+      ? parseFloat($('editHeadFlow28H2O').value)
+      : NaN;
+    if (Number.isFinite(cfm28Raw) && cfm28Raw > 0) {
+      flowObj.cfm28H2O = Number(cfm28Raw.toFixed(2));
+      hasAnyFlow = true;
+    }
+    hd.flow25H2O = hasAnyFlow ? flowObj : null;
+
+    saveState();
+    closeModal('modalEditCylinderHead');
+    renderCylinderHeadsFleet();
+    showToast(`${isNew ? 'Added' : 'Saved'} ${hd.name}`);
+  }
+
+  function deleteFleetCylinderHeadById(headId) {
+    const targetId = headId || ui.selectedFleetCylinderHeadId;
+    if (!targetId || !Array.isArray(state.cylinderHeads) || state.cylinderHeads.length <= 1) return;
+    const targetObj = state.cylinderHeads.find((h) => h.id === targetId);
+    if (targetObj && targetObj.onCar) {
+      showToast('Cannot delete the Cylinder Head currently Sealed on Car #77');
+      return;
+    }
+    state.cylinderHeads = state.cylinderHeads.filter((h) => h.id !== targetId);
+    ui.selectedFleetCylinderHeadId = state.cylinderHeads[0].id;
+    saveState();
+    renderCylinderHeadsFleet();
+    showToast(`Removed ${targetObj ? targetObj.name : targetId}`);
+  }
+
   function renderExhaustFleet() {
     const container = $('exhaustFleetContainer');
     const selectEl = $('selectFleetExhaust');
@@ -17537,6 +18491,7 @@
     }
     state.exhausts = sortByNameOrCodeAZ(state.exhausts);
     const activeId = state.activeExhaustId || 'Macca';
+    const activeExhObj = state.exhausts.find((item) => item.id === activeId) || state.exhausts[0];
 
     const x = syncSelectAndPickItem(
       selectEl,
@@ -17544,7 +18499,13 @@
       ui.selectedFleetExhaustId,
       (item) => {
         const isOnCar = item.id === activeId;
-        return `${item.name}${isOnCar ? ' ★ ON CAR' : ''}`;
+        const isMcLeans = item.id === 'McLeans' || /mcleans/i.test(item.name || '');
+        const suffix = isOnCar
+          ? ' ★ ACTIVE ON CAR #77'
+          : isMcLeans
+          ? ' • SPARE / TESTED (99.4 / 98.1 rwkW)'
+          : ' • SPARE';
+        return `${item.name}${suffix}`;
       },
       activeId
     );
@@ -17553,22 +18514,27 @@
 
     const badge = $('fleetExhaustActiveBadge');
     if (badge) {
-      badge.textContent = `${activeId} ★ ON CAR`;
+      badge.textContent = `${activeExhObj ? activeExhObj.name : activeId} ★ ON CAR #77`;
     }
     const countBadge = $('fleetExhaustCountBadge');
     if (countBadge) {
-      countBadge.textContent = `${state.exhausts.length} UNIT${state.exhausts.length === 1 ? '' : 'S'}`;
+      countBadge.textContent = `${state.exhausts.length} SYSTEM${state.exhausts.length === 1 ? '' : 'S'}`;
     }
 
     const isOnCar = x.id === activeId;
+    const isMcLeans = x.id === 'McLeans' || /mcleans/i.test(x.name || '');
     const canDelete = !isOnCar && state.exhausts.length > 1;
     const hasFlow =
       x.flowCfm !== null && x.flowCfm !== undefined && x.flowCfm !== '' && Number.isFinite(Number(x.flowCfm)) && Number(x.flowCfm) > 0;
-    const pipeSpec = x.primarySpec || x.spec || (x.id === 'Macca' ? 'Main #1 Race System' : 'HQ 202 Race Extractors');
-    const isMainRace = x.id === 'Macca' || /main\s*#?1/i.test(pipeSpec);
-    const headerBadge = isMainRace ? 'MAIN #1' : 'TEST SYSTEM';
-    const fleetRole = isMainRace ? 'Primary Race System' : 'To Flow & Dyno Test';
-    const statusText = isOnCar ? 'Bolted on Car' : 'Workshop Rack';
+    const pipeSpec = x.primarySpec || x.spec || (x.id === 'Macca' ? 'ACTIVE ON CAR #77 • Main #1 Race System' : 'HQ 202 Race Extractors');
+    const isMainRace = x.id === 'Macca' || isOnCar;
+    const headerBadge = isOnCar ? 'ACTIVE ON CAR #77' : isMcLeans ? 'SPARE / TESTED' : 'TEST / SPARE';
+    const fleetRole = isOnCar
+      ? 'Active Race System (Car #77)'
+      : isMcLeans
+      ? 'Dyno Tested @ Chev\'s (19/07/2025)'
+      : 'To Flow & Dyno Test';
+    const statusText = isOnCar ? 'ACTIVE ON CAR #77' : isMcLeans ? 'SPARE / TESTED' : 'Workshop Rack';
 
     container.innerHTML = `
       <div class="carby-card" style="margin-bottom: 0;">
@@ -17576,7 +18542,8 @@
           <div>
             <div class="session-title-line">
               ${escapeHtml(x.name)}
-              ${isOnCar ? '<span class="locked-badge" style="margin-left: 6px;">★ ON CAR</span>' : ''}
+              ${isOnCar ? '<span class="locked-badge" style="margin-left: 6px;">★ ACTIVE ON CAR #77</span>' : ''}
+              ${!isOnCar && isMcLeans ? '<span class="emulsion-badge amber" style="margin-left: 6px;">SPARE / TESTED (99.4 / 98.1 rwkW)</span>' : ''}
             </div>
             <div class="session-meta-line">HQ 202 Race Extractors &amp; Collector System</div>
           </div>
@@ -17592,9 +18559,25 @@
 
         <div class="carby-specs-grid">
           <div class="telem-cell">
-            <span class="telem-label">BENCH FLOW</span>
-            <span class="telem-val ${hasFlow ? 'txt-emerald' : 'txt-amber'}">${hasFlow ? `${Number(x.flowCfm).toFixed(0)} CFM` : 'Untested'}</span>
-            <span class="telem-sub">${hasFlow ? 'Verified Bench CFM' : 'Awaiting Flow Bench'}</span>
+            <span class="telem-label">DYNO / BENCH FLOW</span>
+            <span class="telem-val ${hasFlow || isMcLeans || isOnCar ? 'txt-emerald' : 'txt-amber'}">${
+              hasFlow
+                ? `${Number(x.flowCfm).toFixed(0)} CFM`
+                : isMcLeans
+                ? '99.4 / 98.1 rwkW'
+                : isOnCar
+                ? 'Strongest Power'
+                : 'Untested'
+            }</span>
+            <span class="telem-sub">${
+              hasFlow
+                ? 'Verified Bench CFM'
+                : isMcLeans
+                ? 'Long (Run 358) vs Short (Run 361)'
+                : isOnCar
+                ? 'Re-fitted 19/07/2025 @ Chev\'s'
+                : 'Awaiting Flow Bench'
+            }</span>
           </div>
           <div class="telem-cell">
             <span class="telem-label">PIPE / COLLECTOR SPEC</span>
@@ -17608,16 +18591,16 @@
           </div>
           <div class="telem-cell">
             <span class="telem-label">STATUS</span>
-            <span class="telem-val ${isOnCar ? 'txt-emerald' : ''}">${escapeHtml(statusText)}</span>
-            <span class="telem-sub">${isOnCar ? 'Active on Race Car' : 'Ready to Swap'}</span>
+            <span class="telem-val ${isOnCar ? 'txt-emerald' : isMcLeans ? 'txt-amber' : ''}">${escapeHtml(statusText)}</span>
+            <span class="telem-sub">${isOnCar ? 'Bolted on Car #77' : 'Ready to Swap'}</span>
           </div>
         </div>
 
-        ${x.notes ? `<p style="margin: 6px 0 10px; font-size: 0.85rem; color: var(--text-secondary);">${escapeHtml(x.notes)}</p>` : ''}
+        ${x.notes ? `<p style="margin: 6px 0 10px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.45;">${escapeHtml(x.notes)}</p>` : ''}
 
         <div class="form-grid-2">
           <button type="button" class="btn ${isOnCar ? 'btn-confirm' : 'btn-amber-outline'}" data-set-exhaust-on-car="${escapeHtml(x.id)}">
-            ${isOnCar ? `${escapeHtml(x.name)} Active on Car` : `Set ${escapeHtml(x.name)} on Car`}
+            ${isOnCar ? `${escapeHtml(x.name)} Active on Car #77` : `Set ${escapeHtml(x.name)} Active on Car #77`}
           </button>
           <button type="button" class="btn btn-secondary" data-edit-exhaust="${escapeHtml(x.id)}">
             Edit Selected Exhaust
@@ -17706,7 +18689,8 @@
     saveState();
     populateCarbySelects();
     renderExhaustFleet();
-    showToast(`${targetId} Exhaust set ★ ON CAR`);
+    const targetObj = state.exhausts.find((x) => x.id === targetId);
+    showToast(`${targetObj ? targetObj.name : targetId} set ★ ACTIVE ON CAR #77`);
   }
 
   function getNormShockEnd(sh) {
@@ -18916,8 +19900,25 @@
     });
     lines.push('');
 
-    // 4. Carby Fleet + Teardown Audit + Emulsions + Brass + Fuel System + Audited 2825951 Manifolds
-    lines.push('[4] AUDITED CARBY FLEET, EMULSION TUBE LIBRARY (14 TUBES), BRASS, IN-CAR FUEL SYSTEM & 2825951 MANIFOLDS');
+    // 4. Carby Fleet + Teardown Audit + Emulsions + Brass + Fuel System + Audited 2825951 Manifolds + Sealed Engines & Cylinder Heads
+    lines.push('[4] AUDITED CARBY FLEET, EMULSION TUBE LIBRARY (14 TUBES), BRASS, IN-CAR FUEL SYSTEM, 2825951 MANIFOLDS, SEALED ENGINES & CYLINDER HEADS');
+    (state.engines || []).forEach((eng) => {
+      const isAct = eng.id === state.activeEngineId;
+      const s = eng.seals || {};
+      lines.push(
+        `- Engine "${eng.name}" (${eng.id})${isAct ? ' [ON CAR #77]' : ' [SPARE]'}: Seal_Form="${eng.sealForm || '—'}" | Block="${eng.blockSpec || '—'}" | Bore_Stroke="${eng.boreStroke || '—'}" | Bottom_End="${eng.bottomEnd || '—'}" | Cam="${eng.camshaft || '—'}" | Head_Unswept="${eng.headSummary || '—'}" | Valves="${eng.valveSpec || '—'}" | Seals (${eng.sealMeta || '—'}): Head=${s.head || '—'}, Sump_LH=${s.sumpLh || '—'}, Sump_RH=${s.sumpRh || '—'}, Timing=${s.timingCover || '—'}, Oil_Pump=${s.oilPump || '—'} | Notes: ${eng.notes || ''}`
+      );
+    });
+    (state.cylinderHeads || []).forEach((hd) => {
+      const f = hd.flow25 || {};
+      const hasFlow = Object.values(f).some((v) => v !== null && v !== undefined && Number.isFinite(Number(v)));
+      const flowTxt = hasFlow
+        ? `Flow@25"H2O=[0.05":${f.l050 ?? '—'}, 0.10":${f.l100 ?? '—'}, 0.15":${f.l150 ?? '—'}, 0.20":${f.l200 ?? '—'}, 0.25":${f.l250 ?? '—'}, 0.30":${f.l300 ?? '—'}, 0.35":${f.l350 ?? '—'}, 0.40":${f.l400 ?? '—'} CFM | Mean_0.05-0.20":${hd.flowMeanLow ?? '—'} CFM | @28"H2O:${hd.flow28Peak ?? '—'} CFM]`
+        : 'Flow@25"H2O=Sealed/Unflowed';
+      lines.push(
+        `- Cylinder_Head "${hd.name}" (${hd.id}): Casting="${hd.casting || '9937262'}" | Status="${hd.assignedTo || '—'}" | Seal_Job="${hd.sealOrJob || '—'}" | Chamber="${hd.chamberSummary || '—'}" | Valves="${hd.valveSummary || '—'}" | ${flowTxt} | Notes: ${hd.notes || ''}`
+      );
+    });
     (state.carbies || []).forEach((c) => {
       const flowStat = getCarbyLearnedFlowStats(c.id);
       const a = c.baselineAnchor || {};
@@ -18959,7 +19960,7 @@
     });
     (state.exhausts || []).forEach((x) => {
       lines.push(
-        `- Exhaust "${x.name}"${x.id === state.activeExhaustId ? ' [ON CAR]' : ''}: ${x.flowCfm ? `${x.flowCfm} CFM` : 'Untested CFM'} | ${x.primarySpec || ''} (${x.notes || ''})`
+        `- Exhaust "${x.name}"${x.id === state.activeExhaustId ? ' [ON CAR #77]' : ''}: ${x.flowCfm ? `${x.flowCfm} CFM` : 'Untested CFM'} | ${x.spec || x.primarySpec || ''} (${x.notes || ''})`
       );
     });
     lines.push('');
@@ -21919,9 +22920,19 @@
       console.error('Main & Spares section error (Carburettors):', err);
     }
     try {
+      renderCylinderHeadsFleet();
+    } catch (err) {
+      console.error('Main & Spares section error (Cylinder Heads):', err);
+    }
+    try {
       renderEmulsionBrassFleet();
     } catch (err) {
       console.error('Main & Spares section error (Emulsion & Brass Kit):', err);
+    }
+    try {
+      renderEnginesFleet();
+    } catch (err) {
+      console.error('Main & Spares section error (Engines):', err);
     }
     try {
       renderExhaustFleet();
@@ -22535,6 +23546,36 @@
       const delFleetExhaustBtn = e.target.closest('[data-delete-fleet-exhaust]');
       if (delFleetExhaustBtn) {
         deleteFleetExhaustById(delFleetExhaustBtn.getAttribute('data-delete-fleet-exhaust'));
+        return;
+      }
+
+      const setEngineBtn = e.target.closest('[data-set-engine-on-car]');
+      if (setEngineBtn) {
+        setEngineActiveOnCar(setEngineBtn.getAttribute('data-set-engine-on-car'));
+        return;
+      }
+
+      const editEngineBtn = e.target.closest('[data-edit-engine]');
+      if (editEngineBtn) {
+        openEditEngineModal(editEngineBtn.getAttribute('data-edit-engine'));
+        return;
+      }
+
+      const delFleetEngineBtn = e.target.closest('[data-delete-fleet-engine]');
+      if (delFleetEngineBtn) {
+        deleteFleetEngineById(delFleetEngineBtn.getAttribute('data-delete-fleet-engine'));
+        return;
+      }
+
+      const editHeadBtn = e.target.closest('[data-edit-cylinder-head]');
+      if (editHeadBtn) {
+        openEditCylinderHeadModal(editHeadBtn.getAttribute('data-edit-cylinder-head'));
+        return;
+      }
+
+      const delFleetHeadBtn = e.target.closest('[data-delete-fleet-head]');
+      if (delFleetHeadBtn) {
+        deleteFleetCylinderHeadById(delFleetHeadBtn.getAttribute('data-delete-fleet-head'));
         return;
       }
 
@@ -23506,6 +24547,30 @@
       });
     }
 
+    if ($('selectFleetEngine')) {
+      $('selectFleetEngine').addEventListener('change', () => {
+        ui.selectedFleetEngineId = $('selectFleetEngine').value;
+        renderEnginesFleet();
+      });
+    }
+    if ($('btnAddEngine')) {
+      $('btnAddEngine').addEventListener('click', () => {
+        openEditEngineModal('__NEW__');
+      });
+    }
+
+    if ($('selectFleetCylinderHead')) {
+      $('selectFleetCylinderHead').addEventListener('change', () => {
+        ui.selectedFleetCylinderHeadId = $('selectFleetCylinderHead').value;
+        renderCylinderHeadsFleet();
+      });
+    }
+    if ($('btnAddCylinderHead')) {
+      $('btnAddCylinderHead').addEventListener('click', () => {
+        openEditCylinderHeadModal('__NEW__');
+      });
+    }
+
     if ($('selectFleetShock')) {
       $('selectFleetShock').addEventListener('change', () => {
         ui.selectedFleetShockId = $('selectFleetShock').value;
@@ -23850,6 +24915,12 @@
     if ($('btnSaveExhaustModal')) {
       $('btnSaveExhaustModal').addEventListener('click', saveEditExhaustModal);
     }
+    if ($('btnSaveEngineModal')) {
+      $('btnSaveEngineModal').addEventListener('click', saveEditEngineModal);
+    }
+    if ($('btnSaveCylinderHeadModal')) {
+      $('btnSaveCylinderHeadModal').addEventListener('click', saveEditCylinderHeadModal);
+    }
 
     // Main & Spares: NOTES (To Buy & To Do) & MAINTENANCE listeners
     if ($('btnAddToBuyItem')) {
@@ -24009,6 +25080,8 @@
           jetLocationsV1: true,
           spacerKitSeededV1: true,
           calder2024CwSeededV1: true,
+          exhaustRosterAudit2025V1: true,
+          enginesHeadsSeededV1: true,
           activeEventId: null,
           activeSessionId: null,
           targetAfr: 12.75,
@@ -24023,6 +25096,9 @@
           carbies: createDefaultCarbies(),
           manifolds: createDefaultManifolds(),
           exhausts: createDefaultExhausts(),
+          engines: createDefaultEngines(),
+          activeEngineId: 'WL239326',
+          cylinderHeads: createDefaultCylinderHeads(),
           shocks: createDefaultShocks(),
           springs: createDefaultSprings(),
           spacerKit: createDefaultSpacerKit(),
