@@ -25,18 +25,18 @@
    */
   const DEFAULT_TRACK_BENCHMARKS = {
     'Sandown Raceway': {
-      bestLapStr: '1:37.6866',
-      bestLapSec: 97.6866,
-      lapNumber: 9,
-      date: '2024-07-21',
-      sessionName: 'Qualifying'
+      bestLapStr: '1:35.93',
+      bestLapSec: 95.9300,
+      lapNumber: 4,
+      date: '2025-02-16',
+      sessionName: 'Race 2 (P3)'
     },
     'Calder Park Raceway': {
-      bestLapStr: '1:16.66',
-      bestLapSec: 76.66,
-      lapNumber: 10,
-      date: '2024-11-08',
-      sessionName: 'Race 2'
+      bestLapStr: '1:15.95',
+      bestLapSec: 75.9500,
+      lapNumber: 8,
+      date: '2024-10-25',
+      sessionName: 'Qual #4 & P4'
     },
     'Winton Motor Raceway': {
       bestLapStr: '1:45.4210',
@@ -60,11 +60,11 @@
       sessionName: 'Heat 2 (HQ Nationals)'
     },
     'Mount Panorama (Bathurst)': {
-      bestLapStr: '2:58.4930',
-      bestLapSec: 178.493,
+      bestLapStr: '2:58.493',
+      bestLapSec: 178.4930,
       lapNumber: 5,
       date: '2017-04-15',
-      sessionName: 'Holden HQ Race 2'
+      sessionName: '2017 Bathurst 6 Hour HQ Race #2 R9'
     },
     'CARCO.com.au Raceway (Wanneroo)': {
       bestLapStr: '1:12.4850',
@@ -112,7 +112,7 @@
   }
 
   /**
-   * Parses a lap time string ("1:37.6866", "1:16.66", or "76.66") into total seconds.
+   * Parses a lap time string ("1:35.93", "1:15.95", or "75.95") into total seconds.
    * Returns null if invalid or outside sensible circuit lap bounds (35s - 600s).
    */
   function parseLapTimeToSeconds(rawStr) {
@@ -169,8 +169,8 @@
     'Symmons Plains':                      { dir: 'CW',  estLapSec: 70,  brakeLoad: 'heavy' },
     'Mallala Motorsport Park':             { dir: 'CW',  estLapSec: 87,  brakeLoad: 'heavy' },
     'Mallala':                             { dir: 'CW',  estLapSec: 87,  brakeLoad: 'heavy' },
-    'Calder Park Raceway':                 { dir: 'CW',  estLapSec: 77,  brakeLoad: 'balanced' },
-    'Calder Park':                         { dir: 'CW',  estLapSec: 77,  brakeLoad: 'balanced' },
+    'Calder Park Raceway':                 { dir: 'CW',  estLapSec: 76,  brakeLoad: 'balanced' },
+    'Calder Park':                         { dir: 'CW',  estLapSec: 76,  brakeLoad: 'balanced' },
     'Morgan Park Raceway':                 { dir: 'CW',  estLapSec: 94,  brakeLoad: 'balanced' },
     'Morgan Park':                         { dir: 'CW',  estLapSec: 94,  brakeLoad: 'balanced' },
     'CARCO.com.au Raceway (Wanneroo)':     { dir: 'CW',  estLapSec: 72,  brakeLoad: 'heavy' },
@@ -188,9 +188,9 @@
     'Broadford':                           { dir: 'CW',  estLapSec: 68,  brakeLoad: 'balanced' },
     'Lakeside Park':                       { dir: 'CW',  estLapSec: 64,  brakeLoad: 'flowing' },
     'Lakeside':                            { dir: 'CW',  estLapSec: 64,  brakeLoad: 'flowing' },
-    'Sandown Raceway':                     { dir: 'CCW', estLapSec: 98,  brakeLoad: 'heavy' },
-    'Sandown International Raceway':       { dir: 'CCW', estLapSec: 98,  brakeLoad: 'heavy' },
-    'Sandown':                             { dir: 'CCW', estLapSec: 98,  brakeLoad: 'heavy' },
+    'Sandown Raceway':                     { dir: 'CCW', estLapSec: 96,  brakeLoad: 'heavy' },
+    'Sandown International Raceway':       { dir: 'CCW', estLapSec: 96,  brakeLoad: 'heavy' },
+    'Sandown':                             { dir: 'CCW', estLapSec: 96,  brakeLoad: 'heavy' },
     'Winton Motor Raceway':                { dir: 'CW',  estLapSec: 105, brakeLoad: 'balanced' },
     'Winton':                              { dir: 'CW',  estLapSec: 105, brakeLoad: 'balanced' },
     'Queensland Raceway (Willowbank)':     { dir: 'CCW', estLapSec: 86,  brakeLoad: 'balanced' },
@@ -2486,9 +2486,35 @@
     // Pure no-op: getCircuitTyreProfile reads state.trackBenchmarks inline without mutating static objects.
   }
 
+  const SUPERSEDED_TRACK_BENCHMARKS = {
+    'Sandown Raceway': {
+      strings: new Set(['1:37.6866', '1:37.68']),
+      secs: [97.6866, 97.68]
+    },
+    'Calder Park Raceway': {
+      strings: new Set(['1:16.66', '1:16.6600']),
+      secs: [76.66]
+    },
+    'Mount Panorama (Bathurst)': {
+      strings: new Set(['3:03.5070', '3:03.507', '2:58.4930']),
+      secs: [183.507, 178.493]
+    }
+  };
+
+  function isSupersededTrackBenchmarkEntry(venue, entry) {
+    if (!entry || typeof entry !== 'object' || entry.manualOverride) return false;
+    const rule = SUPERSEDED_TRACK_BENCHMARKS[venue];
+    if (!rule) return false;
+    const rawStr = typeof entry.bestLapStr === 'string' ? entry.bestLapStr.trim() : '';
+    const secVal = Number(entry.bestLapSec);
+    if (rawStr && rule.strings.has(rawStr)) return true;
+    if (Number.isFinite(secVal) && rule.secs.some((s) => Math.abs(secVal - s) < 0.0005)) return true;
+    return false;
+  }
+
   /**
    * Non-destructively merges default track benchmarks with any user-saved benchmarks,
-   * always preserving whichever PB is quicker.
+   * upgrading superseded legacy defaults while respecting faster or manually overridden times.
    */
   function normalizeTrackBenchmarks(rawMap) {
     const merged = createDefaultTrackBenchmarks();
@@ -2497,6 +2523,9 @@
         if (!entry || typeof entry !== 'object') return;
         const venue = normalizeVenueName(rawVenue);
         if (!venue) return;
+        if (isSupersededTrackBenchmarkEntry(venue, entry)) {
+          return;
+        }
         const parsedSec =
           Number.isFinite(Number(entry.bestLapSec)) && Number(entry.bestLapSec) >= 35
             ? Number(Number(entry.bestLapSec).toFixed(4))
@@ -2520,13 +2549,17 @@
             : 'Session';
         const existing = merged[venue];
         if (!existing || parsedSec <= existing.bestLapSec || entry.manualOverride) {
-          merged[venue] = {
+          const nextEntry = {
             bestLapStr,
             bestLapSec: parsedSec,
             lapNumber,
             date,
             sessionName
           };
+          if (entry.manualOverride) {
+            nextEntry.manualOverride = true;
+          }
+          merged[venue] = nextEntry;
         }
       });
     }
@@ -6008,14 +6041,15 @@
     candidate.cornerWeightBaseline = normalizedCw;
     candidate.brakes = normalizeBrakes(candidate.brakes);
     candidate.trackBenchmarks = normalizeTrackBenchmarks(candidate.trackBenchmarks);
-    if (!candidate.bathurstBenchmarkFixV1) {
-      const bathurstDef = DEFAULT_TRACK_BENCHMARKS['Mount Panorama (Bathurst)'];
-      const currentBathurst = candidate.trackBenchmarks['Mount Panorama (Bathurst)'];
-      if (!currentBathurst || !(Number(currentBathurst.bestLapSec) < bathurstDef.bestLapSec)) {
-        candidate.trackBenchmarks['Mount Panorama (Bathurst)'] = { ...bathurstDef };
+    ['Sandown Raceway', 'Calder Park Raceway', 'Mount Panorama (Bathurst)'].forEach((venueKey) => {
+      const defBm = DEFAULT_TRACK_BENCHMARKS[venueKey];
+      const curBm = candidate.trackBenchmarks[venueKey];
+      if (!curBm || isSupersededTrackBenchmarkEntry(venueKey, curBm) || (!curBm.manualOverride && !(Number(curBm.bestLapSec) < defBm.bestLapSec))) {
+        candidate.trackBenchmarks[venueKey] = { ...defBm };
       }
-      candidate.bathurstBenchmarkFixV1 = true;
-    }
+    });
+    candidate.bathurstBenchmarkFixV1 = true;
+    candidate.verifiedBenchmarksV2 = true;
 
     const defTyrePool = createDefaultTyrePool();
     if (!Array.isArray(candidate.tyrePool) || candidate.tyrePool.length === 0) {
@@ -22513,7 +22547,7 @@
                           id="editBmLapStr"
                           class="text-input mono"
                           value="${escapeHtml(bm.bestLapStr)}"
-                          placeholder="e.g. 1:37.6866"
+                          placeholder="e.g. 1:35.93"
                         />
                       </div>
                       <div class="field-group" style="margin-bottom: 0;">
@@ -22581,7 +22615,7 @@
           <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 8px;">
             <div class="field-group" style="margin-bottom: 0;">
               <label class="field-label" for="newBmLapStr">Fastest Lap (M:SS.ss)</label>
-              <input type="text" id="newBmLapStr" class="text-input mono" placeholder="e.g. 1:37.6866" />
+              <input type="text" id="newBmLapStr" class="text-input mono" placeholder="e.g. 1:35.93" />
             </div>
             <div class="field-group" style="margin-bottom: 0;">
               <label class="field-label" for="newBmLapNum">On Lap #</label>
@@ -23338,7 +23372,7 @@
         const rawLap = ($('editBmLapStr') && $('editBmLapStr').value.trim()) || '';
         const parsedSec = parseLapTimeToSeconds(rawLap);
         if (parsedSec === null) {
-          showToast('Enter a valid lap time (e.g. 1:37.6866 or 1:16.66)');
+          showToast('Enter a valid lap time (e.g. 1:35.93 or 1:15.95)');
           return;
         }
         const rawNum = ($('editBmLapNum') && $('editBmLapNum').value.trim()) || '';
@@ -23357,7 +23391,8 @@
           bestLapSec: parsedSec,
           lapNumber,
           date: dateVal,
-          sessionName: sessVal
+          sessionName: sessVal,
+          manualOverride: true
         };
         syncTrackBenchmarksToTyreProfiles(state.trackBenchmarks);
         ui.editingTrackBenchmarkVenue = null;
@@ -23381,7 +23416,7 @@
         const rawLap = ($('newBmLapStr') && $('newBmLapStr').value.trim()) || '';
         const parsedSec = parseLapTimeToSeconds(rawLap);
         if (parsedSec === null) {
-          showToast('Enter a valid lap time (e.g. 1:37.6866 or 1:16.66)');
+          showToast('Enter a valid lap time (e.g. 1:35.93 or 1:15.95)');
           return;
         }
         const rawNum = ($('newBmLapNum') && $('newBmLapNum').value.trim()) || '';
@@ -23400,7 +23435,8 @@
           bestLapSec: parsedSec,
           lapNumber,
           date: dateVal,
-          sessionName: sessVal
+          sessionName: sessVal,
+          manualOverride: true
         };
         syncTrackBenchmarksToTyreProfiles(state.trackBenchmarks);
         ui.addingTrackBenchmark = false;
