@@ -1298,8 +1298,948 @@
             notes: 'Left tyres at hot-set from Qualifying; 12-lap race win with +5.1 kg scale margin. • Fastest: 1:45.4210 on Lap 6 • Finished P1'
           }
         ]
+      },
+      ...getHistoricalPhotoBatchData().events
+    ];
+  }
+
+  function getHistoricalPhotoBatchData() {
+    const buildHistTyres = (rawTyres) => {
+      if (!rawTyres || typeof rawTyres !== 'object') return null;
+      const makeCorner = (key, defTid) => {
+        const src = rawTyres[key];
+        const cold = src && src.cold !== null && src.cold !== undefined ? Number(src.cold) : null;
+        const hot = src && src.hot !== null && src.hot !== undefined ? Number(src.hot) : null;
+        const build = cold !== null && hot !== null ? Number((hot - cold).toFixed(1)) : null;
+        return {
+          tyreId: defTid,
+          targetHot: 44.0,
+          cold,
+          hot,
+          build,
+          nextCold: cold,
+          pyro: null
+        };
+      };
+      return {
+        FL: makeCorner('FL', 'KB1'),
+        FR: makeCorner('FR', 'KB2'),
+        RL: makeCorner('RL', 'KB3'),
+        RR: makeCorner('RR', 'KB4')
+      };
+    };
+
+    const makeHistSess = (evtId, evtVenue, evtTitle, cfg) => {
+      const iso = cfg.date;
+      const disp = formatIsoDateDisplay(iso);
+      const jetMm = Number.isFinite(Number(cfg.jetMm)) ? Number(Number(cfg.jetMm).toFixed(3)) : 1.790;
+      const bestLapStr = cfg.bestLap ? String(cfg.bestLap).trim() : null;
+      const bestLapSec = bestLapStr ? parseLapTimeToSeconds(bestLapStr) : null;
+      const bestLapNum = cfg.bestLapNum !== undefined && cfg.bestLapNum !== null ? Number(cfg.bestLapNum) : null;
+      const finishPos = cfg.finishPos ? normalizeFinishPos(cfg.finishPos) : null;
+      const tyres = buildHistTyres(cfg.tyres);
+      const hasCold = Boolean(tyres && ['FL', 'FR', 'RL', 'RR'].some((c) => tyres[c] && tyres[c].cold !== null));
+      const spacers = cfg.spacerNote && /20\s*mm/i.test(cfg.spacerNote) ? { RL: 0, RR: 20 } : { RL: 0, RR: 20 };
+
+      return {
+        id: cfg.id,
+        batchSeedId: `hist_batch20261120_${cfg.id}`,
+        eventId: evtId,
+        eventTitle: evtTitle,
+        eventLocked: true,
+        status: 'completed',
+        venue: evtVenue,
+        date: iso,
+        sessionDateIso: iso,
+        sessionIsoDate: iso,
+        sessionDate: disp,
+        sessionName: cfg.sessionName,
+        timestamp: cfg.timestamp || '',
+        carbyId: cfg.carbyId || 'DME1',
+        emulsionId: cfg.emulsionId || 'E5_DME',
+        manifoldId: 'MAN_F',
+        exhaustId: 'Macca',
+        jetId: makeMmJetId(jetMm),
+        jetLabel: formatJetPureMm(jetMm),
+        jetMm,
+        rad: Number.isFinite(Number(cfg.rad)) ? Number(cfg.rad) : 96.0,
+        fuelSg: 0.740,
+        fuelTempC: 19.0,
+        timing: Number.isFinite(Number(cfg.timing)) ? Number(cfg.timing) : 33.0,
+        fuelPsi: Number.isFinite(Number(cfg.fuelPsi)) ? Number(cfg.fuelPsi) : 4.3,
+        waterTempC: cfg.waterTempC !== undefined && cfg.waterTempC !== null ? Number(cfg.waterTempC) : null,
+        afr3500: null,
+        afr4000: null,
+        afr4500: null,
+        afr5000: null,
+        afr5500: null,
+        afrWot: Number.isFinite(Number(cfg.afrWot)) ? Number(cfg.afrWot) : 12.60,
+        peakRpm: 5900,
+        afrStatus: 'verified',
+        bestLap: bestLapStr,
+        bestLapStr,
+        bestLapSec,
+        bestLapNum,
+        finishPos,
+        fuelInL: cfg.fuelInL ?? null,
+        fuelOutL: cfg.fuelOutL ?? null,
+        fuelUsedL: cfg.fuelUsedL ?? null,
+        racedLaps: cfg.racedLaps ?? null,
+        measuredBurnLPerLap: cfg.measuredBurnLPerLap ?? null,
+        scaleWeightKg: cfg.scaleWeightKg !== undefined && cfg.scaleWeightKg !== null ? Number(cfg.scaleWeightKg) : null,
+        tyreHotTarget: 44.0,
+        hotTargetFront: 44.0,
+        hotTargetRear: 44.0,
+        isStoneColdSession: hasCold,
+        tyreCondition: cfg.tyreCondition || 'dry',
+        tyres,
+        shocks: { ...DEFAULT_MOUNTED_SHOCKS },
+        springs: { ...DEFAULT_MOUNTED_SPRINGS },
+        spacers,
+        spacerNote: cfg.spacerNote || 'Spacers: RL 0mm, RR 20mm',
+        preRaceNotes: '',
+        postRaceNotes: cfg.notes || '',
+        notes: cfg.notes || ''
+      };
+    };
+
+    const events = [
+      // 1) Calder Park Round 6 Vic State (Oct 2024)
+      {
+        id: 'hist_ev_calder_r6_2024_10_25',
+        batchSeedId: 'hist_batch20261120_ev_calder_r6_2024_10_25',
+        venue: 'Calder Park Raceway',
+        eventDate: '2024-10-25',
+        eventTitle: 'Round 6 Vic State (Oct 2024)',
+        status: 'LOCKED',
+        locked: true,
+        endedAt: '2024-10-27T17:00:00',
+        sessions: [
+          makeHistSess('hist_ev_calder_r6_2024_10_25', 'Calder Park Raceway', 'Round 6 Vic State (Oct 2024)', {
+            id: 'hist_s_calder_r6_p1',
+            date: '2024-10-25',
+            sessionName: 'Practice 1 (P1)',
+            timestamp: 'Fri 09:30',
+            rad: 99.6,
+            jetMm: 1.790,
+            fuelPsi: 4.5,
+            afrWot: 12.60,
+            fuelInL: 30.0,
+            fuelOutL: 23.0,
+            fuelUsedL: 7.0,
+            racedLaps: 8,
+            measuredBurnLPerLap: 0.87,
+            tyres: {
+              FL: { cold: 37.5, hot: 42.7 },
+              FR: { cold: 38.0, hot: 43.1 },
+              RL: { cold: 37.5, hot: 44.0 },
+              RR: { cold: 38.0, hot: 42.1 }
+            },
+            spacerNote: '20mm RR',
+            bestLap: '1:15.57',
+            bestLapNum: '12',
+            notes: 'Sunny-cool; Fuel 30->23L (7L diff, .87/lap; bottom note: Ramped 23L-8 laps-.81/lap); AFR 12.6, Fuel 4.5, RAD 99.6; Sheet best 1:17.83 (3 or 4?), Lap 12 1:15.57, L7 1:16.08, L8 1:16.20; Diff 3.55, Toe F+2mm R-2mm, 20mm RR; LF All PI last year, LR low usage; Front brakes New (yellow); seat low?, side mirror, turns good.'
+          }),
+          makeHistSess('hist_ev_calder_r6_2024_10_25', 'Calder Park Raceway', 'Round 6 Vic State (Oct 2024)', {
+            id: 'hist_s_calder_r6_p2_p3',
+            date: '2024-10-25',
+            sessionName: 'Practice 2 & 3 (P2+P3)',
+            timestamp: 'Fri 11:30',
+            rad: 99.0,
+            jetMm: 1.790,
+            fuelPsi: 4.5,
+            afrWot: 12.65,
+            fuelInL: 30.0,
+            tyres: {
+              FL: { cold: 44.0, hot: 44.4 },
+              FR: { cold: 44.0, hot: 43.1 },
+              RL: { cold: 44.0, hot: 44.4 },
+              RR: { cold: 44.0, hot: 44.4 }
+            },
+            spacerNote: '20mm RR',
+            bestLap: '1:16.04',
+            bestLapNum: '9',
+            notes: 'Fuel +30L (-10kg note); Bled to 44.0, RF added air -> ~44.5; Best 1:16.04 on L9 (L8 1:16.07); RAD 99.0, AFR ~12.6-7, Fuel 4.5; 20mm RR; P2 couple laps shit in jet?, P3 good no drama.'
+          }),
+          makeHistSess('hist_ev_calder_r6_2024_10_25', 'Calder Park Raceway', 'Round 6 Vic State (Oct 2024)', {
+            id: 'hist_s_calder_r6_p4',
+            date: '2024-10-25',
+            sessionName: 'Practice 4 (P4)',
+            timestamp: 'Fri 14:00',
+            rad: 98.2,
+            jetMm: 1.790,
+            fuelPsi: 4.5,
+            afrWot: 12.60,
+            fuelInL: 30.0,
+            fuelOutL: 16.6,
+            fuelUsedL: 14.6,
+            racedLaps: 10,
+            measuredBurnLPerLap: 1.46,
+            tyres: {
+              FL: { cold: 44.4, hot: 44.6 },
+              FR: { cold: 44.4, hot: 44.6 },
+              RL: { cold: 44.4, hot: 44.4 },
+              RR: { cold: 44.6, hot: 44.6 }
+            },
+            spacerNote: '20mm RR',
+            bestLap: '1:15.95',
+            bestLapNum: '8',
+            notes: 'Overcast; Fuel 30L->16.6 (14.6 diff, 10 laps); AFR 12.6, Fuel 4.5; 20mm RR; Best 1:15.95 on L8 (L6 1:15.96, L5 1:16.02).'
+          }),
+          makeHistSess('hist_ev_calder_r6_2024_10_25', 'Calder Park Raceway', 'Round 6 Vic State (Oct 2024)', {
+            id: 'hist_s_calder_r6_qual',
+            date: '2024-10-25',
+            sessionName: 'Qualifying',
+            timestamp: 'Fri 16:00',
+            rad: 97.5,
+            jetMm: 1.790,
+            fuelPsi: 4.5,
+            afrWot: 12.70,
+            fuelInL: 26.0,
+            fuelOutL: 16.0,
+            fuelUsedL: 10.0,
+            racedLaps: 9,
+            measuredBurnLPerLap: 1.10,
+            tyres: {
+              FL: { cold: 37.7, hot: 44.4 },
+              FR: { cold: 38.5, hot: 44.4 },
+              RL: { cold: 37.5, hot: 44.6 },
+              RR: { cold: 38.6, hot: 44.6 }
+            },
+            spacerNote: 'RR 20mm',
+            bestLap: '1:15.95',
+            bestLapNum: '8',
+            finishPos: 'P4',
+            notes: 'Sunny; Fuel 26->16L (10L diff, 1.1/lap); RAD 97.5, AFR 12.7, Fuel 4.5; Fastest: 1:15.95 on Lap 8 • Finished P4; felt good maybe flat spot for sure; check 100mm height - had to get out.'
+          }),
+          makeHistSess('hist_ev_calder_r6_2024_10_25', 'Calder Park Raceway', 'Round 6 Vic State (Oct 2024)', {
+            id: 'hist_s_calder_r6_r1',
+            date: '2024-10-26',
+            sessionName: 'Race 1',
+            timestamp: 'Sat 11:00',
+            rad: 95.5,
+            jetMm: 1.730,
+            afrWot: 14.50,
+            fuelInL: 25.0,
+            racedLaps: 3,
+            spacerNote: 'RR 20mm',
+            notes: 'Fuel 25L; RF & RR NEW match others; 3 laps !?; RAD 95.5%, AFR 14.5!! too lean should dropped jet ??!! (dropped jet 1.73); Bled Brakes.'
+          }),
+          makeHistSess('hist_ev_calder_r6_2024_10_25', 'Calder Park Raceway', 'Round 6 Vic State (Oct 2024)', {
+            id: 'hist_s_calder_r6_r2',
+            date: '2024-10-26',
+            sessionName: 'Race 2',
+            timestamp: 'Sat 15:00',
+            rad: 94.5,
+            jetMm: 1.790,
+            fuelPsi: 4.0,
+            waterTempC: 74,
+            afrWot: 12.50,
+            fuelInL: 26.0,
+            fuelOutL: 17.0,
+            fuelUsedL: 9.0,
+            racedLaps: 9,
+            measuredBurnLPerLap: 1.00,
+            spacerNote: 'RR 20mm',
+            bestLap: '1:16.09',
+            bestLapNum: '4',
+            notes: 'Fuel +5L=26L->17 out (9L diff, 9 laps circled = 1.00 L/lap); L4 1:16.09; RAD 94.5%, AFR 12.5, Fuel 4.0? high 8s, temp 74; check flat spot - None; dropped jet 1.79, new air filter base.'
+          }),
+          makeHistSess('hist_ev_calder_r6_2024_10_25', 'Calder Park Raceway', 'Round 6 Vic State (Oct 2024)', {
+            id: 'hist_s_calder_r6_r3',
+            date: '2024-10-27',
+            sessionName: 'Race 3',
+            timestamp: 'Sun 13:00',
+            rad: 93.4,
+            jetMm: 1.790,
+            fuelInL: 28.0,
+            spacerNote: 'RR 20mm',
+            notes: 'Overcast; Fuel 28L; RAD 93.4.'
+          })
+        ]
+      },
+
+      // 2) Sandown Raceway Round 1 (Feb 2025)
+      {
+        id: 'hist_ev_sandown_r1_2025_02_14',
+        batchSeedId: 'hist_batch20261120_ev_sandown_r1_2025_02_14',
+        venue: 'Sandown Raceway',
+        eventDate: '2025-02-16',
+        eventTitle: 'Round 1 (Feb 2025)',
+        status: 'LOCKED',
+        locked: true,
+        endedAt: '2025-02-16T17:00:00',
+        sessions: [
+          makeHistSess('hist_ev_sandown_r1_2025_02_14', 'Sandown Raceway', 'Round 1 (Feb 2025)', {
+            id: 'hist_s_sd_r1_25_p1',
+            date: '2025-02-14',
+            sessionName: 'Practice 1 (P1)',
+            timestamp: 'Fri 09:15',
+            rad: 96.9,
+            waterTempC: 68,
+            fuelPsi: 3.0,
+            jetMm: 1.700,
+            afrWot: 13.25,
+            fuelInL: 30.0,
+            racedLaps: 3,
+            tyres: {
+              FL: { cold: 39.0, hot: null },
+              FR: { cold: 39.0, hot: null },
+              RL: { cold: 39.0, hot: null },
+              RR: { cold: 38.0, hot: null }
+            },
+            spacerNote: '20mm RR',
+            notes: 'Fuel 30L, 3 PSI; LF used CALDER; Toe F+2mm R-2mm; F+20mm RR; Pads Front NEW R-4, Rear NEW DBA; RAD 96.9, WATER 68, AFR 13.2-13.3; TACO ON/OFF??, bed brakes, 3 laps?; DYNO note: Jet 1.7, Static 16 deg, RAD 95.1%, WATER 70 deg.'
+          }),
+          makeHistSess('hist_ev_sandown_r1_2025_02_14', 'Sandown Raceway', 'Round 1 (Feb 2025)', {
+            id: 'hist_s_sd_r1_25_p2',
+            date: '2025-02-14',
+            sessionName: 'Practice 2 (P2)',
+            timestamp: 'Fri 11:15',
+            rad: 95.3,
+            fuelPsi: 3.0,
+            jetMm: 1.700,
+            afrWot: 13.30,
+            fuelInL: 35.0,
+            fuelOutL: 20.0,
+            fuelUsedL: 15.0,
+            tyres: {
+              FL: { cold: null, hot: 44.3 },
+              FR: { cold: null, hot: 45.5 },
+              RL: { cold: null, hot: 44.5 },
+              RR: { cold: null, hot: 45.0 }
+            },
+            spacerNote: '20mm RR',
+            notes: '14/2/25; Fuel +5L -> pulled 20L (15L diff); Out same; CHECK BRAKE TEMPS!!; RAD 95.3, AFR 13.3, FUEL PR 3.'
+          }),
+          makeHistSess('hist_ev_sandown_r1_2025_02_14', 'Sandown Raceway', 'Round 1 (Feb 2025)', {
+            id: 'hist_s_sd_r1_25_p3',
+            date: '2025-02-14',
+            sessionName: 'Practice 3 (P3)',
+            timestamp: 'Fri 13:30',
+            rad: 95.2,
+            fuelPsi: 3.0,
+            jetMm: 1.700,
+            afrWot: 13.50,
+            fuelInL: 30.0,
+            fuelOutL: 23.0,
+            fuelUsedL: 7.0,
+            measuredBurnLPerLap: 1.25,
+            tyres: {
+              FL: { cold: 44.5, hot: null },
+              FR: { cold: 44.5, hot: null },
+              RL: { cold: 44.5, hot: null },
+              RR: { cold: 44.5, hot: null }
+            },
+            spacerNote: '20mm RR',
+            bestLap: '1:37.00',
+            bestLapNum: '2',
+            notes: '14/2/25 1:30 PM Clear/Warm; Fuel +30L->23L (7/14 diff, 1.25/lap); Bled 44.5; L2 1:37.0 (L1 1:38.7, L3 1:37.6, L4 1:37.7); RAD 95.2%, AFR 13.5, FUEL 3 PSI; check Brake Temps!, put new Kenda on?.'
+          }),
+          makeHistSess('hist_ev_sandown_r1_2025_02_14', 'Sandown Raceway', 'Round 1 (Feb 2025)', {
+            id: 'hist_s_sd_r1_25_p4',
+            date: '2025-02-14',
+            sessionName: 'Practice 4 (P4)',
+            timestamp: 'Fri 15:45',
+            rad: 93.9,
+            waterTempC: 70,
+            fuelPsi: 3.0,
+            jetMm: 1.790,
+            afrWot: 12.55,
+            fuelInL: 23.0,
+            scaleWeightKg: 1365,
+            tyres: {
+              FL: { cold: null, hot: 44.6 },
+              FR: { cold: null, hot: 44.2 },
+              RL: { cold: null, hot: 42.7 },
+              RR: { cold: null, hot: 42.7 }
+            },
+            spacerNote: '20mm RR',
+            notes: 'Warm; Fuel 23L; Weight 1365!!; Bled LF/RF to 42.7; left rear axle seal leak?; RAD 93.9% - 28.1C, WaterTemp 70, AFR 12.5-12.6!; put 1.79 jet in from 1.70, TACO restarted?, camera glitched?.'
+          }),
+          makeHistSess('hist_ev_sandown_r1_2025_02_14', 'Sandown Raceway', 'Round 1 (Feb 2025)', {
+            id: 'hist_s_sd_r1_25_qual',
+            date: '2025-02-15',
+            sessionName: 'Qualifying',
+            timestamp: 'Sat 09:10',
+            rad: 98.0,
+            waterTempC: 68,
+            fuelPsi: 3.0,
+            jetMm: 1.790,
+            afrWot: 12.50,
+            fuelInL: 28.0,
+            fuelOutL: 17.0,
+            fuelUsedL: 11.0,
+            racedLaps: 9,
+            measuredBurnLPerLap: 1.22,
+            bestLap: '1:37.68',
+            bestLapNum: '9',
+            finishPos: 'P4',
+            notes: '15/2/25 9:10 AM semi-wet; Fuel 28L->17L (11L diff, 9 laps = 1.22/lap); Bled to 42.7, In +2 PSI; Fastest: 1:37.68 on Lap 9 • Finished P4; RAD 98%, AFR 12.5, FUEL 3 PSI, WATER 68; found bolt missing engine mount, taco tighten (zipped it), wheel slightly left?.'
+          }),
+          makeHistSess('hist_ev_sandown_r1_2025_02_14', 'Sandown Raceway', 'Round 1 (Feb 2025)', {
+            id: 'hist_s_sd_r1_25_r1',
+            date: '2025-02-15',
+            sessionName: 'Race 1',
+            timestamp: 'Sat 13:10',
+            jetMm: 1.790,
+            fuelInL: 30.0,
+            fuelOutL: 19.0,
+            fuelUsedL: 11.0,
+            racedLaps: 10,
+            bestLap: '1:39.29',
+            bestLapNum: '5',
+            notes: '15/2/25 1:10 PM; Fuel 30L->19L (11L diff); Out +2 PSI; LF/LR same, RF/RR NEW; Fastest: 1:39.29 on Lap 5 (10 circled); Flat RR tyre!.'
+          }),
+          makeHistSess('hist_ev_sandown_r1_2025_02_14', 'Sandown Raceway', 'Round 1 (Feb 2025)', {
+            id: 'hist_s_sd_r1_25_r2',
+            date: '2025-02-16',
+            sessionName: 'Race 2',
+            timestamp: 'Sun 10:30',
+            rad: 100.1,
+            waterTempC: 67,
+            fuelPsi: 3.0,
+            jetMm: 1.790,
+            afrWot: 12.30,
+            fuelInL: 30.0,
+            tyres: {
+              FL: { cold: 39.0, hot: 45.9 },
+              FR: { cold: 39.0, hot: 45.5 },
+              RL: { cold: 39.0, hot: 45.7 },
+              RR: { cold: 38.0, hot: 44.0 }
+            },
+            bestLap: '1:35.93',
+            bestLapNum: '4',
+            finishPos: 'P3',
+            notes: '16/2/25; Fuel 30L; Fastest: 1:35.93 on Lap 4 (ideal L11 1:35.29) • Finished P3; RAD 100.1% - 13.6C, AFR 12.3, FUEL 3.0, WATER 67.'
+          }),
+          makeHistSess('hist_ev_sandown_r1_2025_02_14', 'Sandown Raceway', 'Round 1 (Feb 2025)', {
+            id: 'hist_s_sd_r1_25_r3',
+            date: '2025-02-16',
+            sessionName: 'Race 3',
+            timestamp: 'Sun 14:30',
+            rad: 98.7,
+            jetMm: 1.790,
+            afrWot: 12.40,
+            fuelInL: 30.0,
+            tyres: {
+              FL: { cold: 39.0, hot: null },
+              FR: { cold: 39.0, hot: null },
+              RL: { cold: 39.0, hot: null },
+              RR: { cold: 39.0, hot: null }
+            },
+            notes: 'Fuel 30L; RAD 98.7, 18.3C, AFR 12.4?, FUEL: WATER.'
+          })
+        ]
+      },
+
+      // 3) Calder Park Round 2 (Mar 2025)
+      {
+        id: 'hist_ev_calder_r2_2025',
+        batchSeedId: 'hist_batch20261120_ev_calder_r2_2025',
+        venue: 'Calder Park Raceway',
+        eventDate: '2025-03-29',
+        eventTitle: 'Round 2 (Calder)',
+        status: 'LOCKED',
+        locked: true,
+        endedAt: '2025-03-29T17:00:00',
+        sessions: [
+          makeHistSess('hist_ev_calder_r2_2025', 'Calder Park Raceway', 'Round 2 (Calder)', {
+            id: 'hist_s_calder_r2_s1',
+            date: '2025-03-28',
+            sessionName: 'Practice 1 (Setup / Sheet 1)',
+            timestamp: 'Fri 09:30',
+            jetMm: 1.790,
+            afrWot: 13.80,
+            fuelInL: 40.0,
+            racedLaps: 5,
+            tyres: {
+              FL: { cold: 38.0, hot: null },
+              FR: { cold: 39.0, hot: null },
+              RL: { cold: 37.5, hot: null },
+              RR: { cold: 39.0, hot: null }
+            },
+            spacerNote: '20mm RR',
+            notes: 'Fuel ~40L, x5 laps (2.4/5L noted); LF used Sandown; 20mm RR; Brakes Front New R-4, Rear New DBA x1 set old; WARM UP OLD PLUGS + CHANGE (#6 Fr+Bk 1.6, #1 2,3,4,5); HIGH AFR 13.8+; Added new breather kit +1.2 KG, new rocker + side covers +2.1 KG, changed front rotor brakes (less drag??).'
+          }),
+          makeHistSess('hist_ev_calder_r2_2025', 'Calder Park Raceway', 'Round 2 (Calder)', {
+            id: 'hist_s_calder_r2_p2',
+            date: '2025-03-28',
+            sessionName: 'Practice 2 (P2)',
+            timestamp: 'Fri 11:15',
+            jetMm: 1.790,
+            fuelInL: 35.0,
+            tyres: {
+              FL: { cold: null, hot: 46.6 },
+              FR: { cold: null, hot: 47.0 },
+              RL: { cold: null, hot: 45.6 },
+              RR: { cold: null, hot: 46.3 }
+            },
+            notes: '11:15 Windy/Hot; Fuel ~35; Bled to 44.4; changed back my old carby to see if AFR drop, 1.79 jet, Bled brakes.'
+          }),
+          makeHistSess('hist_ev_calder_r2_2025', 'Calder Park Raceway', 'Round 2 (Calder)', {
+            id: 'hist_s_calder_r2_p3',
+            date: '2025-03-28',
+            sessionName: 'Practice 3 (P3)',
+            timestamp: 'Fri 14:15',
+            jetMm: 2.000,
+            tyres: {
+              FL: { cold: 44.4, hot: 45.5 },
+              FR: { cold: 44.4, hot: 44.3 },
+              RL: { cold: 44.4, hot: 45.3 },
+              RR: { cold: 44.4, hot: 45.0 }
+            },
+            notes: 'Lack DME #1 cable - 2.0 jet.'
+          }),
+          makeHistSess('hist_ev_calder_r2_2025', 'Calder Park Raceway', 'Round 2 (Calder)', {
+            id: 'hist_s_calder_r2_qual',
+            date: '2025-03-29',
+            sessionName: 'Qualifying',
+            timestamp: 'Sat 11:00',
+            jetMm: 2.000,
+            fuelInL: 30.0,
+            racedLaps: 2,
+            notes: '11:00 Drying; Fuel 30L, x2 laps; DORIAN!! check; Low oil pressure! oil pump bolt loose!.'
+          }),
+          makeHistSess('hist_ev_calder_r2_2025', 'Calder Park Raceway', 'Round 2 (Calder)', {
+            id: 'hist_s_calder_r2_r1',
+            date: '2025-03-29',
+            sessionName: 'Race 1',
+            timestamp: 'Sat 13:30',
+            jetMm: 2.000,
+            fuelInL: 30.0,
+            fuelOutL: 12.5,
+            fuelUsedL: 17.5,
+            racedLaps: 14,
+            measuredBurnLPerLap: 1.25,
+            tyres: {
+              FL: { cold: null, hot: 44.1 },
+              FR: { cold: null, hot: 43.6 },
+              RL: { cold: null, hot: 44.6 },
+              RR: { cold: null, hot: 43.0 }
+            },
+            notes: 'Fuel 30L->12.5, 14 laps (.9 written; 17.5L used = 1.25/lap); added jet 2.0 (was 1.95).'
+          }),
+          makeHistSess('hist_ev_calder_r2_2025', 'Calder Park Raceway', 'Round 2 (Calder)', {
+            id: 'hist_s_calder_r2_r2',
+            date: '2025-03-29',
+            sessionName: 'Race 2',
+            timestamp: 'Sat 16:00',
+            timing: 13.0,
+            jetMm: 1.890,
+            fuelInL: 27.0,
+            racedLaps: 9,
+            bestLap: '1:16.46',
+            bestLapNum: '8',
+            notes: 'Fuel 27L, x9 laps; Fastest: 1:16.46 on Lap 8; jet to 1.95 down was 1.89 (now), Timing @ 13 deg, R3 start-rear; VIBRATION! LAP RECORD! NOT.'
+          })
+        ]
+      },
+
+      // 4) Phillip Island Meeting Notes (May 2025)
+      {
+        id: 'hist_ev_pi_batch_2025',
+        batchSeedId: 'hist_batch20261120_ev_pi_batch_2025',
+        venue: 'Phillip Island Grand Prix Circuit',
+        eventDate: '2025-05-15',
+        eventTitle: 'Phillip Island Meeting Notes',
+        status: 'LOCKED',
+        locked: true,
+        endedAt: '2025-05-15T17:00:00',
+        sessions: [
+          makeHistSess('hist_ev_pi_batch_2025', 'Phillip Island Grand Prix Circuit', 'Phillip Island Meeting Notes', {
+            id: 'hist_s_pi_p1',
+            date: '2025-05-15',
+            sessionName: 'Practice 1 (P1 - Wet)',
+            timestamp: '09:00',
+            scaleWeightKg: 1391,
+            fuelInL: 30.0,
+            fuelOutL: 25.0,
+            fuelUsedL: 5.0,
+            racedLaps: 4,
+            tyreCondition: 'wet',
+            notes: 'Wet Car 77 WT; Fuel 30->25L (5L), Weight 1391; Out 39/41, 38/40, 39/41, 38/40; wiper bent?, drop revs a bit, noisy diff -, 4 laps?.'
+          }),
+          makeHistSess('hist_ev_pi_batch_2025', 'Phillip Island Grand Prix Circuit', 'Phillip Island Meeting Notes', {
+            id: 'hist_s_pi_p2',
+            date: '2025-05-15',
+            sessionName: 'Practice 2 (P2 - Wet)',
+            timestamp: '10:30',
+            scaleWeightKg: 1387,
+            fuelInL: 25.0,
+            fuelOutL: 18.0,
+            fuelUsedL: 7.0,
+            tyreCondition: 'wet',
+            tyres: {
+              FL: { cold: null, hot: 45.1 },
+              FR: { cold: null, hot: 44.3 },
+              RL: { cold: null, hot: 44.1 },
+              RR: { cold: null, hot: 44.1 }
+            },
+            notes: 'Wet Car 77 WT; Fuel 25->18 (7L), Weight 1387; Bled; burped on last lap - 18L - BURP!; take 14kg out.'
+          }),
+          makeHistSess('hist_ev_pi_batch_2025', 'Phillip Island Grand Prix Circuit', 'Phillip Island Meeting Notes', {
+            id: 'hist_s_pi_p3',
+            date: '2025-05-15',
+            sessionName: 'Practice 3 (P3 - Dry)',
+            timestamp: '12:00',
+            scaleWeightKg: 1380,
+            fuelInL: 35.0,
+            fuelOutL: 28.0,
+            fuelUsedL: 7.0,
+            tyres: {
+              FL: { cold: null, hot: 46.6 },
+              FR: { cold: null, hot: 46.8 },
+              RL: { cold: null, hot: 47.5 },
+              RR: { cold: null, hot: 46.0 }
+            },
+            notes: 'Dry W; Fuel 35->28L (7L), Weight 1380; took out 14kg.'
+          }),
+          makeHistSess('hist_ev_pi_batch_2025', 'Phillip Island Grand Prix Circuit', 'Phillip Island Meeting Notes', {
+            id: 'hist_s_pi_p4',
+            date: '2025-05-15',
+            sessionName: 'Practice 4 (P4)',
+            timestamp: '13:30',
+            fuelInL: 40.0,
+            fuelOutL: 31.0,
+            fuelUsedL: 9.0,
+            racedLaps: 6,
+            measuredBurnLPerLap: 1.50,
+            tyres: {
+              FL: { cold: 44.4, hot: 44.4 },
+              FR: { cold: 44.4, hot: 44.4 },
+              RL: { cold: 44.4, hot: 44.4 },
+              RR: { cold: 44.4, hot: 44.4 }
+            },
+            notes: 'WA22; Fuel 40L->31 (9L), 6 laps, 1.5/lap; Out/In 44.4.'
+          }),
+          makeHistSess('hist_ev_pi_batch_2025', 'Phillip Island Grand Prix Circuit', 'Phillip Island Meeting Notes', {
+            id: 'hist_s_pi_qual',
+            date: '2025-05-15',
+            sessionName: 'Qualifying',
+            timestamp: '15:00',
+            scaleWeightKg: 1375,
+            fuelInL: 30.0,
+            fuelOutL: 20.0,
+            fuelUsedL: 10.0,
+            racedLaps: 8,
+            measuredBurnLPerLap: 1.20,
+            bestLap: '2:03.69',
+            bestLapNum: '4',
+            finishPos: 'P2',
+            notes: 'Dry Car 77 WT; Fuel 30->20 (10L), 8 laps, 1.2/lap, Weight 1375; Out Set yesterday 44.4 HOT; Fastest: 2:03.69 on Lap 4 • Finished P2 (L1 2:03.8); fuel cutting out last corner (no pressure) hard start/finish; fixed balance issue front tyre; put in large fuel filter in boot, balanced tyres FR was out.'
+          }),
+          makeHistSess('hist_ev_pi_batch_2025', 'Phillip Island Grand Prix Circuit', 'Phillip Island Meeting Notes', {
+            id: 'hist_s_pi_r1_r3_setup',
+            date: '2025-05-15',
+            sessionName: 'R1–R3 & Brake/Spacer Setup',
+            timestamp: '16:30',
+            spacerNote: '20mm RR',
+            notes: 'R1 Fuel 35L; R2 11:05 AM Dry Fuel 28+25=53 (no fuel cut; put more fuel in +18L!, put fuel filter vertically); R3 3:00 PM Dry Fuel 43?+2?; Brake/Spacer sheet: 20mm RR spacer in!, changed prop valve 250@400 (was 300@400), rear wheel cyls 7/8 to 3/4 (16mm) - Porterfield pads + ducts, new rotors+pads - Porterfield + 8mm spacers 3/4.'
+          })
+        ]
+      },
+
+      // 5) Sydney Motorsport Park NSW State (Pre-Nationals, Jul 2025)
+      {
+        id: 'hist_ev_smsp_nsw_2025_07_25',
+        batchSeedId: 'hist_batch20261120_ev_smsp_nsw_2025_07_25',
+        venue: 'Sydney Motorsport Park (SMSP)',
+        eventDate: '2025-07-25',
+        eventTitle: 'NSW State (Pre-Nationals)',
+        status: 'LOCKED',
+        locked: true,
+        endedAt: '2025-07-25T17:30:00',
+        sessions: [
+          makeHistSess('hist_ev_smsp_nsw_2025_07_25', 'Sydney Motorsport Park (SMSP)', 'NSW State (Pre-Nationals)', {
+            id: 'hist_s_smsp_jul25_p1',
+            date: '2025-07-25',
+            sessionName: 'Practice 1 (P1)',
+            timestamp: 'Fri 12:20',
+            jetMm: 1.750,
+            timing: 35.0,
+            afrWot: 12.60,
+            fuelInL: 30.0,
+            fuelOutL: 24.0,
+            fuelUsedL: 6.0,
+            racedLaps: 4,
+            measuredBurnLPerLap: 1.50,
+            tyres: {
+              FL: { cold: 39.0, hot: 45.6 },
+              FR: { cold: 39.0, hot: 46.6 },
+              RL: { cold: 39.0, hot: 47.6 },
+              RR: { cold: 39.0, hot: 48.1 }
+            },
+            notes: '25-7-25 12:20 PM Sunny cool; Fuel 30->24L (-6L, 4 laps, 1.5/lap); AFR 12.5-12.7, LOCKING REARS!!, x4 LAPS 1.54; new Porterfield front pads (from Bendix); Setup sheet: 1.75 main jet, 18 static, 35 total, Camber L2.9/R2.9, Caster L6.0/R7.6, Toe F-1/R-1, Diff 3.55.'
+          }),
+          makeHistSess('hist_ev_smsp_nsw_2025_07_25', 'Sydney Motorsport Park (SMSP)', 'NSW State (Pre-Nationals)', {
+            id: 'hist_s_smsp_jul25_p2',
+            date: '2025-07-25',
+            sessionName: 'Practice 2 (P2)',
+            timestamp: 'Fri 14:00',
+            jetMm: 1.750,
+            waterTempC: 68,
+            afrWot: 12.50,
+            scaleWeightKg: 1356,
+            fuelInL: 24.0,
+            fuelOutL: 14.0,
+            fuelUsedL: 10.0,
+            racedLaps: 6,
+            measuredBurnLPerLap: 1.66,
+            tyres: {
+              FL: { cold: 44.0, hot: 44.8 },
+              FR: { cold: 44.0, hot: 44.8 },
+              RL: { cold: 44.0, hot: 44.6 },
+              RR: { cold: 44.0, hot: 44.8 }
+            },
+            bestLap: '2:02.47',
+            bestLapNum: '3',
+            notes: '15 mins; Fuel 24->14L (-10L, 6 laps, 1.66/lap); Fastest: 2:02.47 on Lap 3; 1356 KG!!, AFR 12.5, temp 68, diff noise??; Added 14 KG, rear shoes to DBA (from Porterfield), adjusted FR preload.'
+          }),
+          makeHistSess('hist_ev_smsp_nsw_2025_07_25', 'Sydney Motorsport Park (SMSP)', 'NSW State (Pre-Nationals)', {
+            id: 'hist_s_smsp_jul25_p3',
+            date: '2025-07-25',
+            sessionName: 'Practice 3 (P3)',
+            timestamp: 'Fri 16:45',
+            jetMm: 1.750,
+            afrWot: 12.55,
+            scaleWeightKg: 1371,
+            fuelInL: 22.0,
+            fuelUsedL: 5.0,
+            racedLaps: 3,
+            tyres: {
+              FL: { cold: 44.0, hot: 43.6 },
+              FR: { cold: 44.0, hot: 43.6 },
+              RL: { cold: 44.0, hot: 40.9 },
+              RR: { cold: 44.0, hot: 41.7 }
+            },
+            notes: '25-7-25 4:45 PM Overcast; Fuel 22L (-5L?, 3 laps); Weight 1371; No rear brakes! - leak in line - replace both rear lines, AFR 12.5-12.6.'
+          }),
+          makeHistSess('hist_ev_smsp_nsw_2025_07_25', 'Sydney Motorsport Park (SMSP)', 'NSW State (Pre-Nationals)', {
+            id: 'hist_s_smsp_jul25_p4',
+            date: '2025-07-25',
+            sessionName: 'Practice 4 (P4)',
+            timestamp: 'Fri 17:30',
+            jetMm: 1.750,
+            waterTempC: 70,
+            afrWot: 12.60,
+            scaleWeightKg: 1368,
+            fuelOutL: 13.0,
+            fuelUsedL: 9.5,
+            racedLaps: 6,
+            tyres: {
+              FL: { cold: 39.1, hot: 43.6 },
+              FR: { cold: 38.5, hot: 44.4 },
+              RL: { cold: 36.3, hot: 43.6 },
+              RR: { cold: 36.9, hot: 44.6 }
+            },
+            notes: 'Fuel +5L -> -13L out (9-10L, 6 laps, .66 noted); Weight 1368; AFR 12.5-12.7, PSI good, 70C; Bumped before back straight, 14L MIN - 15L.'
+          }),
+          makeHistSess('hist_ev_smsp_nsw_2025_07_25', 'Sydney Motorsport Park (SMSP)', 'NSW State (Pre-Nationals)', {
+            id: 'hist_s_smsp_jul25_qual',
+            date: '2025-07-25',
+            sessionName: 'Qualifying',
+            timestamp: 'Fri 18:15',
+            jetMm: 1.750,
+            waterTempC: 60,
+            fuelPsi: 4.0,
+            afrWot: 12.50,
+            scaleWeightKg: 1371,
+            fuelInL: 25.0,
+            fuelOutL: 18.0,
+            fuelUsedL: 7.0,
+            racedLaps: 5,
+            tyres: {
+              FL: { cold: 36.7, hot: 41.7 },
+              FR: { cold: 35.7, hot: 41.0 },
+              RL: { cold: 35.1, hot: 40.6 },
+              RR: { cold: 34.7, hot: 40.4 }
+            },
+            notes: 'Fuel 25L -> -18L (7L, 5 laps damp); Weight 1371; AFR 12.5, PSI 4, 60C, CAMBER 4.6 4.0??.'
+          }),
+          makeHistSess('hist_ev_smsp_nsw_2025_07_25', 'Sydney Motorsport Park (SMSP)', 'NSW State (Pre-Nationals)', {
+            id: 'hist_s_smsp_jul25_p1b_r2r3',
+            date: '2025-07-25',
+            sessionName: 'P1 & R2+R3 Follow-Up',
+            timestamp: 'Fri 19:00',
+            jetMm: 1.750,
+            fuelInL: 28.0,
+            fuelOutL: 20.0,
+            fuelUsedL: 8.0,
+            racedLaps: 5,
+            tyres: {
+              FL: { cold: 38.5, hot: 44.5 },
+              FR: { cold: 37.8, hot: 44.6 },
+              RL: { cold: 37.8, hot: 44.8 },
+              RR: { cold: 36.6, hot: 44.5 }
+            },
+            notes: 'P1: 28->-20L (8L, 5 laps), Out 38.8/37.8/36.6/36.7 -> In 44.5/44.6/43.5/44.4, Camber L3.0/R3.0; R2+R3: 28+5L (R3), R2 cut out in half lap! had start on grid. think electrical.'
+          })
+        ]
+      },
+
+      // 6) Sydney Motorsport Park HQ Nationals (Aug 2025)
+      {
+        id: 'hist_ev_smsp_nats_2025_08_31',
+        batchSeedId: 'hist_batch20261120_ev_smsp_nats_2025_08_31',
+        venue: 'Sydney Motorsport Park (SMSP)',
+        eventDate: '2025-08-31',
+        eventTitle: 'HQ Nationals (Aug 2025)',
+        status: 'LOCKED',
+        locked: true,
+        endedAt: '2025-08-31T17:00:00',
+        sessions: [
+          makeHistSess('hist_ev_smsp_nats_2025_08_31', 'Sydney Motorsport Park (SMSP)', 'HQ Nationals (Aug 2025)', {
+            id: 'hist_s_smsp_nats_p1',
+            date: '2025-08-29',
+            sessionName: 'Practice 1 (P1)',
+            timestamp: 'Fri 09:00',
+            fuelInL: 29.0,
+            fuelOutL: 22.0,
+            fuelUsedL: 7.0,
+            racedLaps: 6,
+            tyres: {
+              FL: { cold: 38.8, hot: 45.6 },
+              FR: { cold: 37.8, hot: 46.4 },
+              RL: { cold: 37.6, hot: 45.1 },
+              RR: { cold: 36.7, hot: 44.8 }
+            },
+            notes: 'Car 70 WT; Fuel 29->22L (7L, 6 laps); Front 100mm, Pads Port F/R; brakes felt good; check rear brake adjustment! New rear Porterfields, used Porterfield fronts - new rail prop valve (restrictor) - new calipers.'
+          }),
+          makeHistSess('hist_ev_smsp_nats_2025_08_31', 'Sydney Motorsport Park (SMSP)', 'HQ Nationals (Aug 2025)', {
+            id: 'hist_s_smsp_nats_p2',
+            date: '2025-08-29',
+            sessionName: 'Practice 2 (P2)',
+            timestamp: 'Fri 11:00',
+            scaleWeightKg: 1364,
+            fuelInL: 22.0,
+            fuelOutL: 15.0,
+            fuelUsedL: 7.0,
+            racedLaps: 6,
+            tyres: {
+              FL: { cold: 39.0, hot: 44.4 },
+              FR: { cold: 37.8, hot: 44.1 },
+              RL: { cold: 38.8, hot: 44.6 },
+              RR: { cold: 37.8, hot: 44.4 }
+            },
+            notes: 'Car 70 WT; Fuel 22->15L (7L, 6? laps); Weight 1364!!; new front pads, check camber?, CAMBER 3.5??.'
+          }),
+          makeHistSess('hist_ev_smsp_nats_2025_08_31', 'Sydney Motorsport Park (SMSP)', 'HQ Nationals (Aug 2025)', {
+            id: 'hist_s_smsp_nats_p3',
+            date: '2025-08-29',
+            sessionName: 'Practice 3 (P3)',
+            timestamp: 'Fri 13:00',
+            scaleWeightKg: 1365,
+            fuelInL: 25.0,
+            fuelOutL: 16.5,
+            fuelUsedL: 9.0,
+            tyres: {
+              FL: { cold: 39.2, hot: 44.5 },
+              FR: { cold: 38.2, hot: 44.5 },
+              RL: { cold: 39.1, hot: 44.6 },
+              RR: { cold: 38.2, hot: 44.6 }
+            },
+            notes: 'Car 70 WT; Fuel 25->16-17 (9L); Weigh in 1365, swapped back to older pads (kept other Sunday).'
+          }),
+          makeHistSess('hist_ev_smsp_nats_2025_08_31', 'Sydney Motorsport Park (SMSP)', 'HQ Nationals (Aug 2025)', {
+            id: 'hist_s_smsp_nats_p4',
+            date: '2025-08-29',
+            sessionName: 'Practice 4 (P4)',
+            timestamp: 'Fri 15:00',
+            scaleWeightKg: 1372,
+            fuelInL: 30.0,
+            tyres: {
+              FL: { cold: 38.3, hot: 43.6 },
+              FR: { cold: 37.2, hot: 43.2 },
+              RL: { cold: 37.8, hot: 43.7 },
+              RR: { cold: 36.9, hot: 43.8 }
+            },
+            notes: '29-8 3 PM Car 70; Fuel 30L, Weight 1372; harmonic balancer seal (timing cover).'
+          }),
+          makeHistSess('hist_ev_smsp_nats_2025_08_31', 'Sydney Motorsport Park (SMSP)', 'HQ Nationals (Aug 2025)', {
+            id: 'hist_s_smsp_nats_qual',
+            date: '2025-08-30',
+            sessionName: 'Qualifying',
+            timestamp: 'Sat 09:15',
+            scaleWeightKg: 1374,
+            fuelInL: 30.0,
+            tyres: {
+              FL: { cold: 37.8, hot: 45.5 },
+              FR: { cold: 35.7, hot: 44.6 },
+              RL: { cold: 36.3, hot: 46.3 },
+              RR: { cold: 35.3, hot: 46.3 }
+            },
+            notes: '30-8-2025 9:15 Sunny cold Car 70 WT; Fuel 30-, Weight 1374; Cold pressures pre leaving in sun.'
+          }),
+          makeHistSess('hist_ev_smsp_nats_2025_08_31', 'Sydney Motorsport Park (SMSP)', 'HQ Nationals (Aug 2025)', {
+            id: 'hist_s_smsp_nats_h1',
+            date: '2025-08-30',
+            sessionName: 'Heat 1',
+            timestamp: 'Sat 12:30',
+            fuelInL: 26.0,
+            tyres: {
+              FL: { cold: 37.6, hot: null },
+              FR: { cold: 35.8, hot: null },
+              RL: { cold: 36.3, hot: null },
+              RR: { cold: 34.8, hot: null }
+            },
+            notes: '30-8-2025 Car 70 Woz; Fuel 26L.'
+          }),
+          makeHistSess('hist_ev_smsp_nats_2025_08_31', 'Sydney Motorsport Park (SMSP)', 'HQ Nationals (Aug 2025)', {
+            id: 'hist_s_smsp_nats_h2',
+            date: '2025-08-30',
+            sessionName: 'Heat 2',
+            timestamp: 'Sat 15:30',
+            racedLaps: 6,
+            tyres: {
+              FL: { cold: 37.3, hot: 43.6 },
+              FR: { cold: 35.8, hot: 43.6 },
+              RL: { cold: 36.5, hot: 44.1 },
+              RR: { cold: 34.8, hot: 44.1 }
+            },
+            notes: '30-8-2025 Car 70 Woz; Fuel +10L, 6 laps.'
+          }),
+          makeHistSess('hist_ev_smsp_nats_2025_08_31', 'Sydney Motorsport Park (SMSP)', 'HQ Nationals (Aug 2025)', {
+            id: 'hist_s_smsp_nats_r3',
+            date: '2025-08-31',
+            sessionName: 'Race 3 (R3)',
+            timestamp: 'Sun 11:00',
+            tyres: {
+              FL: { cold: 35.7, hot: 42.7 },
+              FR: { cold: 34.5, hot: 43.5 },
+              RL: { cold: 33.9, hot: 43.4 },
+              RR: { cold: 33.6, hot: 43.5 }
+            },
+            notes: '31-8-2025 Car 70 Woz; Fuel +15.'
+          }),
+          makeHistSess('hist_ev_smsp_nats_2025_08_31', 'Sydney Motorsport Park (SMSP)', 'HQ Nationals (Aug 2025)', {
+            id: 'hist_s_smsp_nats_final',
+            date: '2025-08-31',
+            sessionName: 'Final',
+            timestamp: 'Sun 14:30',
+            tyres: {
+              FL: { cold: 37.2, hot: 44.7 },
+              FR: { cold: 35.2, hot: 44.7 },
+              RL: { cold: 34.7, hot: 44.3 },
+              RR: { cold: 33.7, hot: 47.0 }
+            },
+            notes: '31-8-2025 Sunny Car 70 Woz; Fuel +15L.'
+          })
+        ]
       }
     ];
+
+    const sessions = [];
+    events.forEach((ev) => {
+      ev.sessions.forEach((s) => sessions.push(s));
+    });
+
+    return {
+      batchId: 'hist_batch20261120',
+      events,
+      sessions,
+      scales: createDefaultScalesNotesList()
+    };
   }
 
   const WEEKDAY_OFFSET_MAP = {
@@ -2516,14 +3456,109 @@
     return table[key] || [0, 0, 0, 0];
   }
 
+  function createHistoricalScaleSessions() {
+    return [
+      {
+        id: 'hist_scale_sandown_2025',
+        name: 'Sandown 2025 (1370 kg • +20mm RR spacer)',
+        locked: false,
+        driverKg: 100.0,
+        fuelL: 23.0,
+        ballastKg: 8.8,
+        notes: 'Sandown 2025: 1370 kg [LF 368 / RF 362 / LR 297 / RR 343, +20mm RR spacer]',
+        baseFL: 368.0,
+        baseFR: 362.0,
+        baseRL: 297.0,
+        baseRR: 343.0
+      },
+      {
+        id: 'hist_scale_smsp_jul_2025',
+        name: 'SMSP Jul 2025 (1370 kg • Cross 51.60%)',
+        locked: false,
+        driverKg: 100.0,
+        fuelL: 24.0,
+        ballastKg: 14.0,
+        notes: 'SMSP Jul 2025: 1370 kg [LF 365 / RF 370 / LR 337 / RR 298, +5kg over min, Cross 51.60%]',
+        baseFL: 365.0,
+        baseFR: 370.0,
+        baseRL: 337.0,
+        baseRR: 298.0
+      }
+    ];
+  }
+
+  function createDefaultScalesNotesList() {
+    return [
+      {
+        id: 'hist_scale_note_calder_2024',
+        title: 'Calder 2024',
+        totalKg: 1373.0,
+        LF: 352.0,
+        RF: 382.0,
+        LR: 313.0,
+        RR: 326.0,
+        crossPct: 50.54,
+        spacerNote: 'No Spacers Base (RL 0mm / RR 20mm Row 2 Green: LF 361 / RF 373 / LR 304 / RR 334, Cross 49.38%)',
+        summary: 'Calder 2024: 1373 kg [LF 352 / RF 382 / LR 313 / RR 326 No-Spacers Base; +20mm RR -> LF 361 / RF 373 / LR 304 / RR 334, Cross 49.38%]'
+      },
+      {
+        id: 'hist_scale_note_sandown_2025',
+        title: 'Sandown 2025',
+        totalKg: 1370.0,
+        LF: 368.0,
+        RF: 362.0,
+        LR: 297.0,
+        RR: 343.0,
+        crossPct: 48.10,
+        spacerNote: '+20mm RR spacer',
+        summary: 'Sandown 2025: 1370 kg [LF 368 / RF 362 / LR 297 / RR 343, +20mm RR spacer]'
+      },
+      {
+        id: 'hist_scale_note_smsp_jul_2025',
+        title: 'SMSP Jul 2025',
+        totalKg: 1370.0,
+        LF: 365.0,
+        RF: 370.0,
+        LR: 337.0,
+        RR: 298.0,
+        crossPct: 51.60,
+        spacerNote: '+5kg over min, Cross 51.60%',
+        summary: 'SMSP Jul 2025: 1370 kg [LF 365 / RF 370 / LR 337 / RR 298, +5kg over min, Cross 51.60%]'
+      }
+    ];
+  }
+
+  function normalizeScalesState(rawScales) {
+    const seedNotes = createDefaultScalesNotesList();
+    const out = [];
+    const seenIds = new Set();
+    if (Array.isArray(rawScales)) {
+      rawScales.forEach((item, idx) => {
+        if (!item || typeof item !== 'object') return;
+        const id = String(item.id || `user_scale_${idx + 1}`).trim();
+        if (seenIds.has(id)) return;
+        seenIds.add(id);
+        out.push({ ...item, id });
+      });
+    }
+    seedNotes.forEach((sn) => {
+      if (!seenIds.has(sn.id)) {
+        seenIds.add(sn.id);
+        out.push({ ...sn });
+      }
+    });
+    return out;
+  }
+
   function createDefaultCornerWeightBaseline() {
     const lockedBase = createLockedCalder2024BaseSession();
+    const histScaleSessions = createHistoricalScaleSessions();
     const [dFL, dFR, dRL, dRR] = getSpacerCornerDeltas(0, 20);
     return {
       activeSessionId: 'calder_2024_base',
       rlSpacerMm: 0,
       rrSpacerMm: 20,
-      sessions: [lockedBase],
+      sessions: [lockedBase, ...histScaleSessions],
       FL: Number((lockedBase.baseFL + dFL).toFixed(1)),
       FR: Number((lockedBase.baseFR + dFR).toFixed(1)),
       RL: Number((lockedBase.baseRL + dRL).toFixed(1)),
@@ -2574,6 +3609,7 @@
   function normalizeCornerWeightBaseline(raw) {
     const def = createDefaultCornerWeightBaseline();
     const lockedBase = createLockedCalder2024BaseSession();
+    const histScaleSessions = createHistoricalScaleSessions();
     if (!raw || typeof raw !== 'object') return def;
 
     const userSessions = [];
@@ -2590,6 +3626,12 @@
         }
       });
     }
+
+    histScaleSessions.forEach((hs) => {
+      if (!userSessions.some((u) => u.id === hs.id)) {
+        userSessions.push({ ...hs });
+      }
+    });
 
     const sessions = [lockedBase, ...userSessions];
     const requestedActiveId = typeof raw.activeSessionId === 'string' ? raw.activeSessionId : 'calder_2024_base';
@@ -5154,7 +6196,61 @@
       candidate.seedInitializedV1 = true;
     }
 
+    // Idempotently merge any missing historical photo-batch events & sessions without overwriting or duplicating user data
+    const histBatch = getHistoricalPhotoBatchData();
+    if (!Array.isArray(candidate.events)) {
+      candidate.events = [];
+    }
+    histBatch.events.forEach((hEvt) => {
+      const existingEvt = candidate.events.find((e) => e && (e.id === hEvt.id || e.batchSeedId === hEvt.batchSeedId));
+      const hVenue = normalizeVenueName(hEvt.venue);
+      const hIso = hEvt.eventDate;
+      if (!existingEvt) {
+        const hydratedSessions = sortSessionsDesc(
+          (hEvt.sessions || []).map((hs) => {
+            const hydrated = hydrateSingleSession(hs, hVenue, hIso);
+            hydrated.eventId = hEvt.id;
+            hydrated.eventTitle = hEvt.eventTitle || '';
+            hydrated.eventLocked = true;
+            hydrated.status = 'completed';
+            return hydrated;
+          })
+        );
+        candidate.events.push({
+          id: hEvt.id,
+          batchSeedId: hEvt.batchSeedId,
+          venue: hVenue,
+          eventDate: hIso,
+          eventTitle: hEvt.eventTitle || '',
+          status: 'LOCKED',
+          locked: true,
+          endedAt: hEvt.endedAt || `${hIso}T17:00:00`,
+          sessions: hydratedSessions
+        });
+      } else {
+        if (!Array.isArray(existingEvt.sessions)) {
+          existingEvt.sessions = [];
+        }
+        (hEvt.sessions || []).forEach((hs) => {
+          const hasSess = existingEvt.sessions.some((es) => es && (es.id === hs.id || es.batchSeedId === hs.batchSeedId));
+          if (!hasSess) {
+            const hydrated = hydrateSingleSession(hs, hVenue, hIso);
+            hydrated.eventId = existingEvt.id;
+            hydrated.eventTitle = existingEvt.eventTitle || hEvt.eventTitle || '';
+            hydrated.eventLocked = Boolean(existingEvt.locked);
+            if (existingEvt.locked) {
+              hydrated.status = 'completed';
+            }
+            existingEvt.sessions.push(hydrated);
+          }
+        });
+        existingEvt.sessions = sortSessionsDesc(existingEvt.sessions);
+      }
+    });
+
+    candidate.events = sortEventsDesc(candidate.events, candidate.activeEventId);
     candidate.sessions = flattenEventsToSessions(candidate.events);
+    candidate.scales = normalizeScalesState(candidate.scales);
 
     const defaultPulls = createDefaultDynoPulls();
     if (!Array.isArray(candidate.dynoPulls)) {
@@ -14290,15 +15386,18 @@
 
   function getSessionOrderWeight(s) {
     const name = String((s && s.sessionName) || '').trim().toLowerCase();
+    if (/^p1\s*&/i.test(name) || name.includes('follow-up') || name.includes('r1–r3') || name.includes('r1-r3')) return 60;
     const pracMatch = name.match(/^practice\s*(\d+)/i);
     if (pracMatch) return 10 + Number(pracMatch[1]);
     if (name.includes('practice')) return 15;
     if (name.includes('qualifying') || name.includes('quali')) return 20;
     if (name.includes('warm')) return 30;
+    const heatMatch = name.match(/^heat\s*(\d+)/i);
+    if (heatMatch) return 35 + Number(heatMatch[1]);
     const raceMatch = name.match(/^race\s*(\d+)/i);
     if (raceMatch) return 40 + Number(raceMatch[1]);
     if (name.includes('final') || name.includes('trophy') || name.includes('feature')) return 55;
-    if (name.includes('race')) return 45;
+    if (name.includes('race') || name.includes('heat')) return 45;
     return 35;
   }
 
