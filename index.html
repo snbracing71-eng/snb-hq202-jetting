@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.0.1" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.2" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -2963,7 +2963,7 @@
                   <div class="fleet-acc-sub">Group 3H Sealed Holden 202 (3.3L) Race Engines &bull; Cam, Unswept Volume &amp; Seals</div>
                 </div>
                 <div class="fleet-acc-right">
-                  <span class="fleet-acc-status-pill emerald" id="fleetEnginesActiveBadge">2 SEALED ENGINES &bull; ACTIVE: WL239326</span>
+                  <span class="fleet-acc-status-pill emerald" id="fleetEnginesActiveBadge">2 SEALED &bull; ACTIVE: BRACCA</span>
                   <span class="fleet-acc-count-pill" id="fleetEnginesCountBadge">2 ENGINES</span>
                   <span class="fleet-acc-chevron" data-fleet-acc-chevron="engines" aria-hidden="true">&#9654;</span>
                 </div>
@@ -5589,7 +5589,7 @@
       <div class="modal-head">
         <div>
           <div class="section-eyebrow">GROUP 3H HQ HOLDEN 202 (3.3L) &bull; SEALED ENGINE SPEC</div>
-          <h2 class="section-title" id="modalEditEngineTitle">Edit Sealed Engine Spec</h2>
+          <h2 class="section-title" id="modalEditEngineTitle">Edit / Rename Sealed Engine</h2>
         </div>
         <button type="button" class="btn btn-danger" data-close-modal="modalEditEngine" aria-label="Close Engine Spec Modal">
           Close
@@ -5597,6 +5597,24 @@
       </div>
 
       <input type="hidden" id="editEngineIdHidden" />
+
+      <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editEngineNickname">Engine Nickname / Label</label>
+            <span class="field-hint emerald">e.g. Bracca / Macca ACL</span>
+          </div>
+          <input type="text" id="editEngineNickname" class="text-input" placeholder="e.g. Bracca or Macca ACL" autocomplete="off" />
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <div class="field-label-row">
+            <label class="field-label" for="editEngineBuilderNote">Builder / Build Note</label>
+            <span class="field-hint">Engine Builder</span>
+          </div>
+          <input type="text" id="editEngineBuilderNote" class="text-input" placeholder="e.g. Macca + Brian @ Moe Engines" autocomplete="off" />
+        </div>
+      </div>
 
       <div class="form-grid-2 compact-pair-grid" style="margin-bottom: 10px;">
         <div class="field-group" style="margin-bottom: 0;">
@@ -5805,6 +5823,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=1.0.1"></script>
+  <script src="./app.js?v=1.0.2"></script>
 </body>
 </html>

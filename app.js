@@ -3187,7 +3187,9 @@
       {
         id: 'WL239326',
         code: 'WL239326',
-        name: 'Engine #1 — WL239326',
+        nickname: 'Bracca',
+        name: 'Bracca (WL239326)',
+        builderNote: 'Macca + Brian @ Moe Engines',
         onCar: true,
         status: 'ON CAR #77',
         role: 'Active Race Engine',
@@ -3217,12 +3219,14 @@
           oilPump: '277322'
         },
         notes:
-          'Swapped in mid-SMSP Nationals and was immediately faster than HL1134; made 99.4 rwkW at Chev\'s (19/07/2025, Run 358, 1.75 jet, 18° static / 35° total) before refitting the higher-power Macca exhaust.'
+          'Built by Macca + Brian @ Moe Engines ("Bracca"). Swapped in mid-SMSP Nationals and was immediately faster than Macca ACL (HL1134); made 99.4 rwkW at Chev\'s (19/07/2025, Run 358, 1.75 jet, 18° static / 35° total) before refitting the higher-power Macca exhaust.'
       },
       {
         id: 'HL1134',
         code: 'HL1134',
-        name: 'Engine #2 — HL1134',
+        nickname: 'Macca ACL',
+        name: 'Macca ACL (HL1134)',
+        builderNote: 'Macca build with ACL cast flat-top pistons',
         onCar: false,
         status: 'SPARE',
         role: 'Spare Sealed Engine',
@@ -3232,7 +3236,7 @@
         stroke: '82.55 mm (3.250")',
         boreStroke: 'Bore: 93.84 mm (3.6945", at 93.83 mm ceiling) | Stroke: 82.55 mm (3.250")',
         bottomEnd:
-          'Non-forged cast flat-top pistons (0.0 cc dish), standard 202 red rods & crank, unmodified oil pickup & galleries',
+          'Non-forged ACL cast flat-top pistons (0.0 cc dish), standard 202 red rods & crank, unmodified oil pickup & galleries',
         camshaft:
           'RAQ092 — Inlet lift 6.75 mm (0.89 mm @ .035"), Exhaust lift 6.74 mm (0.72 mm @ .035"), 21.25 mm hydraulic lifters',
         headVolume:
@@ -3252,7 +3256,7 @@
           oilPump: '277371'
         },
         notes:
-          'Ran first half of 2025 SMSP Nationals; deeper open 46.4 cc chamber over flat-top piston was slower out of corners than WL239326 (39.8 cc + 7.2 cc dish).'
+          'Macca build with ACL cast flat-top pistons ("Macca ACL"). Ran first half of 2025 SMSP Nationals; deeper open 46.4 cc chamber over flat-top piston was slower out of corners than Bracca (WL239326, 39.8 cc + 7.2 cc dish).'
       }
     ];
   }
@@ -3263,7 +3267,7 @@
         id: 'HEAD_WL239326',
         name: 'Head #1 — 9937262 Sealed Race Head',
         casting: '9937262',
-        assignment: 'ON ENGINE WL239326',
+        assignment: 'ON ENGINE Bracca (WL239326)',
         sealOrJob: 'Seal 277358 (Form HQ 1128)',
         chamberCc: 39.8,
         chamberSummary: '39.8 cc (47.00 cc unswept with 7.2 cc pistons)',
@@ -3273,13 +3277,13 @@
         onCar: true,
         flow25H2O: null,
         notes:
-          'Sealed on Active Race Engine WL239326 (18/07/2025 by Laurie Griffin, Seal 277358). 39.8 cc chamber + 7.2 cc concave piston dish = 47.00 cc total unswept volume (+2.00 cc buffer over 45.00 cc min).'
+          'Sealed on Active Race Engine Bracca (WL239326, 18/07/2025 by Laurie Griffin, Seal 277358). 39.8 cc chamber + 7.2 cc concave piston dish = 47.00 cc total unswept volume (+2.00 cc buffer over 45.00 cc min).'
       },
       {
         id: 'HEAD_HL1134',
         name: 'Head #2 — 9937262 Sealed Spare Head',
         casting: '9937262',
-        assignment: 'ON ENGINE HL1134',
+        assignment: 'ON ENGINE Macca ACL (HL1134)',
         sealOrJob: 'Seal 277373 (Form HQ 1130)',
         chamberCc: 46.4,
         chamberSummary: '46.4 cc (46.40 cc unswept with flat-top pistons)',
@@ -3289,7 +3293,7 @@
         onCar: false,
         flow25H2O: null,
         notes:
-          'Sealed on Spare Engine HL1134 (12/08/2025 by Laurie Griffin, Seal 277373). Deeper open 46.4 cc chamber over 0.0 cc flat-top piston = 46.40 cc total unswept volume.'
+          'Sealed on Spare Engine Macca ACL (HL1134, 12/08/2025 by Laurie Griffin, Seal 277373). Deeper open 46.4 cc chamber over 0.0 cc flat-top piston = 46.40 cc total unswept volume.'
       },
       {
         id: 'HEAD_MOE_MACCA_6L',
@@ -5560,8 +5564,9 @@
       ex.onCar = ex.id === candidate.activeExhaustId;
     });
 
-    // Hydrate Sealed Engines (Non-destructive merge of WL239326 Active & HL1134 Spare)
+    // Hydrate Sealed Engines (Non-destructive merge of Bracca (WL239326) Active & Macca ACL (HL1134) Spare)
     const defEngines = createDefaultEngines();
+    const needsEngineNicknamesV1 = !candidate.engineNicknamesV1;
     if (!Array.isArray(candidate.engines) || candidate.engines.length === 0) {
       candidate.engines = defEngines.map((de) => ({ ...de, seals: de.seals ? { ...de.seals } : null }));
     } else {
@@ -5575,12 +5580,39 @@
           );
           const id = defEng ? defEng.id : String(eng.id || rawCode).trim();
           const code = defEng ? defEng.code : rawCode;
+          const rawName = typeof eng.name === 'string' ? eng.name.trim() : '';
+          const isLegacyGenericName =
+            !rawName ||
+            /^Engine\s*(?:#\d+)?\s*[—–-]\s*(?:WL239326|HL1134)$/i.test(rawName) ||
+            rawName.toUpperCase() === code.toUpperCase();
+          const nickname =
+            (needsEngineNicknamesV1 && defEng)
+              ? defEng.nickname
+              : typeof eng.nickname === 'string' && eng.nickname.trim()
+              ? eng.nickname.trim()
+              : defEng
+              ? defEng.nickname
+              : rawName.replace(/\s*\([^)]*\)\s*$/, '').trim() || code;
+          const name =
+            (needsEngineNicknamesV1 && defEng) || (isLegacyGenericName && defEng)
+              ? defEng.name
+              : rawName || (nickname && !nickname.toUpperCase().includes(code.toUpperCase()) ? `${nickname} (${code})` : code);
+          const builderNote =
+            (needsEngineNicknamesV1 && defEng)
+              ? defEng.builderNote
+              : typeof eng.builderNote === 'string' && eng.builderNote.trim()
+              ? eng.builderNote.trim()
+              : defEng
+              ? defEng.builderNote
+              : '';
           return {
             ...(defEng || {}),
             ...eng,
             id,
             code,
-            name: typeof eng.name === 'string' && eng.name.trim() ? eng.name.trim() : defEng ? defEng.name : `Engine — ${code}`,
+            nickname,
+            name,
+            builderNote,
             sealForm: typeof eng.sealForm === 'string' && eng.sealForm.trim() ? eng.sealForm.trim() : defEng ? defEng.sealForm : '',
             block: typeof eng.block === 'string' && eng.block.trim() ? eng.block.trim() : defEng ? defEng.block : '',
             bore: typeof eng.bore === 'string' && eng.bore.trim() ? eng.bore.trim() : defEng ? defEng.bore : '',
@@ -5607,7 +5639,14 @@
                 : defEng && defEng.seals
                 ? { ...defEng.seals }
                 : null,
-            notes: typeof eng.notes === 'string' && eng.notes.trim() ? eng.notes.trim() : defEng ? defEng.notes : ''
+            notes:
+              (needsEngineNicknamesV1 && defEng)
+                ? defEng.notes
+                : typeof eng.notes === 'string' && eng.notes.trim()
+                ? eng.notes.trim()
+                : defEng
+                ? defEng.notes
+                : ''
           };
         })
         .filter((eng) => {
@@ -5661,7 +5700,16 @@
             id,
             name: typeof hd.name === 'string' && hd.name.trim() ? hd.name.trim() : defHead ? defHead.name : id,
             casting: typeof hd.casting === 'string' && hd.casting.trim() ? hd.casting.trim() : defHead ? defHead.casting : '9937262',
-            assignment: typeof hd.assignment === 'string' && hd.assignment.trim() ? hd.assignment.trim() : defHead ? defHead.assignment : '',
+            assignment:
+              (needsEngineNicknamesV1 && defHead) || /^ON ENGINE (?:WL239326|HL1134)$/i.test(String(hd.assignment || '').trim())
+                ? defHead
+                  ? defHead.assignment
+                  : hd.assignment
+                : typeof hd.assignment === 'string' && hd.assignment.trim()
+                ? hd.assignment.trim()
+                : defHead
+                ? defHead.assignment
+                : '',
             sealOrJob: typeof hd.sealOrJob === 'string' && hd.sealOrJob.trim() ? hd.sealOrJob.trim() : defHead ? defHead.sealOrJob : '',
             chamberSummary:
               typeof hd.chamberSummary === 'string' && hd.chamberSummary.trim()
@@ -6834,6 +6882,7 @@
     candidate.bathurstBenchmarkFixV1 = true;
     candidate.exhaustRosterAudit2025V1 = true;
     candidate.enginesHeadsSeededV1 = true;
+    candidate.engineNicknamesV1 = true;
     candidate.lastModifiedAt =
       Number.isFinite(Number(candidate.lastModifiedAt)) && Number(candidate.lastModifiedAt) > 0
         ? Math.round(Number(candidate.lastModifiedAt))
@@ -6872,6 +6921,7 @@
     bathurstBenchmarkFixV1: true,
     exhaustRosterAudit2025V1: true,
     enginesHeadsSeededV1: true,
+    engineNicknamesV1: true,
     lastModifiedAt: 0,
     activeEventId: null,
     activeSessionId: null,
@@ -7605,6 +7655,7 @@
     state.bathurstBenchmarkFixV1 = true;
     state.exhaustRosterAudit2025V1 = true;
     state.enginesHeadsSeededV1 = true;
+    state.engineNicknamesV1 = true;
     if (!options || !options.skipTimestamp) {
       state.lastModifiedAt = Date.now();
     }
@@ -17868,6 +17919,17 @@
     `;
   }
 
+  function getEngineShortActiveBadgeLabel(eng) {
+    if (!eng) return 'BRACCA';
+    const nick = typeof eng.nickname === 'string' && eng.nickname.trim() ? eng.nickname.trim() : '';
+    if (nick) return nick.toUpperCase();
+    const rawName = typeof eng.name === 'string' && eng.name.trim() ? eng.name.trim() : '';
+    if (rawName) {
+      return rawName.replace(/\s*\([^)]*\)\s*$/, '').trim().toUpperCase() || String(eng.code || eng.id || 'BRACCA').toUpperCase();
+    }
+    return String(eng.code || eng.id || 'BRACCA').toUpperCase();
+  }
+
   function renderEnginesFleet() {
     const container = $('enginesFleetContainer');
     const selectEl = $('selectFleetEngine');
@@ -17905,7 +17967,7 @@
 
     const badge = $('fleetEnginesActiveBadge');
     if (badge && activeEngObj) {
-      badge.textContent = `${state.engines.length} SEALED ENGINE${state.engines.length === 1 ? '' : 'S'} • ACTIVE: ${activeEngObj.code}`;
+      badge.textContent = `${state.engines.length} SEALED • ACTIVE: ${getEngineShortActiveBadgeLabel(activeEngObj)}`;
     }
     const countBadge = $('fleetEnginesCountBadge');
     if (countBadge) {
@@ -17917,24 +17979,25 @@
     const canDelete = !isOnCar && state.engines.length > 2;
     const statusBadgeText = isOnCar ? '★ ON CAR #77' : 'SPARE';
     const seals = eng.seals && typeof eng.seals === 'object' ? eng.seals : null;
+    const dispName = eng.name || (eng.nickname ? `${eng.nickname} (${eng.code})` : eng.code);
 
     container.innerHTML = `
       <div class="carby-card" style="margin-bottom: 0;">
         <div class="session-head" style="margin-bottom: 8px;">
           <div>
             <div class="session-title-line">
-              ${escapeHtml(eng.name || `Engine — ${eng.code}`)}
+              ${escapeHtml(dispName)}
               <span class="locked-badge" style="margin-left: 6px; ${isOnCar ? '' : 'color: #FCD34D; border-color: rgba(245, 158, 11, 0.55); background: rgba(120, 53, 15, 0.45);'}">${escapeHtml(statusBadgeText)}</span>
             </div>
             <div class="session-meta-line">
-              ${escapeHtml(isOnCar ? 'ON CAR #77 — Active Race Engine' : 'SPARE ENGINE')}${eng.sealForm ? ` &bull; Seal Form <strong>${escapeHtml(eng.sealForm)}</strong>` : ''}
+              ${escapeHtml(isOnCar ? 'ON CAR #77 — Active Race Engine' : 'SPARE ENGINE')}${eng.builderNote ? ` &bull; Builder: <strong>${escapeHtml(eng.builderNote)}</strong>` : ''}${eng.sealForm ? ` &bull; Seal Form <strong>${escapeHtml(eng.sealForm)}</strong>` : ''}
             </div>
           </div>
           <div style="display: flex; align-items: center; gap: 6px;">
             ${eng.sealForm ? `<span class="locked-badge mono">${escapeHtml(eng.sealForm)}</span>` : ''}
             ${
               canDelete
-                ? `<button type="button" class="btn-icon-delete" data-delete-fleet-engine="${escapeHtml(eng.id)}" title="Remove ${escapeHtml(eng.code)}" aria-label="Remove ${escapeHtml(eng.code)}">&#10005;</button>`
+                ? `<button type="button" class="btn-icon-delete" data-delete-fleet-engine="${escapeHtml(eng.id)}" title="Remove ${escapeHtml(dispName)}" aria-label="Remove ${escapeHtml(dispName)}">&#10005;</button>`
                 : ''
             }
           </div>
@@ -18002,17 +18065,17 @@
             isOnCar
               ? otherEng
                 ? `<button type="button" class="btn btn-amber-outline" data-set-engine-on-car="${escapeHtml(otherEng.id)}">
-                    Swap Active Engine to ${escapeHtml(otherEng.code)} on Car #77
+                    Swap Active Engine to ${escapeHtml(otherEng.name || otherEng.code)} on Car #77
                   </button>`
                 : `<button type="button" class="btn btn-confirm" data-set-engine-on-car="${escapeHtml(eng.id)}">
-                    ★ ${escapeHtml(eng.code)} Active on Car #77
+                    ★ ${escapeHtml(dispName)} Active on Car #77
                   </button>`
               : `<button type="button" class="btn btn-confirm" data-set-engine-on-car="${escapeHtml(eng.id)}">
-                  Set ${escapeHtml(eng.code)} Active on Car #77
+                  Set ${escapeHtml(dispName)} Active on Car #77
                 </button>`
           }
           <button type="button" class="btn btn-secondary" data-edit-engine="${escapeHtml(eng.id)}">
-            Edit Selected Engine
+            Edit / Rename Engine
           </button>
         </div>
       </div>
@@ -18035,7 +18098,7 @@
       state.cylinderHeads.forEach((hd) => {
         if (hd.id === 'HEAD_WL239326') {
           hd.onCar = targetEng.id === 'WL239326';
-          hd.status = hd.onCar ? 'Sealed on Car #77 (18/07/2025)' : 'Sealed on Spare Engine WL239326 (18/07/2025)';
+          hd.status = hd.onCar ? 'Sealed on Car #77 (18/07/2025)' : 'Sealed on Spare Engine Bracca (WL239326, 18/07/2025)';
         } else if (hd.id === 'HEAD_HL1134') {
           hd.onCar = targetEng.id === 'HL1134';
           hd.status = hd.onCar ? 'Sealed on Car #77 (12/08/2025)' : 'Sealed on Spare Engine (12/08/2025)';
@@ -18046,7 +18109,7 @@
     saveState();
     renderEnginesFleet();
     renderCylinderHeadsFleet();
-    showToast(`Engine ${targetEng.code} set ★ ON CAR #77 (saved sessions preserved)`);
+    showToast(`${targetEng.name || targetEng.code} set ★ ON CAR #77 (saved sessions preserved)`);
   }
 
   function deleteFleetEngineById(engineId) {
@@ -18061,7 +18124,7 @@
     ui.selectedFleetEngineId = state.activeEngineId || state.engines[0].id;
     saveState();
     renderEnginesFleet();
-    showToast(`Removed ${targetObj ? targetObj.code : targetId} from Engines`);
+    showToast(`Removed ${targetObj ? targetObj.name || targetObj.code : targetId} from Engines`);
   }
 
   function openEditEngineModal(engineId) {
@@ -18070,6 +18133,9 @@
       ? {
           id: '__NEW__',
           code: '',
+          nickname: '',
+          name: '',
+          builderNote: '',
           sealForm: '',
           block: 'Holden 202 / 3.3L (NIL sleeves)',
           boreStroke: 'Bore: 93.70 mm (3.689") | Stroke: 82.55 mm (3.250")',
@@ -18087,7 +18153,15 @@
     if ($('modalEditEngineTitle')) {
       $('modalEditEngineTitle').textContent = isNew
         ? 'Add Sealed HQ 202 Engine'
-        : `Edit ${eng.code} Sealed Engine Spec`;
+        : `Edit / Rename ${eng.name || eng.code}`;
+    }
+    if ($('editEngineNickname')) {
+      $('editEngineNickname').value = isNew
+        ? ''
+        : eng.nickname || (eng.name ? eng.name.replace(/\s*\([^)]*\)\s*$/, '').trim() : '');
+    }
+    if ($('editEngineBuilderNote')) {
+      $('editEngineBuilderNote').value = isNew ? '' : eng.builderNote || '';
     }
     if ($('editEngineCode')) $('editEngineCode').value = isNew ? '' : eng.code || eng.id;
     if ($('editEngineSealForm')) $('editEngineSealForm').value = eng.sealForm || '';
@@ -18110,6 +18184,8 @@
     const id = $('editEngineIdHidden') ? $('editEngineIdHidden').value : '';
     const isNew = !id || id === '__NEW__';
     const rawCode = ($('editEngineCode') ? $('editEngineCode').value : '').trim();
+    const rawNickname = ($('editEngineNickname') ? $('editEngineNickname').value : '').trim();
+    const rawBuilderNote = ($('editEngineBuilderNote') ? $('editEngineBuilderNote').value : '').trim();
     if (!rawCode) {
       showToast('Enter an Engine Number / Code (e.g. WL239326)');
       return;
@@ -18118,6 +18194,11 @@
     if (!Array.isArray(state.engines)) {
       state.engines = createDefaultEngines();
     }
+
+    const cleanNick = rawNickname.replace(new RegExp(`\\s*\\(${rawCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\)\\s*$`, 'i'), '').trim();
+    const formattedName = cleanNick
+      ? `${cleanNick} (${rawCode})`
+      : rawCode;
 
     let eng = isNew ? null : state.engines.find((e) => e.id === id);
     if (isNew) {
@@ -18128,7 +18209,9 @@
       eng = {
         id: rawCode,
         code: rawCode,
-        name: `Engine #${state.engines.length + 1} — ${rawCode}`,
+        nickname: cleanNick || rawCode,
+        name: formattedName,
+        builderNote: rawBuilderNote,
         onCar: false,
         status: 'SPARE',
         role: 'Spare Sealed Engine',
@@ -18138,10 +18221,9 @@
       ui.selectedFleetEngineId = eng.id;
     } else if (eng) {
       eng.code = rawCode;
-      if (!eng.name || /Engine #\d+/i.test(eng.name)) {
-        const idx = state.engines.findIndex((e) => e.id === eng.id);
-        eng.name = `Engine #${idx >= 0 ? idx + 1 : 1} — ${rawCode}`;
-      }
+      eng.nickname = cleanNick || rawCode;
+      eng.name = formattedName;
+      eng.builderNote = rawBuilderNote;
     }
     if (!eng) return;
 
@@ -18158,7 +18240,7 @@
     saveState();
     closeModal('modalEditEngine');
     renderEnginesFleet();
-    showToast(`${isNew ? 'Added' : 'Saved'} Engine ${eng.code}`);
+    showToast(`${isNew ? 'Added' : 'Saved'} ${eng.name}`);
   }
 
   function renderCylinderHeadsFleet() {
@@ -19905,18 +19987,20 @@
     (state.engines || []).forEach((eng) => {
       const isAct = eng.id === state.activeEngineId;
       const s = eng.seals || {};
+      const dispName = eng.name || (eng.nickname ? `${eng.nickname} (${eng.code})` : eng.code);
       lines.push(
-        `- Engine "${eng.name}" (${eng.id})${isAct ? ' [ON CAR #77]' : ' [SPARE]'}: Seal_Form="${eng.sealForm || '—'}" | Block="${eng.blockSpec || '—'}" | Bore_Stroke="${eng.boreStroke || '—'}" | Bottom_End="${eng.bottomEnd || '—'}" | Cam="${eng.camshaft || '—'}" | Head_Unswept="${eng.headSummary || '—'}" | Valves="${eng.valveSpec || '—'}" | Seals (${eng.sealMeta || '—'}): Head=${s.head || '—'}, Sump_LH=${s.sumpLh || '—'}, Sump_RH=${s.sumpRh || '—'}, Timing=${s.timingCover || '—'}, Oil_Pump=${s.oilPump || '—'} | Notes: ${eng.notes || ''}`
+        `- Engine "${dispName}" (Code=${eng.code || eng.id}, Nickname="${eng.nickname || dispName}")${isAct ? ' [ON CAR #77]' : ' [SPARE]'}: Builder="${eng.builderNote || '—'}" | Seal_Form="${eng.sealForm || '—'}" | Block="${eng.block || eng.blockSpec || '—'}" | Bore_Stroke="${eng.boreStroke || '—'}" | Bottom_End="${eng.bottomEnd || '—'}" | Cam="${eng.camshaft || '—'}" | Head_Unswept="${eng.headVolume || eng.headSummary || '—'}" | Valves="${eng.valves || eng.valveSpec || '—'}" | Seals (${eng.sealRegistration || eng.sealMeta || '—'}): Head=${s.head || '—'}, Sump_LH=${s.sumpLH || s.sumpLh || '—'}, Sump_RH=${s.sumpRH || s.sumpRh || '—'}, Timing=${s.timingCover || '—'}, Oil_Pump=${s.oilPump || '—'} | Notes: ${eng.notes || ''}`
       );
     });
     (state.cylinderHeads || []).forEach((hd) => {
-      const f = hd.flow25 || {};
-      const hasFlow = Object.values(f).some((v) => v !== null && v !== undefined && Number.isFinite(Number(v)));
+      const f = hd.flow25H2O || hd.flow25 || {};
+      const liftKeys = ['0.05', '0.10', '0.15', '0.20', '0.25', '0.30', '0.35', '0.40'];
+      const hasFlow = liftKeys.some((k) => f[k] !== null && f[k] !== undefined && Number.isFinite(Number(f[k])));
       const flowTxt = hasFlow
-        ? `Flow@25"H2O=[0.05":${f.l050 ?? '—'}, 0.10":${f.l100 ?? '—'}, 0.15":${f.l150 ?? '—'}, 0.20":${f.l200 ?? '—'}, 0.25":${f.l250 ?? '—'}, 0.30":${f.l300 ?? '—'}, 0.35":${f.l350 ?? '—'}, 0.40":${f.l400 ?? '—'} CFM | Mean_0.05-0.20":${hd.flowMeanLow ?? '—'} CFM | @28"H2O:${hd.flow28Peak ?? '—'} CFM]`
+        ? `Flow@25"H2O=[0.05":${f['0.05'] ?? '—'}, 0.10":${f['0.10'] ?? '—'}, 0.15":${f['0.15'] ?? '—'}, 0.20":${f['0.20'] ?? '—'}, 0.25":${f['0.25'] ?? '—'}, 0.30":${f['0.30'] ?? '—'}, 0.35":${f['0.35'] ?? '—'}, 0.40":${f['0.40'] ?? '—'} CFM | Mean_0.05-0.20":${f.meanLowMid ?? hd.flowMeanLow ?? '—'} CFM | @28"H2O:${f.cfm28H2O ?? hd.flow28Peak ?? '—'} CFM]`
         : 'Flow@25"H2O=Sealed/Unflowed';
       lines.push(
-        `- Cylinder_Head "${hd.name}" (${hd.id}): Casting="${hd.casting || '9937262'}" | Status="${hd.assignedTo || '—'}" | Seal_Job="${hd.sealOrJob || '—'}" | Chamber="${hd.chamberSummary || '—'}" | Valves="${hd.valveSummary || '—'}" | ${flowTxt} | Notes: ${hd.notes || ''}`
+        `- Cylinder_Head "${hd.name}" (${hd.id}): Casting="${hd.casting || '9937262'}" | Assignment="${hd.assignment || hd.assignedTo || '—'}" | Seal_Job="${hd.sealOrJob || '—'}" | Chamber="${hd.chamberSummary || '—'}" | Inlet_Valve="${hd.inletValve || '—'}" | Exhaust_Valve="${hd.exhaustValve || '—'}" | Status="${hd.status || '—'}" | ${flowTxt} | Notes: ${hd.notes || ''}`
       );
     });
     (state.carbies || []).forEach((c) => {
@@ -25082,6 +25166,7 @@
           calder2024CwSeededV1: true,
           exhaustRosterAudit2025V1: true,
           enginesHeadsSeededV1: true,
+          engineNicknamesV1: true,
           activeEventId: null,
           activeSessionId: null,
           targetAfr: 12.75,
