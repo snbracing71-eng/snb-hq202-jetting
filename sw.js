@@ -1,12 +1,12 @@
-const CACHE_NAME = 'snb-hq202-jetting-v1.0.6';
+const CACHE_NAME = 'snb-hq202-jetting-v1.0.7';
 const OFFLINE_ASSETS = [
   './',
   './index.html',
   './mechanic.html',
-  './pre-race.html',
   './styles.css',
   './app.js',
   './manifest.json',
+  './manifest-mech.json',
   './snb-logo.jpg',
   './icon-192.png',
   './icon-512.png',
@@ -59,10 +59,10 @@ self.addEventListener('fetch', (event) => {
     reqUrl.pathname.endsWith('/') ||
     reqUrl.pathname.endsWith('/index.html') ||
     reqUrl.pathname.endsWith('/mechanic.html') ||
-    reqUrl.pathname.endsWith('/pre-race.html') ||
     reqUrl.pathname.endsWith('/styles.css') ||
     reqUrl.pathname.endsWith('/app.js') ||
-    reqUrl.pathname.endsWith('/manifest.json');
+    reqUrl.pathname.endsWith('/manifest.json') ||
+    reqUrl.pathname.endsWith('/manifest-mech.json');
 
   if (isCodeOrNav) {
     // Network-First for navigation, index.html, styles.css, and app.js (offline fallback only)

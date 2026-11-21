@@ -1,0 +1,32 @@
+{
+  "name": "SNB HQ Mechanic",
+  "short_name": "HQ Mechanic",
+  "description": "Installable pit-lane mechanic & crew app for SNB Racing Group 3H HQ Holden 202 — Pre-Race Check and Post-Race / Pit Tyre, Fuel & Notes.",
+  "start_url": "./mechanic.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f131a",
+  "theme_color": "#0f131a",
+  "categories": ["utilities", "sports", "productivity"],
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./snb-logo.jpg",
+      "sizes": "880x195",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}

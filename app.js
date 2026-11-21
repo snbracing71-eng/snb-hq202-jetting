@@ -10326,6 +10326,18 @@
     };
   }
 
+  function resolveActiveUnlockedEvent() {
+    const direct = getActiveEvent();
+    if (direct) return direct;
+    if (!Array.isArray(state.events)) return null;
+    const unlocked = state.events.find((e) => e && !e.locked);
+    if (unlocked) {
+      state.activeEventId = unlocked.id;
+      return unlocked;
+    }
+    return null;
+  }
+
   function findSessionAndEventByMatch(sessionMatch) {
     if (!Array.isArray(state.events)) return { evt: null, sess: null };
     const matchObj =
@@ -10334,7 +10346,12 @@
         : sessionMatch && typeof sessionMatch === 'object'
         ? sessionMatch
         : {};
-    const rawId = typeof matchObj.id === 'string' ? matchObj.id.trim() : '';
+    let rawId = typeof matchObj.id === 'string' ? matchObj.id.trim() : '';
+    let requestedNewName = '';
+    if (rawId.startsWith('__NEW_SESS__:')) {
+      requestedNewName = rawId.slice('__NEW_SESS__:'.length).trim();
+      rawId = '';
+    }
     if (rawId) {
       for (const evt of state.events) {
         if (!evt || !Array.isArray(evt.sessions)) continue;
@@ -10349,11 +10366,21 @@
     const rawDate = typeof (matchObj.sessionDate || matchObj.sessionDateIso) === 'string'
       ? String(matchObj.sessionDate || matchObj.sessionDateIso).trim()
       : '';
-    const rawName = typeof matchObj.sessionName === 'string'
-      ? matchObj.sessionName.trim().toLowerCase()
-      : '';
+    const rawName = (requestedNewName || (typeof matchObj.sessionName === 'string' ? matchObj.sessionName : ''))
+      .trim()
+      .toLowerCase();
+
+    const activeEvt = resolveActiveUnlockedEvent();
 
     if (rawName) {
+      // First check active unlocked event if open
+      if (activeEvt && Array.isArray(activeEvt.sessions)) {
+        const inActive = activeEvt.sessions.find(
+          (s) => s && String(s.sessionName || '').trim().toLowerCase() === rawName
+        );
+        if (inActive) return { evt: activeEvt, sess: inActive };
+      }
+
       for (const evt of state.events) {
         if (!evt || !Array.isArray(evt.sessions)) continue;
         const evtVenue = normalizeVenueName(evt.venue || 'Calder Park Raceway');
@@ -10388,12 +10415,25 @@
           }
         }
       }
+
+      // If requested inside an active unlocked event and not created yet, create the session in activeEvt without touching baseline
+      if (activeEvt && (requestedNewName || matchObj.sessionName)) {
+        const cleanSessionName = requestedNewName || String(matchObj.sessionName).trim();
+        const prevActiveSessionId = state.activeSessionId;
+        const created = createAndActivateSessionInEvent(activeEvt, cleanSessionName, '');
+        if (prevActiveSessionId) {
+          state.activeSessionId = prevActiveSessionId;
+        }
+        return { evt: activeEvt, sess: created };
+      }
     }
 
-    const activeEvt = getActiveEvent();
     const activeSess = getActiveSession();
     if (activeEvt && activeSess) {
       return { evt: activeEvt, sess: activeSess };
+    }
+    if (activeEvt && Array.isArray(activeEvt.sessions) && activeEvt.sessions.length > 0) {
+      return { evt: activeEvt, sess: activeEvt.sessions[0] };
     }
     for (const evt of state.events) {
       if (evt && Array.isArray(evt.sessions) && evt.sessions.length > 0) {
@@ -23575,38 +23615,29 @@
     safeRun('renderCrewPages', () => renderCrewPages());
   }
 
-  function getOrderedCrewSessionsList() {
-    syncFlatSessionsFromEvents(state);
-    const list = [];
-    const sortedEvts = sortEventsDesc(state.events || [], state.activeEventId);
-    sortedEvts.forEach((evt) => {
-      if (!evt || !Array.isArray(evt.sessions)) return;
-      const isLive = !evt.locked;
-      const ordered = sortSessionsDesc(evt.sessions);
-      ordered.forEach((s) => {
-        if (!s) return;
-        list.push({ evt, sess: s, isLive });
-      });
-    });
-    return list;
-  }
-
-  function resolveSelectedCrewSession() {
-    const all = getOrderedCrewSessionsList();
-    if (all.length === 0) return null;
-    if (ui.selectedCrewSessionId) {
-      const found = all.find((x) => x.sess.id === ui.selectedCrewSessionId);
-      if (found) return found;
+  function switchMechanicTab(tabKey) {
+    const nextTab = tabKey === 'post' ? 'post' : 'pre';
+    ui.activeMechTab = nextTab;
+    const preBtn = $('mechTabPre');
+    const postBtn = $('mechTabPost');
+    const prePanel = $('mechPanelPre');
+    const postPanel = $('mechPanelPost');
+    if (preBtn) {
+      preBtn.classList.toggle('active', nextTab === 'pre');
+      preBtn.setAttribute('aria-selected', nextTab === 'pre' ? 'true' : 'false');
     }
-    if (state.activeSessionId) {
-      const activeFound = all.find((x) => x.sess.id === state.activeSessionId);
-      if (activeFound) {
-        ui.selectedCrewSessionId = activeFound.sess.id;
-        return activeFound;
-      }
+    if (postBtn) {
+      postBtn.classList.toggle('active', nextTab === 'post');
+      postBtn.setAttribute('aria-selected', nextTab === 'post' ? 'true' : 'false');
     }
-    ui.selectedCrewSessionId = all[0].sess.id;
-    return all[0];
+    if (prePanel) {
+      prePanel.style.display = nextTab === 'pre' ? 'block' : 'none';
+      prePanel.classList.toggle('active', nextTab === 'pre');
+    }
+    if (postPanel) {
+      postPanel.style.display = nextTab === 'post' ? 'block' : 'none';
+      postPanel.classList.toggle('active', nextTab === 'post');
+    }
   }
 
   function updateMechFuelBurnBadgeFromInputs() {
@@ -23628,158 +23659,160 @@
   }
 
   function renderCrewPages() {
-    const isMechPage = Boolean($('crewMechanicPage'));
-    const isPreRacePage = Boolean($('crewPreRacePage'));
-    if (!isMechPage && !isPreRacePage) return;
+    if (!$('crewMechanicPage')) return;
 
-    const all = getOrderedCrewSessionsList();
-    const current = resolveSelectedCrewSession();
+    syncFlatSessionsFromEvents(state);
+    const liveEvt = resolveActiveUnlockedEvent();
+    const emptyCard = $('mechNoActiveEventCard');
+    const workspaceEl = $('mechActiveEventWorkspace');
 
-    const populateSelect = (selEl) => {
-      if (!selEl) return;
-      if (all.length === 0) {
-        selEl.innerHTML = `<option value="">No saved sessions found</option>`;
-        return;
+    if (!liveEvt) {
+      if (emptyCard) emptyCard.style.display = 'block';
+      if (workspaceEl) workspaceEl.style.display = 'none';
+      return;
+    }
+
+    if (emptyCard) emptyCard.style.display = 'none';
+    if (workspaceEl) workspaceEl.style.display = 'flex';
+
+    // 1. Render locked read-only Event header banner (Track Name • Event Date • Round Title)
+    const venueName = normalizeVenueName(liveEvt.venue || 'Calder Park Raceway');
+    const dispDate = formatIsoDateDisplay(liveEvt.eventDate || getLocalTodayIso()) || liveEvt.eventDate;
+    const roundTitle = liveEvt.eventTitle || 'Race Weekend';
+    if ($('mechActiveEventVenue')) {
+      $('mechActiveEventVenue').textContent = venueName;
+    }
+    if ($('mechActiveEventMeta')) {
+      $('mechActiveEventMeta').textContent = `${dispDate} • ${roundTitle}`;
+    }
+
+    // 2. Populate Native Session Selector with ONLY the sessions inside the active event
+    const selEl = $('mechSessionSelect');
+    const orderedSessions = sortSessionsDesc(Array.isArray(liveEvt.sessions) ? liveEvt.sessions : []);
+    let selectedSess = null;
+
+    if (orderedSessions.length > 0) {
+      if (ui.selectedCrewSessionId) {
+        selectedSess = orderedSessions.find((s) => s && s.id === ui.selectedCrewSessionId) || null;
       }
-      selEl.innerHTML = all
-        .map(({ evt, sess, isLive }) => {
-          const v = normalizeVenueName(sess.venue || evt.venue || 'Calder Park Raceway');
-          const d = sess.sessionDate || formatIsoDateDisplay(sess.sessionDateIso || evt.eventDate);
-          const tag = sess.id === state.activeSessionId ? ' [ACTIVE SESSION]' : isLive ? ' [LIVE EVENT]' : '';
-          return `<option value="${escapeHtml(sess.id)}">${escapeHtml(v)} • ${escapeHtml(d)} • ${escapeHtml(sess.sessionName)}${tag}</option>`;
-        })
-        .join('');
-      if (current && current.sess) {
-        selEl.value = current.sess.id;
+      if (!selectedSess && state.activeSessionId) {
+        selectedSess = orderedSessions.find((s) => s && s.id === state.activeSessionId) || null;
       }
-    };
+      if (!selectedSess) {
+        selectedSess = orderedSessions[0];
+      }
+      ui.selectedCrewSessionId = selectedSess ? selectedSess.id : null;
 
-    if (isMechPage) {
-      populateSelect($('mechSessionSelect'));
-      const s = current ? current.sess : null;
-      if (s) {
-        if ($('mechTargetVenue')) $('mechTargetVenue').value = normalizeVenueName(s.venue || 'Calder Park Raceway');
-        if ($('mechTargetDate')) $('mechTargetDate').value = s.sessionDate || s.sessionDateIso || '';
-        if ($('mechTargetSessionName')) $('mechTargetSessionName').value = s.sessionName || '';
-
-        const t = s.tyres && typeof s.tyres === 'object' ? s.tyres : {};
-        ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-          const coldInp = $(`mechCold_${c}`);
-          const hotInp = $(`mechHot_${c}`);
-          const cObj = t[c] && typeof t[c] === 'object' ? t[c] : {};
-          if (coldInp) {
-            coldInp.value =
-              cObj.cold !== null && cObj.cold !== undefined && Number.isFinite(Number(cObj.cold)) && Number(cObj.cold) > 0
-                ? Number(cObj.cold).toFixed(1)
-                : '';
-          }
-          if (hotInp) {
-            hotInp.value =
-              cObj.hot !== null && cObj.hot !== undefined && Number.isFinite(Number(cObj.hot)) && Number(cObj.hot) > 0
-                ? Number(cObj.hot).toFixed(1)
-                : '';
-          }
-        });
-
-        if ($('mechFuelInL')) {
-          $('mechFuelInL').value =
-            s.fuelInL !== null && s.fuelInL !== undefined && Number.isFinite(Number(s.fuelInL))
-              ? Number(s.fuelInL).toFixed(1)
-              : '';
+      if (selEl) {
+        selEl.innerHTML = orderedSessions
+          .map((s) => {
+            const isAct = s.id === state.activeSessionId;
+            return `<option value="${escapeHtml(s.id)}">${escapeHtml(s.sessionName)}${isAct ? ' (ACTIVE SESSION)' : ''}</option>`;
+          })
+          .join('');
+        if (selectedSess) {
+          selEl.value = selectedSess.id;
         }
-        if ($('mechFuelOutL')) {
-          $('mechFuelOutL').value =
-            s.fuelOutL !== null && s.fuelOutL !== undefined && Number.isFinite(Number(s.fuelOutL))
-              ? Number(s.fuelOutL).toFixed(1)
-              : '';
-        }
-        if ($('mechRacedLaps')) {
-          $('mechRacedLaps').value =
-            s.racedLaps !== null && s.racedLaps !== undefined && Number.isFinite(Number(s.racedLaps)) && Number(s.racedLaps) > 0
-              ? String(Math.round(Number(s.racedLaps)))
-              : '';
-        }
-        if ($('mechNotesInput')) {
-          $('mechNotesInput').value = s.mechanicNotes || '';
-        }
-        if ($('mechLastSavedBadge')) {
-          $('mechLastSavedBadge').textContent = s.mechanicUpdatedAt ? `SAVED ${s.mechanicUpdatedAt}` : 'READY';
-        }
-        updateMechFuelBurnBadgeFromInputs();
+      }
+    } else {
+      // Active event is open, but no session has been commenced yet — list standard weekend sessions for this active event
+      const stdNames = ['Practice 1', 'Qualifying', 'Race 1', 'Race 2', 'Race 3', 'Race 4'];
+      const curVal =
+        ui.selectedCrewSessionId && String(ui.selectedCrewSessionId).startsWith('__NEW_SESS__:')
+          ? ui.selectedCrewSessionId
+          : `__NEW_SESS__:${stdNames[0]}`;
+      ui.selectedCrewSessionId = curVal;
+      if (selEl) {
+        selEl.innerHTML = stdNames
+          .map((name) => `<option value="__NEW_SESS__:${escapeHtml(name)}">${escapeHtml(name)}</option>`)
+          .join('');
+        selEl.value = curVal;
       }
     }
 
-    if (isPreRacePage) {
-      populateSelect($('preRaceSessionSelect'));
-      const s = current ? current.sess : null;
-      if (s) {
-        if ($('preRaceTargetVenue')) $('preRaceTargetVenue').value = normalizeVenueName(s.venue || 'Calder Park Raceway');
-        if ($('preRaceTargetDate')) $('preRaceTargetDate').value = s.sessionDate || s.sessionDateIso || '';
-        if ($('preRaceTargetSessionName')) $('preRaceTargetSessionName').value = s.sessionName || '';
-
-        const preCl = normalizePreRaceChecklist(s.preRaceChecklist);
-        document.querySelectorAll('[data-prerace-check]').forEach((btn) => {
-          const k = btn.getAttribute('data-prerace-check');
-          const checked = Boolean(preCl.items[k]);
-          btn.classList.toggle('is-checked', checked);
-          btn.setAttribute('aria-pressed', checked ? 'true' : 'false');
-          const statusEl = btn.querySelector('.crew-check-status');
-          if (statusEl) {
-            statusEl.textContent = checked ? 'CHECKED ✓' : 'PENDING';
-          }
-        });
-
-        const progBadge = $('preRaceProgressBadge');
-        if (progBadge) {
-          progBadge.textContent = `${preCl.completedCount} / ${preCl.totalCount} ${preCl.allChecked ? 'READY FOR GRID' : 'CHECKED'}`;
-          progBadge.className = `fleet-acc-status-pill ${preCl.allChecked ? 'emerald' : 'amber'} mono`;
-        }
-        if ($('preRaceSignOffNotesInput')) {
-          $('preRaceSignOffNotesInput').value = preCl.signOffNotes || '';
-        }
-        if ($('preRaceLastSavedBadge')) {
-          const ts = preCl.updatedAt || s.mechanicUpdatedAt;
-          $('preRaceLastSavedBadge').textContent = ts ? `SAVED ${ts}` : 'READY';
-        }
+    // 3. Hydrate Tab 1 (Pre-Race Check) & Tab 2 (Post-Race / Pit) fields from selectedSess
+    const preCl = normalizePreRaceChecklist(selectedSess ? selectedSess.preRaceChecklist : null);
+    document.querySelectorAll('[data-prerace-check]').forEach((btn) => {
+      const k = btn.getAttribute('data-prerace-check');
+      const checked = Boolean(preCl.items[k]);
+      btn.classList.toggle('is-checked', checked);
+      btn.setAttribute('aria-pressed', checked ? 'true' : 'false');
+      const statusEl = btn.querySelector('.crew-check-status');
+      if (statusEl) {
+        statusEl.textContent = checked ? 'CHECKED ✓' : 'PENDING';
       }
+    });
+
+    const progBadge = $('preRaceProgressBadge');
+    if (progBadge) {
+      progBadge.textContent = `${preCl.completedCount} / ${preCl.totalCount} ${preCl.allChecked ? 'READY FOR GRID' : 'CHECKED'}`;
+      progBadge.className = `fleet-acc-status-pill ${preCl.allChecked ? 'emerald' : 'amber'} mono`;
     }
+    if ($('preRaceSignOffNotesInput')) {
+      $('preRaceSignOffNotesInput').value = preCl.signOffNotes || '';
+    }
+
+    const t = selectedSess && selectedSess.tyres && typeof selectedSess.tyres === 'object' ? selectedSess.tyres : {};
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const coldInp = $(`mechCold_${c}`);
+      const hotInp = $(`mechHot_${c}`);
+      const cObj = t[c] && typeof t[c] === 'object' ? t[c] : {};
+      if (coldInp) {
+        coldInp.value =
+          cObj.cold !== null && cObj.cold !== undefined && Number.isFinite(Number(cObj.cold)) && Number(cObj.cold) > 0
+            ? Number(cObj.cold).toFixed(1)
+            : '';
+      }
+      if (hotInp) {
+        hotInp.value =
+          cObj.hot !== null && cObj.hot !== undefined && Number.isFinite(Number(cObj.hot)) && Number(cObj.hot) > 0
+            ? Number(cObj.hot).toFixed(1)
+            : '';
+      }
+    });
+
+    if ($('mechFuelInL')) {
+      $('mechFuelInL').value =
+        selectedSess && selectedSess.fuelInL !== null && selectedSess.fuelInL !== undefined && Number.isFinite(Number(selectedSess.fuelInL))
+          ? Number(selectedSess.fuelInL).toFixed(1)
+          : '';
+    }
+    if ($('mechFuelOutL')) {
+      $('mechFuelOutL').value =
+        selectedSess && selectedSess.fuelOutL !== null && selectedSess.fuelOutL !== undefined && Number.isFinite(Number(selectedSess.fuelOutL))
+          ? Number(selectedSess.fuelOutL).toFixed(1)
+          : '';
+    }
+    if ($('mechRacedLaps')) {
+      $('mechRacedLaps').value =
+        selectedSess && selectedSess.racedLaps !== null && selectedSess.racedLaps !== undefined && Number.isFinite(Number(selectedSess.racedLaps)) && Number(selectedSess.racedLaps) > 0
+          ? String(Math.round(Number(selectedSess.racedLaps)))
+          : '';
+    }
+    if ($('mechNotesInput')) {
+      $('mechNotesInput').value = (selectedSess && selectedSess.mechanicNotes) || '';
+    }
+    if ($('mechLastSavedBadge')) {
+      const ts = (selectedSess && selectedSess.mechanicUpdatedAt) || preCl.updatedAt || '';
+      $('mechLastSavedBadge').textContent = ts ? `SAVED ${ts}` : 'READY';
+    }
+    updateMechFuelBurnBadgeFromInputs();
+    switchMechanicTab(ui.activeMechTab || 'pre');
   }
 
-  function readCrewSessionMatchFromInputs(prefix) {
-    const selEl = $(`${prefix}SessionSelect`);
-    const venueEl = $(`${prefix}TargetVenue`);
-    const dateEl = $(`${prefix}TargetDate`);
-    const nameEl = $(`${prefix}TargetSessionName`);
+  function readCrewSessionMatchFromInputs() {
+    const selEl = $('mechSessionSelect');
     const selectedId = selEl ? selEl.value : ui.selectedCrewSessionId || '';
-    const current = resolveSelectedCrewSession();
-    const typedVenue = venueEl ? venueEl.value.trim() : '';
-    const typedDate = dateEl ? dateEl.value.trim() : '';
-    const typedName = nameEl ? nameEl.value.trim() : '';
-
-    // If user typed a different session name/venue/date than the selected option, allow matching by venue+sessionDate+sessionName
-    if (
-      current &&
-      current.sess &&
-      current.sess.id === selectedId &&
-      (!typedName || typedName.toLowerCase() === String(current.sess.sessionName || '').trim().toLowerCase())
-    ) {
-      return {
-        id: selectedId,
-        venue: typedVenue || current.sess.venue,
-        sessionDate: typedDate || current.sess.sessionDate,
-        sessionName: typedName || current.sess.sessionName
-      };
-    }
+    const liveEvt = resolveActiveUnlockedEvent();
     return {
       id: selectedId || undefined,
-      venue: typedVenue,
-      sessionDate: typedDate,
-      sessionName: typedName
+      venue: liveEvt ? liveEvt.venue : undefined,
+      sessionDate: liveEvt ? liveEvt.eventDate : undefined
     };
   }
 
   function saveMechanicPageInput() {
-    const match = readCrewSessionMatchFromInputs('mech');
+    const match = readCrewSessionMatchFromInputs();
     const tyres = {};
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const coldEl = $(`mechCold_${c}`);
@@ -23805,14 +23838,14 @@
     if (updated) {
       ui.selectedCrewSessionId = updated.id;
       renderCrewPages();
-      showToast(`Saved Pit & Post-Session Data (${updated.sessionName})`);
+      showToast(`Saved Post-Race / Pit Data (${updated.sessionName})`);
     } else {
-      showToast('Could not find matching target session');
+      showToast('No active event open — ask Warren to start the weekend event');
     }
   }
 
   function savePreRaceChecklistPageInput(customItemsPatch = null, toastMsg = '') {
-    const match = readCrewSessionMatchFromInputs('preRace');
+    const match = readCrewSessionMatchFromInputs();
     const items = {};
     document.querySelectorAll('[data-prerace-check]').forEach((btn) => {
       const k = btn.getAttribute('data-prerace-check');
@@ -26163,11 +26196,32 @@
     // Network status, Offline-First Cloud Sync & PWA Install prompt
     if ($('netStatusBadge')) {
       $('netStatusBadge').addEventListener('click', () => {
+        if ($('crewMechanicPage')) {
+          const drawer = $('mechCloudSyncDrawer');
+          if (drawer) {
+            const isHidden = drawer.style.display === 'none' || !drawer.style.display;
+            drawer.style.display = isHidden ? 'block' : 'none';
+            const cfg = loadCloudConfig();
+            if ($('inputCloudSyncKeyMech') && cfg.syncKey) {
+              $('inputCloudSyncKeyMech').value = cfg.syncKey;
+            }
+            if ($('inputCloudDeviceLabelMech') && cfg.deviceLabel) {
+              $('inputCloudDeviceLabelMech').value = cfg.deviceLabel;
+            }
+          }
+          return;
+        }
         openCloudSyncModal();
       });
     }
 
-    ['Log', 'Fleet', 'Modal'].forEach((suffix) => {
+    if ($('btnCloseMechCloudDrawer')) {
+      $('btnCloseMechCloudDrawer').addEventListener('click', () => {
+        if ($('mechCloudSyncDrawer')) $('mechCloudSyncDrawer').style.display = 'none';
+      });
+    }
+
+    ['Log', 'Fleet', 'Modal', 'Mech'].forEach((suffix) => {
       const btnSave = $(`btnSaveConnectCloud${suffix}`);
       if (btnSave) {
         btnSave.addEventListener('click', () => {
@@ -26191,6 +26245,13 @@
         btnDisconnect.addEventListener('click', () => {
           disconnectCloudDevice();
         });
+      }
+    });
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === STORAGE_KEY) {
+        state = loadState();
+        renderAll();
       }
     });
 
@@ -26258,16 +26319,40 @@
       });
     }
 
-    // Crew Pages (mechanic.html & pre-race.html) bindings
-    ['mechSessionSelect', 'preRaceSessionSelect'].forEach((selId) => {
-      const selEl = $(selId);
-      if (selEl) {
-        selEl.addEventListener('change', (e) => {
-          ui.selectedCrewSessionId = e.target.value || null;
-          renderCrewPages();
-        });
+    // Consolidated Mechanic Mini-PWA (mechanic.html) bindings
+    if ($('mechSessionSelect')) {
+      $('mechSessionSelect').addEventListener('change', (e) => {
+        ui.selectedCrewSessionId = e.target.value || null;
+        renderCrewPages();
+      });
+    }
+
+    const triggerMechSyncRefresh = () => {
+      state = loadState();
+      renderCrewPages();
+      const cfg = loadCloudConfig();
+      if (cfg.syncKey && navigator.onLine) {
+        if (cfg.pendingPush) {
+          pushStateToCloud({ manual: true });
+        } else {
+          pullStateFromCloud(true);
+        }
+      } else {
+        const liveEvt = resolveActiveUnlockedEvent();
+        if (liveEvt) {
+          showToast(`Synced Active Event: ${liveEvt.venue}`);
+        } else {
+          showToast('Refreshed local state — no active event open yet');
+        }
       }
-    });
+    };
+
+    if ($('btnMechSyncRefreshEmpty')) {
+      $('btnMechSyncRefreshEmpty').addEventListener('click', triggerMechSyncRefresh);
+    }
+    if ($('btnMechSyncRefreshActive')) {
+      $('btnMechSyncRefreshActive').addEventListener('click', triggerMechSyncRefresh);
+    }
 
     if ($('btnMechClearAllColdPsi')) {
       $('btnMechClearAllColdPsi').addEventListener('click', () => {
@@ -26312,12 +26397,18 @@
 
     if ($('btnSavePreRaceChecklist')) {
       $('btnSavePreRaceChecklist').addEventListener('click', () => {
-        savePreRaceChecklistPageInput(null, 'Saved Pre-Race Checklist & Sign-Off');
+        savePreRaceChecklistPageInput(null, 'Saved Pre-Race Check');
       });
     }
 
-    if ($('crewMechanicPage') || $('crewPreRacePage')) {
+    if ($('crewMechanicPage')) {
       document.addEventListener('click', (e) => {
+        const mechTabBtn = e.target.closest('[data-mech-tab]');
+        if (mechTabBtn) {
+          switchMechanicTab(mechTabBtn.getAttribute('data-mech-tab'));
+          return;
+        }
+
         const clearColdBtn = e.target.closest('[data-mech-clear-cold]');
         if (clearColdBtn) {
           const c = clearColdBtn.getAttribute('data-mech-clear-cold');

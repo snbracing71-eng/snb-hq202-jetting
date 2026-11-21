@@ -7818,10 +7818,85 @@ button:disabled.btn-stage-locked,
 }
 
 /* ============================================================================
-   DEDICATED TABLET-FRIENDLY CREW PAGES (mechanic.html & pre-race.html)
+   DEDICATED TABLET-FRIENDLY MECHANIC MINI-PWA (mechanic.html)
    ============================================================================ */
 .crew-page-body {
-  padding-bottom: 36px;
+  padding-bottom: 96px;
+}
+
+.bottom-tab-inner.mech-bottom-tab-inner {
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 8px !important;
+  padding: 6px 10px !important;
+}
+
+.mech-bottom-tab-bar .tab-btn {
+  min-height: 52px !important;
+  font-size: 13px !important;
+  font-weight: 900;
+}
+
+.crew-workspace-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.crew-no-event-card {
+  text-align: center;
+  padding: 26px 18px !important;
+  border: 2px solid #F59E0B !important;
+  background: linear-gradient(180deg, #1E2636 0%, #111620 100%) !important;
+}
+
+.crew-no-event-icon {
+  font-size: 2.2rem;
+  margin-bottom: 8px;
+}
+
+.crew-no-event-title {
+  margin: 0 0 8px;
+  font-size: 1.12rem;
+  font-weight: 900;
+  color: #F8FAFC;
+  line-height: 1.35;
+}
+
+.crew-no-event-sub {
+  margin: 0 0 16px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #CBD5E1;
+  line-height: 1.45;
+}
+
+.crew-active-event-card {
+  border-color: #10B981 !important;
+  border-top-color: #6EE7B7 !important;
+}
+
+.crew-event-banner-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.crew-event-venue-line {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #F8FAFC;
+  line-height: 1.2;
+}
+
+.crew-event-meta-line {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #FCD34D;
+  margin-top: 3px;
 }
 
 .crew-header-inner {
@@ -7832,29 +7907,10 @@ button:disabled.btn-stage-locked,
   flex-wrap: wrap;
 }
 
-.crew-header-nav {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.crew-nav-btn {
-  min-height: 48px;
-  padding: 10px 14px;
-  font-size: 0.92rem;
-  font-weight: 900;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-
 .crew-main-container {
-  max-width: 900px;
+  max-width: 760px;
   margin: 0 auto;
-  padding: 14px 12px 32px;
+  padding: 0 12px 32px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -8194,6 +8250,12 @@ button:disabled.btn-stage-locked,
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
     gap: 3px !important;
     padding: 6px 4px !important;
+  }
+
+  .bottom-tab-inner.mech-bottom-tab-inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    padding: 6px 8px !important;
   }
 
   .bottom-tab-bar .tab-btn,
