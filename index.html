@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.0.3" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.4" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -2168,7 +2168,7 @@
 
     <!-- =========================================================
          TAB 5: MAIN & SPARES (5 TOP-LEVEL COLLAPSIBLE ACCORDION BARS)
-         1) NOTES | 2) CORNER WEIGHTS | 3) MAINTENANCE | 4) TRACK BENCHMARKS | 5) STOCK (10 Nested Hardware & Spares Sectors)
+         1) NOTES | 2) MAINTENANCE | 3) CORNER WEIGHTS | 4) TRACK BENCHMARKS | 5) STOCK (12 Nested Hardware & Spares Sectors)
          ========================================================= -->
     <section id="tab-fleet" class="tab-panel" aria-labelledby="navTabFleet">
       <!-- 1) NOTES (To Buy & To Do Live Checklists) (data-fleet-acc="notes") -->
@@ -2193,71 +2193,125 @@
         <div class="fleet-acc-body" id="fleetAccBody_notes" style="display: none;">
           <div class="workshop-notes-grid">
             <!-- Panel 1: TO BUY (Parts & Consumables) -->
-            <div class="card-elevated workshop-checklist-panel" id="workshopToBuyPanel">
-              <div class="workshop-checklist-head">
-                <div>
+            <div class="card-elevated workshop-checklist-panel is-open" id="workshopToBuyPanel" data-workshop-panel="toBuy">
+              <button
+                type="button"
+                class="workshop-checklist-head"
+                id="btnToggleToBuyPanel"
+                data-toggle-workshop-panel="toBuy"
+                aria-expanded="true"
+                aria-controls="workshopToBuyBody"
+              >
+                <div class="workshop-checklist-head-left">
                   <div class="section-eyebrow" style="margin-bottom: 2px;">PARTS &amp; CONSUMABLES</div>
                   <div class="workshop-checklist-title">TO BUY</div>
                 </div>
-                <span class="locked-badge mono" id="outToBuyCountBadge">0 OPEN</span>
-              </div>
+                <div class="workshop-checklist-head-right">
+                  <span class="locked-badge mono" id="outToBuyCountBadge">0 OPEN</span>
+                  <span class="fleet-acc-chevron workshop-acc-chevron" id="chevronWorkshopToBuy" aria-hidden="true">&#9660;</span>
+                </div>
+              </button>
 
-              <div class="workshop-add-row">
-                <input
-                  type="text"
-                  id="inputNewToBuyText"
-                  class="text-input workshop-add-input"
-                  placeholder="Part or consumable to buy..."
-                  aria-label="New To Buy Item"
-                  autocomplete="off"
-                />
-                <input
-                  type="text"
-                  id="inputNewToBuyNote"
-                  class="text-input workshop-add-note-input"
-                  placeholder="Qty / Part # (Opt)"
-                  aria-label="Optional Quantity or Note for To Buy Item"
-                  autocomplete="off"
-                />
-                <button type="button" class="btn btn-confirm btn-xs workshop-add-btn" id="btnAddToBuyItem">
-                  + Add
-                </button>
-              </div>
+              <div class="workshop-checklist-body" id="workshopToBuyBody">
+                <div class="workshop-add-row">
+                  <input
+                    type="text"
+                    id="inputNewToBuyText"
+                    class="text-input workshop-add-input"
+                    placeholder="Part or consumable to buy..."
+                    aria-label="New To Buy Item"
+                    autocomplete="off"
+                  />
+                  <input
+                    type="text"
+                    id="inputNewToBuyNote"
+                    class="text-input workshop-add-note-input"
+                    placeholder="Qty / Part # (Opt)"
+                    aria-label="Optional Quantity or Note for To Buy Item"
+                    autocomplete="off"
+                  />
+                  <button type="button" class="btn btn-confirm btn-xs workshop-add-btn" id="btnAddToBuyItem">
+                    + Add
+                  </button>
+                </div>
 
-              <div id="workshopToBuyList" class="workshop-checklist-items"></div>
+                <div id="workshopToBuyList" class="workshop-checklist-items"></div>
+              </div>
             </div>
 
             <!-- Panel 2: TO DO (Workshop Prep & Checks) -->
-            <div class="card-elevated workshop-checklist-panel" id="workshopToDoPanel">
-              <div class="workshop-checklist-head">
-                <div>
+            <div class="card-elevated workshop-checklist-panel is-open" id="workshopToDoPanel" data-workshop-panel="toDo">
+              <button
+                type="button"
+                class="workshop-checklist-head"
+                id="btnToggleToDoPanel"
+                data-toggle-workshop-panel="toDo"
+                aria-expanded="true"
+                aria-controls="workshopToDoBody"
+              >
+                <div class="workshop-checklist-head-left">
                   <div class="section-eyebrow" style="margin-bottom: 2px;">WORKSHOP PREP &amp; CHECKS</div>
                   <div class="workshop-checklist-title">TO DO</div>
                 </div>
-                <span class="locked-badge mono" id="outToDoCountBadge">0 OPEN</span>
-              </div>
+                <div class="workshop-checklist-head-right">
+                  <span class="locked-badge mono" id="outToDoCountBadge">0 OPEN</span>
+                  <span class="fleet-acc-chevron workshop-acc-chevron" id="chevronWorkshopToDo" aria-hidden="true">&#9660;</span>
+                </div>
+              </button>
 
-              <div class="workshop-add-row">
-                <input
-                  type="text"
-                  id="inputNewToDoText"
-                  class="text-input workshop-add-input"
-                  placeholder="Workshop prep task or check..."
-                  aria-label="New To Do Item"
-                  autocomplete="off"
-                />
-                <button type="button" class="btn btn-confirm btn-xs workshop-add-btn" id="btnAddToDoItem">
-                  + Add
-                </button>
-              </div>
+              <div class="workshop-checklist-body" id="workshopToDoBody">
+                <div class="workshop-add-row">
+                  <input
+                    type="text"
+                    id="inputNewToDoText"
+                    class="text-input workshop-add-input"
+                    placeholder="Workshop prep task or check..."
+                    aria-label="New To Do Item"
+                    autocomplete="off"
+                  />
+                  <button type="button" class="btn btn-confirm btn-xs workshop-add-btn" id="btnAddToDoItem">
+                    + Add
+                  </button>
+                </div>
 
-              <div id="workshopToDoList" class="workshop-checklist-items"></div>
+                <div id="workshopToDoList" class="workshop-checklist-items"></div>
+              </div>
             </div>
           </div>
         </div>
       </article>
 
-      <!-- 2) CORNER WEIGHTS (data-fleet-acc="corner_weights") -->
+      <!-- 2) MAINTENANCE (19 Alphabetical Service & Install Items) (data-fleet-acc="maintenance") -->
+      <article class="fleet-acc-card" id="maintenanceFleetCard" data-fleet-acc-card="maintenance">
+        <button
+          type="button"
+          class="fleet-acc-header"
+          data-fleet-acc="maintenance"
+          aria-expanded="false"
+          aria-controls="fleetAccBody_maintenance"
+        >
+          <div class="fleet-acc-left">
+            <div class="fleet-acc-title">MAINTENANCE</div>
+            <div class="fleet-acc-sub">Service Dates, Component Installs &amp; Product Specs (A&ndash;Z)</div>
+          </div>
+          <div class="fleet-acc-right">
+            <span class="fleet-acc-status-pill emerald" id="fleetMaintenanceSummaryBadge">0/19 LOGGED</span>
+            <span class="fleet-acc-chevron" data-fleet-acc-chevron="maintenance" aria-hidden="true">&#9654;</span>
+          </div>
+        </button>
+
+        <div class="fleet-acc-body" id="fleetAccBody_maintenance" style="display: none;">
+          <div id="maintenanceFleetContainer"></div>
+
+          <div class="maintenance-add-custom-wrap" style="margin-top: 10px;">
+            <button type="button" class="btn btn-secondary btn-full" id="btnOpenAddCustomMaintenance" style="min-height: 40px; font-size: 0.85rem;">
+              + Add Custom Maintenance Item
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <!-- 3) CORNER WEIGHTS (data-fleet-acc="corner_weights") -->
       <article class="fleet-acc-card" id="cornerWeightBaselineCard" data-fleet-acc-card="corner_weights">
         <button
           type="button"
@@ -2427,36 +2481,6 @@
               </div>
               <div id="cwSpacerRefTableContainer"></div>
             </div>
-          </div>
-        </div>
-      </article>
-
-      <!-- 3) MAINTENANCE (19 Alphabetical Service & Install Items) (data-fleet-acc="maintenance") -->
-      <article class="fleet-acc-card" id="maintenanceFleetCard" data-fleet-acc-card="maintenance">
-        <button
-          type="button"
-          class="fleet-acc-header"
-          data-fleet-acc="maintenance"
-          aria-expanded="false"
-          aria-controls="fleetAccBody_maintenance"
-        >
-          <div class="fleet-acc-left">
-            <div class="fleet-acc-title">MAINTENANCE</div>
-            <div class="fleet-acc-sub">Service Dates, Component Installs &amp; Product Specs (A&ndash;Z)</div>
-          </div>
-          <div class="fleet-acc-right">
-            <span class="fleet-acc-status-pill emerald" id="fleetMaintenanceSummaryBadge">0/19 LOGGED</span>
-            <span class="fleet-acc-chevron" data-fleet-acc-chevron="maintenance" aria-hidden="true">&#9654;</span>
-          </div>
-        </button>
-
-        <div class="fleet-acc-body" id="fleetAccBody_maintenance" style="display: none;">
-          <div id="maintenanceFleetContainer"></div>
-
-          <div class="maintenance-add-custom-wrap" style="margin-top: 10px;">
-            <button type="button" class="btn btn-secondary btn-full" id="btnOpenAddCustomMaintenance" style="min-height: 40px; font-size: 0.85rem;">
-              + Add Custom Maintenance Item
-            </button>
           </div>
         </div>
       </article>
@@ -5823,6 +5847,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=1.0.3"></script>
+  <script src="./app.js?v=1.0.4"></script>
 </body>
 </html>

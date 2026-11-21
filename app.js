@@ -7052,6 +7052,10 @@
     expandedEventId: null,
     expandedSessionId: null,
     expandedEventIds: new Set(),
+    collapsedLiveEventIds: new Set(),
+    previousSessionsOpen: false,
+    workshopToBuyOpen: true,
+    workshopToDoOpen: true,
     expandedShockDynoIds: new Set(),
     openFleetSectionId: null,
     openStockSectorId: null,
@@ -9950,6 +9954,9 @@
     state.awaitingPostRaceId = null;
     state.events = sortEventsDesc(state.events, state.activeEventId);
     ui.expandedEventIds.add(newEvt.id);
+    if (ui.collapsedLiveEventIds instanceof Set) {
+      ui.collapsedLiveEventIds.delete(newEvt.id);
+    }
 
     // Sync circuit's saved L/lap & cold tyre baselines immediately
     loadTrackProfileToFuelAndTyreInputs(venue);
@@ -10008,6 +10015,9 @@
     const preNotes = (($('gateBPreRaceNotesInput') && $('gateBPreRaceNotesInput').value) || '').trim();
     const created = createAndActivateSessionInEvent(liveEvt, chosenName, preNotes);
     ui.expandedEventIds.add(liveEvt.id);
+    if (ui.collapsedLiveEventIds instanceof Set) {
+      ui.collapsedLiveEventIds.delete(liveEvt.id);
+    }
 
     if ($('gateBCommenceSessionSelect')) $('gateBCommenceSessionSelect').value = '';
     if ($('gateBCustomSessionInput')) $('gateBCustomSessionInput').value = '';
@@ -10099,6 +10109,9 @@
 
     const created = createAndActivateSessionInEvent(liveEvt, nextName, preNotes);
     ui.expandedEventIds.add(liveEvt.id);
+    if (ui.collapsedLiveEventIds instanceof Set) {
+      ui.collapsedLiveEventIds.delete(liveEvt.id);
+    }
 
     closeModal('modalPromptNextSession');
     saveState();
@@ -16324,11 +16337,14 @@
       });
     });
 
-    // Sort Events: any LIVE EVENT pinned #1, then MOST RECENT EVENT DATE FIRST down to OLDEST LAST
+    // Sort Events: any LIVE / UNLOCKED EVENT pinned #1, then MOST RECENT EVENT DATE FIRST down to OLDEST LAST
     filteredEventEntries.sort((a, b) => {
-      const isLiveA = !a.evt.locked && a.evt.id === state.activeEventId;
-      const isLiveB = !b.evt.locked && b.evt.id === state.activeEventId;
+      const isLiveA = !a.evt.locked;
+      const isLiveB = !b.evt.locked;
       if (isLiveA !== isLiveB) return isLiveA ? -1 : 1;
+      const isActiveA = !a.evt.locked && a.evt.id === state.activeEventId;
+      const isActiveB = !b.evt.locked && b.evt.id === state.activeEventId;
+      if (isActiveA !== isActiveB) return isActiveA ? -1 : 1;
       const dateA = a.evt.eventDate || fallbackIso;
       const dateB = b.evt.eventDate || fallbackIso;
       if (dateA !== dateB) return dateB.localeCompare(dateA);
@@ -16365,60 +16381,105 @@
       return;
     }
 
-    listEl.innerHTML = filteredEventEntries
-      .map(({ evt, orderedSessions }) => {
-        const isLiveEvt = !evt.locked && evt.id === state.activeEventId;
-        const isExpanded =
-          queryTokens.length > 0 ||
+    const renderEventLogCardHtml = ({ evt, orderedSessions }, isLiveEvt) => {
+      const isCollapsedManually =
+        ui.collapsedLiveEventIds instanceof Set && ui.collapsedLiveEventIds.has(evt.id);
+      const isExpanded = isLiveEvt
+        ? queryTokens.length > 0 || !isCollapsedManually
+        : queryTokens.length > 0 ||
           ui.expandedEventId === evt.id ||
           (ui.expandedEventIds instanceof Set && ui.expandedEventIds.has(evt.id));
-        const dispDate = formatIsoDateDisplay(evt.eventDate || fallbackIso) || evt.eventDate;
-        const titlePart = evt.eventTitle ? ` &bull; ${escapeHtml(evt.eventTitle)}` : '';
-        const sessCount = orderedSessions.length;
-        const statusBadgeHtml = isLiveEvt
-          ? `<span class="event-status-badge live">&#128994; LIVE</span>`
-          : `<span class="event-status-badge locked">&#128274; LOCKED</span>`;
+      const dispDate = formatIsoDateDisplay(evt.eventDate || fallbackIso) || evt.eventDate;
+      const titlePart = evt.eventTitle ? ` &bull; ${escapeHtml(evt.eventTitle)}` : '';
+      const sessCount = orderedSessions.length;
+      const statusBadgeHtml = isLiveEvt
+        ? `<span class="event-status-badge live">&#128994; LIVE</span>`
+        : `<span class="event-status-badge locked">&#128274; LOCKED</span>`;
 
-        return `
-          <section class="event-log-card ${isLiveEvt ? 'event-live' : 'event-locked'} ${isExpanded ? 'expanded' : ''}" data-event-id="${escapeHtml(evt.id)}">
-            <div
-              role="button"
-              tabindex="0"
-              class="event-card-header"
-              data-toggle-event-acc="${escapeHtml(evt.id)}"
-              aria-expanded="${isExpanded ? 'true' : 'false'}"
-            >
-              <div class="event-header-left">
-                <div class="event-header-venue">${escapeHtml(evt.venue)}</div>
-                <div class="event-header-sub tabular">${escapeHtml(dispDate)}${titlePart}</div>
-              </div>
-              <div class="event-header-right">
-                ${statusBadgeHtml}
-                <span class="event-session-count-pill tabular">${sessCount} ${sessCount === 1 ? 'SESSION' : 'SESSIONS'}</span>
-                <button
-                  type="button"
-                  class="btn-icon-delete event-delete-btn"
-                  data-delete-event="${escapeHtml(evt.id)}"
-                  title="Delete Event"
-                  aria-label="Delete Event"
-                >&#10005;</button>
-                <span class="event-acc-chevron" aria-hidden="true">${isExpanded ? '&#9660;' : '&#9654;'}</span>
-              </div>
+      return `
+        <section class="event-log-card ${isLiveEvt ? 'event-live' : 'event-locked'} ${isExpanded ? 'expanded' : ''}" data-event-id="${escapeHtml(evt.id)}">
+          <div
+            role="button"
+            tabindex="0"
+            class="event-card-header"
+            data-toggle-event-acc="${escapeHtml(evt.id)}"
+            aria-expanded="${isExpanded ? 'true' : 'false'}"
+          >
+            <div class="event-header-left">
+              <div class="event-header-venue">${escapeHtml(evt.venue)}</div>
+              <div class="event-header-sub tabular">${escapeHtml(dispDate)}${titlePart}</div>
             </div>
+            <div class="event-header-right">
+              ${statusBadgeHtml}
+              <span class="event-session-count-pill tabular">${sessCount} ${sessCount === 1 ? 'SESSION' : 'SESSIONS'}</span>
+              <button
+                type="button"
+                class="btn-icon-delete event-delete-btn"
+                data-delete-event="${escapeHtml(evt.id)}"
+                title="Delete Event"
+                aria-label="Delete Event"
+              >&#10005;</button>
+              <span class="event-acc-chevron" aria-hidden="true">${isExpanded ? '&#9660;' : '&#9654;'}</span>
+            </div>
+          </div>
 
-            <div class="event-sessions-body" style="display: ${isExpanded ? 'block' : 'none'};">
-              ${
-                orderedSessions.length > 0
-                  ? `<div class="event-session-list">${orderedSessions
-                      .map((s) => renderCompactSessionAccordionItemHtml(s, Boolean(evt.locked)))
-                      .join('')}</div>`
-                  : `<div style="padding: 10px 6px 14px; font-size: 0.85rem; color: var(--text-secondary);">No sessions logged in this event yet.</div>`
-              }
-            </div>
-          </section>
-        `;
-      })
+          <div class="event-sessions-body" style="display: ${isExpanded ? 'block' : 'none'};">
+            ${
+              orderedSessions.length > 0
+                ? `<div class="event-session-list">${orderedSessions
+                    .map((s) => renderCompactSessionAccordionItemHtml(s, Boolean(evt.locked)))
+                    .join('')}</div>`
+                : `<div style="padding: 10px 6px 14px; font-size: 0.85rem; color: var(--text-secondary);">No sessions logged in this event yet.</div>`
+            }
+          </div>
+        </section>
+      `;
+    };
+
+    const liveEventEntries = filteredEventEntries.filter(({ evt }) => !evt.locked);
+    const previousEventEntries = filteredEventEntries.filter(({ evt }) => Boolean(evt.locked));
+
+    const liveEventsHtml = liveEventEntries
+      .map((entry) => renderEventLogCardHtml(entry, true))
       .join('');
+
+    let previousEventsGroupHtml = '';
+    if (previousEventEntries.length > 0) {
+      const prevEventCount = previousEventEntries.length;
+      const prevSessionCount = previousEventEntries.reduce(
+        (sum, item) => sum + item.orderedSessions.length,
+        0
+      );
+      const isPrevGroupOpen = Boolean(ui.previousSessionsOpen) || queryTokens.length > 0;
+
+      previousEventsGroupHtml = `
+        <section class="previous-sessions-acc-card ${isPrevGroupOpen ? 'expanded' : ''}" id="previousSessionsAccCard">
+          <button
+            type="button"
+            class="previous-sessions-acc-header"
+            id="btnTogglePreviousSessionsAcc"
+            data-toggle-previous-sessions-acc="1"
+            aria-expanded="${isPrevGroupOpen ? 'true' : 'false'}"
+            aria-controls="previousSessionsAccBody"
+          >
+            <div class="event-header-left">
+              <div class="event-header-venue">PREVIOUS SESSIONS</div>
+              <div class="event-header-sub">Locked &amp; Completed Historical Race Weekends</div>
+            </div>
+            <div class="event-header-right">
+              <span class="event-session-count-pill tabular">${prevEventCount} ${prevEventCount === 1 ? 'EVENT' : 'EVENTS'} &bull; ${prevSessionCount} ${prevSessionCount === 1 ? 'SESSION' : 'SESSIONS'}</span>
+              <span class="event-acc-chevron" aria-hidden="true">${isPrevGroupOpen ? '&#9660;' : '&#9654;'}</span>
+            </div>
+          </button>
+
+          <div class="previous-sessions-acc-body" id="previousSessionsAccBody" style="display: ${isPrevGroupOpen ? 'flex' : 'none'};">
+            ${previousEventEntries.map((entry) => renderEventLogCardHtml(entry, false)).join('')}
+          </div>
+        </section>
+      `;
+    }
+
+    listEl.innerHTML = `${liveEventsHtml}${previousEventsGroupHtml}`;
   }
 
   function renderInlineSessionAfrEditor(s) {
@@ -22741,6 +22802,46 @@
         'No workshop prep or check tasks pending.'
       );
     }
+
+    syncWorkshopPanelsAccordionUi();
+  }
+
+  function syncWorkshopPanelsAccordionUi() {
+    const panels = [
+      {
+        isOpen: ui.workshopToBuyOpen !== false,
+        panelId: 'workshopToBuyPanel',
+        btnId: 'btnToggleToBuyPanel',
+        bodyId: 'workshopToBuyBody',
+        chevId: 'chevronWorkshopToBuy'
+      },
+      {
+        isOpen: ui.workshopToDoOpen !== false,
+        panelId: 'workshopToDoPanel',
+        btnId: 'btnToggleToDoPanel',
+        bodyId: 'workshopToDoBody',
+        chevId: 'chevronWorkshopToDo'
+      }
+    ];
+    panels.forEach(({ isOpen, panelId, btnId, bodyId, chevId }) => {
+      const panelEl = $(panelId);
+      const btnEl = $(btnId);
+      const bodyEl = $(bodyId);
+      const chevEl = $(chevId);
+      if (panelEl) {
+        panelEl.classList.toggle('is-open', isOpen);
+        panelEl.classList.toggle('is-collapsed', !isOpen);
+      }
+      if (btnEl) {
+        btnEl.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      }
+      if (bodyEl) {
+        bodyEl.style.display = isOpen ? 'block' : 'none';
+      }
+      if (chevEl) {
+        chevEl.innerHTML = isOpen ? '&#9660;' : '&#9654;';
+      }
+    });
   }
 
   function addWorkshopNoteItem(listKey) {
@@ -23309,25 +23410,44 @@
         return;
       }
 
+      const togglePrevSessionsAccBtn = e.target.closest('[data-toggle-previous-sessions-acc]');
+      if (togglePrevSessionsAccBtn) {
+        ui.previousSessionsOpen = !ui.previousSessionsOpen;
+        renderSessionLog();
+        return;
+      }
+
       const toggleEventAccBtn = e.target.closest('[data-toggle-event-acc]');
       if (toggleEventAccBtn) {
         const eid = toggleEventAccBtn.getAttribute('data-toggle-event-acc');
+        const evt = Array.isArray(state.events) ? state.events.find((ev) => ev && ev.id === eid) : null;
+        const isLiveEvt = Boolean(evt && !evt.locked);
         if (!(ui.expandedEventIds instanceof Set)) {
           ui.expandedEventIds = new Set();
         }
-        const wasOpen = ui.expandedEventId === eid || ui.expandedEventIds.has(eid);
+        if (!(ui.collapsedLiveEventIds instanceof Set)) {
+          ui.collapsedLiveEventIds = new Set();
+        }
+        const wasOpen = isLiveEvt
+          ? !ui.collapsedLiveEventIds.has(eid)
+          : (ui.expandedEventId === eid || ui.expandedEventIds.has(eid));
         if (wasOpen) {
+          if (isLiveEvt) {
+            ui.collapsedLiveEventIds.add(eid);
+          }
           if (ui.expandedEventId === eid) {
             ui.expandedEventId = null;
           }
           ui.expandedEventIds.delete(eid);
           // If closing this Event, also collapse any open session inside it
-          const evt = Array.isArray(state.events) ? state.events.find((ev) => ev && ev.id === eid) : null;
           if (evt && Array.isArray(evt.sessions) && evt.sessions.some((s) => s && s.id === ui.expandedSessionId)) {
             ui.expandedSessionId = null;
             ui.editingSessionId = null;
           }
         } else {
+          if (isLiveEvt) {
+            ui.collapsedLiveEventIds.delete(eid);
+          }
           ui.expandedEventId = eid;
           ui.expandedEventIds.add(eid);
         }
@@ -23941,6 +24061,18 @@
       const fleetAccHeader = e.target.closest('[data-fleet-acc]');
       if (fleetAccHeader) {
         toggleFleetAccordion(fleetAccHeader.getAttribute('data-fleet-acc'));
+        return;
+      }
+
+      const toggleWorkshopPanelBtn = e.target.closest('[data-toggle-workshop-panel]');
+      if (toggleWorkshopPanelBtn) {
+        const panelKey = toggleWorkshopPanelBtn.getAttribute('data-toggle-workshop-panel');
+        if (panelKey === 'toBuy') {
+          ui.workshopToBuyOpen = ui.workshopToBuyOpen === false;
+        } else if (panelKey === 'toDo') {
+          ui.workshopToDoOpen = ui.workshopToDoOpen === false;
+        }
+        syncWorkshopPanelsAccordionUi();
         return;
       }
 
@@ -25514,9 +25646,10 @@
 
   function registerServiceWorker() {
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+      const hadActiveController = Boolean(navigator.serviceWorker.controller);
       let refreshing = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (refreshing) return;
+        if (!hadActiveController || refreshing) return;
         refreshing = true;
         window.location.reload();
       });
@@ -25524,8 +25657,8 @@
       window.addEventListener('load', () => {
         navigator.serviceWorker
           .register('./sw.js', { updateViaCache: 'none' })
-          .then((reg) => {
-            reg.update().catch(() => {});
+          .then((registration) => {
+            registration.update().catch(() => {});
           })
           .catch((err) => {
             console.warn('Service worker registration skipped:', err);

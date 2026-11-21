@@ -3701,6 +3701,69 @@ textarea:focus-visible {
   border-top-color: #6EE7B7;
 }
 
+.previous-sessions-acc-card {
+  margin-top: 4px;
+  margin-bottom: 14px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: linear-gradient(180deg, #1E2736 0%, #121822 100%);
+  border: 2px solid #3B4B64;
+  border-top-color: #5E7394;
+  border-bottom-color: #161E2B;
+  box-shadow:
+    0 0 0 1px #05070A,
+    0 8px 20px rgba(0, 0, 0, 0.8),
+    inset 0 1px 1px rgba(255, 255, 255, 0.16);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.previous-sessions-acc-card.expanded {
+  border-color: rgba(245, 158, 11, 0.65);
+  border-top-color: #FBBF24;
+}
+
+.previous-sessions-acc-header {
+  width: 100%;
+  text-align: left;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 70%),
+    linear-gradient(180deg, #273245 0%, #171F2C 65%, #111620 100%);
+  border: none;
+  border-bottom: 1px solid transparent;
+  padding: 13px 14px;
+  color: #F8FAFC;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  user-select: none;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.previous-sessions-acc-header:hover {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255, 255, 255, 0.14) 0%, transparent 70%),
+    linear-gradient(180deg, #303E55 0%, #1D2636 65%, #141B27 100%);
+}
+
+.previous-sessions-acc-card.expanded > .previous-sessions-acc-header {
+  border-bottom-color: rgba(148, 163, 184, 0.22);
+}
+
+.previous-sessions-acc-body {
+  padding: 10px;
+  background: rgba(9, 11, 14, 0.62);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.previous-sessions-acc-body > .event-log-card {
+  margin-bottom: 0;
+}
+
 .event-card-header {
   width: 100%;
   text-align: left;
@@ -7357,18 +7420,13 @@ button:disabled.btn-stage-locked,
 
 .workshop-notes-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 10px;
 }
 
-@media (max-width: 720px) {
-  .workshop-notes-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 .workshop-checklist-panel {
-  padding: 11px 12px;
+  padding: 0;
+  overflow: hidden;
   border-radius: 10px;
   background: linear-gradient(180deg, #171F2C 0%, #0E131B 100%);
   border: 1.5px solid #35455D;
@@ -7376,14 +7434,55 @@ button:disabled.btn-stage-locked,
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
     0 4px 10px rgba(0, 0, 0, 0.45);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.workshop-checklist-panel.is-open {
+  border-color: rgba(245, 158, 11, 0.45);
 }
 
 .workshop-checklist-head {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
+  padding: 11px 12px;
+  margin: 0;
+  background: linear-gradient(180deg, #212B3A 0%, #151C27 100%);
+  border: none;
+  border-bottom: 1px solid transparent;
+  color: #F8FAFC;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.workshop-checklist-head:hover {
+  background: linear-gradient(180deg, #273345 0%, #192230 100%);
+}
+
+.workshop-checklist-panel.is-open > .workshop-checklist-head {
+  border-bottom-color: #2A364B;
+}
+
+.workshop-checklist-head-left {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.workshop-checklist-head-right {
+  display: flex;
+  align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+
+.workshop-checklist-body {
+  padding: 11px 12px 12px;
+  background: linear-gradient(180deg, #131924 0%, #0D121A 100%);
 }
 
 .workshop-checklist-title {

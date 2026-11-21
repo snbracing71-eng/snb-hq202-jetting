@@ -1,4 +1,4 @@
-const CACHE_NAME = 'snb-hq202-jetting-v1.0.3';
+const CACHE_NAME = 'snb-hq202-jetting-v1.0.4';
 const OFFLINE_ASSETS = [
   './',
   './index.html',
@@ -45,6 +45,12 @@ self.addEventListener('fetch', (event) => {
 
   const reqUrl = new URL(event.request.url);
   if (reqUrl.origin !== self.location.origin) return;
+
+  // Leave rescue.html completely uncached
+  if (reqUrl.pathname.endsWith('/rescue.html')) {
+    event.respondWith(fetch(event.request, { cache: 'no-store' }));
+    return;
+  }
 
   const isCodeOrNav =
     event.request.mode === 'navigate' ||
