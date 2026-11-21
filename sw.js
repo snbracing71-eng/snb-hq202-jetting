@@ -1,7 +1,9 @@
-const CACHE_NAME = 'snb-hq202-jetting-v1.0.4';
+const CACHE_NAME = 'snb-hq202-jetting-v1.0.5';
 const OFFLINE_ASSETS = [
   './',
   './index.html',
+  './mechanic.html',
+  './pre-race.html',
   './styles.css',
   './app.js',
   './manifest.json',
@@ -56,6 +58,8 @@ self.addEventListener('fetch', (event) => {
     event.request.mode === 'navigate' ||
     reqUrl.pathname.endsWith('/') ||
     reqUrl.pathname.endsWith('/index.html') ||
+    reqUrl.pathname.endsWith('/mechanic.html') ||
+    reqUrl.pathname.endsWith('/pre-race.html') ||
     reqUrl.pathname.endsWith('/styles.css') ||
     reqUrl.pathname.endsWith('/app.js') ||
     reqUrl.pathname.endsWith('/manifest.json');

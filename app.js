@@ -6487,7 +6487,10 @@
             : 'done',
         preRaceNotes,
         postRaceNotes,
-        notes: combinedNotes
+        notes: combinedNotes,
+        mechanicNotes: typeof s.mechanicNotes === 'string' ? s.mechanicNotes.trim() : '',
+        preRaceChecklist: normalizePreRaceChecklist(s.preRaceChecklist),
+        mechanicUpdatedAt: typeof s.mechanicUpdatedAt === 'string' ? s.mechanicUpdatedAt.trim() : ''
       };
     };
 
@@ -10259,75 +10262,389 @@
    * writing strictly to the single locked activeSession (state.activeSessionId).
    * Strictly blocks any modification when no Event or Session is active or when an Event is locked.
    */
+  function getPreRaceChecklistItems() {
+    return [
+      {
+        key: 'tyrePressures',
+        label: 'Tyre Pressures Set',
+        sub: 'Cold / Hot-Set target pressures verified across FL, FR, RL, RR & valve caps fitted'
+      },
+      {
+        key: 'wheelNuts',
+        label: 'Wheel Nuts Torqued',
+        sub: 'All 4 wheels torqued to spec & wheel studs / seating checked'
+      },
+      {
+        key: 'brakes',
+        label: 'Brake Pedal, Fluid, Lines & Pads Checked',
+        sub: 'Firm pedal, PBR master fluid level, braided lines, front R-4 pads & rear drums checked'
+      },
+      {
+        key: 'fuelLoad',
+        label: 'Fuel Load & Cap / Breather Checked',
+        sub: 'Session fuel load verified, filler cap locked & tank breather clear'
+      },
+      {
+        key: 'fluidsLeaks',
+        label: 'Oil, Coolant, Catch-Can & Leaks Checked',
+        sub: 'Engine oil level, radiator coolant, catch-can drained & zero fluid leaks under car'
+      },
+      {
+        key: 'safetyFasteners',
+        label: 'Safety Pins, Fasteners & Mirrors Checked',
+        sub: 'Bonnet/boot pins secured, body fasteners, battery isolator, harness & mirrors checked'
+      }
+    ];
+  }
+
+  function normalizePreRaceChecklist(raw) {
+    const defs = getPreRaceChecklistItems();
+    const src = raw && typeof raw === 'object' ? raw : {};
+    const rawItems = src.items && typeof src.items === 'object' ? src.items : src;
+    const items = {};
+    let completedCount = 0;
+    defs.forEach(({ key }) => {
+      const checked = Boolean(rawItems[key]);
+      items[key] = checked;
+      if (checked) completedCount += 1;
+    });
+    const totalCount = defs.length;
+    const signOffNotes =
+      typeof src.signOffNotes === 'string'
+        ? src.signOffNotes.trim()
+        : typeof src.notes === 'string'
+        ? src.notes.trim()
+        : '';
+    const updatedAt = typeof src.updatedAt === 'string' ? src.updatedAt.trim() : '';
+    return {
+      items,
+      signOffNotes,
+      completedCount,
+      totalCount,
+      allChecked: completedCount === totalCount && totalCount > 0,
+      updatedAt
+    };
+  }
+
+  function findSessionAndEventByMatch(sessionMatch) {
+    if (!Array.isArray(state.events)) return { evt: null, sess: null };
+    const matchObj =
+      typeof sessionMatch === 'string'
+        ? { id: sessionMatch }
+        : sessionMatch && typeof sessionMatch === 'object'
+        ? sessionMatch
+        : {};
+    const rawId = typeof matchObj.id === 'string' ? matchObj.id.trim() : '';
+    if (rawId) {
+      for (const evt of state.events) {
+        if (!evt || !Array.isArray(evt.sessions)) continue;
+        const found = evt.sessions.find((s) => s && s.id === rawId);
+        if (found) return { evt, sess: found };
+      }
+    }
+
+    const rawVenue = typeof matchObj.venue === 'string' && matchObj.venue.trim()
+      ? normalizeVenueName(matchObj.venue.trim())
+      : '';
+    const rawDate = typeof (matchObj.sessionDate || matchObj.sessionDateIso) === 'string'
+      ? String(matchObj.sessionDate || matchObj.sessionDateIso).trim()
+      : '';
+    const rawName = typeof matchObj.sessionName === 'string'
+      ? matchObj.sessionName.trim().toLowerCase()
+      : '';
+
+    if (rawName) {
+      for (const evt of state.events) {
+        if (!evt || !Array.isArray(evt.sessions)) continue;
+        const evtVenue = normalizeVenueName(evt.venue || 'Calder Park Raceway');
+        for (const s of evt.sessions) {
+          if (!s) continue;
+          const sVenue = normalizeVenueName(s.venue || evtVenue);
+          const sName = String(s.sessionName || '').trim().toLowerCase();
+          if (sName !== rawName) continue;
+          if (rawVenue && sVenue !== rawVenue) continue;
+          if (rawDate) {
+            const dateMatches =
+              s.sessionDate === rawDate ||
+              s.sessionDateIso === rawDate ||
+              s.sessionIsoDate === rawDate ||
+              evt.eventDate === rawDate ||
+              formatIsoDateDisplay(evt.eventDate) === rawDate;
+            if (!dateMatches) continue;
+          }
+          return { evt, sess: s };
+        }
+      }
+      // Fallback: match by venue + sessionName across events if date format differed
+      for (const evt of state.events) {
+        if (!evt || !Array.isArray(evt.sessions)) continue;
+        const evtVenue = normalizeVenueName(evt.venue || 'Calder Park Raceway');
+        for (const s of evt.sessions) {
+          if (!s) continue;
+          const sVenue = normalizeVenueName(s.venue || evtVenue);
+          const sName = String(s.sessionName || '').trim().toLowerCase();
+          if (sName === rawName && (!rawVenue || sVenue === rawVenue)) {
+            return { evt, sess: s };
+          }
+        }
+      }
+    }
+
+    const activeEvt = getActiveEvent();
+    const activeSess = getActiveSession();
+    if (activeEvt && activeSess) {
+      return { evt: activeEvt, sess: activeSess };
+    }
+    for (const evt of state.events) {
+      if (evt && Array.isArray(evt.sessions) && evt.sessions.length > 0) {
+        return { evt, sess: evt.sessions[0] };
+      }
+    }
+    return { evt: null, sess: null };
+  }
+
   function upsertUnifiedSession(patch) {
+    const isMechanicMerge = Boolean(patch && patch._allowMechanicMerge);
     let targetEvt = getActiveEvent();
     let existing = getActiveSession();
 
-    // If patch specifies a session ID (e.g. inline edit in Session Log), check if it exists in an unlocked event
-    if (patch && patch.id) {
-      const ownerEvt = findEventForSession(patch.id);
-      if (ownerEvt) {
-        if (ownerEvt.locked) {
+    // If patch specifies a session ID or venue+sessionDate+sessionName
+    if (patch && (patch.id || (isMechanicMerge && (patch.sessionName || patch.venue)))) {
+      const matched = findSessionAndEventByMatch(patch);
+      if (matched.evt && matched.sess) {
+        if (matched.evt.locked && !isMechanicMerge) {
           showToast('Event is Locked & Read-Only — cannot modify locked sessions.');
-          return ownerEvt.sessions.find((s) => s.id === patch.id) || null;
+          return matched.sess;
         }
-        targetEvt = ownerEvt;
-        existing = ownerEvt.sessions.find((s) => s.id === patch.id) || null;
+        targetEvt = matched.evt;
+        existing = matched.sess;
       }
     }
 
     if (!targetEvt) {
-      openNewEventModal();
+      if (!isMechanicMerge) openNewEventModal();
       return null;
     }
-    if (targetEvt.locked) {
+    if (targetEvt.locked && !isMechanicMerge) {
       showToast('Event is Locked & Read-Only — start a New Event to log sessions.');
       return null;
     }
     if (!existing) {
-      openPromptNextSessionModal();
+      if (!isMechanicMerge) openPromptNextSessionModal();
       return null;
     }
 
     const timeLabel = formatPitDayTimeLabel(new Date());
 
     Object.keys(patch).forEach((k) => {
-      if (k === 'id' || k === 'appendNote') return;
+      if (k === 'id' || k === 'appendNote' || k === '_allowMechanicMerge') return;
       if (patch[k] !== undefined) {
         existing[k] = patch[k];
       }
     });
 
-    existing.eventId = targetEvt.id;
-    existing.eventTitle = targetEvt.eventTitle || '';
-    existing.eventLocked = Boolean(targetEvt.locked);
-    existing.venue = normalizeVenueName(targetEvt.venue || existing.venue || 'Calder Park Raceway');
-    existing.sessionDateIso = targetEvt.eventDate || existing.sessionDateIso || getLocalTodayIso();
-    existing.sessionIsoDate = existing.sessionDateIso;
-    existing.sessionDate = formatIsoDateDisplay(existing.sessionDateIso) || existing.sessionDateIso;
-    existing.spacers = normalizeRearSpacersMap(existing.spacers, ensureMountedSpacersState());
-    existing.spacerNote = formatRearSpacerNote(existing.spacers, existing.spacerNote);
+    if (!isMechanicMerge) {
+      existing.eventId = targetEvt.id;
+      existing.eventTitle = targetEvt.eventTitle || '';
+      existing.eventLocked = Boolean(targetEvt.locked);
+      existing.venue = normalizeVenueName(targetEvt.venue || existing.venue || 'Calder Park Raceway');
+      existing.sessionDateIso = targetEvt.eventDate || existing.sessionDateIso || getLocalTodayIso();
+      existing.sessionIsoDate = existing.sessionDateIso;
+      existing.sessionDate = formatIsoDateDisplay(existing.sessionDateIso) || existing.sessionDateIso;
+      existing.spacers = normalizeRearSpacersMap(existing.spacers, ensureMountedSpacersState());
+      existing.spacerNote = formatRearSpacerNote(existing.spacers, existing.spacerNote);
 
-    if (!existing.emulsionId) {
-      existing.emulsionId = ($('selectCalcEmulsion') && $('selectCalcEmulsion').value) || state.baseline.emulsionId || 'E5_DME';
-    }
-    if (!existing.manifoldId) {
-      existing.manifoldId = ($('selectCalcManifold') && $('selectCalcManifold').value) || state.activeManifoldId || 'Macca';
-    }
-    if (!existing.exhaustId) {
-      existing.exhaustId = ($('selectCalcExhaust') && $('selectCalcExhaust').value) || state.activeExhaustId || 'Macca';
-    }
-    if (patch.appendNote) {
-      const cleanNote = String(patch.appendNote).trim();
-      if (cleanNote) {
-        existing.preRaceNotes = cleanNote;
+      if (!existing.emulsionId) {
+        existing.emulsionId = ($('selectCalcEmulsion') && $('selectCalcEmulsion').value) || state.baseline.emulsionId || 'E5_DME';
       }
+      if (!existing.manifoldId) {
+        existing.manifoldId = ($('selectCalcManifold') && $('selectCalcManifold').value) || state.activeManifoldId || 'Macca';
+      }
+      if (!existing.exhaustId) {
+        existing.exhaustId = ($('selectCalcExhaust') && $('selectCalcExhaust').value) || state.activeExhaustId || 'Macca';
+      }
+      if (patch.appendNote) {
+        const cleanNote = String(patch.appendNote).trim();
+        if (cleanNote) {
+          existing.preRaceNotes = cleanNote;
+        }
+      }
+      existing.notes = existing.postRaceNotes || existing.preRaceNotes || existing.notes || '';
+      existing.timestamp = patch.timestamp || existing.timestamp || timeLabel;
     }
-    existing.notes = existing.postRaceNotes || existing.preRaceNotes || existing.notes || '';
-    existing.timestamp = patch.timestamp || existing.timestamp || timeLabel;
 
     syncFlatSessionsFromEvents(state);
     return existing;
+  }
+
+  /**
+   * Safe field-scoped merge helper for mechanic.html and pre-race.html:
+   * Matches session by venue + sessionDate + sessionName or id, and updates ONLY
+   * allowed mechanic/pre-race fields (tyres, fuelInL, fuelOutL, racedLaps, mechanicNotes,
+   * preRaceChecklist, mechanicUpdatedAt) while preserving jetMm, afrWot, timing,
+   * fuelPsi, waterTempC, state.baseline, and fleet/dyno fields.
+   */
+  function applyMechanicInputToSession(sessionMatch, payload) {
+    if (!payload || typeof payload !== 'object') return null;
+    const matched = findSessionAndEventByMatch(sessionMatch);
+    if (!matched.sess) return null;
+
+    const targetSess = matched.sess;
+    const nowLabel = formatPitDayTimeLabel(new Date());
+    const mechanicUpdatedAt =
+      typeof payload.mechanicUpdatedAt === 'string' && payload.mechanicUpdatedAt.trim()
+        ? payload.mechanicUpdatedAt.trim()
+        : nowLabel;
+
+    const scopedPatch = {
+      id: targetSess.id,
+      venue: targetSess.venue,
+      sessionDate: targetSess.sessionDate,
+      sessionDateIso: targetSess.sessionDateIso,
+      sessionName: targetSess.sessionName,
+      _allowMechanicMerge: true,
+      mechanicUpdatedAt
+    };
+
+    // 1. Tyres (4-corner Cold & Hot PSI; supports blank Cold PSI when hot-set at 44.0 psi)
+    if (payload.tyres && typeof payload.tyres === 'object') {
+      const existingTyres = targetSess.tyres && typeof targetSess.tyres === 'object' ? targetSess.tyres : {};
+      const mergedTyres = {};
+      ['FL', 'FR', 'RL', 'RR'].forEach((corner) => {
+        const prevCorner =
+          existingTyres[corner] && typeof existingTyres[corner] === 'object'
+            ? { ...existingTyres[corner] }
+            : { cold: null, hot: null, nextCold: null, targetHot: corner.startsWith('F') ? 40.0 : 43.0 };
+        const inCorner =
+          payload.tyres[corner] && typeof payload.tyres[corner] === 'object'
+            ? payload.tyres[corner]
+            : null;
+        if (inCorner) {
+          if ('cold' in inCorner) {
+            const rawCold = inCorner.cold;
+            prevCorner.cold =
+              rawCold !== null &&
+              rawCold !== undefined &&
+              String(rawCold).trim() !== '' &&
+              Number.isFinite(Number(rawCold)) &&
+              Number(rawCold) > 0
+                ? Number(Number(rawCold).toFixed(1))
+                : null;
+          }
+          if ('hot' in inCorner) {
+            const rawHot = inCorner.hot;
+            prevCorner.hot =
+              rawHot !== null &&
+              rawHot !== undefined &&
+              String(rawHot).trim() !== '' &&
+              Number.isFinite(Number(rawHot)) &&
+              Number(rawHot) > 0
+                ? Number(Number(rawHot).toFixed(1))
+                : null;
+          }
+          const tgtHot =
+            Number.isFinite(Number(prevCorner.targetHot)) && Number(prevCorner.targetHot) > 0
+              ? Number(prevCorner.targetHot)
+              : corner.startsWith('F')
+              ? Number(targetSess.hotTargetFront || 40.0)
+              : Number(targetSess.hotTargetRear || 43.0);
+          if (prevCorner.cold !== null && prevCorner.hot !== null) {
+            prevCorner.nextCold = Number((prevCorner.cold + (tgtHot - prevCorner.hot)).toFixed(1));
+          } else if (prevCorner.cold === null) {
+            prevCorner.nextCold = null;
+          }
+        }
+        mergedTyres[corner] = prevCorner;
+      });
+      scopedPatch.tyres = mergedTyres;
+    }
+
+    // 2. Fuel In (L), Fuel Pumped Out (L), and Laps Completed
+    const parseOptNonNeg = (val, dec = 1) =>
+      val !== null &&
+      val !== undefined &&
+      String(val).trim() !== '' &&
+      Number.isFinite(Number(val)) &&
+      Number(val) >= 0
+        ? Number(Number(val).toFixed(dec))
+        : null;
+
+    if ('fuelInL' in payload) {
+      scopedPatch.fuelInL = parseOptNonNeg(payload.fuelInL, 1);
+    }
+    if ('fuelOutL' in payload) {
+      scopedPatch.fuelOutL = parseOptNonNeg(payload.fuelOutL, 1);
+    }
+    if ('racedLaps' in payload) {
+      const rawLaps = payload.racedLaps;
+      scopedPatch.racedLaps =
+        rawLaps !== null &&
+        rawLaps !== undefined &&
+        String(rawLaps).trim() !== '' &&
+        Number.isFinite(Number(rawLaps)) &&
+        Number(rawLaps) > 0
+          ? Math.round(Number(rawLaps))
+          : null;
+    }
+
+    if ('fuelInL' in scopedPatch || 'fuelOutL' in scopedPatch || 'racedLaps' in scopedPatch) {
+      const effIn = 'fuelInL' in scopedPatch ? scopedPatch.fuelInL : targetSess.fuelInL;
+      const effOut = 'fuelOutL' in scopedPatch ? scopedPatch.fuelOutL : targetSess.fuelOutL;
+      const effLaps = 'racedLaps' in scopedPatch ? scopedPatch.racedLaps : targetSess.racedLaps;
+      if (
+        effIn !== null &&
+        effOut !== null &&
+        Number.isFinite(Number(effIn)) &&
+        Number.isFinite(Number(effOut)) &&
+        Number(effIn) >= Number(effOut)
+      ) {
+        scopedPatch.fuelUsedL = Number((Number(effIn) - Number(effOut)).toFixed(2));
+        if (effLaps !== null && Number.isFinite(Number(effLaps)) && Number(effLaps) > 0) {
+          scopedPatch.measuredBurnLPerLap = Number((scopedPatch.fuelUsedL / Number(effLaps)).toFixed(2));
+        }
+      }
+    }
+
+    // 3. Mechanics Notes
+    if ('mechanicNotes' in payload) {
+      scopedPatch.mechanicNotes = String(payload.mechanicNotes ?? '').trim();
+    }
+
+    // 4. Pre-Race Checklist
+    if ('preRaceChecklist' in payload) {
+      const prevCl = normalizePreRaceChecklist(targetSess.preRaceChecklist);
+      const inCl =
+        payload.preRaceChecklist && typeof payload.preRaceChecklist === 'object'
+          ? payload.preRaceChecklist
+          : {};
+      const inItems = inCl.items && typeof inCl.items === 'object' ? inCl.items : inCl;
+      const mergedItems = { ...prevCl.items };
+      getPreRaceChecklistItems().forEach(({ key }) => {
+        if (key in inItems) {
+          mergedItems[key] = Boolean(inItems[key]);
+        }
+      });
+      const signOffNotes =
+        'signOffNotes' in inCl
+          ? String(inCl.signOffNotes ?? '').trim()
+          : 'notes' in inCl
+          ? String(inCl.notes ?? '').trim()
+          : prevCl.signOffNotes;
+      scopedPatch.preRaceChecklist = normalizePreRaceChecklist({
+        items: mergedItems,
+        signOffNotes,
+        updatedAt: mechanicUpdatedAt
+      });
+    }
+
+    const updated = upsertUnifiedSession(scopedPatch);
+    saveState();
+    renderSessionLog();
+    return updated;
+  }
+
+  if (typeof window !== 'undefined') {
+    window.applyMechanicInputToSession = applyMechanicInputToSession;
   }
 
   function renderNoJetSafetyGuard(carby) {
@@ -15948,7 +16265,9 @@
       tyreParts.join(' '),
       s.preRaceNotes || '',
       s.postRaceNotes || '',
-      s.notes || ''
+      s.notes || '',
+      s.mechanicNotes || '',
+      (s.preRaceChecklist && s.preRaceChecklist.signOffNotes) || ''
     ]
       .join(' ')
       .toLowerCase();
@@ -16033,8 +16352,15 @@
 
     const preNoteStr = String(s.preRaceNotes || '').trim();
     const postNoteStr = String(s.postRaceNotes !== undefined ? s.postRaceNotes : s.notes || '').trim();
+    const mechNoteStr = String(s.mechanicNotes || '').trim();
+    const preCl = normalizePreRaceChecklist(s.preRaceChecklist);
+    const hasPreClActivity = preCl.completedCount > 0 || Boolean(preCl.signOffNotes);
+    const checkedLabelsStr = getPreRaceChecklistItems()
+      .filter((it) => preCl.items[it.key])
+      .map((it) => it.label)
+      .join(' • ');
     const notesBlockHtml =
-      preNoteStr || postNoteStr
+      preNoteStr || postNoteStr || mechNoteStr || hasPreClActivity
         ? `
           <div class="session-notes-stack">
             ${
@@ -16045,6 +16371,16 @@
             ${
               postNoteStr
                 ? `<div class="session-note-line"><span class="session-note-tag post">POST-RACE:</span> <span>${escapeHtml(postNoteStr)}</span></div>`
+                : ''
+            }
+            ${
+              hasPreClActivity
+                ? `<div class="session-note-line"><span class="session-note-tag ${preCl.allChecked ? 'pre-grid-ok' : 'mechanic'}">${preCl.allChecked ? '✅ PRE-RACE CHECKLIST (6/6):' : `🔧 PRE-RACE CHECKLIST (${preCl.completedCount}/${preCl.totalCount}):`}</span> <span>${escapeHtml(checkedLabelsStr || 'Checklist updated')}${preCl.signOffNotes ? ` — ${escapeHtml(preCl.signOffNotes)}` : ''}</span></div>`
+                : ''
+            }
+            ${
+              mechNoteStr
+                ? `<div class="session-note-line"><span class="session-note-tag mechanic">&#128295; Mechanic Notes:</span> <span>${escapeHtml(mechNoteStr)}${s.mechanicUpdatedAt ? ` <small class="mono" style="opacity:0.78;">(${escapeHtml(s.mechanicUpdatedAt)})</small>` : ''}</span></div>`
                 : ''
             }
           </div>
@@ -16184,6 +16520,19 @@
     } else if (isBaseline) {
       statusPillHtml = `<span class="session-row-status-pill baseline">BASELINE</span>`;
     }
+    const hasMechNote = Boolean(String(s.mechanicNotes || '').trim());
+    const preCl = normalizePreRaceChecklist(s.preRaceChecklist);
+    const hasPreCl = preCl.completedCount > 0 || Boolean(preCl.signOffNotes);
+    const crewPillHtml =
+      hasMechNote || hasPreCl
+        ? `<span class="session-row-status-pill mechanic-note-pill" title="Crew Mechanic Notes / Pre-Race Checklist">${
+            hasMechNote
+              ? '&#128295; Mechanic Notes'
+              : preCl.allChecked
+              ? '&#9989; Pre-Race 6/6'
+              : `&#128295; Pre-Race ${preCl.completedCount}/${preCl.totalCount}`
+          }</span>`
+        : '';
 
     return `
       <div class="event-session-item ${isSessOpen ? 'expanded' : ''} ${isBaseline ? 'is-baseline' : ''}" data-session-id="${escapeHtml(s.id)}">
@@ -16200,6 +16549,7 @@
             ${s.timestamp ? `<span class="session-row-time tabular">${escapeHtml(s.timestamp)}</span>` : ''}
           </div>
           <div class="session-row-right">
+            ${crewPillHtml}
             ${statusPillHtml}
             <span class="session-row-summary-pill tabular">${escapeHtml(quickGlanceStr)}</span>
             ${
@@ -23222,6 +23572,271 @@
     });
     safeRun('renderFleet', () => renderFleetAndKit());
     safeRun('syncPreRacePostRaceLocksUi', () => syncPreRacePostRaceLocksUi());
+    safeRun('renderCrewPages', () => renderCrewPages());
+  }
+
+  function getOrderedCrewSessionsList() {
+    syncFlatSessionsFromEvents(state);
+    const list = [];
+    const sortedEvts = sortEventsDesc(state.events || [], state.activeEventId);
+    sortedEvts.forEach((evt) => {
+      if (!evt || !Array.isArray(evt.sessions)) return;
+      const isLive = !evt.locked;
+      const ordered = sortSessionsDesc(evt.sessions);
+      ordered.forEach((s) => {
+        if (!s) return;
+        list.push({ evt, sess: s, isLive });
+      });
+    });
+    return list;
+  }
+
+  function resolveSelectedCrewSession() {
+    const all = getOrderedCrewSessionsList();
+    if (all.length === 0) return null;
+    if (ui.selectedCrewSessionId) {
+      const found = all.find((x) => x.sess.id === ui.selectedCrewSessionId);
+      if (found) return found;
+    }
+    if (state.activeSessionId) {
+      const activeFound = all.find((x) => x.sess.id === state.activeSessionId);
+      if (activeFound) {
+        ui.selectedCrewSessionId = activeFound.sess.id;
+        return activeFound;
+      }
+    }
+    ui.selectedCrewSessionId = all[0].sess.id;
+    return all[0];
+  }
+
+  function updateMechFuelBurnBadgeFromInputs() {
+    const badge = $('mechFuelBurnSummaryBadge');
+    if (!badge) return;
+    const rawIn = $('mechFuelInL') ? $('mechFuelInL').value.trim() : '';
+    const rawOut = $('mechFuelOutL') ? $('mechFuelOutL').value.trim() : '';
+    const rawLaps = $('mechRacedLaps') ? $('mechRacedLaps').value.trim() : '';
+    const inVal = rawIn !== '' && Number.isFinite(Number(rawIn)) ? Number(rawIn) : null;
+    const outVal = rawOut !== '' && Number.isFinite(Number(rawOut)) ? Number(rawOut) : null;
+    const lapsVal = rawLaps !== '' && Number.isFinite(Number(rawLaps)) && Number(rawLaps) > 0 ? Math.round(Number(rawLaps)) : null;
+    if (inVal !== null && outVal !== null && inVal >= outVal) {
+      const used = Number((inVal - outVal).toFixed(2));
+      const burnPart = lapsVal ? ` • ${(used / lapsVal).toFixed(2)} L/LAP` : '';
+      badge.textContent = `USED: ${used.toFixed(1)} L${burnPart}`;
+    } else {
+      badge.textContent = 'BURN: —';
+    }
+  }
+
+  function renderCrewPages() {
+    const isMechPage = Boolean($('crewMechanicPage'));
+    const isPreRacePage = Boolean($('crewPreRacePage'));
+    if (!isMechPage && !isPreRacePage) return;
+
+    const all = getOrderedCrewSessionsList();
+    const current = resolveSelectedCrewSession();
+
+    const populateSelect = (selEl) => {
+      if (!selEl) return;
+      if (all.length === 0) {
+        selEl.innerHTML = `<option value="">No saved sessions found</option>`;
+        return;
+      }
+      selEl.innerHTML = all
+        .map(({ evt, sess, isLive }) => {
+          const v = normalizeVenueName(sess.venue || evt.venue || 'Calder Park Raceway');
+          const d = sess.sessionDate || formatIsoDateDisplay(sess.sessionDateIso || evt.eventDate);
+          const tag = sess.id === state.activeSessionId ? ' [ACTIVE SESSION]' : isLive ? ' [LIVE EVENT]' : '';
+          return `<option value="${escapeHtml(sess.id)}">${escapeHtml(v)} • ${escapeHtml(d)} • ${escapeHtml(sess.sessionName)}${tag}</option>`;
+        })
+        .join('');
+      if (current && current.sess) {
+        selEl.value = current.sess.id;
+      }
+    };
+
+    if (isMechPage) {
+      populateSelect($('mechSessionSelect'));
+      const s = current ? current.sess : null;
+      if (s) {
+        if ($('mechTargetVenue')) $('mechTargetVenue').value = normalizeVenueName(s.venue || 'Calder Park Raceway');
+        if ($('mechTargetDate')) $('mechTargetDate').value = s.sessionDate || s.sessionDateIso || '';
+        if ($('mechTargetSessionName')) $('mechTargetSessionName').value = s.sessionName || '';
+
+        const t = s.tyres && typeof s.tyres === 'object' ? s.tyres : {};
+        ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+          const coldInp = $(`mechCold_${c}`);
+          const hotInp = $(`mechHot_${c}`);
+          const cObj = t[c] && typeof t[c] === 'object' ? t[c] : {};
+          if (coldInp) {
+            coldInp.value =
+              cObj.cold !== null && cObj.cold !== undefined && Number.isFinite(Number(cObj.cold)) && Number(cObj.cold) > 0
+                ? Number(cObj.cold).toFixed(1)
+                : '';
+          }
+          if (hotInp) {
+            hotInp.value =
+              cObj.hot !== null && cObj.hot !== undefined && Number.isFinite(Number(cObj.hot)) && Number(cObj.hot) > 0
+                ? Number(cObj.hot).toFixed(1)
+                : '';
+          }
+        });
+
+        if ($('mechFuelInL')) {
+          $('mechFuelInL').value =
+            s.fuelInL !== null && s.fuelInL !== undefined && Number.isFinite(Number(s.fuelInL))
+              ? Number(s.fuelInL).toFixed(1)
+              : '';
+        }
+        if ($('mechFuelOutL')) {
+          $('mechFuelOutL').value =
+            s.fuelOutL !== null && s.fuelOutL !== undefined && Number.isFinite(Number(s.fuelOutL))
+              ? Number(s.fuelOutL).toFixed(1)
+              : '';
+        }
+        if ($('mechRacedLaps')) {
+          $('mechRacedLaps').value =
+            s.racedLaps !== null && s.racedLaps !== undefined && Number.isFinite(Number(s.racedLaps)) && Number(s.racedLaps) > 0
+              ? String(Math.round(Number(s.racedLaps)))
+              : '';
+        }
+        if ($('mechNotesInput')) {
+          $('mechNotesInput').value = s.mechanicNotes || '';
+        }
+        if ($('mechLastSavedBadge')) {
+          $('mechLastSavedBadge').textContent = s.mechanicUpdatedAt ? `SAVED ${s.mechanicUpdatedAt}` : 'READY';
+        }
+        updateMechFuelBurnBadgeFromInputs();
+      }
+    }
+
+    if (isPreRacePage) {
+      populateSelect($('preRaceSessionSelect'));
+      const s = current ? current.sess : null;
+      if (s) {
+        if ($('preRaceTargetVenue')) $('preRaceTargetVenue').value = normalizeVenueName(s.venue || 'Calder Park Raceway');
+        if ($('preRaceTargetDate')) $('preRaceTargetDate').value = s.sessionDate || s.sessionDateIso || '';
+        if ($('preRaceTargetSessionName')) $('preRaceTargetSessionName').value = s.sessionName || '';
+
+        const preCl = normalizePreRaceChecklist(s.preRaceChecklist);
+        document.querySelectorAll('[data-prerace-check]').forEach((btn) => {
+          const k = btn.getAttribute('data-prerace-check');
+          const checked = Boolean(preCl.items[k]);
+          btn.classList.toggle('is-checked', checked);
+          btn.setAttribute('aria-pressed', checked ? 'true' : 'false');
+          const statusEl = btn.querySelector('.crew-check-status');
+          if (statusEl) {
+            statusEl.textContent = checked ? 'CHECKED ✓' : 'PENDING';
+          }
+        });
+
+        const progBadge = $('preRaceProgressBadge');
+        if (progBadge) {
+          progBadge.textContent = `${preCl.completedCount} / ${preCl.totalCount} ${preCl.allChecked ? 'READY FOR GRID' : 'CHECKED'}`;
+          progBadge.className = `fleet-acc-status-pill ${preCl.allChecked ? 'emerald' : 'amber'} mono`;
+        }
+        if ($('preRaceSignOffNotesInput')) {
+          $('preRaceSignOffNotesInput').value = preCl.signOffNotes || '';
+        }
+        if ($('preRaceLastSavedBadge')) {
+          const ts = preCl.updatedAt || s.mechanicUpdatedAt;
+          $('preRaceLastSavedBadge').textContent = ts ? `SAVED ${ts}` : 'READY';
+        }
+      }
+    }
+  }
+
+  function readCrewSessionMatchFromInputs(prefix) {
+    const selEl = $(`${prefix}SessionSelect`);
+    const venueEl = $(`${prefix}TargetVenue`);
+    const dateEl = $(`${prefix}TargetDate`);
+    const nameEl = $(`${prefix}TargetSessionName`);
+    const selectedId = selEl ? selEl.value : ui.selectedCrewSessionId || '';
+    const current = resolveSelectedCrewSession();
+    const typedVenue = venueEl ? venueEl.value.trim() : '';
+    const typedDate = dateEl ? dateEl.value.trim() : '';
+    const typedName = nameEl ? nameEl.value.trim() : '';
+
+    // If user typed a different session name/venue/date than the selected option, allow matching by venue+sessionDate+sessionName
+    if (
+      current &&
+      current.sess &&
+      current.sess.id === selectedId &&
+      (!typedName || typedName.toLowerCase() === String(current.sess.sessionName || '').trim().toLowerCase())
+    ) {
+      return {
+        id: selectedId,
+        venue: typedVenue || current.sess.venue,
+        sessionDate: typedDate || current.sess.sessionDate,
+        sessionName: typedName || current.sess.sessionName
+      };
+    }
+    return {
+      id: selectedId || undefined,
+      venue: typedVenue,
+      sessionDate: typedDate,
+      sessionName: typedName
+    };
+  }
+
+  function saveMechanicPageInput() {
+    const match = readCrewSessionMatchFromInputs('mech');
+    const tyres = {};
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const coldEl = $(`mechCold_${c}`);
+      const hotEl = $(`mechHot_${c}`);
+      tyres[c] = {
+        cold: coldEl && coldEl.value.trim() !== '' ? Number(coldEl.value) : null,
+        hot: hotEl && hotEl.value.trim() !== '' ? Number(hotEl.value) : null
+      };
+    });
+    const fuelInRaw = $('mechFuelInL') ? $('mechFuelInL').value.trim() : '';
+    const fuelOutRaw = $('mechFuelOutL') ? $('mechFuelOutL').value.trim() : '';
+    const lapsRaw = $('mechRacedLaps') ? $('mechRacedLaps').value.trim() : '';
+    const mechanicNotes = $('mechNotesInput') ? $('mechNotesInput').value.trim() : '';
+
+    const updated = applyMechanicInputToSession(match, {
+      tyres,
+      fuelInL: fuelInRaw !== '' ? Number(fuelInRaw) : null,
+      fuelOutL: fuelOutRaw !== '' ? Number(fuelOutRaw) : null,
+      racedLaps: lapsRaw !== '' ? Number(lapsRaw) : null,
+      mechanicNotes
+    });
+
+    if (updated) {
+      ui.selectedCrewSessionId = updated.id;
+      renderCrewPages();
+      showToast(`Saved Pit & Post-Session Data (${updated.sessionName})`);
+    } else {
+      showToast('Could not find matching target session');
+    }
+  }
+
+  function savePreRaceChecklistPageInput(customItemsPatch = null, toastMsg = '') {
+    const match = readCrewSessionMatchFromInputs('preRace');
+    const items = {};
+    document.querySelectorAll('[data-prerace-check]').forEach((btn) => {
+      const k = btn.getAttribute('data-prerace-check');
+      items[k] = btn.classList.contains('is-checked');
+    });
+    if (customItemsPatch && typeof customItemsPatch === 'object') {
+      Object.assign(items, customItemsPatch);
+    }
+    const signOffNotes = $('preRaceSignOffNotesInput') ? $('preRaceSignOffNotesInput').value.trim() : '';
+
+    const updated = applyMechanicInputToSession(match, {
+      preRaceChecklist: {
+        items,
+        signOffNotes
+      }
+    });
+
+    if (updated) {
+      ui.selectedCrewSessionId = updated.id;
+      renderCrewPages();
+      if (toastMsg) {
+        showToast(toastMsg);
+      }
+    }
   }
 
   /* ------------------------------------------------------------------------
@@ -25640,6 +26255,104 @@
         await deferredPrompt.userChoice;
         deferredPrompt = null;
         if ($('btnInstallPwa')) $('btnInstallPwa').style.display = 'none';
+      });
+    }
+
+    // Crew Pages (mechanic.html & pre-race.html) bindings
+    ['mechSessionSelect', 'preRaceSessionSelect'].forEach((selId) => {
+      const selEl = $(selId);
+      if (selEl) {
+        selEl.addEventListener('change', (e) => {
+          ui.selectedCrewSessionId = e.target.value || null;
+          renderCrewPages();
+        });
+      }
+    });
+
+    if ($('btnMechClearAllColdPsi')) {
+      $('btnMechClearAllColdPsi').addEventListener('click', () => {
+        ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+          const inp = $(`mechCold_${c}`);
+          if (inp) inp.value = '';
+        });
+        showToast('Cleared all 4 Cold PSI (Hot-Set 44.0 psi mode)');
+      });
+    }
+
+    ['mechFuelInL', 'mechFuelOutL', 'mechRacedLaps'].forEach((id) => {
+      const el = $(id);
+      if (el) {
+        el.addEventListener('input', updateMechFuelBurnBadgeFromInputs);
+      }
+    });
+
+    if ($('btnSaveMechanicSession')) {
+      $('btnSaveMechanicSession').addEventListener('click', saveMechanicPageInput);
+    }
+
+    if ($('btnPreRaceCheckAll')) {
+      $('btnPreRaceCheckAll').addEventListener('click', () => {
+        const allPatch = {};
+        getPreRaceChecklistItems().forEach(({ key }) => {
+          allPatch[key] = true;
+        });
+        savePreRaceChecklistPageInput(allPatch, 'All 6 Pre-Race Checks Marked Ready');
+      });
+    }
+
+    if ($('btnPreRaceResetAll')) {
+      $('btnPreRaceResetAll').addEventListener('click', () => {
+        const clearPatch = {};
+        getPreRaceChecklistItems().forEach(({ key }) => {
+          clearPatch[key] = false;
+        });
+        savePreRaceChecklistPageInput(clearPatch, 'Reset Pre-Race Checklist');
+      });
+    }
+
+    if ($('btnSavePreRaceChecklist')) {
+      $('btnSavePreRaceChecklist').addEventListener('click', () => {
+        savePreRaceChecklistPageInput(null, 'Saved Pre-Race Checklist & Sign-Off');
+      });
+    }
+
+    if ($('crewMechanicPage') || $('crewPreRacePage')) {
+      document.addEventListener('click', (e) => {
+        const clearColdBtn = e.target.closest('[data-mech-clear-cold]');
+        if (clearColdBtn) {
+          const c = clearColdBtn.getAttribute('data-mech-clear-cold');
+          const inp = $(`mechCold_${c}`);
+          if (inp) inp.value = '';
+          return;
+        }
+
+        const crewStepBtn = e.target.closest('[data-crew-step-target]');
+        if (crewStepBtn) {
+          const targetId = crewStepBtn.getAttribute('data-crew-step-target');
+          const step = Number(crewStepBtn.getAttribute('data-step') || 0.5);
+          const fallback = Number(crewStepBtn.getAttribute('data-fallback') || 36.0);
+          const inp = $(targetId);
+          if (inp && Number.isFinite(step)) {
+            const min = inp.min !== '' ? Number(inp.min) : -Infinity;
+            const max = inp.max !== '' ? Number(inp.max) : Infinity;
+            const curRaw = inp.value.trim();
+            const base = curRaw !== '' && Number.isFinite(Number(curRaw)) ? Number(curRaw) : fallback;
+            const next = clamp(base + step, min, max);
+            const decimals = Math.abs(step) < 1 ? 1 : 0;
+            inp.value = next.toFixed(decimals);
+            updateMechFuelBurnBadgeFromInputs();
+          }
+          return;
+        }
+
+        const checkBtn = e.target.closest('[data-prerace-check]');
+        if (checkBtn) {
+          const key = checkBtn.getAttribute('data-prerace-check');
+          const nextChecked = !checkBtn.classList.contains('is-checked');
+          checkBtn.classList.toggle('is-checked', nextChecked);
+          savePreRaceChecklistPageInput({ [key]: nextChecked });
+          return;
+        }
       });
     }
   }

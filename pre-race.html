@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>SNB Racing — Pre-Race Checklist &amp; Crew Sign-Off</title>
+  <meta name="description" content="Tablet-friendly pre-race crew checklist and pre-grid sign-off for Group 3H HQ Holden 202." />
+  <meta name="theme-color" content="#090B0E" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SNB Pre-Race" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.5" />
+</head>
+<body class="crew-page-body">
+  <header class="pit-header crew-pit-header" role="banner">
+    <div class="header-inner crew-header-inner">
+      <div class="brand-lockup">
+        <div class="logo-frame" id="brandLogoFrame">
+          <img
+            id="brandLogoImg"
+            class="logo-img"
+            src="./snb-logo.jpg"
+            alt="SNB Racing logo"
+            width="124"
+            height="30"
+            onerror="this.style.display='none'"
+          />
+        </div>
+        <div class="brand-titles">
+          <span class="brand-title-main">PRE-RACE CHECKLIST</span>
+          <span class="brand-title-sub">PRE-GRID SAFETY &amp; MECHANICAL SIGN-OFF</span>
+        </div>
+      </div>
+
+      <div class="crew-header-nav">
+        <a href="./mechanic.html" class="btn btn-amber-outline crew-nav-btn" id="btnNavToMechanic">
+          &#128295; Pit &amp; Post-Session
+        </a>
+        <a href="./index.html" class="btn btn-secondary crew-nav-btn" id="btnNavToMainApp">
+          Main Log
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="crew-main-container" id="crewPreRacePage" data-crew-page="pre-race">
+    <!-- 1. TARGET SESSION SELECTOR (venue + sessionDate + sessionName) -->
+    <section class="card crew-card" aria-labelledby="preRaceSessionHeading">
+      <div class="section-header crew-section-header">
+        <div>
+          <div class="section-eyebrow">STEP 1 &bull; TARGET SESSION</div>
+          <h1 class="section-title" id="preRaceSessionHeading">Select Session (Venue &bull; Date &bull; Session)</h1>
+        </div>
+        <span class="fleet-acc-status-pill amber mono" id="preRaceProgressBadge">0 / 6 CHECKED</span>
+      </div>
+
+      <div class="field-group" style="margin-bottom: 12px;">
+        <label class="field-label" for="preRaceSessionSelect">Saved / Active Race Session</label>
+        <select id="preRaceSessionSelect" class="select-input crew-touch-select" aria-label="Select Target Session"></select>
+      </div>
+
+      <div class="crew-session-identity-grid">
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="preRaceTargetVenue">Venue / Circuit</label>
+          <input
+            type="text"
+            id="preRaceTargetVenue"
+            class="text-input crew-touch-input"
+            placeholder="e.g. Calder Park Raceway"
+            autocomplete="off"
+          />
+        </div>
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="preRaceTargetDate">Session Date</label>
+          <input
+            type="text"
+            id="preRaceTargetDate"
+            class="text-input crew-touch-input mono"
+            placeholder="YYYY-MM-DD or DD/MM/YYYY"
+            autocomplete="off"
+          />
+        </div>
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="preRaceTargetSessionName">Session Name</label>
+          <input
+            type="text"
+            id="preRaceTargetSessionName"
+            class="text-input crew-touch-input"
+            placeholder="e.g. Qualifying, Race 1"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. TOGGLEABLE PRE-RACE CHECKLIST (6 TAP-TO-CHECK ITEMS) -->
+    <section class="card crew-card" aria-labelledby="preRaceChecksHeading">
+      <div class="section-header crew-section-header">
+        <div>
+          <div class="section-eyebrow">STEP 2 &bull; TAP TO CHECK BEFORE DUMMY GRID</div>
+          <h2 class="section-title" id="preRaceChecksHeading">Pre-Race Crew Checklist</h2>
+        </div>
+        <div class="crew-checklist-quick-actions">
+          <button type="button" class="btn btn-secondary crew-touch-mini-btn" id="btnPreRaceCheckAll">
+            Check All
+          </button>
+          <button type="button" class="btn btn-secondary crew-touch-mini-btn" id="btnPreRaceResetAll">
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <div class="crew-prerace-checklist-stack" id="preRaceChecklistContainer">
+        <button
+          type="button"
+          class="crew-check-row"
+          data-prerace-check="tyrePressures"
+          aria-pressed="false"
+        >
+          <span class="crew-check-box" aria-hidden="true">&#10003;</span>
+          <span class="crew-check-copy">
+            <span class="crew-check-title">1. Tyre Pressures Set</span>
+            <span class="crew-check-sub">Cold / Hot-Set target pressures verified across FL, FR, RL, RR &amp; valve caps fitted</span>
+          </span>
+          <span class="crew-check-status mono">PENDING</span>
+        </button>
+
+        <button
+          type="button"
+          class="crew-check-row"
+          data-prerace-check="wheelNuts"
+          aria-pressed="false"
+        >
+          <span class="crew-check-box" aria-hidden="true">&#10003;</span>
+          <span class="crew-check-copy">
+            <span class="crew-check-title">2. Wheel Nuts Torqued</span>
+            <span class="crew-check-sub">All 4 wheels torqued to spec &amp; wheel studs / seating checked</span>
+          </span>
+          <span class="crew-check-status mono">PENDING</span>
+        </button>
+
+        <button
+          type="button"
+          class="crew-check-row"
+          data-prerace-check="brakes"
+          aria-pressed="false"
+        >
+          <span class="crew-check-box" aria-hidden="true">&#10003;</span>
+          <span class="crew-check-copy">
+            <span class="crew-check-title">3. Brake Pedal, Fluid, Lines &amp; Pads Checked</span>
+            <span class="crew-check-sub">Firm pedal, PBR master fluid level, braided lines, front R-4 pads &amp; rear drums checked</span>
+          </span>
+          <span class="crew-check-status mono">PENDING</span>
+        </button>
+
+        <button
+          type="button"
+          class="crew-check-row"
+          data-prerace-check="fuelLoad"
+          aria-pressed="false"
+        >
+          <span class="crew-check-box" aria-hidden="true">&#10003;</span>
+          <span class="crew-check-copy">
+            <span class="crew-check-title">4. Fuel Load &amp; Cap / Breather Checked</span>
+            <span class="crew-check-sub">Session fuel load verified, filler cap locked &amp; tank breather clear</span>
+          </span>
+          <span class="crew-check-status mono">PENDING</span>
+        </button>
+
+        <button
+          type="button"
+          class="crew-check-row"
+          data-prerace-check="fluidsLeaks"
+          aria-pressed="false"
+        >
+          <span class="crew-check-box" aria-hidden="true">&#10003;</span>
+          <span class="crew-check-copy">
+            <span class="crew-check-title">5. Oil, Coolant, Catch-Can &amp; Leaks Checked</span>
+            <span class="crew-check-sub">Engine oil level, radiator coolant, catch-can drained &amp; zero fluid leaks under car</span>
+          </span>
+          <span class="crew-check-status mono">PENDING</span>
+        </button>
+
+        <button
+          type="button"
+          class="crew-check-row"
+          data-prerace-check="safetyFasteners"
+          aria-pressed="false"
+        >
+          <span class="crew-check-box" aria-hidden="true">&#10003;</span>
+          <span class="crew-check-copy">
+            <span class="crew-check-title">6. Safety Pins, Fasteners &amp; Mirrors Checked</span>
+            <span class="crew-check-sub">Bonnet/boot pins secured, body fasteners, battery isolator, harness &amp; mirrors checked</span>
+          </span>
+          <span class="crew-check-status mono">PENDING</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 3. PRE-RACE SIGN-OFF NOTES -->
+    <section class="card crew-card" aria-labelledby="preRaceNotesHeading">
+      <div class="section-header crew-section-header">
+        <div>
+          <div class="section-eyebrow">STEP 3 &bull; CREW SIGN-OFF</div>
+          <h2 class="section-title" id="preRaceNotesHeading">Pre-Race Sign-Off Notes</h2>
+        </div>
+        <span class="locked-badge mono" id="preRaceLastSavedBadge">READY</span>
+      </div>
+
+      <div class="field-group" style="margin-bottom: 14px;">
+        <label class="field-label" for="preRaceSignOffNotesInput">Pre-Race Sign-Off Notes</label>
+        <textarea
+          id="preRaceSignOffNotesInput"
+          class="text-input crew-touch-textarea"
+          rows="3"
+          placeholder="Optional crew sign-off notes before heading to dummy grid..."
+        ></textarea>
+      </div>
+
+      <button type="button" class="btn btn-confirm btn-full crew-save-btn" id="btnSavePreRaceChecklist">
+        &#9989; Save Pre-Race Checklist &amp; Sign-Off
+      </button>
+    </section>
+  </main>
+
+  <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
+
+  <script src="./app.js?v=1.0.5"></script>
+</body>
+</html>
