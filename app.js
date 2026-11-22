@@ -17288,7 +17288,7 @@
         const statusText = checked ? 'DONE ✓' : 'PENDING';
         if (isEventLocked) {
           return `
-            <span class="crew-check-row driver-pre-check-chip ${checked ? 'is-checked' : ''} is-readonly">
+            <span class="crew-check-row mech-check-row driver-pre-check-chip ${checked ? 'is-checked' : ''} is-readonly">
               <span class="crew-check-box driver-pre-check-box" aria-hidden="true">${checked ? '&#10003;' : ''}</span>
               <span class="crew-check-copy">
                 <span class="crew-check-title driver-pre-check-label">${escapeHtml(label)}</span>
@@ -17299,7 +17299,7 @@
           `;
         }
         return `
-          <label class="crew-check-row driver-pre-check-chip ${checked ? 'is-checked' : ''}">
+          <label class="crew-check-row mech-check-row driver-pre-check-chip ${checked ? 'is-checked' : ''}">
             <input
               type="checkbox"
               class="driver-pre-check-input"
