@@ -6490,6 +6490,8 @@
         notes: combinedNotes,
         mechanicNotes: typeof s.mechanicNotes === 'string' ? s.mechanicNotes.trim() : '',
         preRaceChecklist: normalizePreRaceChecklist(s.preRaceChecklist),
+        preRaceTyreAction: normalizePreRaceTyreAction(s.preRaceTyreAction),
+        driverPreSessionChecklist: normalizeDriverPreSessionChecklist(s.driverPreSessionChecklist),
         mechanicUpdatedAt: typeof s.mechanicUpdatedAt === 'string' ? s.mechanicUpdatedAt.trim() : ''
       };
     };
@@ -8968,11 +8970,139 @@
     return { tuneMain, tuneSub, fuelMain, fuelSub, tyreStr, tuneStr, fuelStr };
   }
 
+  function renderPreSessionReadinessBlockHtml(s, options = {}) {
+    if (!s) return '';
+    const isReadonly = Boolean(options.readonly);
+    const isSubblock = Boolean(options.asSubblock);
+    const preCl = normalizePreRaceChecklist(s.preRaceChecklist);
+    const tyreAct = normalizePreRaceTyreAction(s.preRaceTyreAction);
+    const drvCl = normalizeDriverPreSessionChecklist(s.driverPreSessionChecklist);
+
+    const crewDefs = getPreRaceChecklistItems();
+    const completedItems = crewDefs.filter((it) => Boolean(preCl.items[it.key]));
+    const notDoneItems = crewDefs.filter((it) => !preCl.items[it.key]);
+
+    const completedPillsHtml =
+      completedItems.length > 0
+        ? completedItems
+            .map(
+              (it) =>
+                `<span class="readiness-item-pill is-done"><span aria-hidden="true">&#10003;</span> ${escapeHtml(it.label)}</span>`
+            )
+            .join('')
+        : `<span class="readiness-empty-hint">None completed yet</span>`;
+
+    const notDonePillsHtml =
+      notDoneItems.length > 0
+        ? notDoneItems
+            .map(
+              (it) =>
+                `<span class="readiness-item-pill is-pending"><span aria-hidden="true">&#9711;</span> ${escapeHtml(it.label)}</span>`
+            )
+            .join('')
+        : `<span class="readiness-item-pill is-done"><span aria-hidden="true">&#10003;</span> All ${preCl.totalCount} Crew Checks Done</span>`;
+
+    const tyreCornerBadgesHtml = ['FL', 'FR', 'RL', 'RR']
+      .map((c) => {
+        const actKey = tyreAct.corners[c] || 'left_as_is';
+        const actLabel = formatSingleTyreActionLabel(actKey);
+        return `
+          <span class="readiness-tyre-corner-pill tone-${escapeHtml(actKey)}">
+            <strong>${c}:</strong> ${escapeHtml(actLabel)}
+          </span>
+        `;
+      })
+      .join('');
+
+    const drvDefs = getDriverPreSessionChecklistItems();
+    const drvChecksHtml = drvDefs
+      .map((it) => {
+        const checked = Boolean(drvCl.items[it.key]);
+        return `
+          <label class="driver-presession-check-item ${checked ? 'is-checked' : ''} ${isReadonly ? 'is-readonly' : ''}">
+            <input
+              type="checkbox"
+              class="driver-presession-checkbox"
+              data-driver-presession-check="${escapeHtml(it.key)}"
+              data-driver-session-id="${escapeHtml(s.id)}"
+              ${checked ? 'checked' : ''}
+              ${isReadonly ? 'disabled' : ''}
+            />
+            <span class="driver-presession-check-box" aria-hidden="true">&#10003;</span>
+            <span class="driver-presession-check-label">${escapeHtml(it.label)}</span>
+          </label>
+        `;
+      })
+      .join('');
+
+    const crewStatusClass = preCl.allChecked ? 'emerald' : preCl.completedCount > 0 ? 'amber' : 'neutral';
+    const drvStatusClass = drvCl.allChecked ? 'emerald' : drvCl.completedCount > 0 ? 'amber' : 'neutral';
+
+    return `
+      <div class="${isSubblock ? 'unified-session-subblock presession-readiness-subblock' : 'presession-readiness-card'}" data-readiness-session-id="${escapeHtml(s.id)}">
+        <div class="presession-readiness-header">
+          <div class="presession-readiness-title-group">
+            <span class="presession-readiness-eyebrow">PRE-SESSION READINESS &bull; ${escapeHtml(s.sessionName || 'Session')}</span>
+            <span class="presession-readiness-title">Crew Pre-Race Check, Tyre Action &amp; Driver Cockpit Check</span>
+          </div>
+          <div class="presession-readiness-badges">
+            <span class="readiness-count-badge ${crewStatusClass} mono">
+              CREW: ${preCl.completedCount} / ${preCl.totalCount} DONE
+            </span>
+            <span class="readiness-count-badge ${drvStatusClass} mono">
+              DRIVER: ${drvCl.completedCount} / ${drvCl.totalCount} DONE
+            </span>
+          </div>
+        </div>
+
+        <div class="presession-readiness-grid">
+          <!-- Crew Pre-Race Checklist Status + Tyre Pressure Confirmation -->
+          <div class="presession-crew-status-col">
+            <div class="presession-tyre-confirm-bar">
+              <span class="presession-sub-label">Pre-Session Tyre Pressures:</span>
+              <span class="presession-tyre-summary-text mono">${escapeHtml(tyreAct.summary)}</span>
+              <div class="presession-tyre-corners-row">${tyreCornerBadgesHtml}</div>
+            </div>
+
+            <div class="presession-checklist-breakdown">
+              <div class="presession-checklist-group">
+                <span class="presession-list-heading done">Completed (${completedItems.length}):</span>
+                <div class="presession-pills-wrap">${completedPillsHtml}</div>
+              </div>
+              <div class="presession-checklist-group">
+                <span class="presession-list-heading pending">Not Done (${notDoneItems.length}):</span>
+                <div class="presession-pills-wrap">${notDonePillsHtml}</div>
+              </div>
+            </div>
+            ${
+              preCl.signOffNotes
+                ? `<div class="presession-crew-notes-line"><span class="session-note-tag mechanic">Crew Pre-Race Note:</span> <span>${escapeHtml(preCl.signOffNotes)}</span></div>`
+                : ''
+            }
+          </div>
+
+          <!-- Driver / Operator Pre-Session Checklist (Camera, Drink Bottle, Timer in place) -->
+          <div class="presession-driver-col">
+            <div class="presession-driver-head">
+              <span class="presession-sub-label">Driver / Operator Pre-Session Check</span>
+              <span class="presession-driver-count mono">${drvCl.completedCount} / ${drvCl.totalCount} done</span>
+            </div>
+            <div class="driver-presession-checklist-grid">
+              ${drvChecksHtml}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   function renderWeekendEventBanner() {
     const banner = $('weekendEventBanner');
     const gateNoEvent = $('eventGateNoEventView');
     const gateBetween = $('eventGateBetweenSessionsView');
     const liveView = $('eventBarLiveView');
+    const liveReadinessEl = $('livePreSessionReadinessPanel');
+    const gateBReadinessEl = $('gateBPreSessionReadinessPanel');
     const liveEvt = getActiveEvent();
     const activeSess = getActiveSession();
 
@@ -8999,6 +9129,11 @@
       gateNoEvent.style.display = 'block';
       gateBetween.style.display = 'none';
       liveView.style.display = 'none';
+      if (liveReadinessEl) liveReadinessEl.innerHTML = '';
+      if (gateBReadinessEl) {
+        gateBReadinessEl.style.display = 'none';
+        gateBReadinessEl.innerHTML = '';
+      }
       return;
     }
 
@@ -9013,6 +9148,7 @@
       gateNoEvent.style.display = 'none';
       gateBetween.style.display = 'block';
       liveView.style.display = 'none';
+      if (liveReadinessEl) liveReadinessEl.innerHTML = '';
 
       const sortedEventSessions = sortSessionsDesc(sessions);
       const lastCompleted = sortedEventSessions.length > 0 ? sortedEventSessions[0] : null;
@@ -9054,6 +9190,19 @@
           'btnCommenceSelectedSessionGateB'
         );
       }
+
+      if (gateBReadinessEl) {
+        const targetSessForGateB = lastCompleted || null;
+        if (targetSessForGateB) {
+          gateBReadinessEl.innerHTML = renderPreSessionReadinessBlockHtml(targetSessForGateB, {
+            readonly: Boolean(liveEvt.locked)
+          });
+          gateBReadinessEl.style.display = 'block';
+        } else {
+          gateBReadinessEl.style.display = 'none';
+          gateBReadinessEl.innerHTML = '';
+        }
+      }
       return;
     }
 
@@ -9062,6 +9211,10 @@
     gateNoEvent.style.display = 'none';
     gateBetween.style.display = 'none';
     liveView.style.display = 'block';
+    if (gateBReadinessEl) {
+      gateBReadinessEl.style.display = 'none';
+      gateBReadinessEl.innerHTML = '';
+    }
 
     if ($('liveEventTrackDateCompact')) {
       $('liveEventTrackDateCompact').textContent = `\uD83D\uDFE2 ${liveEvt.venue} • ${dispDate}`;
@@ -9076,6 +9229,11 @@
     if ($('liveEventTitleLabel')) {
       const roundLbl = liveEvt.eventTitle || 'Race Weekend';
       $('liveEventTitleLabel').textContent = `${roundLbl} • ${sessions.length} ${sessions.length === 1 ? 'session' : 'sessions'} in event`;
+    }
+    if (liveReadinessEl) {
+      liveReadinessEl.innerHTML = renderPreSessionReadinessBlockHtml(activeSess, {
+        readonly: Boolean(liveEvt.locked)
+      });
     }
 
     syncPreRaceNotesInputs(activeSess.preRaceNotes || '');
@@ -10293,6 +10451,21 @@
         key: 'safetyFasteners',
         label: 'Safety Pins, Fasteners & Mirrors Checked',
         sub: 'Bonnet/boot pins secured, body fasteners, battery isolator, harness & mirrors checked'
+      },
+      {
+        key: 'cleanCarInside',
+        label: 'Clean car inside',
+        sub: 'Cabin floor, footwell, pedals, dash & driver cockpit cleared and wiped down'
+      },
+      {
+        key: 'cleanCarOutside',
+        label: 'Clean car outside',
+        sub: 'Bodywork, race numbers, grille, guards & sill panels wiped clean'
+      },
+      {
+        key: 'cleanGlass',
+        label: 'Clean glass',
+        sub: 'Front windscreen, rear screen, side windows & mirrors cleaned inside and out'
       }
     ];
   }
@@ -10319,6 +10492,107 @@
     return {
       items,
       signOffNotes,
+      completedCount,
+      totalCount,
+      allChecked: completedCount === totalCount && totalCount > 0,
+      updatedAt
+    };
+  }
+
+  function normalizeSingleTyreActionValue(val) {
+    if (typeof val !== 'string') return 'left_as_is';
+    const v = val.trim().toLowerCase().replace(/[\s/-]+/g, '_');
+    if (v === 'added' || v === 'add' || v === 'pumped' || v === 'up') return 'added';
+    if (v === 'bled' || v === 'bled_taken' || v === 'taken' || v === 'bleed' || v === 'down') return 'bled';
+    if (v === 'left_as_is' || v === 'left' || v === 'as_is' || v === 'unchanged') return 'left_as_is';
+    return 'left_as_is';
+  }
+
+  function formatSingleTyreActionLabel(actionKey) {
+    const norm = normalizeSingleTyreActionValue(actionKey);
+    if (norm === 'added') return 'Added';
+    if (norm === 'bled') return 'Bled / Taken';
+    return 'Left As Is';
+  }
+
+  function normalizePreRaceTyreAction(raw) {
+    const src = raw && typeof raw === 'object' ? raw : {};
+    const rawCorners = src.corners && typeof src.corners === 'object' ? src.corners : src;
+    const fallbackAction =
+      typeof raw === 'string'
+        ? normalizeSingleTyreActionValue(raw)
+        : typeof src.mode === 'string'
+        ? normalizeSingleTyreActionValue(src.mode)
+        : 'left_as_is';
+    const corners = {};
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      corners[c] = c in rawCorners ? normalizeSingleTyreActionValue(rawCorners[c]) : fallbackAction;
+    });
+    const uniqueActions = Array.from(new Set(Object.values(corners)));
+    const mode = uniqueActions.length === 1 ? uniqueActions[0] : 'mixed';
+    const updatedAt = typeof src.updatedAt === 'string' ? src.updatedAt.trim() : '';
+    return {
+      mode,
+      corners,
+      FL: corners.FL,
+      FR: corners.FR,
+      RL: corners.RL,
+      RR: corners.RR,
+      summary: formatPreRaceTyreActionSummary({ mode, corners }),
+      updatedAt
+    };
+  }
+
+  function formatPreRaceTyreActionSummary(tyreActionObj) {
+    const src = tyreActionObj && typeof tyreActionObj === 'object' ? tyreActionObj : {};
+    const corners = src.corners && typeof src.corners === 'object' ? src.corners : src;
+    const fl = normalizeSingleTyreActionValue(corners.FL);
+    const fr = normalizeSingleTyreActionValue(corners.FR);
+    const rl = normalizeSingleTyreActionValue(corners.RL);
+    const rr = normalizeSingleTyreActionValue(corners.RR);
+    if (fl === fr && fr === rl && rl === rr) {
+      return `All 4 ${formatSingleTyreActionLabel(fl)} (FL/FR/RL/RR)`;
+    }
+    return ['FL', 'FR', 'RL', 'RR']
+      .map((c) => `${c}: ${formatSingleTyreActionLabel(corners[c])}`)
+      .join(' • ');
+  }
+
+  function getDriverPreSessionChecklistItems() {
+    return [
+      {
+        key: 'camera',
+        label: 'Camera',
+        sub: 'In-car camera powered on, SD card checked & recording armed'
+      },
+      {
+        key: 'drinkBottle',
+        label: 'Drink Bottle',
+        sub: 'Driver drink bottle filled, secured in holder & tube routed'
+      },
+      {
+        key: 'timerInPlace',
+        label: 'Timer in place',
+        sub: 'Lap timer / transponder / dash timer mounted and verified'
+      }
+    ];
+  }
+
+  function normalizeDriverPreSessionChecklist(raw) {
+    const defs = getDriverPreSessionChecklistItems();
+    const src = raw && typeof raw === 'object' ? raw : {};
+    const rawItems = src.items && typeof src.items === 'object' ? src.items : src;
+    const items = {};
+    let completedCount = 0;
+    defs.forEach(({ key }) => {
+      const checked = Boolean(rawItems[key]);
+      items[key] = checked;
+      if (checked) completedCount += 1;
+    });
+    const totalCount = defs.length;
+    const updatedAt = typeof src.updatedAt === 'string' ? src.updatedAt.trim() : '';
+    return {
+      items,
       completedCount,
       totalCount,
       allChecked: completedCount === totalCount && totalCount > 0,
@@ -10677,8 +10951,55 @@
       });
     }
 
+    // 5. Pre-Session Tyre Pressure Action Confirmation (Added / Bled / Taken / Left As Is)
+    if ('preRaceTyreAction' in payload) {
+      const prevTa = normalizePreRaceTyreAction(targetSess.preRaceTyreAction);
+      const inTa = payload.preRaceTyreAction;
+      if (typeof inTa === 'string') {
+        const normMode = normalizeSingleTyreActionValue(inTa);
+        scopedPatch.preRaceTyreAction = normalizePreRaceTyreAction({
+          mode: normMode,
+          corners: { FL: normMode, FR: normMode, RL: normMode, RR: normMode },
+          updatedAt: mechanicUpdatedAt
+        });
+      } else if (inTa && typeof inTa === 'object') {
+        const inCorners = inTa.corners && typeof inTa.corners === 'object' ? inTa.corners : inTa;
+        const mergedCorners = { ...prevTa.corners };
+        ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+          if (c in inCorners) {
+            mergedCorners[c] = normalizeSingleTyreActionValue(inCorners[c]);
+          }
+        });
+        scopedPatch.preRaceTyreAction = normalizePreRaceTyreAction({
+          corners: mergedCorners,
+          updatedAt: mechanicUpdatedAt
+        });
+      }
+    }
+
+    // 6. Driver / Operator Pre-Session Checklist (Camera, Drink Bottle, Timer in place)
+    if ('driverPreSessionChecklist' in payload) {
+      const prevDrv = normalizeDriverPreSessionChecklist(targetSess.driverPreSessionChecklist);
+      const inDrv =
+        payload.driverPreSessionChecklist && typeof payload.driverPreSessionChecklist === 'object'
+          ? payload.driverPreSessionChecklist
+          : {};
+      const inItems = inDrv.items && typeof inDrv.items === 'object' ? inDrv.items : inDrv;
+      const mergedItems = { ...prevDrv.items };
+      getDriverPreSessionChecklistItems().forEach(({ key }) => {
+        if (key in inItems) {
+          mergedItems[key] = Boolean(inItems[key]);
+        }
+      });
+      scopedPatch.driverPreSessionChecklist = normalizeDriverPreSessionChecklist({
+        items: mergedItems,
+        updatedAt: mechanicUpdatedAt
+      });
+    }
+
     const updated = upsertUnifiedSession(scopedPatch);
     saveState();
+    renderWeekendEventBanner();
     renderSessionLog();
     return updated;
   }
@@ -16307,7 +16628,8 @@
       s.postRaceNotes || '',
       s.notes || '',
       s.mechanicNotes || '',
-      (s.preRaceChecklist && s.preRaceChecklist.signOffNotes) || ''
+      (s.preRaceChecklist && s.preRaceChecklist.signOffNotes) || '',
+      (s.preRaceTyreAction && s.preRaceTyreAction.summary) || ''
     ]
       .join(' ')
       .toLowerCase();
@@ -16394,7 +16716,8 @@
     const postNoteStr = String(s.postRaceNotes !== undefined ? s.postRaceNotes : s.notes || '').trim();
     const mechNoteStr = String(s.mechanicNotes || '').trim();
     const preCl = normalizePreRaceChecklist(s.preRaceChecklist);
-    const hasPreClActivity = preCl.completedCount > 0 || Boolean(preCl.signOffNotes);
+    const tyreAct = normalizePreRaceTyreAction(s.preRaceTyreAction);
+    const hasPreClActivity = preCl.completedCount > 0 || Boolean(preCl.signOffNotes) || Boolean(tyreAct.updatedAt);
     const checkedLabelsStr = getPreRaceChecklistItems()
       .filter((it) => preCl.items[it.key])
       .map((it) => it.label)
@@ -16415,7 +16738,7 @@
             }
             ${
               hasPreClActivity
-                ? `<div class="session-note-line"><span class="session-note-tag ${preCl.allChecked ? 'pre-grid-ok' : 'mechanic'}">${preCl.allChecked ? '✅ PRE-RACE CHECKLIST (6/6):' : `🔧 PRE-RACE CHECKLIST (${preCl.completedCount}/${preCl.totalCount}):`}</span> <span>${escapeHtml(checkedLabelsStr || 'Checklist updated')}${preCl.signOffNotes ? ` — ${escapeHtml(preCl.signOffNotes)}` : ''}</span></div>`
+                ? `<div class="session-note-line"><span class="session-note-tag ${preCl.allChecked ? 'pre-grid-ok' : 'mechanic'}">${preCl.allChecked ? `✅ PRE-RACE CHECKLIST (${preCl.completedCount}/${preCl.totalCount}):` : `🔧 PRE-RACE CHECKLIST (${preCl.completedCount}/${preCl.totalCount}):`}</span> <span>${escapeHtml(checkedLabelsStr || 'Checklist updated')} • Tyres: ${escapeHtml(tyreAct.summary)}${preCl.signOffNotes ? ` — ${escapeHtml(preCl.signOffNotes)}` : ''}</span></div>`
                 : ''
             }
             ${
@@ -16521,6 +16844,7 @@
           </div>
         </div>
 
+        ${renderPreSessionReadinessBlockHtml(s, { readonly: Boolean(isEventLocked), asSubblock: true })}
         ${renderUnifiedFuelWeightBlock(s)}
         ${renderUnifiedTyresBlock(s)}
         ${renderUnifiedSuspensionBlock(s)}
@@ -16562,14 +16886,15 @@
     }
     const hasMechNote = Boolean(String(s.mechanicNotes || '').trim());
     const preCl = normalizePreRaceChecklist(s.preRaceChecklist);
-    const hasPreCl = preCl.completedCount > 0 || Boolean(preCl.signOffNotes);
+    const drvCl = normalizeDriverPreSessionChecklist(s.driverPreSessionChecklist);
+    const hasPreCl = preCl.completedCount > 0 || Boolean(preCl.signOffNotes) || drvCl.completedCount > 0;
     const crewPillHtml =
       hasMechNote || hasPreCl
         ? `<span class="session-row-status-pill mechanic-note-pill" title="Crew Mechanic Notes / Pre-Race Checklist">${
             hasMechNote
               ? '&#128295; Mechanic Notes'
               : preCl.allChecked
-              ? '&#9989; Pre-Race 6/6'
+              ? `&#9989; Pre-Race ${preCl.completedCount}/${preCl.totalCount}`
               : `&#128295; Pre-Race ${preCl.completedCount}/${preCl.totalCount}`
           }</span>`
         : '';
@@ -23752,6 +24077,29 @@
       $('preRaceSignOffNotesInput').value = preCl.signOffNotes || '';
     }
 
+    const tyreAct = normalizePreRaceTyreAction(selectedSess ? selectedSess.preRaceTyreAction : null);
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const cAction = tyreAct.corners[c] || 'left_as_is';
+      const stateEl = $(`preRaceTyreState_${c}`);
+      if (stateEl) {
+        stateEl.textContent = formatSingleTyreActionLabel(cAction).toUpperCase();
+        stateEl.setAttribute('data-action-tone', cAction);
+      }
+      document
+        .querySelectorAll(`[data-prerace-tyre-corner="${c}"][data-prerace-tyre-action]`)
+        .forEach((btn) => {
+          const btnAct = normalizeSingleTyreActionValue(btn.getAttribute('data-prerace-tyre-action'));
+          const isAct = btnAct === cAction;
+          btn.classList.toggle('is-active', isAct);
+          btn.setAttribute('aria-pressed', isAct ? 'true' : 'false');
+        });
+    });
+    document.querySelectorAll('[data-prerace-tyre-all]').forEach((btn) => {
+      const allAct = normalizeSingleTyreActionValue(btn.getAttribute('data-prerace-tyre-all'));
+      const isAllMatch = tyreAct.mode === allAct;
+      btn.classList.toggle('is-active', isAllMatch);
+    });
+
     const t = selectedSess && selectedSess.tyres && typeof selectedSess.tyres === 'object' ? selectedSess.tyres : {};
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const coldInp = $(`mechCold_${c}`);
@@ -23793,7 +24141,7 @@
       $('mechNotesInput').value = (selectedSess && selectedSess.mechanicNotes) || '';
     }
     if ($('mechLastSavedBadge')) {
-      const ts = (selectedSess && selectedSess.mechanicUpdatedAt) || preCl.updatedAt || '';
+      const ts = (selectedSess && selectedSess.mechanicUpdatedAt) || preCl.updatedAt || tyreAct.updatedAt || '';
       $('mechLastSavedBadge').textContent = ts ? `SAVED ${ts}` : 'READY';
     }
     updateMechFuelBurnBadgeFromInputs();
@@ -23809,6 +24157,19 @@
       venue: liveEvt ? liveEvt.venue : undefined,
       sessionDate: liveEvt ? liveEvt.eventDate : undefined
     };
+  }
+
+  function readPreRaceTyreActionFromDom() {
+    const corners = { FL: 'left_as_is', FR: 'left_as_is', RL: 'left_as_is', RR: 'left_as_is' };
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const activeBtn = document.querySelector(
+        `[data-prerace-tyre-corner="${c}"][data-prerace-tyre-action].is-active`
+      );
+      if (activeBtn) {
+        corners[c] = normalizeSingleTyreActionValue(activeBtn.getAttribute('data-prerace-tyre-action'));
+      }
+    });
+    return normalizePreRaceTyreAction({ corners });
   }
 
   function saveMechanicPageInput() {
@@ -23844,7 +24205,7 @@
     }
   }
 
-  function savePreRaceChecklistPageInput(customItemsPatch = null, toastMsg = '') {
+  function savePreRaceChecklistPageInput(customItemsPatch = null, toastMsg = '', customTyreActionPatch = null) {
     const match = readCrewSessionMatchFromInputs();
     const items = {};
     document.querySelectorAll('[data-prerace-check]').forEach((btn) => {
@@ -23855,11 +24216,28 @@
       Object.assign(items, customItemsPatch);
     }
     const signOffNotes = $('preRaceSignOffNotesInput') ? $('preRaceSignOffNotesInput').value.trim() : '';
+    const domTyreAct = readPreRaceTyreActionFromDom();
+    const mergedTyreCorners = { ...domTyreAct.corners };
+    if (typeof customTyreActionPatch === 'string') {
+      const normAll = normalizeSingleTyreActionValue(customTyreActionPatch);
+      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+        mergedTyreCorners[c] = normAll;
+      });
+    } else if (customTyreActionPatch && typeof customTyreActionPatch === 'object') {
+      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+        if (c in customTyreActionPatch) {
+          mergedTyreCorners[c] = normalizeSingleTyreActionValue(customTyreActionPatch[c]);
+        }
+      });
+    }
 
     const updated = applyMechanicInputToSession(match, {
       preRaceChecklist: {
         items,
         signOffNotes
+      },
+      preRaceTyreAction: {
+        corners: mergedTyreCorners
       }
     });
 
@@ -26377,11 +26755,12 @@
 
     if ($('btnPreRaceCheckAll')) {
       $('btnPreRaceCheckAll').addEventListener('click', () => {
+        const itemsList = getPreRaceChecklistItems();
         const allPatch = {};
-        getPreRaceChecklistItems().forEach(({ key }) => {
+        itemsList.forEach(({ key }) => {
           allPatch[key] = true;
         });
-        savePreRaceChecklistPageInput(allPatch, 'All 6 Pre-Race Checks Marked Ready');
+        savePreRaceChecklistPageInput(allPatch, `All ${itemsList.length} Pre-Race Checks Marked Ready`);
       });
     }
 
@@ -26401,11 +26780,62 @@
       });
     }
 
+    // Driver / Operator Pre-Session Checklist (Camera, Drink Bottle, Timer in place) change handler across index.html
+    document.addEventListener('change', (e) => {
+      const drvCheckInp = e.target.closest('[data-driver-presession-check]');
+      if (drvCheckInp) {
+        const key = drvCheckInp.getAttribute('data-driver-presession-check');
+        const sessId = drvCheckInp.getAttribute('data-driver-session-id');
+        if (!key) return;
+        const nextChecked = Boolean(drvCheckInp.checked);
+        const matchObj = sessId ? { id: sessId } : { id: state.activeSessionId || undefined };
+        const updated = applyMechanicInputToSession(matchObj, {
+          driverPreSessionChecklist: {
+            [key]: nextChecked
+          }
+        });
+        if (updated) {
+          const itemDef = getDriverPreSessionChecklistItems().find((it) => it.key === key);
+          const itemLabel = itemDef ? itemDef.label : key;
+          showToast(`${itemLabel}: ${nextChecked ? 'Checked ✓' : 'Unchecked'} (${updated.sessionName})`);
+        }
+      }
+    });
+
     if ($('crewMechanicPage')) {
       document.addEventListener('click', (e) => {
         const mechTabBtn = e.target.closest('[data-mech-tab]');
         if (mechTabBtn) {
           switchMechanicTab(mechTabBtn.getAttribute('data-mech-tab'));
+          return;
+        }
+
+        const tyreCornerBtn = e.target.closest('[data-prerace-tyre-corner][data-prerace-tyre-action]');
+        if (tyreCornerBtn) {
+          const corner = tyreCornerBtn.getAttribute('data-prerace-tyre-corner');
+          const action = normalizeSingleTyreActionValue(
+            tyreCornerBtn.getAttribute('data-prerace-tyre-action')
+          );
+          if (corner) {
+            savePreRaceChecklistPageInput(
+              null,
+              `${corner} Tyre Pressure: ${formatSingleTyreActionLabel(action)}`,
+              { [corner]: action }
+            );
+          }
+          return;
+        }
+
+        const tyreAllBtn = e.target.closest('[data-prerace-tyre-all]');
+        if (tyreAllBtn) {
+          const allAction = normalizeSingleTyreActionValue(
+            tyreAllBtn.getAttribute('data-prerace-tyre-all')
+          );
+          savePreRaceChecklistPageInput(
+            null,
+            `All 4 Tyres: ${formatSingleTyreActionLabel(allAction)}`,
+            allAction
+          );
           return;
         }
 

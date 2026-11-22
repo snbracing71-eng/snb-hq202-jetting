@@ -8183,6 +8183,471 @@ button:disabled.btn-stage-locked,
 }
 
 /* ============================================================================
+   PRE-SESSION TYRE ACTION CONFIRMATION (MECHANIC.HTML) & PRE-SESSION READINESS
+   PANEL + DRIVER / OPERATOR CHECKLIST (INDEX.HTML)
+   ============================================================================ */
+.prerace-tyre-action-panel {
+  margin-bottom: 14px;
+  padding: 12px 13px;
+  border-radius: 11px;
+  background: linear-gradient(180deg, #151E2C 0%, #0C121B 100%);
+  border: 1.5px solid #2F415B;
+}
+
+.prerace-tyre-action-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.prerace-tyre-action-title {
+  font-size: 0.96rem;
+  font-weight: 900;
+  color: #F8FAFC;
+}
+
+.prerace-tyre-quick-helpers {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.prerace-tyre-all-btn {
+  min-height: 38px;
+  padding: 6px 11px;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.prerace-tyre-all-btn.is-active {
+  border-color: #38BDF8;
+  background: rgba(14, 116, 144, 0.42);
+  color: #E0F2FE;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.25);
+}
+
+.prerace-tyre-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .prerace-tyre-action-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.prerace-tyre-corner-card {
+  padding: 10px 11px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #182232 0%, #0F1520 100%);
+  border: 1px solid #33455F;
+}
+
+.prerace-tyre-corner-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.prerace-tyre-corner-label {
+  font-size: 0.86rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: #F8FAFC;
+}
+
+.prerace-tyre-corner-state {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  background: rgba(30, 41, 59, 0.85);
+  border: 1px solid #475569;
+  color: #CBD5E1;
+}
+
+.prerace-tyre-corner-state[data-action-tone="added"] {
+  background: rgba(14, 116, 144, 0.35);
+  border-color: #38BDF8;
+  color: #BAE6FD;
+}
+
+.prerace-tyre-corner-state[data-action-tone="bled"] {
+  background: rgba(180, 83, 9, 0.35);
+  border-color: #F59E0B;
+  color: #FDE68A;
+}
+
+.prerace-tyre-corner-state[data-action-tone="left_as_is"] {
+  background: rgba(6, 95, 70, 0.38);
+  border-color: #34D399;
+  color: #A7F3D0;
+}
+
+.prerace-tyre-seg-group {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.prerace-tyre-seg-btn {
+  min-height: 44px;
+  padding: 6px 6px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.81rem;
+  font-weight: 900;
+  color: #CBD5E1;
+  background: #0D131C;
+  border: 1.5px solid #354760;
+  cursor: pointer;
+  transition: all 0.14s ease;
+}
+
+.prerace-tyre-seg-btn:hover {
+  border-color: #546E91;
+  color: #F8FAFC;
+}
+
+.prerace-tyre-seg-btn.is-active[data-prerace-tyre-action="added"] {
+  background: linear-gradient(180deg, rgba(14, 116, 144, 0.65) 0%, rgba(8, 51, 68, 0.85) 100%);
+  border-color: #38BDF8;
+  color: #F0F9FF;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.28);
+}
+
+.prerace-tyre-seg-btn.is-active[data-prerace-tyre-action="bled"] {
+  background: linear-gradient(180deg, rgba(180, 83, 9, 0.65) 0%, rgba(120, 53, 15, 0.85) 100%);
+  border-color: #F59E0B;
+  color: #FEF3C7;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.28);
+}
+
+.prerace-tyre-seg-btn.is-active[data-prerace-tyre-action="left_as_is"] {
+  background: linear-gradient(180deg, rgba(6, 95, 70, 0.68) 0%, rgba(6, 78, 59, 0.85) 100%);
+  border-color: #10B981;
+  color: #ECFDF5;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.26);
+}
+
+/* Pre-Session Readiness Panel (Active / Upcoming Session View & Session Log) */
+.presession-readiness-panel {
+  margin-top: 10px;
+}
+
+.presession-readiness-card,
+.presession-readiness-subblock {
+  padding: 11px 12px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #131B27 0%, #0C1119 100%);
+  border: 1px solid #2D3E56;
+  text-align: left;
+}
+
+.presession-readiness-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 9px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.65);
+}
+
+.presession-readiness-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.presession-readiness-eyebrow {
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #7DD3FC;
+}
+
+.presession-readiness-title {
+  font-size: 14px;
+  font-weight: 900;
+  color: #F8FAFC;
+}
+
+.presession-readiness-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.readiness-count-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  border: 1px solid #475569;
+  background: rgba(15, 23, 42, 0.85);
+  color: #CBD5E1;
+}
+
+.readiness-count-badge.emerald {
+  border-color: rgba(16, 185, 129, 0.75);
+  background: rgba(6, 95, 70, 0.48);
+  color: #A7F3D0;
+}
+
+.readiness-count-badge.amber {
+  border-color: rgba(245, 158, 11, 0.75);
+  background: rgba(120, 53, 15, 0.48);
+  color: #FDE68A;
+}
+
+.presession-readiness-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 720px) {
+  .presession-readiness-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.presession-crew-status-col,
+.presession-driver-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  background: rgba(15, 23, 42, 0.62);
+  border: 1px solid #253449;
+}
+
+.presession-tyre-confirm-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-bottom: 7px;
+  border-bottom: 1px dashed rgba(51, 65, 85, 0.7);
+}
+
+.presession-sub-label {
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94A3B8;
+}
+
+.presession-tyre-summary-text {
+  font-size: 13px;
+  font-weight: 900;
+  color: #F8FAFC;
+}
+
+.presession-tyre-corners-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.readiness-tyre-corner-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid #334155;
+  background: rgba(15, 23, 42, 0.85);
+  color: #E2E8F0;
+}
+
+.readiness-tyre-corner-pill.tone-added {
+  border-color: rgba(56, 189, 248, 0.7);
+  background: rgba(14, 116, 144, 0.28);
+  color: #BAE6FD;
+}
+
+.readiness-tyre-corner-pill.tone-bled {
+  border-color: rgba(245, 158, 11, 0.7);
+  background: rgba(180, 83, 9, 0.28);
+  color: #FDE68A;
+}
+
+.readiness-tyre-corner-pill.tone-left_as_is {
+  border-color: rgba(16, 185, 129, 0.65);
+  background: rgba(6, 95, 70, 0.28);
+  color: #A7F3D0;
+}
+
+.presession-checklist-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.presession-checklist-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.presession-list-heading {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+}
+
+.presession-list-heading.done {
+  color: #6EE7B7;
+}
+
+.presession-list-heading.pending {
+  color: #FCD34D;
+}
+
+.presession-pills-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.readiness-item-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.readiness-item-pill.is-done {
+  background: rgba(6, 95, 70, 0.35);
+  border: 1px solid rgba(16, 185, 129, 0.6);
+  color: #A7F3D0;
+}
+
+.readiness-item-pill.is-pending {
+  background: rgba(30, 41, 59, 0.75);
+  border: 1px solid rgba(100, 116, 139, 0.55);
+  color: #CBD5E1;
+}
+
+.readiness-empty-hint {
+  font-size: 12px;
+  font-style: italic;
+  color: #64748B;
+}
+
+.presession-crew-notes-line {
+  font-size: 12.5px;
+  color: #E2E8F0;
+  padding-top: 4px;
+  border-top: 1px dashed rgba(51, 65, 85, 0.6);
+}
+
+.presession-driver-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.presession-driver-count {
+  font-size: 12px;
+  font-weight: 900;
+  color: #7DD3FC;
+}
+
+.driver-presession-checklist-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.driver-presession-check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #17202E 0%, #0F151F 100%);
+  border: 1.5px solid #33445C;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.14s ease;
+}
+
+.driver-presession-check-item:hover {
+  border-color: #4E678A;
+}
+
+.driver-presession-check-item.is-checked {
+  border-color: #10B981;
+  background: linear-gradient(180deg, rgba(6, 95, 70, 0.42) 0%, rgba(6, 78, 59, 0.25) 100%);
+}
+
+.driver-presession-check-item.is-readonly {
+  cursor: default;
+  opacity: 0.88;
+}
+
+.driver-presession-checkbox {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.driver-presession-check-box {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: transparent;
+  background: #0B1017;
+  border: 2px solid #4A5E7D;
+}
+
+.driver-presession-check-item.is-checked .driver-presession-check-box {
+  color: #051B14;
+  background: linear-gradient(180deg, #34D399 0%, #10B981 100%);
+  border-color: #6EE7B7;
+}
+
+.driver-presession-check-label {
+  font-size: 13.5px;
+  font-weight: 900;
+  color: #F8FAFC;
+}
+
+/* ============================================================================
    NARROW FRONT COVER-SCREEN RESPONSIVENESS (<= 430px Portrait Width, e.g. Z Fold)
    ============================================================================ */
 @media (max-width: 430px) {
