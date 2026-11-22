@@ -6490,6 +6490,19 @@
         notes: combinedNotes,
         mechanicNotes: typeof s.mechanicNotes === 'string' ? s.mechanicNotes.trim() : '',
         preRaceChecklist: normalizePreRaceChecklist(s.preRaceChecklist),
+        preRaceCompleted:
+          s.preRaceCompleted !== undefined
+            ? Boolean(s.preRaceCompleted)
+            : Boolean(s.preRaceChecklist && (s.preRaceChecklist.preRaceCompleted || s.preRaceChecklist.allChecked)),
+        preRaceCompletedAt:
+          typeof s.preRaceCompletedAt === 'string' && s.preRaceCompletedAt.trim()
+            ? s.preRaceCompletedAt.trim()
+            : (s.preRaceChecklist && (s.preRaceChecklist.preRaceCompletedAt || s.preRaceChecklist.updatedAt)) || '',
+        preRaceTyreAdjustments: normalizePreRaceTyreAdjustments(
+          s.preRaceTyreAdjustments,
+          s.preRaceTyreAction || (s.preRaceChecklist && s.preRaceChecklist.tyreAction)
+        ),
+        preRaceFuelAdjustment: normalizePreRaceFuelAdjustment(s.preRaceFuelAdjustment),
         preRaceTyreAction: normalizePreRaceTyreAction(
           s.preRaceTyreAction || (s.preRaceChecklist && s.preRaceChecklist.tyreAction)
         ),
@@ -9880,6 +9893,10 @@
       notes: preNotes,
       mechanicNotes: '',
       preRaceChecklist: normalizePreRaceChecklist(null),
+      preRaceCompleted: false,
+      preRaceCompletedAt: '',
+      preRaceTyreAdjustments: normalizePreRaceTyreAdjustments(null),
+      preRaceFuelAdjustment: normalizePreRaceFuelAdjustment(null),
       preRaceTyreAction: normalizePreRaceTyreAction(null),
       driverPreSessionChecklist: normalizeDriverPreSessionChecklist(null),
       mechanicUpdatedAt: ''
@@ -10313,32 +10330,32 @@
     return [
       {
         key: 'tyrePressures',
-        label: 'Tyre Pressures Set',
+        label: 'Tyre Pressures Checked / Adjusted',
         sub: 'Cold / Hot-Set target pressures verified across FL, FR, RL, RR & valve caps fitted'
       },
       {
         key: 'wheelNuts',
-        label: 'Wheel Nuts Torqued',
+        label: 'Wheel nuts torqued',
         sub: 'All 4 wheels torqued to spec & wheel studs / seating checked'
       },
       {
         key: 'brakes',
-        label: 'Brake Pedal, Fluid, Lines & Pads Checked',
+        label: 'Brake pedal, fluid, lines & pads checked',
         sub: 'Firm pedal, PBR master fluid level, braided lines, front R-4 pads & rear drums checked'
       },
       {
         key: 'fuelLoad',
-        label: 'Fuel Load & Cap / Breather Checked',
+        label: 'Fuel Load Checked / Adjusted',
         sub: 'Session fuel load verified, filler cap locked & tank breather clear'
       },
       {
         key: 'fluidsLeaks',
-        label: 'Oil, Coolant, Catch-Can & Leaks Checked',
+        label: 'Oil, coolant, catch-can & leaks checked',
         sub: 'Engine oil level, radiator coolant, catch-can drained & zero fluid leaks under car'
       },
       {
         key: 'safetyFasteners',
-        label: 'Safety Pins, Fasteners & Mirrors Checked',
+        label: 'Safety pins, fasteners & mirrors checked',
         sub: 'Bonnet/boot pins secured, body fasteners, battery isolator, harness & mirrors checked'
       },
       {
@@ -10364,16 +10381,133 @@
   function normalizePreRaceTyreActionValue(val) {
     const s = String(val || '').trim().toLowerCase();
     if (s === 'added' || s === 'add') return 'Added';
-    if (s === 'bled / taken' || s === 'bled' || s === 'taken' || s === 'bled/taken') return 'Bled / Taken';
+    if (s === 'bled / taken' || s === 'bled' || s === 'taken' || s === 'bled/taken') return 'Bled';
     return 'Left As Is';
+  }
+
+  function normalizePreRaceTyreAdjustments(raw, legacyTyreActionOpt = null) {
+    const src = raw && typeof raw === 'object' ? raw : {};
+    const rawCorners = src.corners && typeof src.corners === 'object' ? src.corners : src;
+    const legSrc = legacyTyreActionOpt && typeof legacyTyreActionOpt === 'object' ? legacyTyreActionOpt : {};
+    const legCorners = legSrc.corners && typeof legSrc.corners === 'object' ? legSrc.corners : legSrc;
+
+    const corners = {};
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const cVal = rawCorners[c];
+      let action = 'Left As Is';
+      let setToPsi = null;
+      if (typeof cVal === 'string') {
+        action = normalizePreRaceTyreActionValue(cVal);
+      } else if (cVal && typeof cVal === 'object') {
+        action = normalizePreRaceTyreActionValue(cVal.action || cVal.mode);
+        if (action !== 'Left As Is') {
+          const rawPsi = cVal.setToPsi !== undefined ? cVal.setToPsi : cVal.psi;
+          if (
+            rawPsi !== null &&
+            rawPsi !== undefined &&
+            String(rawPsi).trim() !== '' &&
+            Number.isFinite(Number(rawPsi)) &&
+            Number(rawPsi) > 0
+          ) {
+            setToPsi = Number(Number(rawPsi).toFixed(1));
+          }
+        }
+      } else if (c in legCorners) {
+        const legVal = legCorners[c];
+        action = normalizePreRaceTyreActionValue(
+          typeof legVal === 'object' && legVal ? legVal.action || legVal.mode : legVal
+        );
+      }
+      if (action === 'Left As Is') {
+        setToPsi = null;
+      }
+      corners[c] = { action, setToPsi };
+    });
+
+    const alteredParts = [];
+    ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+      const entry = corners[c];
+      if (entry.action !== 'Left As Is') {
+        const psiPart = entry.setToPsi !== null ? ` -> ${entry.setToPsi.toFixed(1)} psi` : '';
+        alteredParts.push(`${c} ${entry.action}${psiPart}`);
+      }
+    });
+
+    const allLeft = alteredParts.length === 0;
+    const summary = allLeft ? 'Left As Is (FL, FR, RL, RR)' : alteredParts.join(' • ');
+    const updatedAt =
+      typeof src.updatedAt === 'string' && src.updatedAt.trim()
+        ? src.updatedAt.trim()
+        : typeof legSrc.updatedAt === 'string'
+        ? legSrc.updatedAt.trim()
+        : '';
+
+    return {
+      FL: corners.FL,
+      FR: corners.FR,
+      RL: corners.RL,
+      RR: corners.RR,
+      corners,
+      allLeftAsIs: allLeft,
+      alteredList: alteredParts,
+      summary,
+      updatedAt
+    };
+  }
+
+  function normalizePreRaceFuelActionValue(val) {
+    const s = String(val || '').trim().toLowerCase();
+    if (s === 'added' || s === 'add') return 'Added';
+    if (s === 'pumped out' || s === 'pumped' || s === 'bled' || s === 'out') return 'Pumped Out';
+    return 'Left As Is';
+  }
+
+  function normalizePreRaceFuelAdjustment(raw) {
+    const src = raw && typeof raw === 'object' ? raw : {};
+    const action =
+      typeof raw === 'string'
+        ? normalizePreRaceFuelActionValue(raw)
+        : normalizePreRaceFuelActionValue(src.action || src.mode);
+
+    const parseOptLitres = (v) =>
+      v !== null &&
+      v !== undefined &&
+      String(v).trim() !== '' &&
+      Number.isFinite(Number(v)) &&
+      Number(v) >= 0
+        ? Number(Number(v).toFixed(1))
+        : null;
+
+    const setToL = action === 'Left As Is' ? null : parseOptLitres(src.setToL !== undefined ? src.setToL : src.tankTotalL);
+    const deltaL = action === 'Left As Is' ? null : parseOptLitres(src.deltaL !== undefined ? src.deltaL : src.litresDeltaL);
+    const updatedAt = typeof src.updatedAt === 'string' ? src.updatedAt.trim() : '';
+
+    let summary = 'Fuel: Left As Is';
+    if (action !== 'Left As Is') {
+      const parts = [];
+      if (setToL !== null) parts.push(`-> ${setToL.toFixed(1)} L`);
+      if (deltaL !== null) {
+        parts.push(`(${action === 'Added' ? '+' : '-'}${deltaL.toFixed(1)} L)`);
+      }
+      summary = `Fuel ${action}${parts.length > 0 ? ` ${parts.join(' ')}` : ''}`;
+    }
+
+    return {
+      action,
+      setToL,
+      deltaL,
+      isAltered: action !== 'Left As Is',
+      summary,
+      updatedAt
+    };
   }
 
   function formatPreRaceTyreActionSummary(corners, modeHint = '') {
     const c = corners && typeof corners === 'object' ? corners : {};
-    const fl = normalizePreRaceTyreActionValue(c.FL);
-    const fr = normalizePreRaceTyreActionValue(c.FR);
-    const rl = normalizePreRaceTyreActionValue(c.RL);
-    const rr = normalizePreRaceTyreActionValue(c.RR);
+    const fl = normalizePreRaceTyreActionValue(c.FL && typeof c.FL === 'object' ? c.FL.action : c.FL);
+    const fr = normalizePreRaceTyreActionValue(c.FR && typeof c.FR === 'object' ? c.FR.action : c.FR);
+    const rl = normalizePreRaceTyreActionValue(c.RL && typeof c.RL === 'object' ? c.RL.action : c.RL);
+    const rr = normalizePreRaceTyreActionValue(c.RR && typeof c.RR === 'object' ? c.RR.action : c.RR);
     if (fl === fr && fr === rl && rl === rr) {
       return `${fl} (FL, FR, RL, RR)`;
     }
@@ -10389,11 +10523,13 @@
         : typeof src.mode === 'string' && src.mode.trim() && src.mode !== 'Mixed'
         ? normalizePreRaceTyreActionValue(src.mode)
         : 'Left As Is';
+    const extractAct = (v) =>
+      v && typeof v === 'object' ? normalizePreRaceTyreActionValue(v.action || v.mode) : normalizePreRaceTyreActionValue(v);
     const corners = {
-      FL: 'FL' in rawCorners ? normalizePreRaceTyreActionValue(rawCorners.FL) : fallbackVal,
-      FR: 'FR' in rawCorners ? normalizePreRaceTyreActionValue(rawCorners.FR) : fallbackVal,
-      RL: 'RL' in rawCorners ? normalizePreRaceTyreActionValue(rawCorners.RL) : fallbackVal,
-      RR: 'RR' in rawCorners ? normalizePreRaceTyreActionValue(rawCorners.RR) : fallbackVal
+      FL: 'FL' in rawCorners ? extractAct(rawCorners.FL) : fallbackVal,
+      FR: 'FR' in rawCorners ? extractAct(rawCorners.FR) : fallbackVal,
+      RL: 'RL' in rawCorners ? extractAct(rawCorners.RL) : fallbackVal,
+      RR: 'RR' in rawCorners ? extractAct(rawCorners.RR) : fallbackVal
     };
     const allSame = corners.FL === corners.FR && corners.FR === corners.RL && corners.RL === corners.RR;
     const mode = allSame ? corners.FL : 'Mixed';
@@ -10464,12 +10600,24 @@
         : '';
     const updatedAt = typeof src.updatedAt === 'string' ? src.updatedAt.trim() : '';
     const tyreAction = src.tyreAction ? normalizePreRaceTyreAction(src.tyreAction) : null;
+    const preRaceCompleted =
+      src.preRaceCompleted !== undefined
+        ? Boolean(src.preRaceCompleted)
+        : completedCount === totalCount && totalCount > 0;
+    const preRaceCompletedAt =
+      typeof src.preRaceCompletedAt === 'string' && src.preRaceCompletedAt.trim()
+        ? src.preRaceCompletedAt.trim()
+        : preRaceCompleted && updatedAt
+        ? updatedAt
+        : '';
     return {
       items,
       signOffNotes,
       completedCount,
       totalCount,
       allChecked: completedCount === totalCount && totalCount > 0,
+      preRaceCompleted,
+      preRaceCompletedAt,
       ...(tyreAction ? { tyreAction } : {}),
       updatedAt
     };
@@ -10535,31 +10683,56 @@
       $('preSessionReadinessSessionLabel').textContent = sessionLabelText;
     }
 
-    // 1. Crew Pre-Race Checklist Status + Tyre Pressure Confirmation
+    // 1. Crew Pre-Race Checklist Status + Tyre Pressure & Fuel Adjustments
     const preCl = normalizePreRaceChecklist(targetSess ? targetSess.preRaceChecklist : null);
-    const tyreAct = normalizePreRaceTyreAction(
+    const tyreAdj = normalizePreRaceTyreAdjustments(
+      targetSess ? targetSess.preRaceTyreAdjustments : null,
       targetSess
         ? targetSess.preRaceTyreAction || (targetSess.preRaceChecklist && targetSess.preRaceChecklist.tyreAction)
         : null
     );
+    const fuelAdj = normalizePreRaceFuelAdjustment(targetSess ? targetSess.preRaceFuelAdjustment : null);
+    const isCrewPreComplete = Boolean(
+      (targetSess && targetSess.preRaceCompleted) || preCl.preRaceCompleted || preCl.allChecked
+    );
+    const crewCompletedAt =
+      (targetSess && targetSess.preRaceCompletedAt) || preCl.preRaceCompletedAt || preCl.updatedAt || '';
+
     const defs = getPreRaceChecklistItems();
     const doneItems = defs.filter((it) => preCl.items[it.key]);
     const pendingItems = defs.filter((it) => !preCl.items[it.key]);
 
     const crewBadge = $('mainCrewPreRaceStatusBadge');
     if (crewBadge) {
-      crewBadge.textContent = `CREW: ${preCl.completedCount} / ${preCl.totalCount} DONE`;
-      crewBadge.className = `fleet-acc-status-pill ${preCl.allChecked ? 'emerald' : 'amber'} mono`;
+      if (isCrewPreComplete) {
+        crewBadge.textContent = crewCompletedAt
+          ? `✓ PRE-RACE COMPLETE • ${crewCompletedAt}`
+          : `✓ PRE-RACE COMPLETE (${preCl.completedCount}/${preCl.totalCount})`;
+        crewBadge.className = 'fleet-acc-status-pill emerald mono';
+      } else {
+        crewBadge.textContent = `CREW: ${preCl.completedCount} / ${preCl.totalCount} DONE`;
+        crewBadge.className = `fleet-acc-status-pill ${preCl.allChecked ? 'emerald' : 'amber'} mono`;
+      }
     }
 
     const tyreBadge = $('mainPreRaceTyreActionBadge');
     if (tyreBadge) {
-      tyreBadge.textContent = `TYRE PRESSURES: ${tyreAct.summary}`;
+      tyreBadge.textContent = `TYRES: ${tyreAdj.summary}`;
+      const hasBled = ['FL', 'FR', 'RL', 'RR'].some((c) => tyreAdj[c].action === 'Bled');
+      const hasAdded = ['FL', 'FR', 'RL', 'RR'].some((c) => tyreAdj[c].action === 'Added');
       tyreBadge.className = `pre-session-tyre-action-pill mono ${
-        tyreAct.mode === 'Bled / Taken'
-          ? 'is-bled'
-          : tyreAct.mode === 'Added'
+        hasBled ? 'is-bled' : hasAdded ? 'is-added' : 'is-left'
+      }`;
+    }
+
+    const fuelBadge = $('mainPreRaceFuelActionBadge');
+    if (fuelBadge) {
+      fuelBadge.textContent = fuelAdj.summary;
+      fuelBadge.className = `pre-session-tyre-action-pill mono ${
+        fuelAdj.action === 'Added'
           ? 'is-added'
+          : fuelAdj.action === 'Pumped Out'
+          ? 'is-bled'
           : 'is-left'
       }`;
     }
@@ -10793,8 +10966,46 @@
           existing.preRaceChecklist = normalizePreRaceChecklist({
             items: { ...prevCl.items, ...inItems },
             signOffNotes: 'signOffNotes' in inCl ? inCl.signOffNotes : prevCl.signOffNotes,
+            preRaceCompleted:
+              'preRaceCompleted' in inCl ? Boolean(inCl.preRaceCompleted) : prevCl.preRaceCompleted,
+            preRaceCompletedAt:
+              'preRaceCompletedAt' in inCl ? inCl.preRaceCompletedAt : prevCl.preRaceCompletedAt,
             tyreAction: inCl.tyreAction || prevCl.tyreAction,
             updatedAt: inCl.updatedAt || prevCl.updatedAt || timeLabel
+          });
+        } else if (k === 'preRaceTyreAdjustments') {
+          const prevAdj = normalizePreRaceTyreAdjustments(
+            existing.preRaceTyreAdjustments,
+            existing.preRaceTyreAction
+          );
+          const inAdj =
+            patch.preRaceTyreAdjustments && typeof patch.preRaceTyreAdjustments === 'object'
+              ? patch.preRaceTyreAdjustments
+              : {};
+          const inCorners = inAdj.corners && typeof inAdj.corners === 'object' ? inAdj.corners : inAdj;
+          const mergedCorners = {};
+          ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+            mergedCorners[c] = c in inCorners ? inCorners[c] : prevAdj[c];
+          });
+          existing.preRaceTyreAdjustments = normalizePreRaceTyreAdjustments({
+            corners: mergedCorners,
+            updatedAt: inAdj.updatedAt || timeLabel
+          });
+        } else if (k === 'preRaceFuelAdjustment') {
+          existing.preRaceFuelAdjustment = normalizePreRaceFuelAdjustment({
+            ...(existing.preRaceFuelAdjustment && typeof existing.preRaceFuelAdjustment === 'object'
+              ? existing.preRaceFuelAdjustment
+              : {}),
+            ...(patch.preRaceFuelAdjustment && typeof patch.preRaceFuelAdjustment === 'object'
+              ? patch.preRaceFuelAdjustment
+              : typeof patch.preRaceFuelAdjustment === 'string'
+              ? { action: patch.preRaceFuelAdjustment }
+              : {}),
+            updatedAt:
+              (patch.preRaceFuelAdjustment &&
+                typeof patch.preRaceFuelAdjustment === 'object' &&
+                patch.preRaceFuelAdjustment.updatedAt) ||
+              timeLabel
           });
         } else if (k === 'preRaceTyreAction') {
           const prevTa = normalizePreRaceTyreAction(existing.preRaceTyreAction);
@@ -10868,10 +11079,11 @@
   }
 
   /**
-   * Safe field-scoped merge helper for mechanic.html and pre-race.html:
+   * Safe field-scoped merge helper for mechanic.html:
    * Matches session by venue + sessionDate + sessionName or id, and updates ONLY
    * allowed mechanic/pre-race fields (tyres, fuelInL, fuelOutL, racedLaps, mechanicNotes,
-   * preRaceChecklist, preRaceTyreAction, driverPreSessionChecklist, mechanicUpdatedAt)
+   * preRaceChecklist, preRaceCompleted, preRaceCompletedAt, preRaceTyreAdjustments,
+   * preRaceFuelAdjustment, preRaceTyreAction, driverPreSessionChecklist, mechanicUpdatedAt)
    * while preserving jetMm, afrWot, timing, fuelPsi, waterTempC, state.baseline, and fleet/dyno fields.
    */
   function applyMechanicInputToSession(sessionMatch, payload) {
@@ -11000,8 +11212,35 @@
       scopedPatch.mechanicNotes = String(payload.mechanicNotes ?? '').trim();
     }
 
-    // 4. Pre-Race Tyre Pressure Action Confirmation (Added | Bled / Taken | Left As Is)
-    if ('preRaceTyreAction' in payload) {
+    // 4. Pre-Race Tyre Adjustments ({ FL: { action, setToPsi }, ... }) & Pre-Race Tyre Action
+    if ('preRaceTyreAdjustments' in payload) {
+      const prevAdj = normalizePreRaceTyreAdjustments(
+        targetSess.preRaceTyreAdjustments,
+        targetSess.preRaceTyreAction
+      );
+      const inAdj =
+        payload.preRaceTyreAdjustments && typeof payload.preRaceTyreAdjustments === 'object'
+          ? payload.preRaceTyreAdjustments
+          : {};
+      const inCorners = inAdj.corners && typeof inAdj.corners === 'object' ? inAdj.corners : inAdj;
+      const mergedCorners = {};
+      ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+        mergedCorners[c] = c in inCorners ? inCorners[c] : prevAdj[c];
+      });
+      scopedPatch.preRaceTyreAdjustments = normalizePreRaceTyreAdjustments({
+        corners: mergedCorners,
+        updatedAt: mechanicUpdatedAt
+      });
+      scopedPatch.preRaceTyreAction = normalizePreRaceTyreAction({
+        corners: {
+          FL: scopedPatch.preRaceTyreAdjustments.FL.action,
+          FR: scopedPatch.preRaceTyreAdjustments.FR.action,
+          RL: scopedPatch.preRaceTyreAdjustments.RL.action,
+          RR: scopedPatch.preRaceTyreAdjustments.RR.action
+        },
+        updatedAt: mechanicUpdatedAt
+      });
+    } else if ('preRaceTyreAction' in payload) {
       const prevTa = normalizePreRaceTyreAction(targetSess.preRaceTyreAction);
       const inTa = payload.preRaceTyreAction;
       if (typeof inTa === 'string') {
@@ -11021,6 +11260,50 @@
           updatedAt: mechanicUpdatedAt
         });
       }
+    }
+
+    // 4b. Pre-Race Fuel Adjustment ({ action, setToL, deltaL })
+    if ('preRaceFuelAdjustment' in payload) {
+      const prevFuelAdj = normalizePreRaceFuelAdjustment(targetSess.preRaceFuelAdjustment);
+      const inFuel = payload.preRaceFuelAdjustment;
+      if (typeof inFuel === 'string') {
+        scopedPatch.preRaceFuelAdjustment = normalizePreRaceFuelAdjustment({
+          action: inFuel,
+          setToL: prevFuelAdj.setToL,
+          deltaL: prevFuelAdj.deltaL,
+          updatedAt: mechanicUpdatedAt
+        });
+      } else if (inFuel && typeof inFuel === 'object') {
+        scopedPatch.preRaceFuelAdjustment = normalizePreRaceFuelAdjustment({
+          action: 'action' in inFuel ? inFuel.action : prevFuelAdj.action,
+          setToL: 'setToL' in inFuel ? inFuel.setToL : prevFuelAdj.setToL,
+          deltaL: 'deltaL' in inFuel ? inFuel.deltaL : prevFuelAdj.deltaL,
+          updatedAt: mechanicUpdatedAt
+        });
+      }
+      if (
+        scopedPatch.preRaceFuelAdjustment &&
+        scopedPatch.preRaceFuelAdjustment.isAltered &&
+        scopedPatch.preRaceFuelAdjustment.setToL !== null &&
+        !('fuelInL' in payload)
+      ) {
+        scopedPatch.fuelInL = scopedPatch.preRaceFuelAdjustment.setToL;
+      }
+    }
+
+    // 4c. Pre-Race Completion status & timestamp
+    if ('preRaceCompleted' in payload) {
+      scopedPatch.preRaceCompleted = Boolean(payload.preRaceCompleted);
+    }
+    if ('preRaceCompletedAt' in payload) {
+      scopedPatch.preRaceCompletedAt =
+        typeof payload.preRaceCompletedAt === 'string' && payload.preRaceCompletedAt.trim()
+          ? payload.preRaceCompletedAt.trim()
+          : scopedPatch.preRaceCompleted
+          ? mechanicUpdatedAt
+          : '';
+    } else if (scopedPatch.preRaceCompleted) {
+      scopedPatch.preRaceCompletedAt = targetSess.preRaceCompletedAt || mechanicUpdatedAt;
     }
 
     // 5. Pre-Race Checklist
@@ -11043,12 +11326,32 @@
           : 'notes' in inCl
           ? String(inCl.notes ?? '').trim()
           : prevCl.signOffNotes;
+      const effCompleted =
+        'preRaceCompleted' in scopedPatch
+          ? scopedPatch.preRaceCompleted
+          : 'preRaceCompleted' in inCl
+          ? Boolean(inCl.preRaceCompleted)
+          : prevCl.preRaceCompleted;
+      const effCompletedAt =
+        'preRaceCompletedAt' in scopedPatch
+          ? scopedPatch.preRaceCompletedAt
+          : 'preRaceCompletedAt' in inCl
+          ? inCl.preRaceCompletedAt
+          : prevCl.preRaceCompletedAt;
       scopedPatch.preRaceChecklist = normalizePreRaceChecklist({
         items: mergedItems,
         signOffNotes,
+        preRaceCompleted: effCompleted,
+        preRaceCompletedAt: effCompletedAt,
         tyreAction: scopedPatch.preRaceTyreAction || targetSess.preRaceTyreAction || inCl.tyreAction,
         updatedAt: mechanicUpdatedAt
       });
+      if (!('preRaceCompleted' in scopedPatch)) {
+        scopedPatch.preRaceCompleted = scopedPatch.preRaceChecklist.preRaceCompleted;
+      }
+      if (!('preRaceCompletedAt' in scopedPatch)) {
+        scopedPatch.preRaceCompletedAt = scopedPatch.preRaceChecklist.preRaceCompletedAt;
+      }
     }
 
     // 6. Driver / Operator Pre-Session Checklist (Camera, Drink Bottle, Timer in place)
@@ -16703,6 +17006,8 @@
       s.notes || '',
       s.mechanicNotes || '',
       (s.preRaceChecklist && s.preRaceChecklist.signOffNotes) || '',
+      (s.preRaceTyreAdjustments && s.preRaceTyreAdjustments.summary) || '',
+      (s.preRaceFuelAdjustment && s.preRaceFuelAdjustment.summary) || '',
       (s.preRaceTyreAction && s.preRaceTyreAction.summary) || ''
     ]
       .join(' ')
@@ -16712,9 +17017,13 @@
   function renderUnifiedPreSessionReadinessBlock(s, isEventLocked) {
     if (!s) return '';
     const preCl = normalizePreRaceChecklist(s.preRaceChecklist);
-    const tyreAct = normalizePreRaceTyreAction(
+    const tyreAdj = normalizePreRaceTyreAdjustments(
+      s.preRaceTyreAdjustments,
       s.preRaceTyreAction || (s.preRaceChecklist && s.preRaceChecklist.tyreAction)
     );
+    const fuelAdj = normalizePreRaceFuelAdjustment(s.preRaceFuelAdjustment);
+    const isCrewPreComplete = Boolean(s.preRaceCompleted || preCl.preRaceCompleted || preCl.allChecked);
+    const crewCompletedAt = s.preRaceCompletedAt || preCl.preRaceCompletedAt || preCl.updatedAt || '';
     const drvCl = normalizeDriverPreSessionChecklist(s.driverPreSessionChecklist);
     const defs = getPreRaceChecklistItems();
     const doneItems = defs.filter((it) => preCl.items[it.key]);
@@ -16741,11 +17050,14 @@
             .join('')
         : `<span class="pre-session-item-pill done">&#10003; All ${preCl.totalCount} Crew Checks Complete</span>`;
 
-    const tyreClass =
-      tyreAct.mode === 'Bled / Taken'
-        ? 'is-bled'
-        : tyreAct.mode === 'Added'
+    const hasBled = ['FL', 'FR', 'RL', 'RR'].some((c) => tyreAdj[c].action === 'Bled');
+    const hasAdded = ['FL', 'FR', 'RL', 'RR'].some((c) => tyreAdj[c].action === 'Added');
+    const tyreClass = hasBled ? 'is-bled' : hasAdded ? 'is-added' : 'is-left';
+    const fuelClass =
+      fuelAdj.action === 'Added'
         ? 'is-added'
+        : fuelAdj.action === 'Pumped Out'
+        ? 'is-bled'
         : 'is-left';
 
     const driverChecksHtml = drvDefs
@@ -16775,11 +17087,18 @@
       })
       .join('');
 
+    const crewHeadText = isCrewPreComplete
+      ? `✓ PRE-RACE COMPLETE${crewCompletedAt ? ` (${crewCompletedAt})` : ''} (${preCl.completedCount}/${preCl.totalCount})`
+      : `CREW (${preCl.completedCount}/${preCl.totalCount})`;
+
     return `
       <div class="unified-session-subblock pre-session-log-subblock">
         <div class="unified-subblock-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
-          <span>PRE-SESSION READINESS &bull; CREW (${preCl.completedCount}/${preCl.totalCount}) &amp; DRIVER (${drvCl.completedCount}/${drvCl.totalCount})</span>
-          <span class="pre-session-tyre-action-pill mono ${tyreClass}">TYRE PRESSURES: ${escapeHtml(tyreAct.summary)}</span>
+          <span>PRE-SESSION READINESS &bull; ${escapeHtml(crewHeadText)} &amp; DRIVER (${drvCl.completedCount}/${drvCl.totalCount})</span>
+          <div class="pre-session-adjustments-badges">
+            <span class="pre-session-tyre-action-pill mono ${tyreClass}">TYRES: ${escapeHtml(tyreAdj.summary)}</span>
+            <span class="pre-session-tyre-action-pill mono ${fuelClass}">${escapeHtml(fuelAdj.summary)}</span>
+          </div>
         </div>
         <div class="pre-session-crew-split-lists" style="margin-top: 6px;">
           <div class="pre-session-crew-list-col">
@@ -16880,12 +17199,18 @@
     const postNoteStr = String(s.postRaceNotes !== undefined ? s.postRaceNotes : s.notes || '').trim();
     const mechNoteStr = String(s.mechanicNotes || '').trim();
     const preCl = normalizePreRaceChecklist(s.preRaceChecklist);
-    const tyreAct = normalizePreRaceTyreAction(
+    const tyreAdj = normalizePreRaceTyreAdjustments(
+      s.preRaceTyreAdjustments,
       s.preRaceTyreAction || (s.preRaceChecklist && s.preRaceChecklist.tyreAction)
     );
+    const fuelAdj = normalizePreRaceFuelAdjustment(s.preRaceFuelAdjustment);
+    const isCrewPreComplete = Boolean(s.preRaceCompleted || preCl.preRaceCompleted || preCl.allChecked);
     const hasPreClActivity =
+      isCrewPreComplete ||
       preCl.completedCount > 0 ||
       Boolean(preCl.signOffNotes) ||
+      !tyreAdj.allLeftAsIs ||
+      fuelAdj.isAltered ||
       Boolean(s.preRaceTyreAction && s.preRaceTyreAction.updatedAt);
     const checkedLabelsStr = getPreRaceChecklistItems()
       .filter((it) => preCl.items[it.key])
@@ -16907,7 +17232,7 @@
             }
             ${
               hasPreClActivity
-                ? `<div class="session-note-line"><span class="session-note-tag ${preCl.allChecked ? 'pre-grid-ok' : 'mechanic'}">${preCl.allChecked ? `✅ PRE-RACE CHECKLIST (${preCl.completedCount}/${preCl.totalCount}):` : `🔧 PRE-RACE CHECKLIST (${preCl.completedCount}/${preCl.totalCount}):`}</span> <span>${escapeHtml(checkedLabelsStr || 'Checklist updated')} &bull; Tyres: ${escapeHtml(tyreAct.summary)}${preCl.signOffNotes ? ` — ${escapeHtml(preCl.signOffNotes)}` : ''}</span></div>`
+                ? `<div class="session-note-line"><span class="session-note-tag ${isCrewPreComplete ? 'pre-grid-ok' : 'mechanic'}">${isCrewPreComplete ? `✅ PRE-RACE COMPLETE (${preCl.completedCount}/${preCl.totalCount}):` : `🔧 PRE-RACE CHECKLIST (${preCl.completedCount}/${preCl.totalCount}):`}</span> <span>${escapeHtml(checkedLabelsStr || 'Checklist updated')} &bull; Tyres: ${escapeHtml(tyreAdj.summary)} &bull; ${escapeHtml(fuelAdj.summary)}${preCl.signOffNotes ? ` — ${escapeHtml(preCl.signOffNotes)}` : ''}</span></div>`
                 : ''
             }
             ${
@@ -24108,28 +24433,39 @@
     safeRun('renderCrewPages', () => renderCrewPages());
   }
 
-  function switchMechanicTab(tabKey) {
-    const nextTab = tabKey === 'post' ? 'post' : 'pre';
-    ui.activeMechTab = nextTab;
-    const preBtn = $('mechTabPre');
-    const postBtn = $('mechTabPost');
-    const prePanel = $('mechPanelPre');
-    const postPanel = $('mechPanelPost');
-    if (preBtn) {
-      preBtn.classList.toggle('active', nextTab === 'pre');
-      preBtn.setAttribute('aria-selected', nextTab === 'pre' ? 'true' : 'false');
+  function toggleCrewTaskDrawer(drawerId, forceOpenOpt) {
+    const bodyEl = $(drawerId);
+    if (!bodyEl) return;
+    const isCurrentlyOpen = bodyEl.style.display !== 'none';
+    const nextOpen = forceOpenOpt !== undefined ? Boolean(forceOpenOpt) : !isCurrentlyOpen;
+    bodyEl.style.display = nextOpen ? 'block' : 'none';
+    const toggleBtn = document.querySelector(`[data-toggle-crew-drawer="${drawerId}"]`);
+    if (toggleBtn) {
+      toggleBtn.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
+      const chev = toggleBtn.querySelector('.crew-drawer-chevron');
+      if (chev) {
+        chev.innerHTML = nextOpen ? '&#9660;' : '&#9654;';
+      }
     }
-    if (postBtn) {
-      postBtn.classList.toggle('active', nextTab === 'post');
-      postBtn.setAttribute('aria-selected', nextTab === 'post' ? 'true' : 'false');
+  }
+
+  function togglePostRaceAccordion(forceOpenOpt) {
+    const bodyEl = $('mechPanelPost');
+    const btn = $('btnTogglePostRaceAccordion');
+    const titleEl = $('postRaceAccordionTitleLabel');
+    if (!bodyEl) return;
+    const isOpen = bodyEl.style.display !== 'none';
+    const nextOpen = forceOpenOpt !== undefined ? Boolean(forceOpenOpt) : !isOpen;
+    ui.postRaceAccordionOpen = nextOpen;
+    bodyEl.style.display = nextOpen ? 'block' : 'none';
+    if (btn) {
+      btn.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
+      btn.classList.toggle('is-open', nextOpen);
     }
-    if (prePanel) {
-      prePanel.style.display = nextTab === 'pre' ? 'block' : 'none';
-      prePanel.classList.toggle('active', nextTab === 'pre');
-    }
-    if (postPanel) {
-      postPanel.style.display = nextTab === 'post' ? 'block' : 'none';
-      postPanel.classList.toggle('active', nextTab === 'post');
+    if (titleEl) {
+      titleEl.textContent = nextOpen
+        ? '− Post-Race Off-Track Pressures & Pump-Out'
+        : '+ Post-Race Off-Track Pressures & Pump-Out';
     }
   }
 
@@ -24223,16 +24559,25 @@
       }
     }
 
-    // 3. Hydrate Tab 1 (Pre-Race Check) & Tab 2 (Post-Race / Pit) fields from selectedSess
+    // 3. Hydrate Pre-Race Checklist, Tyre Adjustments Drawer, Fuel Adjustment Drawer & Post-Race Accordion
     const preCl = normalizePreRaceChecklist(selectedSess ? selectedSess.preRaceChecklist : null);
-    const tyreAct = normalizePreRaceTyreAction(
+    const tyreAdj = normalizePreRaceTyreAdjustments(
+      selectedSess ? selectedSess.preRaceTyreAdjustments : null,
       selectedSess
         ? selectedSess.preRaceTyreAction || (selectedSess.preRaceChecklist && selectedSess.preRaceChecklist.tyreAction)
         : null
     );
+    const fuelAdj = normalizePreRaceFuelAdjustment(selectedSess ? selectedSess.preRaceFuelAdjustment : null);
+    const isPreCompleted = Boolean(
+      (selectedSess && selectedSess.preRaceCompleted) || preCl.preRaceCompleted || preCl.allChecked
+    );
+    const completedAt =
+      (selectedSess && selectedSess.preRaceCompletedAt) || preCl.preRaceCompletedAt || preCl.updatedAt || '';
 
+    // Hydrate Task Card A: 4 corners FL, FR, RL, RR + conditional Set To (PSI) input
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
-      const activeAction = tyreAct.corners[c] || 'Left As Is';
+      const cornerEntry = tyreAdj[c] || { action: 'Left As Is', setToPsi: null };
+      const activeAction = cornerEntry.action || 'Left As Is';
       document
         .querySelectorAll(`[data-pre-tyre-corner="${c}"][data-pre-tyre-action]`)
         .forEach((btn) => {
@@ -24241,27 +24586,81 @@
           btn.classList.toggle('active', isMatch);
           btn.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
         });
+      const condWrap = $(`preTyreSetWrap_${c}`);
+      const psiInp = $(`preTyreSetPsi_${c}`);
+      const isAltered = activeAction === 'Added' || activeAction === 'Bled';
+      if (condWrap) {
+        condWrap.style.display = isAltered ? 'flex' : 'none';
+      }
+      if (psiInp && document.activeElement !== psiInp) {
+        psiInp.value =
+          isAltered && cornerEntry.setToPsi !== null && Number.isFinite(Number(cornerEntry.setToPsi))
+            ? Number(cornerEntry.setToPsi).toFixed(1)
+            : '';
+      }
     });
 
     document.querySelectorAll('[data-pre-tyre-all]').forEach((helperBtn) => {
       const helperVal = normalizePreRaceTyreActionValue(helperBtn.getAttribute('data-pre-tyre-all'));
-      const isAllMatch = tyreAct.mode === helperVal;
+      const isAllMatch = helperVal === 'Left As Is' && tyreAdj.allLeftAsIs;
       helperBtn.classList.toggle('is-active-helper', isAllMatch);
     });
 
     const tyreActSummaryBadge = $('preRaceTyreActionSummaryBadge');
     if (tyreActSummaryBadge) {
-      tyreActSummaryBadge.textContent = `TYRE ACTION: ${tyreAct.summary}`;
+      tyreActSummaryBadge.textContent = `Tyres: ${tyreAdj.summary}`;
     }
 
+    // Hydrate Task Card B: Fuel Load 3-way pill selector (Left As Is | Added | Pumped Out) + conditional Litres inputs
+    document.querySelectorAll('[data-pre-fuel-action]').forEach((btn) => {
+      const val = normalizePreRaceFuelActionValue(btn.getAttribute('data-pre-fuel-action'));
+      const isMatch = val === fuelAdj.action;
+      btn.classList.toggle('active', isMatch);
+      btn.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+    });
+    const fuelCondWrap = $('preFuelConditionalWrap');
+    if (fuelCondWrap) {
+      fuelCondWrap.style.display = fuelAdj.isAltered ? 'grid' : 'none';
+    }
+    const fuelDeltaLbl = $('preFuelDeltaLabel');
+    if (fuelDeltaLbl) {
+      fuelDeltaLbl.textContent =
+        fuelAdj.action === 'Pumped Out'
+          ? 'Litres Pumped Out (L) (Optional)'
+          : 'Litres Added (L) (Optional)';
+    }
+    const setToFuelInp = $('preFuelSetToL');
+    if (setToFuelInp && document.activeElement !== setToFuelInp) {
+      setToFuelInp.value =
+        fuelAdj.isAltered && fuelAdj.setToL !== null && Number.isFinite(Number(fuelAdj.setToL))
+          ? Number(fuelAdj.setToL).toFixed(1)
+          : '';
+    }
+    const deltaFuelInp = $('preFuelDeltaL');
+    if (deltaFuelInp && document.activeElement !== deltaFuelInp) {
+      deltaFuelInp.value =
+        fuelAdj.isAltered && fuelAdj.deltaL !== null && Number.isFinite(Number(fuelAdj.deltaL))
+          ? Number(fuelAdj.deltaL).toFixed(1)
+          : '';
+    }
+    const fuelSummaryBadge = $('preRaceFuelActionSummaryBadge');
+    if (fuelSummaryBadge) {
+      fuelSummaryBadge.textContent = `${fuelAdj.summary} • Filler cap locked & breather clear`;
+    }
+
+    // Hydrate checklist items & expandable task card states
     document.querySelectorAll('[data-prerace-check]').forEach((btn) => {
       const k = btn.getAttribute('data-prerace-check');
       const checked = Boolean(preCl.items[k]);
       btn.classList.toggle('is-checked', checked);
       btn.setAttribute('aria-pressed', checked ? 'true' : 'false');
-      const statusEl = btn.querySelector('.crew-check-status');
+      const statusEl = btn.querySelector('.crew-check-status') || $(`preRaceStatus_${k}`);
       if (statusEl) {
         statusEl.textContent = checked ? 'CHECKED ✓' : 'PENDING';
+      }
+      const parentCard = btn.closest('.crew-expandable-task-card');
+      if (parentCard) {
+        parentCard.classList.toggle('is-checked', checked);
       }
     });
 
@@ -24270,8 +24669,20 @@
       progBadge.textContent = `${preCl.completedCount} / ${preCl.totalCount} ${preCl.allChecked ? 'READY FOR GRID' : 'CHECKED'}`;
       progBadge.className = `fleet-acc-status-pill ${preCl.allChecked ? 'emerald' : 'amber'} mono`;
     }
-    if ($('preRaceSignOffNotesInput')) {
+    if ($('preRaceSignOffNotesInput') && document.activeElement !== $('preRaceSignOffNotesInput')) {
       $('preRaceSignOffNotesInput').value = preCl.signOffNotes || '';
+    }
+
+    // Hydrate MARK PRE-RACE COMPLETE button state
+    const markCompleteBtn = $('btnSavePreRaceChecklist');
+    if (markCompleteBtn) {
+      markCompleteBtn.classList.toggle('is-pre-race-completed', isPreCompleted);
+      if (isPreCompleted) {
+        const timeSuffix = completedAt ? ` • ${completedAt}` : '';
+        markCompleteBtn.textContent = `✓ PRE-RACE COMPLETE${timeSuffix}`;
+      } else {
+        markCompleteBtn.textContent = 'MARK PRE-RACE COMPLETE';
+      }
     }
 
     const t = selectedSess && selectedSess.tyres && typeof selectedSess.tyres === 'object' ? selectedSess.tyres : {};
@@ -24279,13 +24690,13 @@
       const coldInp = $(`mechCold_${c}`);
       const hotInp = $(`mechHot_${c}`);
       const cObj = t[c] && typeof t[c] === 'object' ? t[c] : {};
-      if (coldInp) {
+      if (coldInp && document.activeElement !== coldInp) {
         coldInp.value =
           cObj.cold !== null && cObj.cold !== undefined && Number.isFinite(Number(cObj.cold)) && Number(cObj.cold) > 0
             ? Number(cObj.cold).toFixed(1)
             : '';
       }
-      if (hotInp) {
+      if (hotInp && document.activeElement !== hotInp) {
         hotInp.value =
           cObj.hot !== null && cObj.hot !== undefined && Number.isFinite(Number(cObj.hot)) && Number(cObj.hot) > 0
             ? Number(cObj.hot).toFixed(1)
@@ -24293,33 +24704,37 @@
       }
     });
 
-    if ($('mechFuelInL')) {
+    if ($('mechFuelInL') && document.activeElement !== $('mechFuelInL')) {
       $('mechFuelInL').value =
         selectedSess && selectedSess.fuelInL !== null && selectedSess.fuelInL !== undefined && Number.isFinite(Number(selectedSess.fuelInL))
           ? Number(selectedSess.fuelInL).toFixed(1)
           : '';
     }
-    if ($('mechFuelOutL')) {
+    if ($('mechFuelOutL') && document.activeElement !== $('mechFuelOutL')) {
       $('mechFuelOutL').value =
         selectedSess && selectedSess.fuelOutL !== null && selectedSess.fuelOutL !== undefined && Number.isFinite(Number(selectedSess.fuelOutL))
           ? Number(selectedSess.fuelOutL).toFixed(1)
           : '';
     }
-    if ($('mechRacedLaps')) {
+    if ($('mechRacedLaps') && document.activeElement !== $('mechRacedLaps')) {
       $('mechRacedLaps').value =
         selectedSess && selectedSess.racedLaps !== null && selectedSess.racedLaps !== undefined && Number.isFinite(Number(selectedSess.racedLaps)) && Number(selectedSess.racedLaps) > 0
           ? String(Math.round(Number(selectedSess.racedLaps)))
           : '';
     }
-    if ($('mechNotesInput')) {
+    if ($('mechNotesInput') && document.activeElement !== $('mechNotesInput')) {
       $('mechNotesInput').value = (selectedSess && selectedSess.mechanicNotes) || '';
     }
     if ($('mechLastSavedBadge')) {
-      const ts = (selectedSess && selectedSess.mechanicUpdatedAt) || preCl.updatedAt || '';
-      $('mechLastSavedBadge').textContent = ts ? `SAVED ${ts}` : 'READY';
+      const ts = completedAt || (selectedSess && selectedSess.mechanicUpdatedAt) || preCl.updatedAt || '';
+      $('mechLastSavedBadge').textContent = isPreCompleted
+        ? `✓ COMPLETE ${ts}`
+        : ts
+        ? `SAVED ${ts}`
+        : 'READY';
     }
     updateMechFuelBurnBadgeFromInputs();
-    switchMechanicTab(ui.activeMechTab || 'pre');
+    togglePostRaceAccordion(Boolean(ui.postRaceAccordionOpen));
   }
 
   function readCrewSessionMatchFromInputs() {
@@ -24333,37 +24748,97 @@
     };
   }
 
-  function readCrewTyreActionFromDom(customTyreActionPatch = null) {
-    const corners = {
-      FL: 'Left As Is',
-      FR: 'Left As Is',
-      RL: 'Left As Is',
-      RR: 'Left As Is'
-    };
+  function readCrewTyreAdjustmentsFromDom(customTyreActionPatch = null) {
+    const corners = {};
     ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
       const activeBtn = document.querySelector(
         `[data-pre-tyre-corner="${c}"][data-pre-tyre-action].active`
       );
-      if (activeBtn) {
-        corners[c] = normalizePreRaceTyreActionValue(activeBtn.getAttribute('data-pre-tyre-action'));
-      }
+      let action = activeBtn
+        ? normalizePreRaceTyreActionValue(activeBtn.getAttribute('data-pre-tyre-action'))
+        : 'Left As Is';
+      const psiInp = $(`preTyreSetPsi_${c}`);
+      const rawPsi = psiInp ? psiInp.value.trim() : '';
+      let setToPsi =
+        rawPsi !== '' && Number.isFinite(Number(rawPsi)) && Number(rawPsi) > 0
+          ? Number(Number(rawPsi).toFixed(1))
+          : null;
+      corners[c] = { action, setToPsi };
     });
+
     if (customTyreActionPatch) {
       if (typeof customTyreActionPatch === 'string') {
         const norm = normalizePreRaceTyreActionValue(customTyreActionPatch);
-        corners.FL = norm;
-        corners.FR = norm;
-        corners.RL = norm;
-        corners.RR = norm;
+        ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+          corners[c].action = norm;
+          if (norm === 'Left As Is') corners[c].setToPsi = null;
+        });
       } else if (typeof customTyreActionPatch === 'object') {
         ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
           if (c in customTyreActionPatch) {
-            corners[c] = normalizePreRaceTyreActionValue(customTyreActionPatch[c]);
+            const p = customTyreActionPatch[c];
+            if (typeof p === 'string') {
+              corners[c].action = normalizePreRaceTyreActionValue(p);
+              if (corners[c].action === 'Left As Is') corners[c].setToPsi = null;
+            } else if (p && typeof p === 'object') {
+              if ('action' in p) {
+                corners[c].action = normalizePreRaceTyreActionValue(p.action);
+              }
+              if ('setToPsi' in p) {
+                const rawP = p.setToPsi;
+                corners[c].setToPsi =
+                  rawP !== null && rawP !== undefined && String(rawP).trim() !== '' && Number.isFinite(Number(rawP)) && Number(rawP) > 0
+                    ? Number(Number(rawP).toFixed(1))
+                    : null;
+              }
+              if (corners[c].action === 'Left As Is') corners[c].setToPsi = null;
+            }
           }
         });
       }
     }
-    return normalizePreRaceTyreAction({ corners });
+
+    return normalizePreRaceTyreAdjustments({ corners });
+  }
+
+  function readCrewFuelAdjustmentFromDom(customFuelPatch = null) {
+    const activeBtn = document.querySelector('[data-pre-fuel-action].active');
+    let action = activeBtn
+      ? normalizePreRaceFuelActionValue(activeBtn.getAttribute('data-pre-fuel-action'))
+      : 'Left As Is';
+    const setInp = $('preFuelSetToL');
+    const deltaInp = $('preFuelDeltaL');
+    const rawSet = setInp ? setInp.value.trim() : '';
+    const rawDelta = deltaInp ? deltaInp.value.trim() : '';
+    let setToL =
+      rawSet !== '' && Number.isFinite(Number(rawSet)) && Number(rawSet) >= 0
+        ? Number(Number(rawSet).toFixed(1))
+        : null;
+    let deltaL =
+      rawDelta !== '' && Number.isFinite(Number(rawDelta)) && Number(rawDelta) >= 0
+        ? Number(Number(rawDelta).toFixed(1))
+        : null;
+
+    if (customFuelPatch) {
+      if (typeof customFuelPatch === 'string') {
+        action = normalizePreRaceFuelActionValue(customFuelPatch);
+      } else if (typeof customFuelPatch === 'object') {
+        if ('action' in customFuelPatch) {
+          action = normalizePreRaceFuelActionValue(customFuelPatch.action);
+        }
+        if ('setToL' in customFuelPatch) {
+          setToL = customFuelPatch.setToL;
+        }
+        if ('deltaL' in customFuelPatch) {
+          deltaL = customFuelPatch.deltaL;
+        }
+      }
+    }
+    if (action === 'Left As Is') {
+      setToL = null;
+      deltaL = null;
+    }
+    return normalizePreRaceFuelAdjustment({ action, setToL, deltaL });
   }
 
   function saveMechanicPageInput() {
@@ -24402,7 +24877,9 @@
   function savePreRaceChecklistPageInput(
     customItemsPatch = null,
     toastMsg = '',
-    customTyreActionPatch = null
+    customTyreActionPatch = null,
+    customFuelPatch = null,
+    markCompleteOpt = undefined
   ) {
     const match = readCrewSessionMatchFromInputs();
     const items = {};
@@ -24414,16 +24891,37 @@
       Object.assign(items, customItemsPatch);
     }
     const signOffNotes = $('preRaceSignOffNotesInput') ? $('preRaceSignOffNotesInput').value.trim() : '';
-    const preRaceTyreAction = readCrewTyreActionFromDom(customTyreActionPatch);
+    const preRaceTyreAdjustments = readCrewTyreAdjustmentsFromDom(customTyreActionPatch);
+    const preRaceFuelAdjustment = readCrewFuelAdjustmentFromDom(customFuelPatch);
+    const nowTime = formatPitDayTimeLabel(new Date());
 
-    const updated = applyMechanicInputToSession(match, {
-      preRaceTyreAction,
+    const payload = {
+      mechanicUpdatedAt: nowTime,
+      preRaceTyreAdjustments,
+      preRaceFuelAdjustment,
       preRaceChecklist: {
         items,
-        signOffNotes,
-        tyreAction: preRaceTyreAction
+        signOffNotes
       }
-    });
+    };
+
+    if (markCompleteOpt === true) {
+      getPreRaceChecklistItems().forEach(({ key }) => {
+        items[key] = true;
+      });
+      payload.preRaceChecklist.items = items;
+      payload.preRaceChecklist.preRaceCompleted = true;
+      payload.preRaceChecklist.preRaceCompletedAt = nowTime;
+      payload.preRaceCompleted = true;
+      payload.preRaceCompletedAt = nowTime;
+    } else if (markCompleteOpt === false) {
+      payload.preRaceChecklist.preRaceCompleted = false;
+      payload.preRaceChecklist.preRaceCompletedAt = '';
+      payload.preRaceCompleted = false;
+      payload.preRaceCompletedAt = '';
+    }
+
+    const updated = applyMechanicInputToSession(match, payload);
 
     if (updated) {
       ui.selectedCrewSessionId = updated.id;
@@ -26953,13 +27451,32 @@
         getPreRaceChecklistItems().forEach(({ key }) => {
           clearPatch[key] = false;
         });
-        savePreRaceChecklistPageInput(clearPatch, 'Reset Pre-Race Checklist');
+        savePreRaceChecklistPageInput(
+          clearPatch,
+          'Reset Pre-Race Checklist',
+          'Left As Is',
+          'Left As Is',
+          false
+        );
       });
     }
 
     if ($('btnSavePreRaceChecklist')) {
       $('btnSavePreRaceChecklist').addEventListener('click', () => {
-        savePreRaceChecklistPageInput(null, 'Saved Pre-Race Check');
+        const nowTime = formatPitDayTimeLabel(new Date());
+        savePreRaceChecklistPageInput(
+          null,
+          `✓ PRE-RACE COMPLETE • ${nowTime}`,
+          null,
+          null,
+          true
+        );
+      });
+    }
+
+    if ($('btnTogglePostRaceAccordion')) {
+      $('btnTogglePostRaceAccordion').addEventListener('click', () => {
+        togglePostRaceAccordion();
       });
     }
 
@@ -27023,10 +27540,26 @@
     }
 
     if ($('crewMechanicPage')) {
+      document.addEventListener('input', (e) => {
+        const tyrePsiInp = e.target.closest('[data-pre-tyre-psi-corner]');
+        if (tyrePsiInp) {
+          savePreRaceChecklistPageInput();
+          return;
+        }
+        if (
+          e.target.id === 'preFuelSetToL' ||
+          e.target.id === 'preFuelDeltaL' ||
+          e.target.id === 'preRaceSignOffNotesInput'
+        ) {
+          savePreRaceChecklistPageInput();
+        }
+      });
+
       document.addEventListener('click', (e) => {
-        const mechTabBtn = e.target.closest('[data-mech-tab]');
-        if (mechTabBtn) {
-          switchMechanicTab(mechTabBtn.getAttribute('data-mech-tab'));
+        const drawerToggleBtn = e.target.closest('[data-toggle-crew-drawer]');
+        if (drawerToggleBtn) {
+          const drawerId = drawerToggleBtn.getAttribute('data-toggle-crew-drawer');
+          toggleCrewTaskDrawer(drawerId);
           return;
         }
 
@@ -27036,7 +27569,7 @@
             preTyreAllBtn.getAttribute('data-pre-tyre-all')
           );
           savePreRaceChecklistPageInput(
-            null,
+            { tyrePressures: true },
             `Pre-Race Tyre Action: All 4 ${actionVal}`,
             actionVal
           );
@@ -27050,10 +27583,32 @@
             preTyreCornerBtn.getAttribute('data-pre-tyre-action')
           );
           savePreRaceChecklistPageInput(
-            null,
+            { tyrePressures: true },
             `${corner} Tyre Action: ${actionVal}`,
             { [corner]: actionVal }
           );
+          if (actionVal === 'Added' || actionVal === 'Bled') {
+            const psiInp = $(`preTyreSetPsi_${corner}`);
+            if (psiInp) psiInp.focus();
+          }
+          return;
+        }
+
+        const preFuelActionBtn = e.target.closest('[data-pre-fuel-action]');
+        if (preFuelActionBtn) {
+          const fuelAct = normalizePreRaceFuelActionValue(
+            preFuelActionBtn.getAttribute('data-pre-fuel-action')
+          );
+          savePreRaceChecklistPageInput(
+            { fuelLoad: true },
+            `Pre-Race Fuel Action: ${fuelAct}`,
+            null,
+            { action: fuelAct }
+          );
+          if (fuelAct === 'Added' || fuelAct === 'Pumped Out') {
+            const setFuelInp = $('preFuelSetToL');
+            if (setFuelInp) setFuelInp.focus();
+          }
           return;
         }
 

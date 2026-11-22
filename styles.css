@@ -8284,6 +8284,272 @@ button:disabled.btn-stage-locked,
   white-space: nowrap;
 }
 
+/* Single-Page Expandable Task Cards & Inline Collapsible Drawers (Tyres & Fuel) */
+.crew-page-body {
+  padding-bottom: 36px;
+}
+
+.crew-expandable-task-card {
+  width: 100%;
+  border-radius: 11px;
+  background: linear-gradient(180deg, #1A2332 0%, #101620 100%);
+  border: 2px solid #35455D;
+  color: #F8FAFC;
+  overflow: hidden;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.crew-expandable-task-card.is-checked {
+  border-color: #10B981;
+  background: linear-gradient(180deg, rgba(6, 95, 70, 0.35) 0%, rgba(16, 22, 32, 0.95) 100%);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+}
+
+.crew-task-card-header {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  min-height: 62px;
+}
+
+.crew-check-box-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  padding: 12px 6px 12px 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crew-check-box-btn.is-checked .crew-check-box,
+.crew-expandable-task-card.is-checked .crew-check-box {
+  color: #051B14;
+  background: linear-gradient(180deg, #34D399 0%, #10B981 100%);
+  border-color: #6EE7B7;
+}
+
+.crew-expandable-task-card.is-checked .crew-check-status {
+  background: rgba(6, 95, 70, 0.85);
+  border-color: #34D399;
+  color: #A7F3D0;
+}
+
+.crew-task-drawer-toggle {
+  flex: 1 1 auto;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+  padding: 12px 14px 12px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.crew-task-header-right {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crew-drawer-chevron {
+  font-size: 0.85rem;
+  color: #94A3B8;
+  transition: transform 0.15s ease;
+}
+
+.crew-task-drawer-body {
+  padding: 12px 14px 14px;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(10, 14, 21, 0.78);
+}
+
+.crew-drawer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.crew-drawer-hint {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #CBD5E1;
+}
+
+.crew-tyre-drawer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 620px) {
+  .crew-tyre-drawer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.crew-tyre-drawer-corner {
+  padding: 10px;
+  border-radius: 9px;
+  background: rgba(15, 21, 31, 0.92);
+  border: 1px solid #2D3B4F;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.crew-tyre-drawer-corner-top {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.crew-conditional-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(148, 163, 184, 0.25);
+}
+
+.crew-conditional-label {
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: #FCD34D;
+  white-space: nowrap;
+}
+
+.crew-conditional-num-wrap {
+  max-width: 145px;
+  flex: 1 1 auto;
+}
+
+.crew-conditional-input {
+  min-height: 44px !important;
+  font-size: 1rem !important;
+  padding: 6px 10px !important;
+}
+
+.crew-fuel-drawer-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.crew-fuel-action-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.crew-fuel-action-seg {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.crew-fuel-action-seg .seg-btn {
+  min-height: 42px;
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.crew-fuel-conditional-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(148, 163, 184, 0.25);
+}
+
+@media (max-width: 520px) {
+  .crew-fuel-conditional-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.crew-mark-complete-btn {
+  min-height: 60px;
+  font-size: 1.08rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.crew-mark-complete-btn.is-pre-race-completed {
+  background: linear-gradient(180deg, #10B981 0%, #059669 100%) !important;
+  border-color: #6EE7B7 !important;
+  color: #022C22 !important;
+  box-shadow:
+    0 0 18px rgba(16, 185, 129, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Bottom Compact Collapsible Post-Race Accordion */
+.crew-postrace-accordion-card {
+  padding: 0 !important;
+  overflow: hidden;
+  border: 1.5px solid #35455D !important;
+}
+
+.crew-postrace-accordion-toggle {
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, #17202E 0%, #0F151F 100%);
+  border: none;
+  color: #F8FAFC;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.crew-postrace-accordion-toggle:hover {
+  background: linear-gradient(180deg, #1E293B 0%, #131B28 100%);
+}
+
+.crew-postrace-acc-title {
+  font-size: 0.96rem;
+  font-weight: 900;
+  color: #FCD34D;
+  letter-spacing: 0.02em;
+}
+
+.crew-postrace-accordion-body {
+  padding: 14px;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(9, 13, 19, 0.85);
+}
+
+.crew-postrace-subcard {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(15, 21, 31, 0.85);
+  border: 1px solid #2A364B;
+}
+
+.pre-session-adjustments-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 /* Main App Pre-Session Readiness Panel */
 .pre-session-readiness-panel {
   margin-top: 10px;

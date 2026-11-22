@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.0.8" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.9" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -258,11 +258,14 @@
         </div>
 
         <div class="pre-session-readiness-grid">
-          <!-- Left / Top Block: Crew Pre-Race Checklist & Tyre Action Confirmation -->
+          <!-- Left / Top Block: Crew Pre-Race Checklist, Tyre Adjustments & Fuel Adjustment Confirmation -->
           <div class="pre-session-crew-box">
             <div class="pre-session-subhead-row">
               <span class="pre-session-subhead-title">&#128295; Crew Pre-Race Check Status</span>
-              <span class="pre-session-tyre-action-pill mono" id="mainPreRaceTyreActionBadge">TYRE ACTION: Left As Is (All 4)</span>
+              <div class="pre-session-adjustments-badges">
+                <span class="pre-session-tyre-action-pill mono" id="mainPreRaceTyreActionBadge">TYRE PRESSURES: Left As Is (FL, FR, RL, RR)</span>
+                <span class="pre-session-tyre-action-pill mono is-left" id="mainPreRaceFuelActionBadge">FUEL LOAD: Left As Is</span>
+              </div>
             </div>
             <div class="pre-session-crew-split-lists">
               <div class="pre-session-crew-list-col">
@@ -5909,6 +5912,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=1.0.8"></script>
+  <script src="./app.js?v=1.0.9"></script>
 </body>
 </html>

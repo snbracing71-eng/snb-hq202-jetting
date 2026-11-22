@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>SNB Racing — HQ 202 MECHANIC</title>
-  <meta name="description" content="Installable pit-lane mechanic & crew app for SNB Racing Group 3H HQ Holden 202 — Pre-Race Check and Post-Race / Pit Tyre, Fuel & Notes." />
+  <meta name="description" content="Installable single-page pit-lane mechanic & crew app for SNB Racing Group 3H HQ Holden 202 — Pre-Race Check with inline Tyre & Fuel drawers and Post-Race Off-Track Pressures & Pump-Out." />
   <meta name="theme-color" content="#0f131a" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest-mech.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.0.8" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.9" />
 </head>
 <body class="crew-page-body">
   <!-- Sticky 3D Brushed-Metal AgerPro Header -->
@@ -173,14 +173,14 @@
       </section>
 
       <!-- =========================================================
-           TAB 1: PRE-RACE CHECK (#mechPanelPre)
+           SINGLE-PAGE PRE-RACE CHECKLIST + INLINE TYRE & FUEL DRAWERS
            ========================================================= -->
-      <section id="mechPanelPre" class="crew-tab-panel active" role="tabpanel" aria-labelledby="mechTabPre">
+      <section id="mechPanelPre" class="crew-single-section" aria-label="Pre-Race Crew Checklist">
         <div class="card crew-card">
           <div class="section-header crew-section-header">
             <div>
               <div class="section-eyebrow">PRE-GRID SAFETY &amp; MECHANICAL CHECKS</div>
-              <h2 class="section-title">Pre-Race Check</h2>
+              <h2 class="section-title">Pre-Race Crew Checklist</h2>
             </div>
             <div class="crew-checklist-quick-actions">
               <span class="fleet-acc-status-pill amber mono" id="preRaceProgressBadge">0 / 9 CHECKED</span>
@@ -193,88 +193,172 @@
             </div>
           </div>
 
-          <!-- Pre-Session Tyre Pressure Action Confirmation (Added | Bled / Taken | Left As Is) -->
-          <div class="card-elevated crew-tyre-action-card" id="mechPreRaceTyreActionCard">
-            <div class="crew-tyre-action-head">
-              <div>
-                <div class="section-eyebrow" style="color: #6ee7b7; margin-bottom: 2px;">PRE-SESSION TYRE PRESSURE ACTION</div>
-                <div class="crew-tyre-action-title">Confirm Tyre Pressure Adjustment (FL / FR / RL / RR)</div>
-              </div>
-              <div class="crew-tyre-action-helpers">
-                <button type="button" class="btn btn-secondary btn-xs crew-tyre-helper-btn" id="btnPreTyreAllLeftAsIs" data-pre-tyre-all="Left As Is">
-                  All Left As Is
-                </button>
-                <button type="button" class="btn btn-secondary btn-xs crew-tyre-helper-btn" id="btnPreTyreAllBled" data-pre-tyre-all="Bled / Taken">
-                  All Bled
-                </button>
-                <button type="button" class="btn btn-secondary btn-xs crew-tyre-helper-btn" id="btnPreTyreAllAdded" data-pre-tyre-all="Added">
-                  All Added
-                </button>
-              </div>
-            </div>
-
-            <div class="crew-tyre-action-summary-line mono" id="preRaceTyreActionSummaryBadge">
-              TYRE ACTION: Left As Is (FL, FR, RL, RR)
-            </div>
-
-            <div class="crew-tyre-action-corners-grid">
-              <!-- FL -->
-              <div class="crew-tyre-action-corner" data-tyre-action-corner="FL">
-                <span class="crew-tyre-action-corner-label">FL &bull; FRONT LEFT</span>
-                <div class="seg-toggle crew-tyre-action-seg" role="group" aria-label="FL Pre-Session Tyre Pressure Action">
-                  <button type="button" class="seg-btn" data-pre-tyre-corner="FL" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
-                  <button type="button" class="seg-btn" data-pre-tyre-corner="FL" data-pre-tyre-action="Bled / Taken" aria-pressed="false">Bled / Taken</button>
-                  <button type="button" class="seg-btn active" data-pre-tyre-corner="FL" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
-                </div>
-              </div>
-
-              <!-- FR -->
-              <div class="crew-tyre-action-corner" data-tyre-action-corner="FR">
-                <span class="crew-tyre-action-corner-label">FR &bull; FRONT RIGHT</span>
-                <div class="seg-toggle crew-tyre-action-seg" role="group" aria-label="FR Pre-Session Tyre Pressure Action">
-                  <button type="button" class="seg-btn" data-pre-tyre-corner="FR" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
-                  <button type="button" class="seg-btn" data-pre-tyre-corner="FR" data-pre-tyre-action="Bled / Taken" aria-pressed="false">Bled / Taken</button>
-                  <button type="button" class="seg-btn active" data-pre-tyre-corner="FR" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
-                </div>
-              </div>
-
-              <!-- RL -->
-              <div class="crew-tyre-action-corner" data-tyre-action-corner="RL">
-                <span class="crew-tyre-action-corner-label">RL &bull; REAR LEFT</span>
-                <div class="seg-toggle crew-tyre-action-seg" role="group" aria-label="RL Pre-Session Tyre Pressure Action">
-                  <button type="button" class="seg-btn" data-pre-tyre-corner="RL" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
-                  <button type="button" class="seg-btn" data-pre-tyre-corner="RL" data-pre-tyre-action="Bled / Taken" aria-pressed="false">Bled / Taken</button>
-                  <button type="button" class="seg-btn active" data-pre-tyre-corner="RL" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
-                </div>
-              </div>
-
-              <!-- RR -->
-              <div class="crew-tyre-action-corner" data-tyre-action-corner="RR">
-                <span class="crew-tyre-action-corner-label">RR &bull; REAR RIGHT</span>
-                <div class="seg-toggle crew-tyre-action-seg" role="group" aria-label="RR Pre-Session Tyre Pressure Action">
-                  <button type="button" class="seg-btn" data-pre-tyre-corner="RR" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
-                  <button type="button" class="seg-btn" data-pre-tyre-corner="RR" data-pre-tyre-action="Bled / Taken" aria-pressed="false">Bled / Taken</button>
-                  <button type="button" class="seg-btn active" data-pre-tyre-corner="RR" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div class="crew-prerace-checklist-stack" id="preRaceChecklistContainer">
-            <button
-              type="button"
-              class="crew-check-row"
-              data-prerace-check="tyrePressures"
-              aria-pressed="false"
-            >
-              <span class="crew-check-box" aria-hidden="true">&#10003;</span>
-              <span class="crew-check-copy">
-                <span class="crew-check-title">1. Tyre Pressures Set</span>
-                <span class="crew-check-sub">Cold / Hot-Set target pressures verified across FL, FR, RL, RR &amp; valve caps fitted</span>
-              </span>
-              <span class="crew-check-status mono">PENDING</span>
-            </button>
+            <!-- 1. TASK CARD A: Tyre Pressures Checked / Adjusted (Collapsible Drawer) -->
+            <div class="crew-expandable-task-card" id="taskCardTyrePressures" data-expandable-task="tyrePressures">
+              <div class="crew-task-card-header">
+                <button
+                  type="button"
+                  class="crew-check-box-btn"
+                  data-prerace-check="tyrePressures"
+                  aria-pressed="false"
+                  aria-label="Toggle Tyre Pressures Checked / Adjusted"
+                >
+                  <span class="crew-check-box" aria-hidden="true">&#10003;</span>
+                </button>
+                <button
+                  type="button"
+                  class="crew-task-drawer-toggle"
+                  data-toggle-crew-drawer="tyreDrawerBody"
+                  aria-expanded="true"
+                  aria-controls="tyreDrawerBody"
+                >
+                  <span class="crew-check-copy">
+                    <span class="crew-check-title">1. Tyre Pressures Checked / Adjusted</span>
+                    <span class="crew-check-sub" id="preRaceTyreActionSummaryBadge">Tap to set FL / FR / RL / RR (Left As Is | Added | Bled)</span>
+                  </span>
+                  <span class="crew-task-header-right">
+                    <span class="crew-check-status mono" id="preRaceStatus_tyrePressures">PENDING</span>
+                    <span class="crew-drawer-chevron" aria-hidden="true">&#9660;</span>
+                  </span>
+                </button>
+              </div>
 
+              <!-- Collapsible Drawer Body: 4 Corners FL / FR / RL / RR + Conditional Set To (PSI) Input -->
+              <div class="crew-task-drawer-body" id="tyreDrawerBody">
+                <div class="crew-drawer-toolbar">
+                  <span class="crew-drawer-hint">Select corner action &mdash; enter <strong>Set To (PSI)</strong> only if Added or Bled:</span>
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-xs crew-tyre-helper-btn"
+                    id="btnPreTyreAllLeftAsIs"
+                    data-pre-tyre-all="Left As Is"
+                  >
+                    All Left As Is
+                  </button>
+                </div>
+
+                <div class="crew-tyre-drawer-grid">
+                  <!-- FL -->
+                  <div class="crew-tyre-drawer-corner" data-tyre-action-corner="FL">
+                    <div class="crew-tyre-drawer-corner-top">
+                      <span class="crew-tyre-action-corner-label">FL &bull; FRONT LEFT</span>
+                      <div class="seg-toggle crew-tyre-action-seg" role="group" aria-label="FL Tyre Pressure Action">
+                        <button type="button" class="seg-btn active" data-pre-tyre-corner="FL" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
+                        <button type="button" class="seg-btn" data-pre-tyre-corner="FL" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
+                        <button type="button" class="seg-btn" data-pre-tyre-corner="FL" data-pre-tyre-action="Bled" aria-pressed="false">Bled</button>
+                      </div>
+                    </div>
+                    <div class="crew-conditional-input-row" id="preTyreSetWrap_FL" style="display: none;">
+                      <label class="crew-conditional-label" for="preTyreSetPsi_FL">Set To (PSI)</label>
+                      <div class="num-input-wrap crew-conditional-num-wrap">
+                        <input
+                          type="number"
+                          id="preTyreSetPsi_FL"
+                          class="num-input crew-num-input crew-conditional-input"
+                          data-pre-tyre-psi-corner="FL"
+                          placeholder="40.0"
+                          min="15.0"
+                          max="65.0"
+                          step="0.1"
+                          inputmode="decimal"
+                        />
+                        <span class="num-unit-badge">psi</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- FR -->
+                  <div class="crew-tyre-drawer-corner" data-tyre-action-corner="FR">
+                    <div class="crew-tyre-drawer-corner-top">
+                      <span class="crew-tyre-action-corner-label">FR &bull; FRONT RIGHT</span>
+                      <div class="seg-toggle crew-tyre-action-seg" role="group" aria-label="FR Tyre Pressure Action">
+                        <button type="button" class="seg-btn active" data-pre-tyre-corner="FR" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
+                        <button type="button" class="seg-btn" data-pre-tyre-corner="FR" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
+                        <button type="button" class="seg-btn" data-pre-tyre-corner="FR" data-pre-tyre-action="Bled" aria-pressed="false">Bled</button>
+                      </div>
+                    </div>
+                    <div class="crew-conditional-input-row" id="preTyreSetWrap_FR" style="display: none;">
+                      <label class="crew-conditional-label" for="preTyreSetPsi_FR">Set To (PSI)</label>
+                      <div class="num-input-wrap crew-conditional-num-wrap">
+                        <input
+                          type="number"
+                          id="preTyreSetPsi_FR"
+                          class="num-input crew-num-input crew-conditional-input"
+                          data-pre-tyre-psi-corner="FR"
+                          placeholder="40.0"
+                          min="15.0"
+                          max="65.0"
+                          step="0.1"
+                          inputmode="decimal"
+                        />
+                        <span class="num-unit-badge">psi</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- RL -->
+                  <div class="crew-tyre-drawer-corner" data-tyre-action-corner="RL">
+                    <div class="crew-tyre-drawer-corner-top">
+                      <span class="crew-tyre-action-corner-label">RL &bull; REAR LEFT</span>
+                      <div class="seg-toggle crew-tyre-action-seg" role="group" aria-label="RL Tyre Pressure Action">
+                        <button type="button" class="seg-btn active" data-pre-tyre-corner="RL" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
+                        <button type="button" class="seg-btn" data-pre-tyre-corner="RL" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
+                        <button type="button" class="seg-btn" data-pre-tyre-corner="RL" data-pre-tyre-action="Bled" aria-pressed="false">Bled</button>
+                      </div>
+                    </div>
+                    <div class="crew-conditional-input-row" id="preTyreSetWrap_RL" style="display: none;">
+                      <label class="crew-conditional-label" for="preTyreSetPsi_RL">Set To (PSI)</label>
+                      <div class="num-input-wrap crew-conditional-num-wrap">
+                        <input
+                          type="number"
+                          id="preTyreSetPsi_RL"
+                          class="num-input crew-num-input crew-conditional-input"
+                          data-pre-tyre-psi-corner="RL"
+                          placeholder="43.0"
+                          min="15.0"
+                          max="65.0"
+                          step="0.1"
+                          inputmode="decimal"
+                        />
+                        <span class="num-unit-badge">psi</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- RR -->
+                  <div class="crew-tyre-drawer-corner" data-tyre-action-corner="RR">
+                    <div class="crew-tyre-drawer-corner-top">
+                      <span class="crew-tyre-action-corner-label">RR &bull; REAR RIGHT</span>
+                      <div class="seg-toggle crew-tyre-action-seg" role="group" aria-label="RR Tyre Pressure Action">
+                        <button type="button" class="seg-btn active" data-pre-tyre-corner="RR" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
+                        <button type="button" class="seg-btn" data-pre-tyre-corner="RR" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
+                        <button type="button" class="seg-btn" data-pre-tyre-corner="RR" data-pre-tyre-action="Bled" aria-pressed="false">Bled</button>
+                      </div>
+                    </div>
+                    <div class="crew-conditional-input-row" id="preTyreSetWrap_RR" style="display: none;">
+                      <label class="crew-conditional-label" for="preTyreSetPsi_RR">Set To (PSI)</label>
+                      <div class="num-input-wrap crew-conditional-num-wrap">
+                        <input
+                          type="number"
+                          id="preTyreSetPsi_RR"
+                          class="num-input crew-num-input crew-conditional-input"
+                          data-pre-tyre-psi-corner="RR"
+                          placeholder="43.0"
+                          min="15.0"
+                          max="65.0"
+                          step="0.1"
+                          inputmode="decimal"
+                        />
+                        <span class="num-unit-badge">psi</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Wheel Nuts Torqued -->
             <button
               type="button"
               class="crew-check-row"
@@ -283,12 +367,13 @@
             >
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
-                <span class="crew-check-title">2. Wheel Nuts Torqued</span>
+                <span class="crew-check-title">2. Wheel nuts torqued</span>
                 <span class="crew-check-sub">All 4 wheels torqued to spec &amp; wheel studs / seating checked</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
 
+            <!-- 3. Brake Pedal, Fluid, Lines & Pads Checked -->
             <button
               type="button"
               class="crew-check-row"
@@ -297,26 +382,94 @@
             >
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
-                <span class="crew-check-title">3. Brake Pedal, Fluid, Lines &amp; Pads Checked</span>
+                <span class="crew-check-title">3. Brake pedal, fluid, lines &amp; pads checked</span>
                 <span class="crew-check-sub">Firm pedal, PBR master fluid level, braided lines, front R-4 pads &amp; rear drums checked</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
 
-            <button
-              type="button"
-              class="crew-check-row"
-              data-prerace-check="fuelLoad"
-              aria-pressed="false"
-            >
-              <span class="crew-check-box" aria-hidden="true">&#10003;</span>
-              <span class="crew-check-copy">
-                <span class="crew-check-title">4. Fuel Load &amp; Cap / Breather Checked</span>
-                <span class="crew-check-sub">Session fuel load verified, filler cap locked &amp; tank breather clear</span>
-              </span>
-              <span class="crew-check-status mono">PENDING</span>
-            </button>
+            <!-- 4. TASK CARD B: Fuel Load Checked / Adjusted (Collapsible Drawer) -->
+            <div class="crew-expandable-task-card" id="taskCardFuelLoad" data-expandable-task="fuelLoad">
+              <div class="crew-task-card-header">
+                <button
+                  type="button"
+                  class="crew-check-box-btn"
+                  data-prerace-check="fuelLoad"
+                  aria-pressed="false"
+                  aria-label="Toggle Fuel Load Checked / Adjusted"
+                >
+                  <span class="crew-check-box" aria-hidden="true">&#10003;</span>
+                </button>
+                <button
+                  type="button"
+                  class="crew-task-drawer-toggle"
+                  data-toggle-crew-drawer="fuelDrawerBody"
+                  aria-expanded="true"
+                  aria-controls="fuelDrawerBody"
+                >
+                  <span class="crew-check-copy">
+                    <span class="crew-check-title">4. Fuel Load Checked / Adjusted</span>
+                    <span class="crew-check-sub" id="preRaceFuelActionSummaryBadge">Session fuel load verified, filler cap locked &amp; tank breather clear</span>
+                  </span>
+                  <span class="crew-task-header-right">
+                    <span class="crew-check-status mono" id="preRaceStatus_fuelLoad">PENDING</span>
+                    <span class="crew-drawer-chevron" aria-hidden="true">&#9660;</span>
+                  </span>
+                </button>
+              </div>
 
+              <!-- Collapsible Drawer Body: 3-Way Pill Selector (Left As Is | Added | Pumped Out) + Conditional Litres Inputs -->
+              <div class="crew-task-drawer-body" id="fuelDrawerBody">
+                <div class="crew-fuel-drawer-inner">
+                  <div class="crew-fuel-action-row">
+                    <span class="crew-tyre-action-corner-label">PRE-SESSION FUEL ACTION</span>
+                    <div class="seg-toggle crew-fuel-action-seg" role="group" aria-label="Pre-Session Fuel Load Action">
+                      <button type="button" class="seg-btn active" data-pre-fuel-action="Left As Is" aria-pressed="true">Left As Is</button>
+                      <button type="button" class="seg-btn" data-pre-fuel-action="Added" aria-pressed="false">Added</button>
+                      <button type="button" class="seg-btn" data-pre-fuel-action="Pumped Out" aria-pressed="false">Pumped Out</button>
+                    </div>
+                  </div>
+
+                  <div class="crew-fuel-conditional-grid" id="preFuelConditionalWrap" style="display: none;">
+                    <div class="field-group" style="margin-bottom: 0;">
+                      <label class="field-label" for="preFuelSetToL">Set To / Tank Total (L)</label>
+                      <div class="num-input-wrap">
+                        <input
+                          type="number"
+                          id="preFuelSetToL"
+                          class="num-input crew-num-input"
+                          placeholder="26.0"
+                          min="0"
+                          max="75.0"
+                          step="0.1"
+                          inputmode="decimal"
+                        />
+                        <span class="num-unit-badge">L</span>
+                      </div>
+                    </div>
+
+                    <div class="field-group" style="margin-bottom: 0;">
+                      <label class="field-label" id="preFuelDeltaLabel" for="preFuelDeltaL">Litres Added / Out (L) (Optional)</label>
+                      <div class="num-input-wrap">
+                        <input
+                          type="number"
+                          id="preFuelDeltaL"
+                          class="num-input crew-num-input"
+                          placeholder="10.0"
+                          min="0"
+                          max="75.0"
+                          step="0.1"
+                          inputmode="decimal"
+                        />
+                        <span class="num-unit-badge">L</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. Oil, Coolant, Catch-Can & Leaks Checked -->
             <button
               type="button"
               class="crew-check-row"
@@ -325,12 +478,13 @@
             >
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
-                <span class="crew-check-title">5. Oil, Coolant, Catch-Can &amp; Leaks Checked</span>
+                <span class="crew-check-title">5. Oil, coolant, catch-can &amp; leaks checked</span>
                 <span class="crew-check-sub">Engine oil level, radiator coolant, catch-can drained &amp; zero fluid leaks under car</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
 
+            <!-- 6. Safety Pins, Fasteners & Mirrors Checked -->
             <button
               type="button"
               class="crew-check-row"
@@ -339,12 +493,13 @@
             >
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
-                <span class="crew-check-title">6. Safety Pins, Fasteners &amp; Mirrors Checked</span>
+                <span class="crew-check-title">6. Safety pins, fasteners &amp; mirrors checked</span>
                 <span class="crew-check-sub">Bonnet/boot pins secured, body fasteners, battery isolator, harness &amp; mirrors checked</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
 
+            <!-- 7. Clean car inside -->
             <button
               type="button"
               class="crew-check-row"
@@ -359,6 +514,7 @@
               <span class="crew-check-status mono">PENDING</span>
             </button>
 
+            <!-- 8. Clean car outside -->
             <button
               type="button"
               class="crew-check-row"
@@ -373,6 +529,7 @@
               <span class="crew-check-status mono">PENDING</span>
             </button>
 
+            <!-- 9. Clean glass -->
             <button
               type="button"
               class="crew-check-row"
@@ -389,7 +546,7 @@
           </div>
 
           <div class="field-group" style="margin-top: 14px; margin-bottom: 14px;">
-            <label class="field-label" for="preRaceSignOffNotesInput">Pre-Race Notes</label>
+            <label class="field-label" for="preRaceSignOffNotesInput">Crew Pre-Race Notes</label>
             <textarea
               id="preRaceSignOffNotesInput"
               class="text-input crew-touch-textarea"
@@ -398,278 +555,257 @@
             ></textarea>
           </div>
 
-          <button type="button" class="btn btn-confirm btn-full crew-save-btn" id="btnSavePreRaceChecklist">
-            &#9989; SAVE PRE-RACE CHECK
+          <button type="button" class="btn btn-confirm btn-full crew-save-btn crew-mark-complete-btn" id="btnSavePreRaceChecklist">
+            MARK PRE-RACE COMPLETE
           </button>
         </div>
       </section>
 
       <!-- =========================================================
-           TAB 2: POST-RACE / PIT (#mechPanelPost)
+           COMPACT COLLAPSIBLE ACCORDION AT BOTTOM:
+           + Post-Race Off-Track Pressures & Pump-Out
            ========================================================= -->
-      <section id="mechPanelPost" class="crew-tab-panel" role="tabpanel" aria-labelledby="mechTabPost" style="display: none;">
-        <!-- 4-Corner Cold PSI & Hot PSI -->
-        <div class="card crew-card" style="margin-bottom: 14px;">
-          <div class="section-header crew-section-header">
-            <div>
-              <div class="section-eyebrow">4-CORNER TYRE PRESSURES</div>
-              <h2 class="section-title">Cold PSI &amp; Hot PSI (FL / FR / RL / RR)</h2>
+      <section class="card crew-card crew-postrace-accordion-card" id="mechPostRaceAccordionSection" aria-label="Post-Race Off-Track Pressures &amp; Pump-Out">
+        <button
+          type="button"
+          class="crew-postrace-accordion-toggle"
+          id="btnTogglePostRaceAccordion"
+          aria-expanded="false"
+          aria-controls="mechPanelPost"
+        >
+          <span class="crew-postrace-acc-title" id="postRaceAccordionTitleLabel">+ Post-Race Off-Track Pressures &amp; Pump-Out</span>
+          <span class="locked-badge mono" id="mechFuelBurnSummaryBadge">BURN: &mdash;</span>
+        </button>
+
+        <div id="mechPanelPost" class="crew-postrace-accordion-body" style="display: none;">
+          <!-- 4-Corner Cold PSI & Hot PSI -->
+          <div class="crew-postrace-subcard" style="margin-bottom: 14px;">
+            <div class="section-header crew-section-header">
+              <div>
+                <div class="section-eyebrow">4-CORNER TYRE PRESSURES</div>
+                <h2 class="section-title">Cold PSI &amp; Hot PSI (FL / FR / RL / RR)</h2>
+              </div>
+              <button
+                type="button"
+                class="btn btn-secondary crew-touch-mini-btn"
+                id="btnMechClearAllColdPsi"
+                title="Leave all 4 Cold PSI blank when tyres are left hot-set at 44.0 psi"
+              >
+                Leave Cold Blank (Hot-Set 44.0)
+              </button>
             </div>
-            <button
-              type="button"
-              class="btn btn-secondary crew-touch-mini-btn"
-              id="btnMechClearAllColdPsi"
-              title="Leave all 4 Cold PSI blank when tyres are left hot-set at 44.0 psi"
-            >
-              Leave Cold Blank (Hot-Set 44.0)
+
+            <p class="crew-helper-banner">
+              <strong>Hot-Set Note:</strong> Leave <strong>Cold PSI</strong> blank (<code>&mdash;</code>) when tyres are left hot-set at <strong>44.0 psi</strong> from the previous run.
+            </p>
+
+            <div class="crew-tyre-corners-grid">
+              <!-- FL -->
+              <div class="card-elevated crew-corner-box" data-corner="FL">
+                <div class="crew-corner-head">
+                  <span class="crew-corner-title">FL &bull; FRONT LEFT</span>
+                  <button type="button" class="btn btn-secondary btn-xs crew-clear-cold-btn" data-mech-clear-cold="FL">
+                    Blank Cold
+                  </button>
+                </div>
+                <div class="crew-psi-pair">
+                  <div class="field-group" style="margin-bottom: 0;">
+                    <label class="field-label" for="mechCold_FL">Cold PSI</label>
+                    <div class="num-stepper crew-touch-stepper">
+                      <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechCold_FL" data-step="-0.5" data-fallback="36.0" aria-label="Decrease FL Cold PSI">&minus;</button>
+                      <div class="num-input-wrap">
+                        <input type="number" id="mechCold_FL" class="num-input crew-num-input" placeholder="&mdash;" min="18.0" max="60.0" step="0.5" inputmode="decimal" />
+                        <span class="num-unit-badge">psi</span>
+                      </div>
+                      <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechCold_FL" data-step="0.5" data-fallback="36.0" aria-label="Increase FL Cold PSI">+</button>
+                    </div>
+                  </div>
+                  <div class="field-group" style="margin-bottom: 0;">
+                    <label class="field-label" for="mechHot_FL">Hot PSI</label>
+                    <div class="num-stepper crew-touch-stepper">
+                      <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechHot_FL" data-step="-0.5" data-fallback="44.0" aria-label="Decrease FL Hot PSI">&minus;</button>
+                      <div class="num-input-wrap">
+                        <input type="number" id="mechHot_FL" class="num-input crew-num-input" placeholder="&mdash;" min="20.0" max="65.0" step="0.5" inputmode="decimal" />
+                        <span class="num-unit-badge">psi</span>
+                      </div>
+                      <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechHot_FL" data-step="0.5" data-fallback="44.0" aria-label="Increase FL Hot PSI">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FR -->
+              <div class="card-elevated crew-corner-box" data-corner="FR">
+                <div class="crew-corner-head">
+                  <span class="crew-corner-title">FR &bull; FRONT RIGHT</span>
+                  <button type="button" class="btn btn-secondary btn-xs crew-clear-cold-btn" data-mech-clear-cold="FR">
+                    Blank Cold
+                  </button>
+                </div>
+                <div class="crew-psi-pair">
+                  <div class="field-group" style="margin-bottom: 0;">
+                    <label class="field-label" for="mechCold_FR">Cold PSI</label>
+                    <div class="num-stepper crew-touch-stepper">
+                      <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechCold_FR" data-step="-0.5" data-fallback="36.0" aria-label="Decrease FR Cold PSI">&minus;</button>
+                      <div class="num-input-wrap">
+                        <input type="number" id="mechCold_FR" class="num-input crew-num-input" placeholder="&mdash;" min="18.0" max="60.0" step="0.5" inputmode="decimal" />
+                        <span class="num-unit-badge">psi</span>
+                      </div>
+                      <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechCold_FR" data-step="0.5" data-fallback="36.0" aria-label="Increase FR Cold PSI">+</button>
+                    </div>
+                  </div>
+                  <div class="field-group" style="margin-bottom: 0;">
+                    <label class="field-label" for="mechHot_FR">Hot PSI</label>
+                    <div class="num-stepper crew-touch-stepper">
+                      <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechHot_FR" data-step="-0.5" data-fallback="44.0" aria-label="Decrease FR Hot PSI">&minus;</button>
+                      <div class="num-input-wrap">
+                        <input type="number" id="mechHot_FR" class="num-input crew-num-input" placeholder="&mdash;" min="20.0" max="65.0" step="0.5" inputmode="decimal" />
+                        <span class="num-unit-badge">psi</span>
+                      </div>
+                      <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechHot_FR" data-step="0.5" data-fallback="44.0" aria-label="Increase FR Hot PSI">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- RL -->
+              <div class="card-elevated crew-corner-box" data-corner="RL">
+                <div class="crew-corner-head">
+                  <span class="crew-corner-title">RL &bull; REAR LEFT</span>
+                  <button type="button" class="btn btn-secondary btn-xs crew-clear-cold-btn" data-mech-clear-cold="RL">
+                    Blank Cold
+                  </button>
+                </div>
+                <div class="crew-psi-pair">
+                  <div class="field-group" style="margin-bottom: 0;">
+                    <label class="field-label" for="mechCold_RL">Cold PSI</label>
+                    <div class="num-stepper crew-touch-stepper">
+                      <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechCold_RL" data-step="-0.5" data-fallback="38.0" aria-label="Decrease RL Cold PSI">&minus;</button>
+                      <div class="num-input-wrap">
+                        <input type="number" id="mechCold_RL" class="num-input crew-num-input" placeholder="&mdash;" min="18.0" max="60.0" step="0.5" inputmode="decimal" />
+                        <span class="num-unit-badge">psi</span>
+                      </div>
+                      <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechCold_RL" data-step="0.5" data-fallback="38.0" aria-label="Increase RL Cold PSI">+</button>
+                    </div>
+                  </div>
+                  <div class="field-group" style="margin-bottom: 0;">
+                    <label class="field-label" for="mechHot_RL">Hot PSI</label>
+                    <div class="num-stepper crew-touch-stepper">
+                      <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechHot_RL" data-step="-0.5" data-fallback="44.0" aria-label="Decrease RL Hot PSI">&minus;</button>
+                      <div class="num-input-wrap">
+                        <input type="number" id="mechHot_RL" class="num-input crew-num-input" placeholder="&mdash;" min="20.0" max="65.0" step="0.5" inputmode="decimal" />
+                        <span class="num-unit-badge">psi</span>
+                      </div>
+                      <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechHot_RL" data-step="0.5" data-fallback="44.0" aria-label="Increase RL Hot PSI">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- RR -->
+              <div class="card-elevated crew-corner-box" data-corner="RR">
+                <div class="crew-corner-head">
+                  <span class="crew-corner-title">RR &bull; REAR RIGHT</span>
+                  <button type="button" class="btn btn-secondary btn-xs crew-clear-cold-btn" data-mech-clear-cold="RR">
+                    Blank Cold
+                  </button>
+                </div>
+                <div class="crew-psi-pair">
+                  <div class="field-group" style="margin-bottom: 0;">
+                    <label class="field-label" for="mechCold_RR">Cold PSI</label>
+                    <div class="num-stepper crew-touch-stepper">
+                      <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechCold_RR" data-step="-0.5" data-fallback="38.0" aria-label="Decrease RR Cold PSI">&minus;</button>
+                      <div class="num-input-wrap">
+                        <input type="number" id="mechCold_RR" class="num-input crew-num-input" placeholder="&mdash;" min="18.0" max="60.0" step="0.5" inputmode="decimal" />
+                        <span class="num-unit-badge">psi</span>
+                      </div>
+                      <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechCold_RR" data-step="0.5" data-fallback="38.0" aria-label="Increase RR Cold PSI">+</button>
+                    </div>
+                  </div>
+                  <div class="field-group" style="margin-bottom: 0;">
+                    <label class="field-label" for="mechHot_RR">Hot PSI</label>
+                    <div class="num-stepper crew-touch-stepper">
+                      <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechHot_RR" data-step="-0.5" data-fallback="44.0" aria-label="Decrease RR Hot PSI">&minus;</button>
+                      <div class="num-input-wrap">
+                        <input type="number" id="mechHot_RR" class="num-input crew-num-input" placeholder="&mdash;" min="20.0" max="65.0" step="0.5" inputmode="decimal" />
+                        <span class="num-unit-badge">psi</span>
+                      </div>
+                      <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechHot_RR" data-step="0.5" data-fallback="44.0" aria-label="Increase RR Hot PSI">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fuel In (L), Fuel Pumped Out (L), Laps Completed & Post-Race / Pit Notes -->
+          <div class="crew-postrace-subcard">
+            <div class="section-header crew-section-header">
+              <div>
+                <div class="section-eyebrow">POST-SESSION FUEL &amp; LAPS</div>
+                <h2 class="section-title">Fuel In, Fuel Pumped Out &amp; Laps</h2>
+              </div>
+            </div>
+
+            <div class="crew-fuel-grid" style="margin-bottom: 14px;">
+              <div class="field-group" style="margin-bottom: 0;">
+                <label class="field-label" for="mechFuelInL">Fuel In (L)</label>
+                <div class="num-stepper crew-touch-stepper">
+                  <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechFuelInL" data-step="-0.5" data-fallback="25.0" aria-label="Decrease Fuel In">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input type="number" id="mechFuelInL" class="num-input crew-num-input" placeholder="&mdash;" min="0" max="75.0" step="0.5" inputmode="decimal" />
+                    <span class="num-unit-badge">L</span>
+                  </div>
+                  <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechFuelInL" data-step="0.5" data-fallback="25.0" aria-label="Increase Fuel In">+</button>
+                </div>
+              </div>
+
+              <div class="field-group" style="margin-bottom: 0;">
+                <label class="field-label" for="mechFuelOutL">Fuel Pumped Out (L)</label>
+                <div class="num-stepper crew-touch-stepper">
+                  <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechFuelOutL" data-step="-0.5" data-fallback="10.0" aria-label="Decrease Fuel Pumped Out">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input type="number" id="mechFuelOutL" class="num-input crew-num-input" placeholder="&mdash;" min="0" max="75.0" step="0.5" inputmode="decimal" />
+                    <span class="num-unit-badge">L</span>
+                  </div>
+                  <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechFuelOutL" data-step="0.5" data-fallback="10.0" aria-label="Increase Fuel Pumped Out">+</button>
+                </div>
+              </div>
+
+              <div class="field-group" style="margin-bottom: 0;">
+                <label class="field-label" for="mechRacedLaps">Laps Completed</label>
+                <div class="num-stepper crew-touch-stepper">
+                  <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechRacedLaps" data-step="-1" data-fallback="10" aria-label="Decrease Laps Completed">&minus;</button>
+                  <div class="num-input-wrap">
+                    <input type="number" id="mechRacedLaps" class="num-input crew-num-input" placeholder="&mdash;" min="1" max="60" step="1" inputmode="numeric" />
+                    <span class="num-unit-badge">LAPS</span>
+                  </div>
+                  <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechRacedLaps" data-step="1" data-fallback="10" aria-label="Increase Laps Completed">+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 14px;">
+              <label class="field-label" for="mechNotesInput">Post-Race / Pit Notes</label>
+              <textarea
+                id="mechNotesInput"
+                class="text-input crew-touch-textarea"
+                rows="3"
+                placeholder="Log tyre condition, hot-set 44.0 psi notes, fuel pump-out observations, suspension or brake notes..."
+              ></textarea>
+            </div>
+
+            <button type="button" class="btn btn-confirm btn-full crew-save-btn" id="btnSaveMechanicSession">
+              &#128295; SAVE POST-RACE DATA
             </button>
           </div>
-
-          <p class="crew-helper-banner">
-            <strong>Hot-Set Note:</strong> Leave <strong>Cold PSI</strong> blank (<code>&mdash;</code>) when tyres are left hot-set at <strong>44.0 psi</strong> from the previous run.
-          </p>
-
-          <div class="crew-tyre-corners-grid">
-            <!-- FL -->
-            <div class="card-elevated crew-corner-box" data-corner="FL">
-              <div class="crew-corner-head">
-                <span class="crew-corner-title">FL &bull; FRONT LEFT</span>
-                <button type="button" class="btn btn-secondary btn-xs crew-clear-cold-btn" data-mech-clear-cold="FL">
-                  Blank Cold
-                </button>
-              </div>
-              <div class="crew-psi-pair">
-                <div class="field-group" style="margin-bottom: 0;">
-                  <label class="field-label" for="mechCold_FL">Cold PSI</label>
-                  <div class="num-stepper crew-touch-stepper">
-                    <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechCold_FL" data-step="-0.5" data-fallback="36.0" aria-label="Decrease FL Cold PSI">&minus;</button>
-                    <div class="num-input-wrap">
-                      <input type="number" id="mechCold_FL" class="num-input crew-num-input" placeholder="&mdash;" min="18.0" max="60.0" step="0.5" inputmode="decimal" />
-                      <span class="num-unit-badge">psi</span>
-                    </div>
-                    <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechCold_FL" data-step="0.5" data-fallback="36.0" aria-label="Increase FL Cold PSI">+</button>
-                  </div>
-                </div>
-                <div class="field-group" style="margin-bottom: 0;">
-                  <label class="field-label" for="mechHot_FL">Hot PSI</label>
-                  <div class="num-stepper crew-touch-stepper">
-                    <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechHot_FL" data-step="-0.5" data-fallback="44.0" aria-label="Decrease FL Hot PSI">&minus;</button>
-                    <div class="num-input-wrap">
-                      <input type="number" id="mechHot_FL" class="num-input crew-num-input" placeholder="&mdash;" min="20.0" max="65.0" step="0.5" inputmode="decimal" />
-                      <span class="num-unit-badge">psi</span>
-                    </div>
-                    <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechHot_FL" data-step="0.5" data-fallback="44.0" aria-label="Increase FL Hot PSI">+</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- FR -->
-            <div class="card-elevated crew-corner-box" data-corner="FR">
-              <div class="crew-corner-head">
-                <span class="crew-corner-title">FR &bull; FRONT RIGHT</span>
-                <button type="button" class="btn btn-secondary btn-xs crew-clear-cold-btn" data-mech-clear-cold="FR">
-                  Blank Cold
-                </button>
-              </div>
-              <div class="crew-psi-pair">
-                <div class="field-group" style="margin-bottom: 0;">
-                  <label class="field-label" for="mechCold_FR">Cold PSI</label>
-                  <div class="num-stepper crew-touch-stepper">
-                    <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechCold_FR" data-step="-0.5" data-fallback="36.0" aria-label="Decrease FR Cold PSI">&minus;</button>
-                    <div class="num-input-wrap">
-                      <input type="number" id="mechCold_FR" class="num-input crew-num-input" placeholder="&mdash;" min="18.0" max="60.0" step="0.5" inputmode="decimal" />
-                      <span class="num-unit-badge">psi</span>
-                    </div>
-                    <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechCold_FR" data-step="0.5" data-fallback="36.0" aria-label="Increase FR Cold PSI">+</button>
-                  </div>
-                </div>
-                <div class="field-group" style="margin-bottom: 0;">
-                  <label class="field-label" for="mechHot_FR">Hot PSI</label>
-                  <div class="num-stepper crew-touch-stepper">
-                    <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechHot_FR" data-step="-0.5" data-fallback="44.0" aria-label="Decrease FR Hot PSI">&minus;</button>
-                    <div class="num-input-wrap">
-                      <input type="number" id="mechHot_FR" class="num-input crew-num-input" placeholder="&mdash;" min="20.0" max="65.0" step="0.5" inputmode="decimal" />
-                      <span class="num-unit-badge">psi</span>
-                    </div>
-                    <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechHot_FR" data-step="0.5" data-fallback="44.0" aria-label="Increase FR Hot PSI">+</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- RL -->
-            <div class="card-elevated crew-corner-box" data-corner="RL">
-              <div class="crew-corner-head">
-                <span class="crew-corner-title">RL &bull; REAR LEFT</span>
-                <button type="button" class="btn btn-secondary btn-xs crew-clear-cold-btn" data-mech-clear-cold="RL">
-                  Blank Cold
-                </button>
-              </div>
-              <div class="crew-psi-pair">
-                <div class="field-group" style="margin-bottom: 0;">
-                  <label class="field-label" for="mechCold_RL">Cold PSI</label>
-                  <div class="num-stepper crew-touch-stepper">
-                    <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechCold_RL" data-step="-0.5" data-fallback="38.0" aria-label="Decrease RL Cold PSI">&minus;</button>
-                    <div class="num-input-wrap">
-                      <input type="number" id="mechCold_RL" class="num-input crew-num-input" placeholder="&mdash;" min="18.0" max="60.0" step="0.5" inputmode="decimal" />
-                      <span class="num-unit-badge">psi</span>
-                    </div>
-                    <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechCold_RL" data-step="0.5" data-fallback="38.0" aria-label="Increase RL Cold PSI">+</button>
-                  </div>
-                </div>
-                <div class="field-group" style="margin-bottom: 0;">
-                  <label class="field-label" for="mechHot_RL">Hot PSI</label>
-                  <div class="num-stepper crew-touch-stepper">
-                    <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechHot_RL" data-step="-0.5" data-fallback="44.0" aria-label="Decrease RL Hot PSI">&minus;</button>
-                    <div class="num-input-wrap">
-                      <input type="number" id="mechHot_RL" class="num-input crew-num-input" placeholder="&mdash;" min="20.0" max="65.0" step="0.5" inputmode="decimal" />
-                      <span class="num-unit-badge">psi</span>
-                    </div>
-                    <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechHot_RL" data-step="0.5" data-fallback="44.0" aria-label="Increase RL Hot PSI">+</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- RR -->
-            <div class="card-elevated crew-corner-box" data-corner="RR">
-              <div class="crew-corner-head">
-                <span class="crew-corner-title">RR &bull; REAR RIGHT</span>
-                <button type="button" class="btn btn-secondary btn-xs crew-clear-cold-btn" data-mech-clear-cold="RR">
-                  Blank Cold
-                </button>
-              </div>
-              <div class="crew-psi-pair">
-                <div class="field-group" style="margin-bottom: 0;">
-                  <label class="field-label" for="mechCold_RR">Cold PSI</label>
-                  <div class="num-stepper crew-touch-stepper">
-                    <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechCold_RR" data-step="-0.5" data-fallback="38.0" aria-label="Decrease RR Cold PSI">&minus;</button>
-                    <div class="num-input-wrap">
-                      <input type="number" id="mechCold_RR" class="num-input crew-num-input" placeholder="&mdash;" min="18.0" max="60.0" step="0.5" inputmode="decimal" />
-                      <span class="num-unit-badge">psi</span>
-                    </div>
-                    <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechCold_RR" data-step="0.5" data-fallback="38.0" aria-label="Increase RR Cold PSI">+</button>
-                  </div>
-                </div>
-                <div class="field-group" style="margin-bottom: 0;">
-                  <label class="field-label" for="mechHot_RR">Hot PSI</label>
-                  <div class="num-stepper crew-touch-stepper">
-                    <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechHot_RR" data-step="-0.5" data-fallback="44.0" aria-label="Decrease RR Hot PSI">&minus;</button>
-                    <div class="num-input-wrap">
-                      <input type="number" id="mechHot_RR" class="num-input crew-num-input" placeholder="&mdash;" min="20.0" max="65.0" step="0.5" inputmode="decimal" />
-                      <span class="num-unit-badge">psi</span>
-                    </div>
-                    <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechHot_RR" data-step="0.5" data-fallback="44.0" aria-label="Increase RR Hot PSI">+</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Fuel In (L), Fuel Pumped Out (L), Laps Completed & Post-Race / Pit Notes -->
-        <div class="card crew-card">
-          <div class="section-header crew-section-header">
-            <div>
-              <div class="section-eyebrow">POST-SESSION FUEL &amp; LAPS</div>
-              <h2 class="section-title">Fuel In, Fuel Pumped Out &amp; Laps</h2>
-            </div>
-            <span class="locked-badge mono" id="mechFuelBurnSummaryBadge">BURN: &mdash;</span>
-          </div>
-
-          <div class="crew-fuel-grid" style="margin-bottom: 14px;">
-            <div class="field-group" style="margin-bottom: 0;">
-              <label class="field-label" for="mechFuelInL">Fuel In (L)</label>
-              <div class="num-stepper crew-touch-stepper">
-                <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechFuelInL" data-step="-0.5" data-fallback="25.0" aria-label="Decrease Fuel In">&minus;</button>
-                <div class="num-input-wrap">
-                  <input type="number" id="mechFuelInL" class="num-input crew-num-input" placeholder="&mdash;" min="0" max="75.0" step="0.5" inputmode="decimal" />
-                  <span class="num-unit-badge">L</span>
-                </div>
-                <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechFuelInL" data-step="0.5" data-fallback="25.0" aria-label="Increase Fuel In">+</button>
-              </div>
-            </div>
-
-            <div class="field-group" style="margin-bottom: 0;">
-              <label class="field-label" for="mechFuelOutL">Fuel Pumped Out (L)</label>
-              <div class="num-stepper crew-touch-stepper">
-                <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechFuelOutL" data-step="-0.5" data-fallback="10.0" aria-label="Decrease Fuel Pumped Out">&minus;</button>
-                <div class="num-input-wrap">
-                  <input type="number" id="mechFuelOutL" class="num-input crew-num-input" placeholder="&mdash;" min="0" max="75.0" step="0.5" inputmode="decimal" />
-                  <span class="num-unit-badge">L</span>
-                </div>
-                <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechFuelOutL" data-step="0.5" data-fallback="10.0" aria-label="Increase Fuel Pumped Out">+</button>
-              </div>
-            </div>
-
-            <div class="field-group" style="margin-bottom: 0;">
-              <label class="field-label" for="mechRacedLaps">Laps Completed</label>
-              <div class="num-stepper crew-touch-stepper">
-                <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechRacedLaps" data-step="-1" data-fallback="10" aria-label="Decrease Laps Completed">&minus;</button>
-                <div class="num-input-wrap">
-                  <input type="number" id="mechRacedLaps" class="num-input crew-num-input" placeholder="&mdash;" min="1" max="60" step="1" inputmode="numeric" />
-                  <span class="num-unit-badge">LAPS</span>
-                </div>
-                <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechRacedLaps" data-step="1" data-fallback="10" aria-label="Increase Laps Completed">+</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="field-group" style="margin-bottom: 14px;">
-            <label class="field-label" for="mechNotesInput">Post-Race / Pit Notes</label>
-            <textarea
-              id="mechNotesInput"
-              class="text-input crew-touch-textarea"
-              rows="3"
-              placeholder="Log tyre condition, hot-set 44.0 psi notes, fuel pump-out observations, suspension or brake notes..."
-            ></textarea>
-          </div>
-
-          <button type="button" class="btn btn-confirm btn-full crew-save-btn" id="btnSaveMechanicSession">
-            &#128295; SAVE POST-RACE DATA
-          </button>
         </div>
       </section>
     </div>
   </main>
 
-  <!-- Fixed 2-Button Bottom Navigation Bar ("Pre-Race Check" | "Post-Race / Pit") -->
-  <nav class="bottom-tab-bar mech-bottom-tab-bar" role="navigation" aria-label="HQ Mechanic Navigation">
-    <div class="bottom-tab-inner mech-bottom-tab-inner">
-      <button
-        type="button"
-        class="tab-btn active"
-        id="mechTabPre"
-        data-mech-tab="pre"
-        aria-controls="mechPanelPre"
-        aria-selected="true"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M9 11l3 3L22 4"></path>
-          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-        </svg>
-        <span>Pre-Race Check</span>
-      </button>
-
-      <button
-        type="button"
-        class="tab-btn"
-        id="mechTabPost"
-        data-mech-tab="post"
-        aria-controls="mechPanelPost"
-        aria-selected="false"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-        </svg>
-        <span>Post-Race / Pit</span>
-      </button>
-    </div>
-  </nav>
-
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=1.0.8"></script>
+  <script src="./app.js?v=1.0.9"></script>
 </body>
 </html>
