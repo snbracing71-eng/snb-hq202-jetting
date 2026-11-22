@@ -8752,39 +8752,56 @@ button:disabled.btn-stage-locked,
   gap: 8px;
 }
 
+.driver-pre-checklist-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .pre-session-driver-log-row {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 6px;
+}
+
+.crew-fuel-cap-check-row {
+  min-height: 56px;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, #16202F 0%, #0E141E 100%);
+  border: 2px solid #3B4C66;
 }
 
 .driver-pre-check-chip {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 7px 12px;
-  border-radius: 9px;
-  background: linear-gradient(180deg, #1B2434 0%, #101622 100%);
-  border: 1.5px solid #3B4A63;
-  color: #E2E8F0;
-  font-size: 0.85rem;
+  width: 100%;
+  min-height: 58px;
+  padding: 10px 13px;
+  border-radius: 11px;
+  background: linear-gradient(180deg, #1A2332 0%, #101620 100%);
+  border: 2px solid #35455D;
+  color: #F8FAFC;
+  font-size: 0.92rem;
   font-weight: 900;
   cursor: pointer;
   user-select: none;
-  transition: border-color 0.14s ease, background 0.14s ease, box-shadow 0.14s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 
 .driver-pre-check-chip:hover {
-  border-color: #64748B;
+  border-color: #546B8C;
 }
 
 .driver-pre-check-chip.is-readonly {
   cursor: default;
-  min-height: 34px;
-  padding: 4px 10px;
+  min-height: 48px;
+  padding: 8px 12px;
 }
 
 .driver-pre-check-input {
@@ -8796,31 +8813,37 @@ button:disabled.btn-stage-locked,
 }
 
 .driver-pre-check-box {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.82rem;
+  font-size: 1.1rem;
   font-weight: 900;
   color: transparent;
-  background: #0B0F17;
-  border: 1.5px solid #475569;
+  background: #0D1219;
+  border: 2px solid #4A5E7D;
   flex-shrink: 0;
 }
 
 .driver-pre-check-chip.is-checked {
   border-color: #10B981;
-  background: linear-gradient(180deg, rgba(6, 95, 70, 0.5) 0%, rgba(6, 78, 59, 0.3) 100%);
+  background: linear-gradient(180deg, rgba(6, 95, 70, 0.45) 0%, rgba(6, 78, 59, 0.25) 100%);
   color: #ECFDF5;
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.22);
 }
 
 .driver-pre-check-chip.is-checked .driver-pre-check-box {
-  color: #042F2E;
+  color: #051B14;
   background: linear-gradient(180deg, #34D399 0%, #10B981 100%);
   border-color: #6EE7B7;
+}
+
+.driver-pre-check-chip.is-checked .crew-check-status {
+  background: rgba(6, 95, 70, 0.85);
+  border-color: #34D399;
+  color: #A7F3D0;
 }
 
 /* ============================================================================

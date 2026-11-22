@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.0.9" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.10" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -265,6 +265,7 @@
               <div class="pre-session-adjustments-badges">
                 <span class="pre-session-tyre-action-pill mono" id="mainPreRaceTyreActionBadge">TYRE PRESSURES: Left As Is (FL, FR, RL, RR)</span>
                 <span class="pre-session-tyre-action-pill mono is-left" id="mainPreRaceFuelActionBadge">FUEL LOAD: Left As Is</span>
+                <span class="pre-session-tyre-action-pill mono" id="mainPreRaceFuelCapBadge">FUEL CAP: PENDING</span>
               </div>
             </div>
             <div class="pre-session-crew-split-lists">
@@ -284,25 +285,37 @@
           <div class="pre-session-driver-box">
             <div class="pre-session-subhead-row">
               <span class="pre-session-subhead-title">&#127937; Driver / Operator Pre-Session Check</span>
-              <span class="field-hint emerald">Tap to Toggle</span>
+              <span class="field-hint emerald">Tap Row to Toggle</span>
             </div>
-            <div class="pre-session-driver-checks-row" id="mainDriverPreSessionChecklistWrap">
-              <label class="driver-pre-check-chip" data-driver-precheck-chip="camera">
+            <div class="crew-prerace-checklist-stack driver-pre-checklist-stack" id="mainDriverPreSessionChecklistWrap">
+              <label class="crew-check-row driver-pre-check-chip" data-driver-precheck-chip="camera">
                 <input type="checkbox" class="driver-pre-check-input" data-driver-precheck="camera" id="chkDriverPre_camera" />
-                <span class="driver-pre-check-box" aria-hidden="true">&#10003;</span>
-                <span class="driver-pre-check-label">Camera</span>
+                <span class="crew-check-box driver-pre-check-box" aria-hidden="true">&#10003;</span>
+                <span class="crew-check-copy">
+                  <span class="crew-check-title driver-pre-check-label">1. Camera</span>
+                  <span class="crew-check-sub">In-car camera powered on, SD card checked &amp; recording armed</span>
+                </span>
+                <span class="crew-check-status mono" id="drvPreStatus_camera">PENDING</span>
               </label>
 
-              <label class="driver-pre-check-chip" data-driver-precheck-chip="drinkBottle">
+              <label class="crew-check-row driver-pre-check-chip" data-driver-precheck-chip="drinkBottle">
                 <input type="checkbox" class="driver-pre-check-input" data-driver-precheck="drinkBottle" id="chkDriverPre_drinkBottle" />
-                <span class="driver-pre-check-box" aria-hidden="true">&#10003;</span>
-                <span class="driver-pre-check-label">Drink Bottle</span>
+                <span class="crew-check-box driver-pre-check-box" aria-hidden="true">&#10003;</span>
+                <span class="crew-check-copy">
+                  <span class="crew-check-title driver-pre-check-label">2. Drink Bottle</span>
+                  <span class="crew-check-sub">Driver drink bottle filled, secured in cage mount &amp; tube routed</span>
+                </span>
+                <span class="crew-check-status mono" id="drvPreStatus_drinkBottle">PENDING</span>
               </label>
 
-              <label class="driver-pre-check-chip" data-driver-precheck-chip="timerInPlace">
+              <label class="crew-check-row driver-pre-check-chip" data-driver-precheck-chip="timerInPlace">
                 <input type="checkbox" class="driver-pre-check-input" data-driver-precheck="timerInPlace" id="chkDriverPre_timerInPlace" />
-                <span class="driver-pre-check-box" aria-hidden="true">&#10003;</span>
-                <span class="driver-pre-check-label">Timer in place</span>
+                <span class="crew-check-box driver-pre-check-box" aria-hidden="true">&#10003;</span>
+                <span class="crew-check-copy">
+                  <span class="crew-check-title driver-pre-check-label">3. Timer in place</span>
+                  <span class="crew-check-sub">Lap timer / transponder mounted, charged &amp; satellite lock verified</span>
+                </span>
+                <span class="crew-check-status mono" id="drvPreStatus_timerInPlace">PENDING</span>
               </label>
             </div>
           </div>
@@ -5912,6 +5925,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=1.0.9"></script>
+  <script src="./app.js?v=1.0.10"></script>
 </body>
 </html>

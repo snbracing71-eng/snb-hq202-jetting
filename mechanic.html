@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest-mech.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.0.9" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.10" />
 </head>
 <body class="crew-page-body">
   <!-- Sticky 3D Brushed-Metal AgerPro Header -->
@@ -240,22 +240,23 @@
 
                 <div class="crew-tyre-drawer-grid">
                   <!-- FL -->
-                  <div class="crew-tyre-drawer-corner" data-tyre-action-corner="FL">
+                  <div class="crew-tyre-drawer-corner" id="preTyreCornerCard_FL" data-corner="FL" data-tyre-action-corner="FL">
                     <div class="crew-tyre-drawer-corner-top">
                       <span class="crew-tyre-action-corner-label">FL &bull; FRONT LEFT</span>
                       <div class="seg-toggle crew-tyre-action-seg" role="group" aria-label="FL Tyre Pressure Action">
-                        <button type="button" class="seg-btn active" data-pre-tyre-corner="FL" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
-                        <button type="button" class="seg-btn" data-pre-tyre-corner="FL" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
-                        <button type="button" class="seg-btn" data-pre-tyre-corner="FL" data-pre-tyre-action="Bled" aria-pressed="false">Bled</button>
+                        <button type="button" class="seg-btn active" id="preTyreBtn_FL_Left" data-corner="FL" data-pre-tyre-corner="FL" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
+                        <button type="button" class="seg-btn" id="preTyreBtn_FL_Added" data-corner="FL" data-pre-tyre-corner="FL" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
+                        <button type="button" class="seg-btn" id="preTyreBtn_FL_Bled" data-corner="FL" data-pre-tyre-corner="FL" data-pre-tyre-action="Bled" aria-pressed="false">Bled</button>
                       </div>
                     </div>
-                    <div class="crew-conditional-input-row" id="preTyreSetWrap_FL" style="display: none;">
+                    <div class="crew-conditional-input-row" id="preTyreSetWrap_FL" data-corner="FL" style="display: none;">
                       <label class="crew-conditional-label" for="preTyreSetPsi_FL">Set To (PSI)</label>
                       <div class="num-input-wrap crew-conditional-num-wrap">
                         <input
                           type="number"
                           id="preTyreSetPsi_FL"
                           class="num-input crew-num-input crew-conditional-input"
+                          data-corner="FL"
                           data-pre-tyre-psi-corner="FL"
                           placeholder="40.0"
                           min="15.0"
@@ -269,22 +270,23 @@
                   </div>
 
                   <!-- FR -->
-                  <div class="crew-tyre-drawer-corner" data-tyre-action-corner="FR">
+                  <div class="crew-tyre-drawer-corner" id="preTyreCornerCard_FR" data-corner="FR" data-tyre-action-corner="FR">
                     <div class="crew-tyre-drawer-corner-top">
                       <span class="crew-tyre-action-corner-label">FR &bull; FRONT RIGHT</span>
                       <div class="seg-toggle crew-tyre-action-seg" role="group" aria-label="FR Tyre Pressure Action">
-                        <button type="button" class="seg-btn active" data-pre-tyre-corner="FR" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
-                        <button type="button" class="seg-btn" data-pre-tyre-corner="FR" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
-                        <button type="button" class="seg-btn" data-pre-tyre-corner="FR" data-pre-tyre-action="Bled" aria-pressed="false">Bled</button>
+                        <button type="button" class="seg-btn active" id="preTyreBtn_FR_Left" data-corner="FR" data-pre-tyre-corner="FR" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
+                        <button type="button" class="seg-btn" id="preTyreBtn_FR_Added" data-corner="FR" data-pre-tyre-corner="FR" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
+                        <button type="button" class="seg-btn" id="preTyreBtn_FR_Bled" data-corner="FR" data-pre-tyre-corner="FR" data-pre-tyre-action="Bled" aria-pressed="false">Bled</button>
                       </div>
                     </div>
-                    <div class="crew-conditional-input-row" id="preTyreSetWrap_FR" style="display: none;">
+                    <div class="crew-conditional-input-row" id="preTyreSetWrap_FR" data-corner="FR" style="display: none;">
                       <label class="crew-conditional-label" for="preTyreSetPsi_FR">Set To (PSI)</label>
                       <div class="num-input-wrap crew-conditional-num-wrap">
                         <input
                           type="number"
                           id="preTyreSetPsi_FR"
                           class="num-input crew-num-input crew-conditional-input"
+                          data-corner="FR"
                           data-pre-tyre-psi-corner="FR"
                           placeholder="40.0"
                           min="15.0"
@@ -298,22 +300,23 @@
                   </div>
 
                   <!-- RL -->
-                  <div class="crew-tyre-drawer-corner" data-tyre-action-corner="RL">
+                  <div class="crew-tyre-drawer-corner" id="preTyreCornerCard_RL" data-corner="RL" data-tyre-action-corner="RL">
                     <div class="crew-tyre-drawer-corner-top">
                       <span class="crew-tyre-action-corner-label">RL &bull; REAR LEFT</span>
                       <div class="seg-toggle crew-tyre-action-seg" role="group" aria-label="RL Tyre Pressure Action">
-                        <button type="button" class="seg-btn active" data-pre-tyre-corner="RL" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
-                        <button type="button" class="seg-btn" data-pre-tyre-corner="RL" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
-                        <button type="button" class="seg-btn" data-pre-tyre-corner="RL" data-pre-tyre-action="Bled" aria-pressed="false">Bled</button>
+                        <button type="button" class="seg-btn active" id="preTyreBtn_RL_Left" data-corner="RL" data-pre-tyre-corner="RL" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
+                        <button type="button" class="seg-btn" id="preTyreBtn_RL_Added" data-corner="RL" data-pre-tyre-corner="RL" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
+                        <button type="button" class="seg-btn" id="preTyreBtn_RL_Bled" data-corner="RL" data-pre-tyre-corner="RL" data-pre-tyre-action="Bled" aria-pressed="false">Bled</button>
                       </div>
                     </div>
-                    <div class="crew-conditional-input-row" id="preTyreSetWrap_RL" style="display: none;">
+                    <div class="crew-conditional-input-row" id="preTyreSetWrap_RL" data-corner="RL" style="display: none;">
                       <label class="crew-conditional-label" for="preTyreSetPsi_RL">Set To (PSI)</label>
                       <div class="num-input-wrap crew-conditional-num-wrap">
                         <input
                           type="number"
                           id="preTyreSetPsi_RL"
                           class="num-input crew-num-input crew-conditional-input"
+                          data-corner="RL"
                           data-pre-tyre-psi-corner="RL"
                           placeholder="43.0"
                           min="15.0"
@@ -327,22 +330,23 @@
                   </div>
 
                   <!-- RR -->
-                  <div class="crew-tyre-drawer-corner" data-tyre-action-corner="RR">
+                  <div class="crew-tyre-drawer-corner" id="preTyreCornerCard_RR" data-corner="RR" data-tyre-action-corner="RR">
                     <div class="crew-tyre-drawer-corner-top">
                       <span class="crew-tyre-action-corner-label">RR &bull; REAR RIGHT</span>
                       <div class="seg-toggle crew-tyre-action-seg" role="group" aria-label="RR Tyre Pressure Action">
-                        <button type="button" class="seg-btn active" data-pre-tyre-corner="RR" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
-                        <button type="button" class="seg-btn" data-pre-tyre-corner="RR" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
-                        <button type="button" class="seg-btn" data-pre-tyre-corner="RR" data-pre-tyre-action="Bled" aria-pressed="false">Bled</button>
+                        <button type="button" class="seg-btn active" id="preTyreBtn_RR_Left" data-corner="RR" data-pre-tyre-corner="RR" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
+                        <button type="button" class="seg-btn" id="preTyreBtn_RR_Added" data-corner="RR" data-pre-tyre-corner="RR" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
+                        <button type="button" class="seg-btn" id="preTyreBtn_RR_Bled" data-corner="RR" data-pre-tyre-corner="RR" data-pre-tyre-action="Bled" aria-pressed="false">Bled</button>
                       </div>
                     </div>
-                    <div class="crew-conditional-input-row" id="preTyreSetWrap_RR" style="display: none;">
+                    <div class="crew-conditional-input-row" id="preTyreSetWrap_RR" data-corner="RR" style="display: none;">
                       <label class="crew-conditional-label" for="preTyreSetPsi_RR">Set To (PSI)</label>
                       <div class="num-input-wrap crew-conditional-num-wrap">
                         <input
                           type="number"
                           id="preTyreSetPsi_RR"
                           class="num-input crew-num-input crew-conditional-input"
+                          data-corner="RR"
                           data-pre-tyre-psi-corner="RR"
                           placeholder="43.0"
                           min="15.0"
@@ -418,21 +422,38 @@
                 </button>
               </div>
 
-              <!-- Collapsible Drawer Body: 3-Way Pill Selector (Left As Is | Added | Pumped Out) + Conditional Litres Inputs -->
+              <!-- Collapsible Drawer Body: 3-Way Pill Selector (Left As Is | Added | Pumped Out) + Conditional Litres In (L) + Fuel Cap On Check -->
               <div class="crew-task-drawer-body" id="fuelDrawerBody">
                 <div class="crew-fuel-drawer-inner">
                   <div class="crew-fuel-action-row">
                     <span class="crew-tyre-action-corner-label">PRE-SESSION FUEL ACTION</span>
                     <div class="seg-toggle crew-fuel-action-seg" role="group" aria-label="Pre-Session Fuel Load Action">
-                      <button type="button" class="seg-btn active" data-pre-fuel-action="Left As Is" aria-pressed="true">Left As Is</button>
-                      <button type="button" class="seg-btn" data-pre-fuel-action="Added" aria-pressed="false">Added</button>
-                      <button type="button" class="seg-btn" data-pre-fuel-action="Pumped Out" aria-pressed="false">Pumped Out</button>
+                      <button type="button" class="seg-btn active" id="preFuelBtn_Left" data-pre-fuel-action="Left As Is" aria-pressed="true">Left As Is</button>
+                      <button type="button" class="seg-btn" id="preFuelBtn_Added" data-pre-fuel-action="Added" aria-pressed="false">Added</button>
+                      <button type="button" class="seg-btn" id="preFuelBtn_PumpedOut" data-pre-fuel-action="Pumped Out" aria-pressed="false">Pumped Out</button>
                     </div>
                   </div>
 
                   <div class="crew-fuel-conditional-grid" id="preFuelConditionalWrap" style="display: none;">
                     <div class="field-group" style="margin-bottom: 0;">
-                      <label class="field-label" for="preFuelSetToL">Set To / Tank Total (L)</label>
+                      <label class="field-label" id="preFuelDeltaLabel" for="preFuelDeltaL">Litres In (L)</label>
+                      <div class="num-input-wrap">
+                        <input
+                          type="number"
+                          id="preFuelDeltaL"
+                          class="num-input crew-num-input"
+                          placeholder="15.0"
+                          min="0"
+                          max="75.0"
+                          step="0.1"
+                          inputmode="decimal"
+                        />
+                        <span class="num-unit-badge">L</span>
+                      </div>
+                    </div>
+
+                    <div class="field-group" style="margin-bottom: 0;">
+                      <label class="field-label" for="preFuelSetToL">Set To / Tank Total (L) (Optional)</label>
                       <div class="num-input-wrap">
                         <input
                           type="number"
@@ -447,24 +468,23 @@
                         <span class="num-unit-badge">L</span>
                       </div>
                     </div>
-
-                    <div class="field-group" style="margin-bottom: 0;">
-                      <label class="field-label" id="preFuelDeltaLabel" for="preFuelDeltaL">Litres Added / Out (L) (Optional)</label>
-                      <div class="num-input-wrap">
-                        <input
-                          type="number"
-                          id="preFuelDeltaL"
-                          class="num-input crew-num-input"
-                          placeholder="10.0"
-                          min="0"
-                          max="75.0"
-                          step="0.1"
-                          inputmode="decimal"
-                        />
-                        <span class="num-unit-badge">L</span>
-                      </div>
-                    </div>
                   </div>
+
+                  <!-- Dedicated Fuel Cap On & Secured Check (Required for Fuel Load Task Completion) -->
+                  <button
+                    type="button"
+                    class="crew-check-row crew-fuel-cap-check-row"
+                    id="btnPreFuelCapOnCheck"
+                    data-pre-fuel-cap-check="fuelCapOn"
+                    aria-pressed="false"
+                  >
+                    <span class="crew-check-box" aria-hidden="true">&#10003;</span>
+                    <span class="crew-check-copy">
+                      <span class="crew-check-title">Fuel cap on &amp; secured</span>
+                      <span class="crew-check-sub">Filler cap locked tight &amp; tank breather clear (required for Fuel check)</span>
+                    </span>
+                    <span class="crew-check-status mono" id="preFuelCapOnStatusBadge">PENDING</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -806,6 +826,6 @@
 
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=1.0.9"></script>
+  <script src="./app.js?v=1.0.10"></script>
 </body>
 </html>

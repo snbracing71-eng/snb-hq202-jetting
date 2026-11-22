@@ -10478,26 +10478,50 @@
         ? Number(Number(v).toFixed(1))
         : null;
 
+    const rawDelta =
+      src.litresInL !== undefined
+        ? src.litresInL
+        : src.fuelAddedL !== undefined
+        ? src.fuelAddedL
+        : src.deltaL !== undefined
+        ? src.deltaL
+        : src.litresDeltaL;
     const setToL = action === 'Left As Is' ? null : parseOptLitres(src.setToL !== undefined ? src.setToL : src.tankTotalL);
-    const deltaL = action === 'Left As Is' ? null : parseOptLitres(src.deltaL !== undefined ? src.deltaL : src.litresDeltaL);
+    const deltaL = action === 'Left As Is' ? null : parseOptLitres(rawDelta);
+    const litresInL = deltaL;
+    const fuelAddedL = action === 'Added' ? (deltaL !== null ? deltaL : setToL) : null;
+    const fuelCapOn = Boolean(src.fuelCapOn);
     const updatedAt = typeof src.updatedAt === 'string' ? src.updatedAt.trim() : '';
 
     let summary = 'Fuel: Left As Is';
     if (action !== 'Left As Is') {
       const parts = [];
-      if (setToL !== null) parts.push(`-> ${setToL.toFixed(1)} L`);
       if (deltaL !== null) {
-        parts.push(`(${action === 'Added' ? '+' : '-'}${deltaL.toFixed(1)} L)`);
+        parts.push(
+          action === 'Added'
+            ? `${deltaL.toFixed(1)} L In`
+            : `${deltaL.toFixed(1)} L Out`
+        );
       }
-      summary = `Fuel ${action}${parts.length > 0 ? ` ${parts.join(' ')}` : ''}`;
+      if (setToL !== null) {
+        parts.push(`-> ${setToL.toFixed(1)} L Total`);
+      }
+      summary = `Fuel ${action}${parts.length > 0 ? `: ${parts.join(' ')}` : ''}`;
     }
+
+    const capSummary = fuelCapOn ? 'Cap On ✓' : 'Cap PENDING';
 
     return {
       action,
+      litresInL,
+      fuelAddedL,
       setToL,
       deltaL,
+      fuelCapOn,
       isAltered: action !== 'Left As Is',
       summary,
+      capSummary,
+      fullSummary: `${summary} • ${capSummary}`,
       updatedAt
     };
   }
@@ -10549,9 +10573,24 @@
 
   function getDriverPreSessionChecklistItems() {
     return [
-      { key: 'camera', label: 'Camera' },
-      { key: 'drinkBottle', label: 'Drink Bottle' },
-      { key: 'timerInPlace', label: 'Timer in place' }
+      {
+        key: 'camera',
+        label: '1. Camera',
+        shortLabel: 'Camera',
+        sub: 'In-car camera powered on, SD card checked & recording armed'
+      },
+      {
+        key: 'drinkBottle',
+        label: '2. Drink Bottle',
+        shortLabel: 'Drink Bottle',
+        sub: 'Driver drink bottle filled, secured in cage mount & tube routed'
+      },
+      {
+        key: 'timerInPlace',
+        label: '3. Timer in place',
+        shortLabel: 'Timer in place',
+        sub: 'Lap timer / transponder mounted, charged & satellite lock verified'
+      }
     ];
   }
 
@@ -10737,6 +10776,14 @@
       }`;
     }
 
+    const fuelCapBadge = $('mainPreRaceFuelCapBadge');
+    if (fuelCapBadge) {
+      fuelCapBadge.textContent = fuelAdj.fuelCapOn ? 'FUEL CAP: ON ✓' : 'FUEL CAP: PENDING';
+      fuelCapBadge.className = `pre-session-tyre-action-pill mono ${
+        fuelAdj.fuelCapOn ? 'is-bled' : 'is-added'
+      }`;
+    }
+
     if ($('mainCrewDoneHeader')) {
       $('mainCrewDoneHeader').textContent = `✅ Completed (${doneItems.length})`;
     }
@@ -10802,6 +10849,10 @@
       const chip = document.querySelector(`[data-driver-precheck-chip="${key}"]`);
       if (chip) {
         chip.classList.toggle('is-checked', checked);
+      }
+      const statusBadge = $(`drvPreStatus_${key}`);
+      if (statusBadge) {
+        statusBadge.textContent = checked ? 'DONE ✓' : 'PENDING';
       }
     });
   }
@@ -11262,7 +11313,7 @@
       }
     }
 
-    // 4b. Pre-Race Fuel Adjustment ({ action, setToL, deltaL })
+    // 4b. Pre-Race Fuel Adjustment ({ action, litresInL, fuelAddedL, setToL, deltaL, fuelCapOn })
     if ('preRaceFuelAdjustment' in payload) {
       const prevFuelAdj = normalizePreRaceFuelAdjustment(targetSess.preRaceFuelAdjustment);
       const inFuel = payload.preRaceFuelAdjustment;
@@ -11271,23 +11322,45 @@
           action: inFuel,
           setToL: prevFuelAdj.setToL,
           deltaL: prevFuelAdj.deltaL,
+          fuelCapOn: prevFuelAdj.fuelCapOn,
           updatedAt: mechanicUpdatedAt
         });
       } else if (inFuel && typeof inFuel === 'object') {
         scopedPatch.preRaceFuelAdjustment = normalizePreRaceFuelAdjustment({
           action: 'action' in inFuel ? inFuel.action : prevFuelAdj.action,
           setToL: 'setToL' in inFuel ? inFuel.setToL : prevFuelAdj.setToL,
-          deltaL: 'deltaL' in inFuel ? inFuel.deltaL : prevFuelAdj.deltaL,
+          deltaL:
+            'litresInL' in inFuel
+              ? inFuel.litresInL
+              : 'fuelAddedL' in inFuel
+              ? inFuel.fuelAddedL
+              : 'deltaL' in inFuel
+              ? inFuel.deltaL
+              : prevFuelAdj.deltaL,
+          fuelCapOn: 'fuelCapOn' in inFuel ? Boolean(inFuel.fuelCapOn) : prevFuelAdj.fuelCapOn,
           updatedAt: mechanicUpdatedAt
         });
       }
-      if (
-        scopedPatch.preRaceFuelAdjustment &&
-        scopedPatch.preRaceFuelAdjustment.isAltered &&
-        scopedPatch.preRaceFuelAdjustment.setToL !== null &&
-        !('fuelInL' in payload)
-      ) {
-        scopedPatch.fuelInL = scopedPatch.preRaceFuelAdjustment.setToL;
+      if (scopedPatch.preRaceFuelAdjustment) {
+        if (scopedPatch.preRaceFuelAdjustment.fuelAddedL !== null) {
+          scopedPatch.fuelAddedL = scopedPatch.preRaceFuelAdjustment.fuelAddedL;
+        }
+        scopedPatch.fuelCapOn = scopedPatch.preRaceFuelAdjustment.fuelCapOn;
+        if (
+          scopedPatch.preRaceFuelAdjustment.isAltered &&
+          !('fuelInL' in payload)
+        ) {
+          const effInL =
+            scopedPatch.preRaceFuelAdjustment.setToL !== null
+              ? scopedPatch.preRaceFuelAdjustment.setToL
+              : scopedPatch.preRaceFuelAdjustment.action === 'Added' &&
+                scopedPatch.preRaceFuelAdjustment.litresInL !== null
+              ? scopedPatch.preRaceFuelAdjustment.litresInL
+              : null;
+          if (effInL !== null) {
+            scopedPatch.fuelInL = effInL;
+          }
+        }
       }
     }
 
@@ -11306,7 +11379,7 @@
       scopedPatch.preRaceCompletedAt = targetSess.preRaceCompletedAt || mechanicUpdatedAt;
     }
 
-    // 5. Pre-Race Checklist
+    // 5. Pre-Race Checklist (Fuel Load task requires fuelCapOn to be checked)
     if ('preRaceChecklist' in payload) {
       const prevCl = normalizePreRaceChecklist(targetSess.preRaceChecklist);
       const inCl =
@@ -17059,20 +17132,27 @@
         : fuelAdj.action === 'Pumped Out'
         ? 'is-bled'
         : 'is-left';
+    const capClass = fuelAdj.fuelCapOn ? 'is-bled' : 'is-added';
+    const capBadgeText = fuelAdj.fuelCapOn ? 'FUEL CAP: ON ✓' : 'FUEL CAP: PENDING';
 
     const driverChecksHtml = drvDefs
-      .map(({ key, label }) => {
+      .map(({ key, label, sub }) => {
         const checked = Boolean(drvCl.items[key]);
+        const statusText = checked ? 'DONE ✓' : 'PENDING';
         if (isEventLocked) {
           return `
-            <span class="driver-pre-check-chip ${checked ? 'is-checked' : ''} is-readonly">
-              <span class="driver-pre-check-box" aria-hidden="true">${checked ? '&#10003;' : ''}</span>
-              <span class="driver-pre-check-label">${escapeHtml(label)}</span>
+            <span class="crew-check-row driver-pre-check-chip ${checked ? 'is-checked' : ''} is-readonly">
+              <span class="crew-check-box driver-pre-check-box" aria-hidden="true">${checked ? '&#10003;' : ''}</span>
+              <span class="crew-check-copy">
+                <span class="crew-check-title driver-pre-check-label">${escapeHtml(label)}</span>
+                ${sub ? `<span class="crew-check-sub">${escapeHtml(sub)}</span>` : ''}
+              </span>
+              <span class="crew-check-status mono">${statusText}</span>
             </span>
           `;
         }
         return `
-          <label class="driver-pre-check-chip ${checked ? 'is-checked' : ''}">
+          <label class="crew-check-row driver-pre-check-chip ${checked ? 'is-checked' : ''}">
             <input
               type="checkbox"
               class="driver-pre-check-input"
@@ -17080,8 +17160,12 @@
               data-session-id="${escapeHtml(s.id)}"
               ${checked ? 'checked' : ''}
             />
-            <span class="driver-pre-check-box" aria-hidden="true">&#10003;</span>
-            <span class="driver-pre-check-label">${escapeHtml(label)}</span>
+            <span class="crew-check-box driver-pre-check-box" aria-hidden="true">&#10003;</span>
+            <span class="crew-check-copy">
+              <span class="crew-check-title driver-pre-check-label">${escapeHtml(label)}</span>
+              ${sub ? `<span class="crew-check-sub">${escapeHtml(sub)}</span>` : ''}
+            </span>
+            <span class="crew-check-status mono">${statusText}</span>
           </label>
         `;
       })
@@ -17098,6 +17182,7 @@
           <div class="pre-session-adjustments-badges">
             <span class="pre-session-tyre-action-pill mono ${tyreClass}">TYRES: ${escapeHtml(tyreAdj.summary)}</span>
             <span class="pre-session-tyre-action-pill mono ${fuelClass}">${escapeHtml(fuelAdj.summary)}</span>
+            <span class="pre-session-tyre-action-pill mono ${capClass}">${escapeHtml(capBadgeText)}</span>
           </div>
         </div>
         <div class="pre-session-crew-split-lists" style="margin-top: 6px;">
@@ -17111,8 +17196,8 @@
           </div>
         </div>
         <div class="pre-session-driver-log-row" style="margin-top: 8px;">
-          <span class="pre-session-subhead-title" style="margin-right: 8px;">&#127937; Driver / Operator:</span>
-          <div class="pre-session-driver-checks-row">${driverChecksHtml}</div>
+          <span class="pre-session-subhead-title" style="margin-right: 8px;">&#127937; Driver / Operator Pre-Session Check:</span>
+          <div class="crew-prerace-checklist-stack driver-pre-checklist-stack">${driverChecksHtml}</div>
         </div>
       </div>
     `;
@@ -24592,11 +24677,15 @@
       if (condWrap) {
         condWrap.style.display = isAltered ? 'flex' : 'none';
       }
-      if (psiInp && document.activeElement !== psiInp) {
-        psiInp.value =
-          isAltered && cornerEntry.setToPsi !== null && Number.isFinite(Number(cornerEntry.setToPsi))
-            ? Number(cornerEntry.setToPsi).toFixed(1)
-            : '';
+      if (psiInp) {
+        if (!isAltered) {
+          psiInp.value = '';
+        } else if (document.activeElement !== psiInp) {
+          psiInp.value =
+            cornerEntry.setToPsi !== null && Number.isFinite(Number(cornerEntry.setToPsi))
+              ? Number(cornerEntry.setToPsi).toFixed(1)
+              : '';
+        }
       }
     });
 
@@ -24611,7 +24700,7 @@
       tyreActSummaryBadge.textContent = `Tyres: ${tyreAdj.summary}`;
     }
 
-    // Hydrate Task Card B: Fuel Load 3-way pill selector (Left As Is | Added | Pumped Out) + conditional Litres inputs
+    // Hydrate Task Card B: Fuel Load 3-way pill selector (Left As Is | Added | Pumped Out) + conditional Litres In (L) + Fuel Cap On check
     document.querySelectorAll('[data-pre-fuel-action]').forEach((btn) => {
       const val = normalizePreRaceFuelActionValue(btn.getAttribute('data-pre-fuel-action'));
       const isMatch = val === fuelAdj.action;
@@ -24626,26 +24715,45 @@
     if (fuelDeltaLbl) {
       fuelDeltaLbl.textContent =
         fuelAdj.action === 'Pumped Out'
-          ? 'Litres Pumped Out (L) (Optional)'
-          : 'Litres Added (L) (Optional)';
+          ? 'Litres Pumped Out (L)'
+          : 'Litres In (L)';
     }
     const setToFuelInp = $('preFuelSetToL');
-    if (setToFuelInp && document.activeElement !== setToFuelInp) {
-      setToFuelInp.value =
-        fuelAdj.isAltered && fuelAdj.setToL !== null && Number.isFinite(Number(fuelAdj.setToL))
-          ? Number(fuelAdj.setToL).toFixed(1)
-          : '';
+    if (setToFuelInp) {
+      if (!fuelAdj.isAltered) {
+        setToFuelInp.value = '';
+      } else if (document.activeElement !== setToFuelInp) {
+        setToFuelInp.value =
+          fuelAdj.setToL !== null && Number.isFinite(Number(fuelAdj.setToL))
+            ? Number(fuelAdj.setToL).toFixed(1)
+            : '';
+      }
     }
     const deltaFuelInp = $('preFuelDeltaL');
-    if (deltaFuelInp && document.activeElement !== deltaFuelInp) {
-      deltaFuelInp.value =
-        fuelAdj.isAltered && fuelAdj.deltaL !== null && Number.isFinite(Number(fuelAdj.deltaL))
-          ? Number(fuelAdj.deltaL).toFixed(1)
-          : '';
+    if (deltaFuelInp) {
+      if (!fuelAdj.isAltered) {
+        deltaFuelInp.value = '';
+      } else if (document.activeElement !== deltaFuelInp) {
+        deltaFuelInp.value =
+          fuelAdj.deltaL !== null && Number.isFinite(Number(fuelAdj.deltaL))
+            ? Number(fuelAdj.deltaL).toFixed(1)
+            : '';
+      }
     }
+
+    const fuelCapBtn = $('btnPreFuelCapOnCheck');
+    const fuelCapStatusBadge = $('preFuelCapOnStatusBadge');
+    if (fuelCapBtn) {
+      fuelCapBtn.classList.toggle('is-checked', Boolean(fuelAdj.fuelCapOn));
+      fuelCapBtn.setAttribute('aria-pressed', fuelAdj.fuelCapOn ? 'true' : 'false');
+    }
+    if (fuelCapStatusBadge) {
+      fuelCapStatusBadge.textContent = fuelAdj.fuelCapOn ? 'CAP ON ✓' : 'PENDING';
+    }
+
     const fuelSummaryBadge = $('preRaceFuelActionSummaryBadge');
     if (fuelSummaryBadge) {
-      fuelSummaryBadge.textContent = `${fuelAdj.summary} • Filler cap locked & breather clear`;
+      fuelSummaryBadge.textContent = fuelAdj.fullSummary;
     }
 
     // Hydrate checklist items & expandable task card states
@@ -24808,6 +24916,7 @@
       : 'Left As Is';
     const setInp = $('preFuelSetToL');
     const deltaInp = $('preFuelDeltaL');
+    const capBtn = $('btnPreFuelCapOnCheck');
     const rawSet = setInp ? setInp.value.trim() : '';
     const rawDelta = deltaInp ? deltaInp.value.trim() : '';
     let setToL =
@@ -24818,6 +24927,7 @@
       rawDelta !== '' && Number.isFinite(Number(rawDelta)) && Number(rawDelta) >= 0
         ? Number(Number(rawDelta).toFixed(1))
         : null;
+    let fuelCapOn = Boolean(capBtn && capBtn.classList.contains('is-checked'));
 
     if (customFuelPatch) {
       if (typeof customFuelPatch === 'string') {
@@ -24829,8 +24939,13 @@
         if ('setToL' in customFuelPatch) {
           setToL = customFuelPatch.setToL;
         }
-        if ('deltaL' in customFuelPatch) {
+        if ('litresInL' in customFuelPatch) {
+          deltaL = customFuelPatch.litresInL;
+        } else if ('deltaL' in customFuelPatch) {
           deltaL = customFuelPatch.deltaL;
+        }
+        if ('fuelCapOn' in customFuelPatch) {
+          fuelCapOn = Boolean(customFuelPatch.fuelCapOn);
         }
       }
     }
@@ -24838,7 +24953,13 @@
       setToL = null;
       deltaL = null;
     }
-    return normalizePreRaceFuelAdjustment({ action, setToL, deltaL });
+    return normalizePreRaceFuelAdjustment({
+      action,
+      litresInL: deltaL,
+      setToL,
+      deltaL,
+      fuelCapOn
+    });
   }
 
   function saveMechanicPageInput() {
@@ -24890,10 +25011,33 @@
     if (customItemsPatch && typeof customItemsPatch === 'object') {
       Object.assign(items, customItemsPatch);
     }
+
+    let effFuelPatch = customFuelPatch;
+    if (markCompleteOpt === true) {
+      effFuelPatch = {
+        ...(customFuelPatch && typeof customFuelPatch === 'object' ? customFuelPatch : {}),
+        fuelCapOn: true
+      };
+    } else if (markCompleteOpt === false) {
+      effFuelPatch = {
+        ...(customFuelPatch && typeof customFuelPatch === 'object'
+          ? customFuelPatch
+          : typeof customFuelPatch === 'string'
+          ? { action: customFuelPatch }
+          : {}),
+        fuelCapOn: false
+      };
+    }
+
     const signOffNotes = $('preRaceSignOffNotesInput') ? $('preRaceSignOffNotesInput').value.trim() : '';
     const preRaceTyreAdjustments = readCrewTyreAdjustmentsFromDom(customTyreActionPatch);
-    const preRaceFuelAdjustment = readCrewFuelAdjustmentFromDom(customFuelPatch);
+    const preRaceFuelAdjustment = readCrewFuelAdjustmentFromDom(effFuelPatch);
     const nowTime = formatPitDayTimeLabel(new Date());
+
+    // Dedicated rule: Fuel cap on & secured must be ticked for the fuel check to count as complete
+    if (!preRaceFuelAdjustment.fuelCapOn) {
+      items.fuelLoad = false;
+    }
 
     const payload = {
       mechanicUpdatedAt: nowTime,
@@ -27441,7 +27585,12 @@
         getPreRaceChecklistItems().forEach(({ key }) => {
           allPatch[key] = true;
         });
-        savePreRaceChecklistPageInput(allPatch, 'All 9 Pre-Race Checks Marked Ready');
+        savePreRaceChecklistPageInput(
+          allPatch,
+          'All 9 Pre-Race Checks & Fuel Cap Marked Ready',
+          null,
+          { fuelCapOn: true }
+        );
       });
     }
 
@@ -27451,11 +27600,17 @@
         getPreRaceChecklistItems().forEach(({ key }) => {
           clearPatch[key] = false;
         });
+        ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+          const psiInp = $(`preTyreSetPsi_${c}`);
+          if (psiInp) psiInp.value = '';
+        });
+        if ($('preFuelDeltaL')) $('preFuelDeltaL').value = '';
+        if ($('preFuelSetToL')) $('preFuelSetToL').value = '';
         savePreRaceChecklistPageInput(
           clearPatch,
           'Reset Pre-Race Checklist',
           'Left As Is',
-          'Left As Is',
+          { action: 'Left As Is', litresInL: null, setToL: null, deltaL: null, fuelCapOn: false },
           false
         );
       });
@@ -27468,7 +27623,7 @@
           null,
           `✓ PRE-RACE COMPLETE • ${nowTime}`,
           null,
-          null,
+          { fuelCapOn: true },
           true
         );
       });
@@ -27568,6 +27723,14 @@
           const actionVal = normalizePreRaceTyreActionValue(
             preTyreAllBtn.getAttribute('data-pre-tyre-all')
           );
+          if (actionVal === 'Left As Is') {
+            ['FL', 'FR', 'RL', 'RR'].forEach((c) => {
+              const psiInp = $(`preTyreSetPsi_${c}`);
+              if (psiInp) psiInp.value = '';
+              const condWrap = $(`preTyreSetWrap_${c}`);
+              if (condWrap) condWrap.style.display = 'none';
+            });
+          }
           savePreRaceChecklistPageInput(
             { tyrePressures: true },
             `Pre-Race Tyre Action: All 4 ${actionVal}`,
@@ -27582,6 +27745,12 @@
           const actionVal = normalizePreRaceTyreActionValue(
             preTyreCornerBtn.getAttribute('data-pre-tyre-action')
           );
+          if (actionVal === 'Left As Is') {
+            const psiInp = $(`preTyreSetPsi_${corner}`);
+            if (psiInp) psiInp.value = '';
+            const condWrap = $(`preTyreSetWrap_${corner}`);
+            if (condWrap) condWrap.style.display = 'none';
+          }
           savePreRaceChecklistPageInput(
             { tyrePressures: true },
             `${corner} Tyre Action: ${actionVal}`,
@@ -27599,16 +27768,37 @@
           const fuelAct = normalizePreRaceFuelActionValue(
             preFuelActionBtn.getAttribute('data-pre-fuel-action')
           );
+          if (fuelAct === 'Left As Is') {
+            if ($('preFuelDeltaL')) $('preFuelDeltaL').value = '';
+            if ($('preFuelSetToL')) $('preFuelSetToL').value = '';
+          }
+          const capBtn = $('btnPreFuelCapOnCheck');
+          const isCapOn = Boolean(capBtn && capBtn.classList.contains('is-checked'));
           savePreRaceChecklistPageInput(
-            { fuelLoad: true },
+            { fuelLoad: isCapOn },
             `Pre-Race Fuel Action: ${fuelAct}`,
             null,
             { action: fuelAct }
           );
           if (fuelAct === 'Added' || fuelAct === 'Pumped Out') {
-            const setFuelInp = $('preFuelSetToL');
-            if (setFuelInp) setFuelInp.focus();
+            const deltaFuelInp = $('preFuelDeltaL');
+            if (deltaFuelInp) deltaFuelInp.focus();
           }
+          return;
+        }
+
+        const fuelCapCheckBtn = e.target.closest('[data-pre-fuel-cap-check]');
+        if (fuelCapCheckBtn) {
+          const nextCapOn = !fuelCapCheckBtn.classList.contains('is-checked');
+          fuelCapCheckBtn.classList.toggle('is-checked', nextCapOn);
+          savePreRaceChecklistPageInput(
+            { fuelLoad: nextCapOn },
+            nextCapOn
+              ? 'Fuel cap on & secured ✓ — Fuel check complete'
+              : 'Fuel cap unchecked — Fuel check pending',
+            null,
+            { fuelCapOn: nextCapOn }
+          );
           return;
         }
 
@@ -27644,7 +27834,18 @@
           const key = checkBtn.getAttribute('data-prerace-check');
           const nextChecked = !checkBtn.classList.contains('is-checked');
           checkBtn.classList.toggle('is-checked', nextChecked);
-          savePreRaceChecklistPageInput({ [key]: nextChecked });
+          if (key === 'fuelLoad') {
+            const capBtn = $('btnPreFuelCapOnCheck');
+            if (capBtn) capBtn.classList.toggle('is-checked', nextChecked);
+            savePreRaceChecklistPageInput(
+              { fuelLoad: nextChecked },
+              nextChecked ? 'Fuel Load & Cap On Checked ✓' : 'Fuel Load & Cap Unchecked',
+              null,
+              { fuelCapOn: nextChecked }
+            );
+          } else {
+            savePreRaceChecklistPageInput({ [key]: nextChecked });
+          }
           return;
         }
       });
