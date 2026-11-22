@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest-mech.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.0.7" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.8" />
 </head>
 <body class="crew-page-body">
   <!-- Sticky 3D Brushed-Metal AgerPro Header -->
@@ -183,13 +183,80 @@
               <h2 class="section-title">Pre-Race Check</h2>
             </div>
             <div class="crew-checklist-quick-actions">
-              <span class="fleet-acc-status-pill amber mono" id="preRaceProgressBadge">0 / 6 CHECKED</span>
+              <span class="fleet-acc-status-pill amber mono" id="preRaceProgressBadge">0 / 9 CHECKED</span>
               <button type="button" class="btn btn-secondary crew-touch-mini-btn" id="btnPreRaceCheckAll">
                 Check All
               </button>
               <button type="button" class="btn btn-secondary crew-touch-mini-btn" id="btnPreRaceResetAll">
                 Reset
               </button>
+            </div>
+          </div>
+
+          <!-- Pre-Session Tyre Pressure Action Confirmation (Added | Bled / Taken | Left As Is) -->
+          <div class="card-elevated crew-tyre-action-card" id="mechPreRaceTyreActionCard">
+            <div class="crew-tyre-action-head">
+              <div>
+                <div class="section-eyebrow" style="color: #6ee7b7; margin-bottom: 2px;">PRE-SESSION TYRE PRESSURE ACTION</div>
+                <div class="crew-tyre-action-title">Confirm Tyre Pressure Adjustment (FL / FR / RL / RR)</div>
+              </div>
+              <div class="crew-tyre-action-helpers">
+                <button type="button" class="btn btn-secondary btn-xs crew-tyre-helper-btn" id="btnPreTyreAllLeftAsIs" data-pre-tyre-all="Left As Is">
+                  All Left As Is
+                </button>
+                <button type="button" class="btn btn-secondary btn-xs crew-tyre-helper-btn" id="btnPreTyreAllBled" data-pre-tyre-all="Bled / Taken">
+                  All Bled
+                </button>
+                <button type="button" class="btn btn-secondary btn-xs crew-tyre-helper-btn" id="btnPreTyreAllAdded" data-pre-tyre-all="Added">
+                  All Added
+                </button>
+              </div>
+            </div>
+
+            <div class="crew-tyre-action-summary-line mono" id="preRaceTyreActionSummaryBadge">
+              TYRE ACTION: Left As Is (FL, FR, RL, RR)
+            </div>
+
+            <div class="crew-tyre-action-corners-grid">
+              <!-- FL -->
+              <div class="crew-tyre-action-corner" data-tyre-action-corner="FL">
+                <span class="crew-tyre-action-corner-label">FL &bull; FRONT LEFT</span>
+                <div class="seg-toggle crew-tyre-action-seg" role="group" aria-label="FL Pre-Session Tyre Pressure Action">
+                  <button type="button" class="seg-btn" data-pre-tyre-corner="FL" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
+                  <button type="button" class="seg-btn" data-pre-tyre-corner="FL" data-pre-tyre-action="Bled / Taken" aria-pressed="false">Bled / Taken</button>
+                  <button type="button" class="seg-btn active" data-pre-tyre-corner="FL" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
+                </div>
+              </div>
+
+              <!-- FR -->
+              <div class="crew-tyre-action-corner" data-tyre-action-corner="FR">
+                <span class="crew-tyre-action-corner-label">FR &bull; FRONT RIGHT</span>
+                <div class="seg-toggle crew-tyre-action-seg" role="group" aria-label="FR Pre-Session Tyre Pressure Action">
+                  <button type="button" class="seg-btn" data-pre-tyre-corner="FR" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
+                  <button type="button" class="seg-btn" data-pre-tyre-corner="FR" data-pre-tyre-action="Bled / Taken" aria-pressed="false">Bled / Taken</button>
+                  <button type="button" class="seg-btn active" data-pre-tyre-corner="FR" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
+                </div>
+              </div>
+
+              <!-- RL -->
+              <div class="crew-tyre-action-corner" data-tyre-action-corner="RL">
+                <span class="crew-tyre-action-corner-label">RL &bull; REAR LEFT</span>
+                <div class="seg-toggle crew-tyre-action-seg" role="group" aria-label="RL Pre-Session Tyre Pressure Action">
+                  <button type="button" class="seg-btn" data-pre-tyre-corner="RL" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
+                  <button type="button" class="seg-btn" data-pre-tyre-corner="RL" data-pre-tyre-action="Bled / Taken" aria-pressed="false">Bled / Taken</button>
+                  <button type="button" class="seg-btn active" data-pre-tyre-corner="RL" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
+                </div>
+              </div>
+
+              <!-- RR -->
+              <div class="crew-tyre-action-corner" data-tyre-action-corner="RR">
+                <span class="crew-tyre-action-corner-label">RR &bull; REAR RIGHT</span>
+                <div class="seg-toggle crew-tyre-action-seg" role="group" aria-label="RR Pre-Session Tyre Pressure Action">
+                  <button type="button" class="seg-btn" data-pre-tyre-corner="RR" data-pre-tyre-action="Added" aria-pressed="false">Added</button>
+                  <button type="button" class="seg-btn" data-pre-tyre-corner="RR" data-pre-tyre-action="Bled / Taken" aria-pressed="false">Bled / Taken</button>
+                  <button type="button" class="seg-btn active" data-pre-tyre-corner="RR" data-pre-tyre-action="Left As Is" aria-pressed="true">Left As Is</button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -274,6 +341,48 @@
               <span class="crew-check-copy">
                 <span class="crew-check-title">6. Safety Pins, Fasteners &amp; Mirrors Checked</span>
                 <span class="crew-check-sub">Bonnet/boot pins secured, body fasteners, battery isolator, harness &amp; mirrors checked</span>
+              </span>
+              <span class="crew-check-status mono">PENDING</span>
+            </button>
+
+            <button
+              type="button"
+              class="crew-check-row"
+              data-prerace-check="cleanCarInside"
+              aria-pressed="false"
+            >
+              <span class="crew-check-box" aria-hidden="true">&#10003;</span>
+              <span class="crew-check-copy">
+                <span class="crew-check-title">7. Clean car inside</span>
+                <span class="crew-check-sub">Cabin floor, footwell, pedals, seat &amp; dash cleared of stones, debris &amp; loose items</span>
+              </span>
+              <span class="crew-check-status mono">PENDING</span>
+            </button>
+
+            <button
+              type="button"
+              class="crew-check-row"
+              data-prerace-check="cleanCarOutside"
+              aria-pressed="false"
+            >
+              <span class="crew-check-box" aria-hidden="true">&#10003;</span>
+              <span class="crew-check-copy">
+                <span class="crew-check-title">8. Clean car outside</span>
+                <span class="crew-check-sub">Bodywork, race numbers, grille &amp; guards wiped down &amp; free of rubber/oil</span>
+              </span>
+              <span class="crew-check-status mono">PENDING</span>
+            </button>
+
+            <button
+              type="button"
+              class="crew-check-row"
+              data-prerace-check="cleanGlass"
+              aria-pressed="false"
+            >
+              <span class="crew-check-box" aria-hidden="true">&#10003;</span>
+              <span class="crew-check-copy">
+                <span class="crew-check-title">9. Clean glass</span>
+                <span class="crew-check-sub">Windscreen inside &amp; out, rear screen, side glass &amp; mirrors cleaned for clear vision</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>

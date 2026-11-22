@@ -243,6 +243,68 @@
           </button>
         </div>
       </div>
+
+      <!-- PRE-SESSION READINESS PANEL: Crew Pre-Race Checklist + Tyre Action + Driver / Operator Checklist -->
+      <div id="preSessionReadinessPanel" class="pre-session-readiness-panel" style="display: none;" role="region" aria-label="Pre-Session Crew &amp; Driver Readiness">
+        <div class="pre-session-readiness-head">
+          <div class="pre-session-readiness-title-group">
+            <span class="section-eyebrow" style="color: #6ee7b7; margin: 0;">PRE-SESSION READINESS &amp; GRID CHECKS</span>
+            <span class="pre-session-readiness-target mono" id="preSessionReadinessSessionLabel">PRACTICE 1</span>
+          </div>
+          <div class="pre-session-readiness-badges">
+            <span class="fleet-acc-status-pill amber mono" id="mainCrewPreRaceStatusBadge">CREW: 0 / 9 DONE</span>
+            <span class="fleet-acc-status-pill amber mono" id="mainDriverPreSessionStatusBadge">DRIVER: 0 / 3 DONE</span>
+          </div>
+        </div>
+
+        <div class="pre-session-readiness-grid">
+          <!-- Left / Top Block: Crew Pre-Race Checklist & Tyre Action Confirmation -->
+          <div class="pre-session-crew-box">
+            <div class="pre-session-subhead-row">
+              <span class="pre-session-subhead-title">&#128295; Crew Pre-Race Check Status</span>
+              <span class="pre-session-tyre-action-pill mono" id="mainPreRaceTyreActionBadge">TYRE ACTION: Left As Is (All 4)</span>
+            </div>
+            <div class="pre-session-crew-split-lists">
+              <div class="pre-session-crew-list-col">
+                <span class="pre-session-list-label done" id="mainCrewDoneHeader">&#9989; Completed (0)</span>
+                <div class="pre-session-pill-wrap" id="mainCrewDoneList"></div>
+              </div>
+              <div class="pre-session-crew-list-col">
+                <span class="pre-session-list-label pending" id="mainCrewPendingHeader">&#9203; Not Done (9)</span>
+                <div class="pre-session-pill-wrap" id="mainCrewPendingList"></div>
+              </div>
+            </div>
+            <div class="pre-session-crew-notes mono" id="mainCrewSignOffNotesLine" style="display: none;"></div>
+          </div>
+
+          <!-- Right / Bottom Block: Driver / Operator Pre-Session Checklist (Camera, Drink Bottle, Timer in place) -->
+          <div class="pre-session-driver-box">
+            <div class="pre-session-subhead-row">
+              <span class="pre-session-subhead-title">&#127937; Driver / Operator Pre-Session Check</span>
+              <span class="field-hint emerald">Tap to Toggle</span>
+            </div>
+            <div class="pre-session-driver-checks-row" id="mainDriverPreSessionChecklistWrap">
+              <label class="driver-pre-check-chip" data-driver-precheck-chip="camera">
+                <input type="checkbox" class="driver-pre-check-input" data-driver-precheck="camera" id="chkDriverPre_camera" />
+                <span class="driver-pre-check-box" aria-hidden="true">&#10003;</span>
+                <span class="driver-pre-check-label">Camera</span>
+              </label>
+
+              <label class="driver-pre-check-chip" data-driver-precheck-chip="drinkBottle">
+                <input type="checkbox" class="driver-pre-check-input" data-driver-precheck="drinkBottle" id="chkDriverPre_drinkBottle" />
+                <span class="driver-pre-check-box" aria-hidden="true">&#10003;</span>
+                <span class="driver-pre-check-label">Drink Bottle</span>
+              </label>
+
+              <label class="driver-pre-check-chip" data-driver-precheck-chip="timerInPlace">
+                <input type="checkbox" class="driver-pre-check-input" data-driver-precheck="timerInPlace" id="chkDriverPre_timerInPlace" />
+                <span class="driver-pre-check-box" aria-hidden="true">&#10003;</span>
+                <span class="driver-pre-check-label">Timer in place</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- =========================================================
