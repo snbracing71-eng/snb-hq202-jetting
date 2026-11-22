@@ -8453,6 +8453,14 @@ button:disabled.btn-stage-locked,
   gap: 6px;
 }
 
+.crew-fuel-mode-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .crew-fuel-action-seg {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -8463,6 +8471,17 @@ button:disabled.btn-stage-locked,
   min-height: 42px;
   font-size: 0.84rem;
   font-weight: 900;
+}
+
+.crew-fuel-action-seg .seg-btn.is-disabled-fuel-opt,
+.crew-fuel-action-seg .seg-btn:disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+  background: rgba(15, 23, 42, 0.45) !important;
+  border-color: rgba(71, 85, 105, 0.4) !important;
+  color: #64748B !important;
+  text-decoration: line-through;
 }
 
 .crew-fuel-conditional-grid {
@@ -8477,6 +8496,85 @@ button:disabled.btn-stage-locked,
   .crew-fuel-conditional-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* High-Contrast 3D Next Session Refill Callout Box */
+.crew-next-fuel-pour-box {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #132232 0%, #0A121C 100%);
+  border: 2px solid #10B981;
+  border-top-color: #6EE7B7;
+  box-shadow:
+    0 5px 14px rgba(0, 0, 0, 0.65),
+    0 0 14px rgba(16, 185, 129, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.crew-next-fuel-pour-box.is-over-tank {
+  border-color: #EF4444;
+  border-top-color: #FCA5A5;
+  background: linear-gradient(180deg, rgba(127, 29, 29, 0.45) 0%, #0D1118 100%);
+  box-shadow:
+    0 5px 14px rgba(0, 0, 0, 0.65),
+    0 0 16px rgba(239, 68, 68, 0.35);
+}
+
+.crew-next-fuel-pour-eyebrow {
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #A7F3D0;
+  text-transform: uppercase;
+}
+
+.crew-next-fuel-pour-val {
+  font-size: 2.35rem;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 10px rgba(16, 185, 129, 0.35);
+}
+
+.crew-next-fuel-pour-sub {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #CBD5E1;
+  line-height: 1.35;
+}
+
+.crew-next-fuel-pour-warn {
+  margin-top: 4px;
+  padding: 5px 10px;
+  border-radius: 7px;
+  background: rgba(239, 68, 68, 0.22);
+  border: 1px solid #F87171;
+  color: #FECACA;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.crew-fuel-confirm-pour-card {
+  min-height: 64px;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, #1E293B 0%, #111827 100%);
+  border: 2px solid #F59E0B;
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.crew-fuel-confirm-pour-card.is-checked {
+  border-color: #10B981;
+  background: linear-gradient(180deg, rgba(6, 95, 70, 0.55) 0%, rgba(6, 78, 59, 0.35) 100%);
+  box-shadow:
+    0 0 14px rgba(16, 185, 129, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .crew-mark-complete-btn {

@@ -10456,18 +10456,84 @@
   }
 
   function normalizePreRaceFuelActionValue(val) {
-    const s = String(val || '').trim().toLowerCase();
-    if (s === 'added' || s === 'add') return 'Added';
-    if (s === 'pumped out' || s === 'pumped' || s === 'bled' || s === 'out') return 'Pumped Out';
-    return 'Left As Is';
+    return 'Pumped Out';
   }
 
-  function normalizePreRaceFuelAdjustment(raw) {
+  function computeSessionRefillCalculation(venueOpt, lapsOpt, sessionOpt = null) {
+    const ch = state && state.chassis ? state.chassis : {};
+    const liveEvt = resolveActiveUnlockedEvent();
+    const venue = normalizeVenueName(
+      venueOpt ||
+        (sessionOpt && sessionOpt.venue) ||
+        (liveEvt && liveEvt.venue) ||
+        (state && state.baseline && state.baseline.venue) ||
+        'Calder Park Raceway'
+    );
+    const prof = ensureTrackProfile(venue);
+    const fuelStats = getTrackLearnedFuelStats(venue);
+    const trackBurnLPerLap = Math.max(
+      0.2,
+      Number(
+        (fuelStats && fuelStats.learned && fuelStats.avg) ||
+          (prof && prof.burnLPerLap) ||
+          (fuelStats && fuelStats.avg) ||
+          1.30
+      )
+    );
+    const nextSessionLaps = Math.max(
+      1,
+      Math.round(
+        Number(
+          lapsOpt ||
+            (sessionOpt && sessionOpt.racedLaps) ||
+            ch.raceLaps ||
+            12
+        )
+      )
+    );
+    const surgeFloorL = Math.max(0, Number(ch.fuelFloorL ?? 12.0));
+    const activeFuelSg = Math.max(
+      0.65,
+      Number((sessionOpt && sessionOpt.fuelSg) || (state && state.baseline && state.baseline.fuelSg) || 0.740)
+    );
+    const TARGET_POST_RACE_KG = 1370.0;
+    const scaleCheckKg = Number(ch.scaleCheckKg ?? 1377.0);
+    const scaleCheckFuelL = Math.max(0, Number(ch.scaleCheckFuelL ?? 27.0));
+    const hasValidScales = Number.isFinite(scaleCheckKg) && scaleCheckKg > 500;
+
+    let extraScaleBufferL = 0.0;
+    if (hasValidScales) {
+      const dryCarDriverKg = scaleCheckKg - scaleCheckFuelL * activeFuelSg;
+      const postRaceKgAtSurgeFloor = dryCarDriverKg + surgeFloorL * activeFuelSg;
+      const shortfallTo1370Kg = Math.max(0, TARGET_POST_RACE_KG - postRaceKgAtSurgeFloor);
+      extraScaleBufferL =
+        shortfallTo1370Kg > 0 ? Math.ceil((shortfallTo1370Kg / activeFuelSg) * 10) / 10 : 0.0;
+    }
+
+    const expectedBurnL = nextSessionLaps * trackBurnLPerLap;
+    const litresToPourL = Number((expectedBurnL + surgeFloorL + extraScaleBufferL).toFixed(1));
+    const isOverTank = litresToPourL > 74.0;
+    const scaleSubPart =
+      extraScaleBufferL > 0 ? ` + ${extraScaleBufferL.toFixed(1)} L scale buffer` : '';
+    const subtext = `${nextSessionLaps} laps × ${trackBurnLPerLap.toFixed(2)} L/lap + ${surgeFloorL.toFixed(1)} L surge${scaleSubPart}`;
+
+    return {
+      venue,
+      nextSessionLaps,
+      trackBurnLPerLap: Number(trackBurnLPerLap.toFixed(2)),
+      surgeFloorL: Number(surgeFloorL.toFixed(1)),
+      extraScaleBufferL: Number(extraScaleBufferL.toFixed(1)),
+      expectedBurnL: Number(expectedBurnL.toFixed(1)),
+      litresToPourL,
+      isOverTank,
+      subtext,
+      fuelStats
+    };
+  }
+
+  function normalizePreRaceFuelAdjustment(raw, sessionOpt = null) {
     const src = raw && typeof raw === 'object' ? raw : {};
-    const action =
-      typeof raw === 'string'
-        ? normalizePreRaceFuelActionValue(raw)
-        : normalizePreRaceFuelActionValue(src.action || src.mode);
+    const action = 'Pumped Out';
 
     const parseOptLitres = (v) =>
       v !== null &&
@@ -10478,50 +10544,64 @@
         ? Number(Number(v).toFixed(1))
         : null;
 
-    const rawDelta =
-      src.litresInL !== undefined
-        ? src.litresInL
-        : src.fuelAddedL !== undefined
-        ? src.fuelAddedL
+    const rawOut =
+      src.fuelOutL !== undefined
+        ? src.fuelOutL
+        : sessionOpt && sessionOpt.fuelOutL !== undefined
+        ? sessionOpt.fuelOutL
         : src.deltaL !== undefined
         ? src.deltaL
         : src.litresDeltaL;
-    const setToL = action === 'Left As Is' ? null : parseOptLitres(src.setToL !== undefined ? src.setToL : src.tankTotalL);
-    const deltaL = action === 'Left As Is' ? null : parseOptLitres(rawDelta);
-    const litresInL = deltaL;
-    const fuelAddedL = action === 'Added' ? (deltaL !== null ? deltaL : setToL) : null;
-    const fuelCapOn = Boolean(src.fuelCapOn);
+    const fuelOutL = parseOptLitres(rawOut);
+
+    const rawRefill =
+      src.litresToPourL !== undefined
+        ? src.litresToPourL
+        : src.setToL !== undefined
+        ? src.setToL
+        : src.litresInL !== undefined
+        ? src.litresInL
+        : src.fuelAddedL !== undefined
+        ? src.fuelAddedL
+        : sessionOpt && sessionOpt.litresToPourL !== undefined
+        ? sessionOpt.litresToPourL
+        : sessionOpt && sessionOpt.fuelInL !== undefined
+        ? sessionOpt.fuelInL
+        : null;
+    const litresToPourL = parseOptLitres(rawRefill);
+
+    const preRaceFuelConfirmed = Boolean(
+      src.preRaceFuelConfirmed !== undefined
+        ? src.preRaceFuelConfirmed
+        : src.fuelCapOn !== undefined
+        ? src.fuelCapOn
+        : sessionOpt && (sessionOpt.preRaceFuelConfirmed || sessionOpt.fuelCapOn)
+    );
+    const fuelCapOn = preRaceFuelConfirmed || Boolean(src.fuelCapOn);
     const updatedAt = typeof src.updatedAt === 'string' ? src.updatedAt.trim() : '';
 
-    let summary = 'Fuel: Left As Is';
-    if (action !== 'Left As Is') {
-      const parts = [];
-      if (deltaL !== null) {
-        parts.push(
-          action === 'Added'
-            ? `${deltaL.toFixed(1)} L In`
-            : `${deltaL.toFixed(1)} L Out`
-        );
-      }
-      if (setToL !== null) {
-        parts.push(`-> ${setToL.toFixed(1)} L Total`);
-      }
-      summary = `Fuel ${action}${parts.length > 0 ? `: ${parts.join(' ')}` : ''}`;
-    }
-
-    const capSummary = fuelCapOn ? 'Cap On ✓' : 'Cap PENDING';
+    const outPart = fuelOutL !== null ? `Fuel Out: ${fuelOutL.toFixed(1)} L` : 'Fuel Out: — L';
+    const refillValStr = litresToPourL !== null ? `${litresToPourL.toFixed(1)} L` : '— L';
+    const confirmPart = preRaceFuelConfirmed
+      ? `Refill Confirmed: ${refillValStr} • Cap On ✓`
+      : `Refill Target: ${refillValStr} • Cap PENDING`;
 
     return {
       action,
-      litresInL,
-      fuelAddedL,
-      setToL,
-      deltaL,
+      fuelOutL,
+      litresToPourL,
+      litresInL: litresToPourL,
+      fuelAddedL: litresToPourL,
+      setToL: litresToPourL,
+      deltaL: fuelOutL,
       fuelCapOn,
-      isAltered: action !== 'Left As Is',
-      summary,
-      capSummary,
-      fullSummary: `${summary} • ${capSummary}`,
+      preRaceFuelConfirmed,
+      isAltered: true,
+      outSummary: outPart,
+      confirmSummary: confirmPart,
+      summary: `${outPart} • ${confirmPart}`,
+      capSummary: confirmPart,
+      fullSummary: `${outPart} • ${confirmPart}`,
       updatedAt
     };
   }
@@ -10730,7 +10810,27 @@
         ? targetSess.preRaceTyreAction || (targetSess.preRaceChecklist && targetSess.preRaceChecklist.tyreAction)
         : null
     );
-    const fuelAdj = normalizePreRaceFuelAdjustment(targetSess ? targetSess.preRaceFuelAdjustment : null);
+    const refillCalc = computeSessionRefillCalculation(
+      liveEvt ? liveEvt.venue : null,
+      targetSess ? targetSess.racedLaps : null,
+      targetSess
+    );
+    const fuelAdj = normalizePreRaceFuelAdjustment(
+      targetSess
+        ? {
+            ...(targetSess.preRaceFuelAdjustment || {}),
+            fuelOutL:
+              targetSess.fuelOutL !== null && targetSess.fuelOutL !== undefined
+                ? targetSess.fuelOutL
+                : targetSess.preRaceFuelAdjustment && targetSess.preRaceFuelAdjustment.fuelOutL,
+            litresToPourL:
+              (targetSess.preRaceFuelAdjustment && targetSess.preRaceFuelAdjustment.litresToPourL) ||
+              targetSess.litresToPourL ||
+              refillCalc.litresToPourL
+          }
+        : { litresToPourL: refillCalc.litresToPourL },
+      targetSess
+    );
     const isCrewPreComplete = Boolean(
       (targetSess && targetSess.preRaceCompleted) || preCl.preRaceCompleted || preCl.allChecked
     );
@@ -10766,21 +10866,17 @@
 
     const fuelBadge = $('mainPreRaceFuelActionBadge');
     if (fuelBadge) {
-      fuelBadge.textContent = fuelAdj.summary;
+      fuelBadge.textContent = fuelAdj.outSummary;
       fuelBadge.className = `pre-session-tyre-action-pill mono ${
-        fuelAdj.action === 'Added'
-          ? 'is-added'
-          : fuelAdj.action === 'Pumped Out'
-          ? 'is-bled'
-          : 'is-left'
+        fuelAdj.fuelOutL !== null ? 'is-bled' : 'is-left'
       }`;
     }
 
     const fuelCapBadge = $('mainPreRaceFuelCapBadge');
     if (fuelCapBadge) {
-      fuelCapBadge.textContent = fuelAdj.fuelCapOn ? 'FUEL CAP: ON ✓' : 'FUEL CAP: PENDING';
+      fuelCapBadge.textContent = fuelAdj.confirmSummary;
       fuelCapBadge.className = `pre-session-tyre-action-pill mono ${
-        fuelAdj.fuelCapOn ? 'is-bled' : 'is-added'
+        fuelAdj.preRaceFuelConfirmed ? 'is-bled' : 'is-added'
       }`;
     }
 
@@ -11313,53 +11409,95 @@
       }
     }
 
-    // 4b. Pre-Race Fuel Adjustment ({ action, litresInL, fuelAddedL, setToL, deltaL, fuelCapOn })
-    if ('preRaceFuelAdjustment' in payload) {
-      const prevFuelAdj = normalizePreRaceFuelAdjustment(targetSess.preRaceFuelAdjustment);
-      const inFuel = payload.preRaceFuelAdjustment;
-      if (typeof inFuel === 'string') {
-        scopedPatch.preRaceFuelAdjustment = normalizePreRaceFuelAdjustment({
-          action: inFuel,
-          setToL: prevFuelAdj.setToL,
-          deltaL: prevFuelAdj.deltaL,
-          fuelCapOn: prevFuelAdj.fuelCapOn,
+    // 4b. Pre-Race Fuel Adjustment ({ action: 'Pumped Out', fuelOutL, litresToPourL, preRaceFuelConfirmed, fuelCapOn })
+    if ('preRaceFuelAdjustment' in payload || 'preRaceFuelConfirmed' in payload || 'fuelCapOn' in payload) {
+      const prevFuelAdj = normalizePreRaceFuelAdjustment(targetSess.preRaceFuelAdjustment, targetSess);
+      const inFuel =
+        payload.preRaceFuelAdjustment && typeof payload.preRaceFuelAdjustment === 'object'
+          ? payload.preRaceFuelAdjustment
+          : {};
+      const effLapsForRefill =
+        'racedLaps' in scopedPatch && scopedPatch.racedLaps !== null
+          ? scopedPatch.racedLaps
+          : targetSess.racedLaps;
+      const refillSnap = computeSessionRefillCalculation(targetSess.venue, effLapsForRefill, targetSess);
+
+      const effOutL =
+        'fuelOutL' in scopedPatch
+          ? scopedPatch.fuelOutL
+          : 'fuelOutL' in inFuel
+          ? inFuel.fuelOutL
+          : 'deltaL' in inFuel
+          ? inFuel.deltaL
+          : prevFuelAdj.fuelOutL;
+
+      const effPourL =
+        'litresToPourL' in payload && payload.litresToPourL !== null
+          ? Number(Number(payload.litresToPourL).toFixed(1))
+          : 'litresToPourL' in inFuel && inFuel.litresToPourL !== null
+          ? Number(Number(inFuel.litresToPourL).toFixed(1))
+          : 'setToL' in inFuel && inFuel.setToL !== null
+          ? Number(Number(inFuel.setToL).toFixed(1))
+          : refillSnap.litresToPourL;
+
+      const effConfirmed =
+        'preRaceFuelConfirmed' in payload
+          ? Boolean(payload.preRaceFuelConfirmed)
+          : 'preRaceFuelConfirmed' in inFuel
+          ? Boolean(inFuel.preRaceFuelConfirmed)
+          : 'fuelCapOn' in payload
+          ? Boolean(payload.fuelCapOn)
+          : 'fuelCapOn' in inFuel
+          ? Boolean(inFuel.fuelCapOn)
+          : prevFuelAdj.preRaceFuelConfirmed;
+
+      scopedPatch.preRaceFuelAdjustment = normalizePreRaceFuelAdjustment(
+        {
+          action: 'Pumped Out',
+          fuelOutL: effOutL,
+          litresToPourL: effPourL,
+          preRaceFuelConfirmed: effConfirmed,
+          fuelCapOn: effConfirmed,
           updatedAt: mechanicUpdatedAt
-        });
-      } else if (inFuel && typeof inFuel === 'object') {
-        scopedPatch.preRaceFuelAdjustment = normalizePreRaceFuelAdjustment({
-          action: 'action' in inFuel ? inFuel.action : prevFuelAdj.action,
-          setToL: 'setToL' in inFuel ? inFuel.setToL : prevFuelAdj.setToL,
-          deltaL:
-            'litresInL' in inFuel
-              ? inFuel.litresInL
-              : 'fuelAddedL' in inFuel
-              ? inFuel.fuelAddedL
-              : 'deltaL' in inFuel
-              ? inFuel.deltaL
-              : prevFuelAdj.deltaL,
-          fuelCapOn: 'fuelCapOn' in inFuel ? Boolean(inFuel.fuelCapOn) : prevFuelAdj.fuelCapOn,
-          updatedAt: mechanicUpdatedAt
-        });
+        },
+        targetSess
+      );
+
+      scopedPatch.litresToPourL = effPourL;
+      scopedPatch.preRaceFuelConfirmed = effConfirmed;
+      scopedPatch.fuelCapOn = effConfirmed;
+
+      if (effOutL !== null && !('fuelOutL' in scopedPatch)) {
+        scopedPatch.fuelOutL = effOutL;
       }
-      if (scopedPatch.preRaceFuelAdjustment) {
-        if (scopedPatch.preRaceFuelAdjustment.fuelAddedL !== null) {
-          scopedPatch.fuelAddedL = scopedPatch.preRaceFuelAdjustment.fuelAddedL;
-        }
-        scopedPatch.fuelCapOn = scopedPatch.preRaceFuelAdjustment.fuelCapOn;
-        if (
-          scopedPatch.preRaceFuelAdjustment.isAltered &&
-          !('fuelInL' in payload)
-        ) {
-          const effInL =
-            scopedPatch.preRaceFuelAdjustment.setToL !== null
-              ? scopedPatch.preRaceFuelAdjustment.setToL
-              : scopedPatch.preRaceFuelAdjustment.action === 'Added' &&
-                scopedPatch.preRaceFuelAdjustment.litresInL !== null
-              ? scopedPatch.preRaceFuelAdjustment.litresInL
-              : null;
-          if (effInL !== null) {
-            scopedPatch.fuelInL = effInL;
-          }
+      if (effConfirmed && effPourL !== null && !('fuelInL' in payload)) {
+        scopedPatch.fuelInL = effPourL;
+        scopedPatch.fuelAddedL = effPourL;
+      }
+    }
+
+    // Recompute fuelUsedL and measuredBurnLPerLap & update circuit track profile burnLPerLap if valid
+    if ('fuelInL' in scopedPatch || 'fuelOutL' in scopedPatch || 'racedLaps' in scopedPatch) {
+      const priorFillL =
+        Number.isFinite(Number(targetSess.fuelInL)) && Number(targetSess.fuelInL) > 0
+          ? Number(targetSess.fuelInL)
+          : Number.isFinite(Number(targetSess.litresToPourL)) && Number(targetSess.litresToPourL) > 0
+          ? Number(targetSess.litresToPourL)
+          : 'fuelInL' in scopedPatch
+          ? scopedPatch.fuelInL
+          : null;
+      const effOut = 'fuelOutL' in scopedPatch ? scopedPatch.fuelOutL : targetSess.fuelOutL;
+      const effLaps = 'racedLaps' in scopedPatch ? scopedPatch.racedLaps : targetSess.racedLaps;
+      if (
+        priorFillL !== null &&
+        effOut !== null &&
+        Number.isFinite(Number(priorFillL)) &&
+        Number.isFinite(Number(effOut)) &&
+        Number(priorFillL) > Number(effOut)
+      ) {
+        scopedPatch.fuelUsedL = Number((Number(priorFillL) - Number(effOut)).toFixed(2));
+        if (effLaps !== null && Number.isFinite(Number(effLaps)) && Number(effLaps) > 0) {
+          scopedPatch.measuredBurnLPerLap = Number((scopedPatch.fuelUsedL / Number(effLaps)).toFixed(2));
         }
       }
     }
@@ -11379,7 +11517,7 @@
       scopedPatch.preRaceCompletedAt = targetSess.preRaceCompletedAt || mechanicUpdatedAt;
     }
 
-    // 5. Pre-Race Checklist (Fuel Load task requires fuelCapOn to be checked)
+    // 5. Pre-Race Checklist (Task 4 Fuel Load marks CHECKED only once Confirm [XX.X] L Put In & Fuel Cap Secured is ticked)
     if ('preRaceChecklist' in payload) {
       const prevCl = normalizePreRaceChecklist(targetSess.preRaceChecklist);
       const inCl =
@@ -17094,7 +17232,21 @@
       s.preRaceTyreAdjustments,
       s.preRaceTyreAction || (s.preRaceChecklist && s.preRaceChecklist.tyreAction)
     );
-    const fuelAdj = normalizePreRaceFuelAdjustment(s.preRaceFuelAdjustment);
+    const refillCalc = computeSessionRefillCalculation(s.venue, s.racedLaps, s);
+    const fuelAdj = normalizePreRaceFuelAdjustment(
+      {
+        ...(s.preRaceFuelAdjustment || {}),
+        fuelOutL:
+          s.fuelOutL !== null && s.fuelOutL !== undefined
+            ? s.fuelOutL
+            : s.preRaceFuelAdjustment && s.preRaceFuelAdjustment.fuelOutL,
+        litresToPourL:
+          (s.preRaceFuelAdjustment && s.preRaceFuelAdjustment.litresToPourL) ||
+          s.litresToPourL ||
+          refillCalc.litresToPourL
+      },
+      s
+    );
     const isCrewPreComplete = Boolean(s.preRaceCompleted || preCl.preRaceCompleted || preCl.allChecked);
     const crewCompletedAt = s.preRaceCompletedAt || preCl.preRaceCompletedAt || preCl.updatedAt || '';
     const drvCl = normalizeDriverPreSessionChecklist(s.driverPreSessionChecklist);
@@ -17126,14 +17278,9 @@
     const hasBled = ['FL', 'FR', 'RL', 'RR'].some((c) => tyreAdj[c].action === 'Bled');
     const hasAdded = ['FL', 'FR', 'RL', 'RR'].some((c) => tyreAdj[c].action === 'Added');
     const tyreClass = hasBled ? 'is-bled' : hasAdded ? 'is-added' : 'is-left';
-    const fuelClass =
-      fuelAdj.action === 'Added'
-        ? 'is-added'
-        : fuelAdj.action === 'Pumped Out'
-        ? 'is-bled'
-        : 'is-left';
-    const capClass = fuelAdj.fuelCapOn ? 'is-bled' : 'is-added';
-    const capBadgeText = fuelAdj.fuelCapOn ? 'FUEL CAP: ON ✓' : 'FUEL CAP: PENDING';
+    const fuelClass = fuelAdj.fuelOutL !== null ? 'is-bled' : 'is-left';
+    const capClass = fuelAdj.preRaceFuelConfirmed ? 'is-bled' : 'is-added';
+    const capBadgeText = fuelAdj.confirmSummary;
 
     const driverChecksHtml = drvDefs
       .map(({ key, label, sub }) => {
@@ -17181,7 +17328,7 @@
           <span>PRE-SESSION READINESS &bull; ${escapeHtml(crewHeadText)} &amp; DRIVER (${drvCl.completedCount}/${drvCl.totalCount})</span>
           <div class="pre-session-adjustments-badges">
             <span class="pre-session-tyre-action-pill mono ${tyreClass}">TYRES: ${escapeHtml(tyreAdj.summary)}</span>
-            <span class="pre-session-tyre-action-pill mono ${fuelClass}">${escapeHtml(fuelAdj.summary)}</span>
+            <span class="pre-session-tyre-action-pill mono ${fuelClass}">${escapeHtml(fuelAdj.outSummary)}</span>
             <span class="pre-session-tyre-action-pill mono ${capClass}">${escapeHtml(capBadgeText)}</span>
           </div>
         </div>
@@ -24652,7 +24799,34 @@
         ? selectedSess.preRaceTyreAction || (selectedSess.preRaceChecklist && selectedSess.preRaceChecklist.tyreAction)
         : null
     );
-    const fuelAdj = normalizePreRaceFuelAdjustment(selectedSess ? selectedSess.preRaceFuelAdjustment : null);
+    const sessionDispName = selectedSess
+      ? selectedSess.sessionName
+      : ui.selectedCrewSessionId && String(ui.selectedCrewSessionId).startsWith('__NEW_SESS__:')
+      ? String(ui.selectedCrewSessionId).slice('__NEW_SESS__:'.length).trim()
+      : 'Practice 1';
+    const rawLapsInp = $('mechNextSessionLaps') ? $('mechNextSessionLaps').value.trim() : '';
+    const activeLapsInputVal =
+      $('mechNextSessionLaps') && document.activeElement === $('mechNextSessionLaps') && rawLapsInp !== '' && Number.isFinite(Number(rawLapsInp))
+        ? Math.max(1, Math.round(Number(rawLapsInp)))
+        : null;
+    const refillCalc = computeSessionRefillCalculation(
+      venueName,
+      activeLapsInputVal || (selectedSess && selectedSess.racedLaps) || (state.chassis && state.chassis.raceLaps) || 12,
+      selectedSess
+    );
+    const fuelAdj = normalizePreRaceFuelAdjustment(
+      selectedSess
+        ? {
+            ...(selectedSess.preRaceFuelAdjustment || {}),
+            fuelOutL:
+              selectedSess.fuelOutL !== null && selectedSess.fuelOutL !== undefined
+                ? selectedSess.fuelOutL
+                : selectedSess.preRaceFuelAdjustment && selectedSess.preRaceFuelAdjustment.fuelOutL,
+            litresToPourL: refillCalc.litresToPourL
+          }
+        : { litresToPourL: refillCalc.litresToPourL },
+      selectedSess
+    );
     const isPreCompleted = Boolean(
       (selectedSess && selectedSess.preRaceCompleted) || preCl.preRaceCompleted || preCl.allChecked
     );
@@ -24700,55 +24874,71 @@
       tyreActSummaryBadge.textContent = `Tyres: ${tyreAdj.summary}`;
     }
 
-    // Hydrate Task Card B: Fuel Load 3-way pill selector (Left As Is | Added | Pumped Out) + conditional Litres In (L) + Fuel Cap On check
-    document.querySelectorAll('[data-pre-fuel-action]').forEach((btn) => {
-      const val = normalizePreRaceFuelActionValue(btn.getAttribute('data-pre-fuel-action'));
-      const isMatch = val === fuelAdj.action;
-      btn.classList.toggle('active', isMatch);
-      btn.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
-    });
-    const fuelCondWrap = $('preFuelConditionalWrap');
-    if (fuelCondWrap) {
-      fuelCondWrap.style.display = fuelAdj.isAltered ? 'grid' : 'none';
-    }
-    const fuelDeltaLbl = $('preFuelDeltaLabel');
-    if (fuelDeltaLbl) {
-      fuelDeltaLbl.textContent =
-        fuelAdj.action === 'Pumped Out'
-          ? 'Litres Pumped Out (L)'
-          : 'Litres In (L)';
-    }
-    const setToFuelInp = $('preFuelSetToL');
-    if (setToFuelInp) {
-      if (!fuelAdj.isAltered) {
-        setToFuelInp.value = '';
-      } else if (document.activeElement !== setToFuelInp) {
-        setToFuelInp.value =
-          fuelAdj.setToL !== null && Number.isFinite(Number(fuelAdj.setToL))
-            ? Number(fuelAdj.setToL).toFixed(1)
-            : '';
-      }
-    }
-    const deltaFuelInp = $('preFuelDeltaL');
-    if (deltaFuelInp) {
-      if (!fuelAdj.isAltered) {
-        deltaFuelInp.value = '';
-      } else if (document.activeElement !== deltaFuelInp) {
-        deltaFuelInp.value =
-          fuelAdj.deltaL !== null && Number.isFinite(Number(fuelAdj.deltaL))
-            ? Number(fuelAdj.deltaL).toFixed(1)
-            : '';
-      }
+    // Hydrate Task Card B: Pumped-Out Mode + Litres Pumped Out (L) + Next-Session Refill Callout Box + Confirm Card
+    if ($('mechCircuitBurnAvgBadge')) {
+      const avgSrc = refillCalc.fuelStats && refillCalc.fuelStats.learned
+        ? `TRACK AVG (${refillCalc.fuelStats.count} RUN${refillCalc.fuelStats.count === 1 ? '' : 'S'})`
+        : 'TRACK SEED';
+      $('mechCircuitBurnAvgBadge').textContent = `${avgSrc}: ${refillCalc.trackBurnLPerLap.toFixed(2)} L/LAP`;
     }
 
-    const fuelCapBtn = $('btnPreFuelCapOnCheck');
+    if ($('mechFuelOutL') && document.activeElement !== $('mechFuelOutL')) {
+      $('mechFuelOutL').value =
+        fuelAdj.fuelOutL !== null && Number.isFinite(Number(fuelAdj.fuelOutL))
+          ? Number(fuelAdj.fuelOutL).toFixed(1)
+          : '';
+    }
+    if ($('mechNextSessionLaps') && document.activeElement !== $('mechNextSessionLaps')) {
+      $('mechNextSessionLaps').value = String(refillCalc.nextSessionLaps);
+    }
+
+    const pourBoxEl = $('mechNextFuelPourBox');
+    const pourLabelEl = $('mechNextFuelPourLabel');
+    const pourValEl = $('mechNextFuelPourValue');
+    const pourSubEl = $('mechNextFuelPourSub');
+    const pourWarnEl = $('mechNextFuelPourWarn');
+    if (pourBoxEl) {
+      pourBoxEl.classList.toggle('is-over-tank', refillCalc.isOverTank);
+    }
+    if (pourLabelEl) {
+      pourLabelEl.textContent = `FUEL TO PUT BACK IN FOR ${String(sessionDispName).toUpperCase()} (${refillCalc.nextSessionLaps} LAPS)`;
+    }
+    if (pourValEl) {
+      pourValEl.textContent = `${refillCalc.litresToPourL.toFixed(1)} L`;
+      pourValEl.className = `crew-next-fuel-pour-val tabular ${
+        refillCalc.isOverTank
+          ? 'txt-danger'
+          : refillCalc.extraScaleBufferL > 0
+          ? 'txt-amber'
+          : 'txt-emerald'
+      }`;
+    }
+    if (pourSubEl) {
+      pourSubEl.textContent = refillCalc.subtext;
+    }
+    if (pourWarnEl) {
+      pourWarnEl.style.display = refillCalc.isOverTank ? 'block' : 'none';
+    }
+
+    const confirmPourBtn = $('mechFuelPourConfirmed');
+    const confirmPourTitle = $('mechFuelPourConfirmedTitle');
+    const confirmPourSub = $('mechFuelPourConfirmedSub');
     const fuelCapStatusBadge = $('preFuelCapOnStatusBadge');
-    if (fuelCapBtn) {
-      fuelCapBtn.classList.toggle('is-checked', Boolean(fuelAdj.fuelCapOn));
-      fuelCapBtn.setAttribute('aria-pressed', fuelAdj.fuelCapOn ? 'true' : 'false');
+    const isFuelConfirmed = Boolean(fuelAdj.preRaceFuelConfirmed);
+    if (confirmPourBtn) {
+      confirmPourBtn.classList.toggle('is-checked', isFuelConfirmed);
+      confirmPourBtn.setAttribute('aria-pressed', isFuelConfirmed ? 'true' : 'false');
+    }
+    if (confirmPourTitle) {
+      confirmPourTitle.textContent = `Confirm ${refillCalc.litresToPourL.toFixed(1)} L Put In & Fuel Cap Secured`;
+    }
+    if (confirmPourSub) {
+      confirmPourSub.textContent = isFuelConfirmed
+        ? `Confirmed: ${refillCalc.litresToPourL.toFixed(1)} L Fuel In logged & Fuel Cap On ✓`
+        : `Tap to confirm ${refillCalc.litresToPourL.toFixed(1)} L poured into tank & fuel cap locked`;
     }
     if (fuelCapStatusBadge) {
-      fuelCapStatusBadge.textContent = fuelAdj.fuelCapOn ? 'CAP ON ✓' : 'PENDING';
+      fuelCapStatusBadge.textContent = isFuelConfirmed ? 'CONFIRMED ✓' : 'PENDING';
     }
 
     const fuelSummaryBadge = $('preRaceFuelActionSummaryBadge');
@@ -24759,7 +24949,7 @@
     // Hydrate checklist items & expandable task card states
     document.querySelectorAll('[data-prerace-check]').forEach((btn) => {
       const k = btn.getAttribute('data-prerace-check');
-      const checked = Boolean(preCl.items[k]);
+      const checked = k === 'fuelLoad' ? Boolean(preCl.items[k] && isFuelConfirmed) : Boolean(preCl.items[k]);
       btn.classList.toggle('is-checked', checked);
       btn.setAttribute('aria-pressed', checked ? 'true' : 'false');
       const statusEl = btn.querySelector('.crew-check-status') || $(`preRaceStatus_${k}`);
@@ -24818,17 +25008,11 @@
           ? Number(selectedSess.fuelInL).toFixed(1)
           : '';
     }
-    if ($('mechFuelOutL') && document.activeElement !== $('mechFuelOutL')) {
-      $('mechFuelOutL').value =
-        selectedSess && selectedSess.fuelOutL !== null && selectedSess.fuelOutL !== undefined && Number.isFinite(Number(selectedSess.fuelOutL))
-          ? Number(selectedSess.fuelOutL).toFixed(1)
-          : '';
-    }
     if ($('mechRacedLaps') && document.activeElement !== $('mechRacedLaps')) {
       $('mechRacedLaps').value =
         selectedSess && selectedSess.racedLaps !== null && selectedSess.racedLaps !== undefined && Number.isFinite(Number(selectedSess.racedLaps)) && Number(selectedSess.racedLaps) > 0
           ? String(Math.round(Number(selectedSess.racedLaps)))
-          : '';
+          : String(refillCalc.nextSessionLaps);
     }
     if ($('mechNotesInput') && document.activeElement !== $('mechNotesInput')) {
       $('mechNotesInput').value = (selectedSess && selectedSess.mechanicNotes) || '';
@@ -24910,55 +25094,56 @@
   }
 
   function readCrewFuelAdjustmentFromDom(customFuelPatch = null) {
-    const activeBtn = document.querySelector('[data-pre-fuel-action].active');
-    let action = activeBtn
-      ? normalizePreRaceFuelActionValue(activeBtn.getAttribute('data-pre-fuel-action'))
-      : 'Left As Is';
-    const setInp = $('preFuelSetToL');
-    const deltaInp = $('preFuelDeltaL');
-    const capBtn = $('btnPreFuelCapOnCheck');
-    const rawSet = setInp ? setInp.value.trim() : '';
-    const rawDelta = deltaInp ? deltaInp.value.trim() : '';
-    let setToL =
-      rawSet !== '' && Number.isFinite(Number(rawSet)) && Number(rawSet) >= 0
-        ? Number(Number(rawSet).toFixed(1))
-        : null;
-    let deltaL =
-      rawDelta !== '' && Number.isFinite(Number(rawDelta)) && Number(rawDelta) >= 0
-        ? Number(Number(rawDelta).toFixed(1))
-        : null;
-    let fuelCapOn = Boolean(capBtn && capBtn.classList.contains('is-checked'));
+    const liveEvt = resolveActiveUnlockedEvent();
+    const outInp = $('mechFuelOutL');
+    const lapsInp = $('mechNextSessionLaps');
+    const confirmBtn = $('mechFuelPourConfirmed');
+    const rawOut = outInp ? outInp.value.trim() : '';
+    const rawLaps = lapsInp ? lapsInp.value.trim() : '';
 
-    if (customFuelPatch) {
-      if (typeof customFuelPatch === 'string') {
-        action = normalizePreRaceFuelActionValue(customFuelPatch);
-      } else if (typeof customFuelPatch === 'object') {
-        if ('action' in customFuelPatch) {
-          action = normalizePreRaceFuelActionValue(customFuelPatch.action);
-        }
-        if ('setToL' in customFuelPatch) {
-          setToL = customFuelPatch.setToL;
-        }
-        if ('litresInL' in customFuelPatch) {
-          deltaL = customFuelPatch.litresInL;
-        } else if ('deltaL' in customFuelPatch) {
-          deltaL = customFuelPatch.deltaL;
-        }
-        if ('fuelCapOn' in customFuelPatch) {
-          fuelCapOn = Boolean(customFuelPatch.fuelCapOn);
-        }
+    let fuelOutL =
+      rawOut !== '' && Number.isFinite(Number(rawOut)) && Number(rawOut) >= 0
+        ? Number(Number(rawOut).toFixed(1))
+        : null;
+    const nextLaps =
+      rawLaps !== '' && Number.isFinite(Number(rawLaps)) && Number(rawLaps) > 0
+        ? Math.max(1, Math.round(Number(rawLaps)))
+        : (state && state.chassis && state.chassis.raceLaps) || 12;
+
+    const refillCalc = computeSessionRefillCalculation(
+      liveEvt ? liveEvt.venue : null,
+      nextLaps,
+      null
+    );
+    let litresToPourL = refillCalc.litresToPourL;
+    let preRaceFuelConfirmed = Boolean(confirmBtn && confirmBtn.classList.contains('is-checked'));
+
+    if (customFuelPatch && typeof customFuelPatch === 'object') {
+      if ('fuelOutL' in customFuelPatch) {
+        fuelOutL =
+          customFuelPatch.fuelOutL !== null &&
+          customFuelPatch.fuelOutL !== undefined &&
+          String(customFuelPatch.fuelOutL).trim() !== '' &&
+          Number.isFinite(Number(customFuelPatch.fuelOutL))
+            ? Number(Number(customFuelPatch.fuelOutL).toFixed(1))
+            : null;
+      }
+      if ('litresToPourL' in customFuelPatch && customFuelPatch.litresToPourL !== null) {
+        litresToPourL = Number(Number(customFuelPatch.litresToPourL).toFixed(1));
+      }
+      if ('preRaceFuelConfirmed' in customFuelPatch) {
+        preRaceFuelConfirmed = Boolean(customFuelPatch.preRaceFuelConfirmed);
+      } else if ('fuelCapOn' in customFuelPatch) {
+        preRaceFuelConfirmed = Boolean(customFuelPatch.fuelCapOn);
       }
     }
-    if (action === 'Left As Is') {
-      setToL = null;
-      deltaL = null;
-    }
+
     return normalizePreRaceFuelAdjustment({
-      action,
-      litresInL: deltaL,
-      setToL,
-      deltaL,
-      fuelCapOn
+      action: 'Pumped Out',
+      fuelOutL,
+      litresToPourL,
+      preRaceFuelConfirmed,
+      fuelCapOn: preRaceFuelConfirmed
     });
   }
 
@@ -24975,7 +25160,12 @@
     });
     const fuelInRaw = $('mechFuelInL') ? $('mechFuelInL').value.trim() : '';
     const fuelOutRaw = $('mechFuelOutL') ? $('mechFuelOutL').value.trim() : '';
-    const lapsRaw = $('mechRacedLaps') ? $('mechRacedLaps').value.trim() : '';
+    const lapsRaw =
+      $('mechRacedLaps') && $('mechRacedLaps').value.trim() !== ''
+        ? $('mechRacedLaps').value.trim()
+        : $('mechNextSessionLaps')
+        ? $('mechNextSessionLaps').value.trim()
+        : '';
     const mechanicNotes = $('mechNotesInput') ? $('mechNotesInput').value.trim() : '';
 
     const updated = applyMechanicInputToSession(match, {
@@ -25016,15 +25206,14 @@
     if (markCompleteOpt === true) {
       effFuelPatch = {
         ...(customFuelPatch && typeof customFuelPatch === 'object' ? customFuelPatch : {}),
+        preRaceFuelConfirmed: true,
         fuelCapOn: true
       };
     } else if (markCompleteOpt === false) {
       effFuelPatch = {
-        ...(customFuelPatch && typeof customFuelPatch === 'object'
-          ? customFuelPatch
-          : typeof customFuelPatch === 'string'
-          ? { action: customFuelPatch }
-          : {}),
+        ...(customFuelPatch && typeof customFuelPatch === 'object' ? customFuelPatch : {}),
+        fuelOutL: null,
+        preRaceFuelConfirmed: false,
         fuelCapOn: false
       };
     }
@@ -25034,13 +25223,31 @@
     const preRaceFuelAdjustment = readCrewFuelAdjustmentFromDom(effFuelPatch);
     const nowTime = formatPitDayTimeLabel(new Date());
 
-    // Dedicated rule: Fuel cap on & secured must be ticked for the fuel check to count as complete
-    if (!preRaceFuelAdjustment.fuelCapOn) {
-      items.fuelLoad = false;
+    const rawNextLaps = $('mechNextSessionLaps') ? $('mechNextSessionLaps').value.trim() : '';
+    const nextSessionLaps =
+      rawNextLaps !== '' && Number.isFinite(Number(rawNextLaps)) && Number(rawNextLaps) > 0
+        ? Math.max(1, Math.round(Number(rawNextLaps)))
+        : null;
+    if (nextSessionLaps !== null && state.chassis) {
+      state.chassis.raceLaps = nextSessionLaps;
+      if ($('inputRaceLaps') && document.activeElement !== $('inputRaceLaps')) {
+        $('inputRaceLaps').value = String(nextSessionLaps);
+      }
     }
+
+    // Task 4 Fuel Load marks CHECKED only once Confirm [XX.X] L Put In & Fuel Cap Secured is ticked
+    items.fuelLoad = Boolean(preRaceFuelAdjustment.preRaceFuelConfirmed);
 
     const payload = {
       mechanicUpdatedAt: nowTime,
+      fuelOutL: preRaceFuelAdjustment.fuelOutL,
+      ...(nextSessionLaps !== null ? { racedLaps: nextSessionLaps } : {}),
+      litresToPourL: preRaceFuelAdjustment.litresToPourL,
+      ...(preRaceFuelAdjustment.preRaceFuelConfirmed && preRaceFuelAdjustment.litresToPourL !== null
+        ? { fuelInL: preRaceFuelAdjustment.litresToPourL }
+        : {}),
+      preRaceFuelConfirmed: preRaceFuelAdjustment.preRaceFuelConfirmed,
+      fuelCapOn: preRaceFuelAdjustment.fuelCapOn,
       preRaceTyreAdjustments,
       preRaceFuelAdjustment,
       preRaceChecklist: {
@@ -27587,9 +27794,9 @@
         });
         savePreRaceChecklistPageInput(
           allPatch,
-          'All 9 Pre-Race Checks & Fuel Cap Marked Ready',
+          'All 9 Pre-Race Checks & Fuel Refill Confirmed ✓',
           null,
-          { fuelCapOn: true }
+          { preRaceFuelConfirmed: true, fuelCapOn: true }
         );
       });
     }
@@ -27604,13 +27811,12 @@
           const psiInp = $(`preTyreSetPsi_${c}`);
           if (psiInp) psiInp.value = '';
         });
-        if ($('preFuelDeltaL')) $('preFuelDeltaL').value = '';
-        if ($('preFuelSetToL')) $('preFuelSetToL').value = '';
+        if ($('mechFuelOutL')) $('mechFuelOutL').value = '';
         savePreRaceChecklistPageInput(
           clearPatch,
           'Reset Pre-Race Checklist',
           'Left As Is',
-          { action: 'Left As Is', litresInL: null, setToL: null, deltaL: null, fuelCapOn: false },
+          { action: 'Pumped Out', fuelOutL: null, preRaceFuelConfirmed: false, fuelCapOn: false },
           false
         );
       });
@@ -27623,7 +27829,7 @@
           null,
           `✓ PRE-RACE COMPLETE • ${nowTime}`,
           null,
-          { fuelCapOn: true },
+          { preRaceFuelConfirmed: true, fuelCapOn: true },
           true
         );
       });
@@ -27702,10 +27908,11 @@
           return;
         }
         if (
-          e.target.id === 'preFuelSetToL' ||
-          e.target.id === 'preFuelDeltaL' ||
+          e.target.id === 'mechFuelOutL' ||
+          e.target.id === 'mechNextSessionLaps' ||
           e.target.id === 'preRaceSignOffNotesInput'
         ) {
+          updateMechFuelBurnBadgeFromInputs();
           savePreRaceChecklistPageInput();
         }
       });
@@ -27764,40 +27971,29 @@
         }
 
         const preFuelActionBtn = e.target.closest('[data-pre-fuel-action]');
-        if (preFuelActionBtn) {
-          const fuelAct = normalizePreRaceFuelActionValue(
-            preFuelActionBtn.getAttribute('data-pre-fuel-action')
-          );
-          if (fuelAct === 'Left As Is') {
-            if ($('preFuelDeltaL')) $('preFuelDeltaL').value = '';
-            if ($('preFuelSetToL')) $('preFuelSetToL').value = '';
-          }
-          const capBtn = $('btnPreFuelCapOnCheck');
-          const isCapOn = Boolean(capBtn && capBtn.classList.contains('is-checked'));
-          savePreRaceChecklistPageInput(
-            { fuelLoad: isCapOn },
-            `Pre-Race Fuel Action: ${fuelAct}`,
-            null,
-            { action: fuelAct }
-          );
-          if (fuelAct === 'Added' || fuelAct === 'Pumped Out') {
-            const deltaFuelInp = $('preFuelDeltaL');
-            if (deltaFuelInp) deltaFuelInp.focus();
-          }
+        if (preFuelActionBtn && !preFuelActionBtn.disabled) {
+          const outInp = $('mechFuelOutL');
+          if (outInp) outInp.focus();
           return;
         }
 
-        const fuelCapCheckBtn = e.target.closest('[data-pre-fuel-cap-check]');
-        if (fuelCapCheckBtn) {
-          const nextCapOn = !fuelCapCheckBtn.classList.contains('is-checked');
-          fuelCapCheckBtn.classList.toggle('is-checked', nextCapOn);
+        const confirmPourBtn = e.target.closest('[data-pre-fuel-confirm-pour], [data-pre-fuel-cap-check]');
+        if (confirmPourBtn) {
+          const nextConfirmed = !confirmPourBtn.classList.contains('is-checked');
+          confirmPourBtn.classList.toggle('is-checked', nextConfirmed);
+          const curFuelSnap = readCrewFuelAdjustmentFromDom({
+            preRaceFuelConfirmed: nextConfirmed,
+            fuelCapOn: nextConfirmed
+          });
+          const pourStr =
+            curFuelSnap.litresToPourL !== null ? `${curFuelSnap.litresToPourL.toFixed(1)} L` : 'Refill';
           savePreRaceChecklistPageInput(
-            { fuelLoad: nextCapOn },
-            nextCapOn
-              ? 'Fuel cap on & secured ✓ — Fuel check complete'
-              : 'Fuel cap unchecked — Fuel check pending',
+            { fuelLoad: nextConfirmed },
+            nextConfirmed
+              ? `Confirmed ${pourStr} Put In & Fuel Cap Secured ✓`
+              : 'Fuel refill confirmation unchecked — Fuel check pending',
             null,
-            { fuelCapOn: nextCapOn }
+            { preRaceFuelConfirmed: nextConfirmed, fuelCapOn: nextConfirmed }
           );
           return;
         }
@@ -27825,6 +28021,9 @@
             const decimals = Math.abs(step) < 1 ? 1 : 0;
             inp.value = next.toFixed(decimals);
             updateMechFuelBurnBadgeFromInputs();
+            if (targetId === 'mechFuelOutL' || targetId === 'mechNextSessionLaps') {
+              savePreRaceChecklistPageInput();
+            }
           }
           return;
         }
@@ -27835,13 +28034,21 @@
           const nextChecked = !checkBtn.classList.contains('is-checked');
           checkBtn.classList.toggle('is-checked', nextChecked);
           if (key === 'fuelLoad') {
-            const capBtn = $('btnPreFuelCapOnCheck');
-            if (capBtn) capBtn.classList.toggle('is-checked', nextChecked);
+            const confirmCard = $('mechFuelPourConfirmed');
+            if (confirmCard) confirmCard.classList.toggle('is-checked', nextChecked);
+            const curFuelSnap = readCrewFuelAdjustmentFromDom({
+              preRaceFuelConfirmed: nextChecked,
+              fuelCapOn: nextChecked
+            });
+            const pourStr =
+              curFuelSnap.litresToPourL !== null ? `${curFuelSnap.litresToPourL.toFixed(1)} L` : 'Refill';
             savePreRaceChecklistPageInput(
               { fuelLoad: nextChecked },
-              nextChecked ? 'Fuel Load & Cap On Checked ✓' : 'Fuel Load & Cap Unchecked',
+              nextChecked
+                ? `Confirmed ${pourStr} Put In & Fuel Cap Secured ✓`
+                : 'Fuel Load & Cap Unchecked',
               null,
-              { fuelCapOn: nextChecked }
+              { preRaceFuelConfirmed: nextChecked, fuelCapOn: nextChecked }
             );
           } else {
             savePreRaceChecklistPageInput({ [key]: nextChecked });

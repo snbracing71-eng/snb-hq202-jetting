@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest-mech.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.0.10" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.11" />
 </head>
 <body class="crew-page-body">
   <!-- Sticky 3D Brushed-Metal AgerPro Header -->
@@ -413,7 +413,7 @@
                 >
                   <span class="crew-check-copy">
                     <span class="crew-check-title">4. Fuel Load Checked / Adjusted</span>
-                    <span class="crew-check-sub" id="preRaceFuelActionSummaryBadge">Session fuel load verified, filler cap locked &amp; tank breather clear</span>
+                    <span class="crew-check-sub" id="preRaceFuelActionSummaryBadge">Pump tank empty, verify next session refill litres &amp; confirm fuel cap secured</span>
                   </span>
                   <span class="crew-task-header-right">
                     <span class="crew-check-status mono" id="preRaceStatus_fuelLoad">PENDING</span>
@@ -422,66 +422,120 @@
                 </button>
               </div>
 
-              <!-- Collapsible Drawer Body: 3-Way Pill Selector (Left As Is | Added | Pumped Out) + Conditional Litres In (L) + Fuel Cap On Check -->
+              <!-- Collapsible Drawer Body: Pumped-Out Mode + Litres Pumped Out (L) + Next-Session Refill Callout + Confirm Put In & Cap Secured -->
               <div class="crew-task-drawer-body" id="fuelDrawerBody">
                 <div class="crew-fuel-drawer-inner">
                   <div class="crew-fuel-action-row">
-                    <span class="crew-tyre-action-corner-label">PRE-SESSION FUEL ACTION</span>
-                    <div class="seg-toggle crew-fuel-action-seg" role="group" aria-label="Pre-Session Fuel Load Action">
-                      <button type="button" class="seg-btn active" id="preFuelBtn_Left" data-pre-fuel-action="Left As Is" aria-pressed="true">Left As Is</button>
-                      <button type="button" class="seg-btn" id="preFuelBtn_Added" data-pre-fuel-action="Added" aria-pressed="false">Added</button>
-                      <button type="button" class="seg-btn" id="preFuelBtn_PumpedOut" data-pre-fuel-action="Pumped Out" aria-pressed="false">Pumped Out</button>
+                    <div class="crew-fuel-mode-header-row">
+                      <span class="crew-tyre-action-corner-label">FUEL WORKFLOW (TANK ALWAYS PUMPED OUT &amp; REFILLED)</span>
+                      <span class="locked-badge mono" id="mechCircuitBurnAvgBadge">TRACK AVG: 1.30 L/LAP</span>
+                    </div>
+                    <div class="seg-toggle crew-fuel-action-seg" role="group" aria-label="Pre-Session Fuel Load Mode">
+                      <button
+                        type="button"
+                        class="seg-btn is-disabled-fuel-opt"
+                        id="preFuelBtn_Left"
+                        disabled
+                        aria-disabled="true"
+                        title="Fuel is never left as is — tank is always pumped out and refilled for the next session"
+                      >
+                        Left As Is
+                      </button>
+                      <button
+                        type="button"
+                        class="seg-btn is-disabled-fuel-opt"
+                        id="preFuelBtn_Added"
+                        disabled
+                        aria-disabled="true"
+                        title="Use Pumped Out + Next Session Refill below"
+                      >
+                        Added
+                      </button>
+                      <button
+                        type="button"
+                        class="seg-btn active"
+                        id="preFuelBtn_PumpedOut"
+                        data-pre-fuel-action="Pumped Out"
+                        aria-pressed="true"
+                      >
+                        &#9981; Pumped Out
+                      </button>
                     </div>
                   </div>
 
-                  <div class="crew-fuel-conditional-grid" id="preFuelConditionalWrap" style="display: none;">
+                  <!-- Primary Numeric Input: Litres Pumped Out (L) (#mechFuelOutL) + Target Session Lap Quantity -->
+                  <div class="crew-fuel-conditional-grid" id="preFuelConditionalWrap">
                     <div class="field-group" style="margin-bottom: 0;">
-                      <label class="field-label" id="preFuelDeltaLabel" for="preFuelDeltaL">Litres In (L)</label>
-                      <div class="num-input-wrap">
-                        <input
-                          type="number"
-                          id="preFuelDeltaL"
-                          class="num-input crew-num-input"
-                          placeholder="15.0"
-                          min="0"
-                          max="75.0"
-                          step="0.1"
-                          inputmode="decimal"
-                        />
-                        <span class="num-unit-badge">L</span>
+                      <label class="field-label" id="preFuelDeltaLabel" for="mechFuelOutL">Litres Pumped Out (L)</label>
+                      <div class="num-stepper crew-touch-stepper">
+                        <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechFuelOutL" data-step="-0.5" data-fallback="12.0" aria-label="Decrease Litres Pumped Out">&minus;</button>
+                        <div class="num-input-wrap">
+                          <input
+                            type="number"
+                            id="mechFuelOutL"
+                            class="num-input crew-num-input"
+                            placeholder="15.0"
+                            min="0"
+                            max="75.0"
+                            step="0.1"
+                            inputmode="decimal"
+                          />
+                          <span class="num-unit-badge">L</span>
+                        </div>
+                        <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechFuelOutL" data-step="0.5" data-fallback="12.0" aria-label="Increase Litres Pumped Out">+</button>
                       </div>
                     </div>
 
                     <div class="field-group" style="margin-bottom: 0;">
-                      <label class="field-label" for="preFuelSetToL">Set To / Tank Total (L) (Optional)</label>
-                      <div class="num-input-wrap">
-                        <input
-                          type="number"
-                          id="preFuelSetToL"
-                          class="num-input crew-num-input"
-                          placeholder="26.0"
-                          min="0"
-                          max="75.0"
-                          step="0.1"
-                          inputmode="decimal"
-                        />
-                        <span class="num-unit-badge">L</span>
+                      <label class="field-label" for="mechNextSessionLaps">Next / Session Lap Quantity</label>
+                      <div class="num-stepper crew-touch-stepper">
+                        <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechNextSessionLaps" data-step="-1" data-fallback="12" aria-label="Decrease Session Lap Quantity">&minus;</button>
+                        <div class="num-input-wrap">
+                          <input
+                            type="number"
+                            id="mechNextSessionLaps"
+                            class="num-input crew-num-input"
+                            placeholder="12"
+                            min="1"
+                            max="60"
+                            step="1"
+                            inputmode="numeric"
+                          />
+                          <span class="num-unit-badge">LAPS</span>
+                        </div>
+                        <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechNextSessionLaps" data-step="1" data-fallback="12" aria-label="Increase Session Lap Quantity">+</button>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Dedicated Fuel Cap On & Secured Check (Required for Fuel Load Task Completion) -->
+                  <!-- High-Contrast 3D Next Session Refill Callout Box (#mechNextFuelPourBox) -->
+                  <div class="crew-next-fuel-pour-box" id="mechNextFuelPourBox" role="region" aria-live="polite">
+                    <div class="crew-next-fuel-pour-eyebrow mono" id="mechNextFuelPourLabel">
+                      FUEL TO PUT BACK IN FOR PRACTICE 1 (12 LAPS)
+                    </div>
+                    <div class="crew-next-fuel-pour-val tabular txt-emerald" id="mechNextFuelPourValue">
+                      27.6 L
+                    </div>
+                    <div class="crew-next-fuel-pour-sub mono" id="mechNextFuelPourSub">
+                      12 laps &times; 1.30 L/lap + 12.0 L surge
+                    </div>
+                    <div class="crew-next-fuel-pour-warn mono" id="mechNextFuelPourWarn" style="display: none;">
+                      &#9888;&#65039; EXCEEDS 74.0 L TANK CAPACITY &mdash; CHECK BALLAST / LAPS!
+                    </div>
+                  </div>
+
+                  <!-- Bold 3D Confirmation Card (#mechFuelPourConfirmed) — Required to Mark Task 4 Checked -->
                   <button
                     type="button"
-                    class="crew-check-row crew-fuel-cap-check-row"
-                    id="btnPreFuelCapOnCheck"
-                    data-pre-fuel-cap-check="fuelCapOn"
+                    class="crew-check-row crew-fuel-confirm-pour-card"
+                    id="mechFuelPourConfirmed"
+                    data-pre-fuel-confirm-pour="true"
                     aria-pressed="false"
                   >
                     <span class="crew-check-box" aria-hidden="true">&#10003;</span>
                     <span class="crew-check-copy">
-                      <span class="crew-check-title">Fuel cap on &amp; secured</span>
-                      <span class="crew-check-sub">Filler cap locked tight &amp; tank breather clear (required for Fuel check)</span>
+                      <span class="crew-check-title" id="mechFuelPourConfirmedTitle">Confirm 27.6 L Put In &amp; Fuel Cap Secured</span>
+                      <span class="crew-check-sub" id="mechFuelPourConfirmedSub">Saves 27.6 L Fuel In, locks Fuel Cap On &amp; marks Fuel Check complete</span>
                     </span>
                     <span class="crew-check-status mono" id="preFuelCapOnStatusBadge">PENDING</span>
                   </button>
@@ -758,16 +812,16 @@
             </div>
           </div>
 
-          <!-- Fuel In (L), Fuel Pumped Out (L), Laps Completed & Post-Race / Pit Notes -->
+          <!-- Fuel In (L), Laps Completed & Post-Race / Pit Notes -->
           <div class="crew-postrace-subcard">
             <div class="section-header crew-section-header">
               <div>
                 <div class="section-eyebrow">POST-SESSION FUEL &amp; LAPS</div>
-                <h2 class="section-title">Fuel In, Fuel Pumped Out &amp; Laps</h2>
+                <h2 class="section-title">Fuel In, Laps Completed &amp; Pit Notes</h2>
               </div>
             </div>
 
-            <div class="crew-fuel-grid" style="margin-bottom: 14px;">
+            <div class="crew-fuel-grid" style="margin-bottom: 14px; grid-template-columns: repeat(2, minmax(0, 1fr));">
               <div class="field-group" style="margin-bottom: 0;">
                 <label class="field-label" for="mechFuelInL">Fuel In (L)</label>
                 <div class="num-stepper crew-touch-stepper">
@@ -777,18 +831,6 @@
                     <span class="num-unit-badge">L</span>
                   </div>
                   <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechFuelInL" data-step="0.5" data-fallback="25.0" aria-label="Increase Fuel In">+</button>
-                </div>
-              </div>
-
-              <div class="field-group" style="margin-bottom: 0;">
-                <label class="field-label" for="mechFuelOutL">Fuel Pumped Out (L)</label>
-                <div class="num-stepper crew-touch-stepper">
-                  <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechFuelOutL" data-step="-0.5" data-fallback="10.0" aria-label="Decrease Fuel Pumped Out">&minus;</button>
-                  <div class="num-input-wrap">
-                    <input type="number" id="mechFuelOutL" class="num-input crew-num-input" placeholder="&mdash;" min="0" max="75.0" step="0.5" inputmode="decimal" />
-                    <span class="num-unit-badge">L</span>
-                  </div>
-                  <button type="button" class="stepper-btn crew-stepper-btn" data-crew-step-target="mechFuelOutL" data-step="0.5" data-fallback="10.0" aria-label="Increase Fuel Pumped Out">+</button>
                 </div>
               </div>
 
@@ -826,6 +868,6 @@
 
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=1.0.10"></script>
+  <script src="./app.js?v=1.0.11"></script>
 </body>
 </html>
