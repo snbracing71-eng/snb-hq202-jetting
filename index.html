@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.0.12" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.13" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -143,7 +143,7 @@
           <div class="gate-baseline-summary-grid">
             <div class="telem-cell">
               <span class="telem-label">Locked Tune &amp; AFR</span>
-              <span class="telem-val txt-emerald" id="gateBaseTuneVal">1.85 mm &bull; 12.82 AFR</span>
+              <span class="telem-val txt-emerald" id="gateBaseTuneVal">1.88 mm &bull; 12.82 AFR</span>
               <span class="telem-sub" id="gateBaseTuneSub">DME #1 &bull; 94.3% RAD</span>
             </div>
             <div class="telem-cell">
@@ -379,8 +379,8 @@
         <div class="baseline-grid">
           <div class="telem-cell">
             <span class="telem-label">Main Jet (mm)</span>
-            <span class="telem-val" id="baseJetLabel">1.85 mm</span>
-            <span class="telem-sub" id="baseJetSub">2.688 mm&sup2;</span>
+            <span class="telem-val" id="baseJetLabel">1.88 mm</span>
+            <span class="telem-sub" id="baseJetSub">2.776 mm&sup2;</span>
           </div>
           <div class="telem-cell">
             <span class="telem-label">Baseline RAD</span>
@@ -462,7 +462,7 @@
               &#9888;&#65039; NO MAIN JET FITTED IN DME #2
             </div>
             <p class="no-jet-safety-desc" id="noJetSafetyDesc">
-              DME #2 has NO Main Jet fitted &mdash; select a starting mm jet from Tactix Box (e.g. 1.87 mm) in Step 2 before running! Preview math uses 1.87 mm until a jet is locked.
+              DME #2 has NO Main Jet fitted &mdash; select a starting mm jet from Tactix Box (e.g. 1.88 mm) in Step 2 before running! Preview math uses 1.88 mm until a jet is locked.
             </p>
           </div>
 
@@ -506,7 +506,7 @@
               type="text"
               id="inputPreRaceNotes"
               class="text-input"
-              placeholder="e.g. Fitted 1.85 mm jet + #5-DME emulsion, +0.5 psi cold FR"
+              placeholder="e.g. Fitted 1.88 mm jet + #5-DME emulsion, +0.5 psi cold FR"
               autocomplete="off"
             />
           </div>
@@ -712,15 +712,15 @@
             </div>
             <div class="telem-cell">
               <span class="telem-label">Exact Ideal Orifice</span>
-              <span class="telem-val txt-amber" id="outIdealOrifice">1.832 mm</span>
-              <span class="telem-sub" id="outIdealInchArea">2.636 mm&sup2; Orifice Area</span>
+              <span class="telem-val txt-amber" id="outIdealOrifice">1.861 mm</span>
+              <span class="telem-sub" id="outIdealInchArea">2.721 mm&sup2; Orifice Area</span>
             </div>
           </div>
 
           <!-- If Current Jet Left in Car -->
           <div class="unchanged-jet-banner" id="unchangedJetBanner">
             <div>
-              <span class="telem-label">If Current Jet Left in Car (<span id="unchangedJetName">1.85 mm</span>)</span>
+              <span class="telem-label">If Current Jet Left in Car (<span id="unchangedJetName">1.88 mm</span>)</span>
               <span class="telem-sub" id="unchangedEndCylText">#1 &amp; #6 End-Cyl Est: 12.77 AFR</span>
             </div>
             <div style="text-align: right; flex-shrink: 0;">
@@ -741,7 +741,7 @@
           <div class="field-group" style="margin-bottom: 14px;">
             <div class="field-label-row">
               <label class="field-label" for="selectFullJetKit">Tactix Metric Drill-Gauge Box (mm) &amp; Custom Drills</label>
-              <span class="field-hint" id="selectedJetQuickSummary">Selected: 1.85 mm</span>
+              <span class="field-hint" id="selectedJetQuickSummary">Selected: 1.88 mm</span>
             </div>
             <select id="selectFullJetKit" class="select-input"></select>
           </div>
@@ -762,7 +762,7 @@
               type="text"
               id="inputRunNotes"
               class="text-input"
-              placeholder="e.g. Fitted 1.85 mm jet + #5-DME emulsion, +0.5 psi cold FR"
+              placeholder="e.g. Fitted 1.88 mm jet + #5-DME emulsion, +0.5 psi cold FR"
               autocomplete="off"
             />
           </div>
@@ -2869,7 +2869,7 @@
                   <div class="fleet-acc-sub">40.00 mm Late-Base Stromberg BXUV-3 &bull; Audited Teardown &amp; Jet Spec</div>
                 </div>
                 <div class="fleet-acc-right">
-                  <span class="fleet-acc-status-pill emerald" id="fleetCarbyActiveBadge">DME #1 &#9733; ON CAR &bull; 1.85 mm &bull; #5-DME</span>
+                  <span class="fleet-acc-status-pill emerald" id="fleetCarbyActiveBadge">DME #1 &#9733; ON CAR &bull; 1.88 mm &bull; #5-DME</span>
                   <span class="fleet-acc-count-pill" id="fleetCarbyCountBadge">3 UNITS</span>
                   <span class="fleet-acc-chevron" data-fleet-acc-chevron="carburettors" aria-hidden="true">&#9654;</span>
                 </div>
@@ -3149,10 +3149,10 @@
               >
                 <div class="fleet-acc-left">
                   <div class="fleet-acc-title">Jets (mm Toolbox)</div>
-                  <div class="fleet-acc-sub">11-Slot Tactix Drill-Gauge Matrix (1.70&ndash;2.03 mm) + Orifice Area (mm&sup2;)</div>
+                  <div class="fleet-acc-sub">11-Slot Tactix Drill-Gauge Matrix (1.73&ndash;2.07 mm) + Orifice Area (mm&sup2;)</div>
                 </div>
                 <div class="fleet-acc-right">
-                  <span class="fleet-acc-status-pill emerald" id="toolboxSummaryBadge">DME#1: 1.85 &bull; DME#2: 1.90 &bull; BOX READY</span>
+                  <span class="fleet-acc-status-pill emerald" id="toolboxSummaryBadge">DME#1: 1.88 &bull; DME#2: 1.90 &bull; BOX READY</span>
                   <span class="fleet-acc-chevron" data-fleet-acc-chevron="jets" aria-hidden="true">&#9654;</span>
                 </div>
               </button>
@@ -3823,7 +3823,7 @@
           <div class="num-stepper">
             <button type="button" class="stepper-btn" data-stepper-target="editBaseJetMm" data-step="-0.005" aria-label="Decrease Base Jet Orifice">&minus;</button>
             <div class="num-input-wrap">
-              <input type="number" id="editBaseJetMm" class="num-input" value="1.850" min="1.400" max="2.500" step="0.001" />
+              <input type="number" id="editBaseJetMm" class="num-input" value="1.880" min="1.400" max="2.500" step="0.001" />
               <span class="num-unit-badge">mm</span>
             </div>
             <button type="button" class="stepper-btn" data-stepper-target="editBaseJetMm" data-step="0.005" aria-label="Increase Base Jet Orifice">+</button>
@@ -4104,7 +4104,7 @@
             <div class="num-stepper">
               <button type="button" class="stepper-btn" data-stepper-target="editCarbyAnchorJetMm" data-step="-0.01" aria-label="Decrease Anchor Jet mm">&minus;</button>
               <div class="num-input-wrap">
-                <input type="number" id="editCarbyAnchorJetMm" class="num-input" value="1.85" min="1.40" max="2.50" step="0.01" />
+                <input type="number" id="editCarbyAnchorJetMm" class="num-input" value="1.88" min="1.40" max="2.50" step="0.01" />
                 <span class="num-unit-badge">mm</span>
               </div>
               <button type="button" class="stepper-btn" data-stepper-target="editCarbyAnchorJetMm" data-step="0.01" aria-label="Increase Anchor Jet mm">+</button>
@@ -4174,7 +4174,7 @@
 
       <div class="field-group" style="margin-bottom: 14px;">
         <label class="field-label" for="editCarbyNotes">Bench &amp; Track Teardown Notes</label>
-        <input type="text" id="editCarbyNotes" class="text-input" placeholder="e.g. Last raced on 1.85 mm bellmouthed jet + #5-DME emulsion..." />
+        <input type="text" id="editCarbyNotes" class="text-input" placeholder="e.g. Currently fitted with 1.88 mm main jet + #5-DME emulsion..." />
       </div>
 
       <button type="button" class="btn btn-confirm btn-full" id="btnSaveCarbySpec">
@@ -5925,6 +5925,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=1.0.12"></script>
+  <script src="./app.js?v=1.0.13"></script>
 </body>
 </html>

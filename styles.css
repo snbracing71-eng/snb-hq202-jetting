@@ -6234,6 +6234,14 @@ button:disabled.btn-stage-locked,
     0 2px 6px rgba(0, 0, 0, 0.75);
 }
 
+.jet-location-select.loc-out {
+  color: #94A3B8;
+  border-color: rgba(100, 116, 139, 0.45);
+  border-top-color: #64748B;
+  background-color: #0F141C;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
 /* =========================================================
    v0.8.9 — LOCKED 10-PC SPACER INVENTORY, CALDER 2024 INTERCOMP 5-ROW BASELINE & TRIM DELTA TRACKER
    ========================================================= */

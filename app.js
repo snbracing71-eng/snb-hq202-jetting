@@ -226,11 +226,12 @@
   /* ------------------------------------------------------------------------
      1. FACTORY SEED DATA (Group 3H HQ Holden 202 — Calder Park & BXUV-3 Kit)
      ------------------------------------------------------------------------ */
-  const TACTIX_BOX_MM_SIZES = [1.70, 1.73, 1.75, 1.80, 1.85, 1.87, 1.89, 1.92, 1.94, 2.00, 2.03];
+  const TACTIX_BOX_MM_SIZES = [1.73, 1.76, 1.80, 1.83, 1.85, 1.88, 1.91, 1.94, 1.97, 2.03, 2.07];
+  const OBSOLETE_TACTIX_V1_MM_SIZES = [1.70, 1.75, 1.87, 1.89, 1.92, 2.00];
 
   function formatMmNumber(mmVal) {
     const n = Number(mmVal);
-    if (!Number.isFinite(n) || n <= 0) return '1.85';
+    if (!Number.isFinite(n) || n <= 0) return '1.88';
     const round3 = Math.round(n * 1000) / 1000;
     const thirdDec = Math.round(round3 * 1000) % 10;
     return thirdDec === 0 ? round3.toFixed(2) : round3.toFixed(3);
@@ -255,18 +256,24 @@
         return includeUnit ? `${formatMmNumber(parsed)} mm` : formatMmNumber(parsed);
       }
     }
-    return includeUnit ? '1.85 mm' : '1.85';
+    return includeUnit ? '1.88 mm' : '1.88';
   }
 
   function getJetLocation(jetObj) {
     if (!jetObj || typeof jetObj !== 'object') return 'BOX';
     const loc = String(jetObj.location || '').trim().toUpperCase();
-    if (loc === 'DME1' || loc === 'DME2' || loc === 'SNB' || loc === 'BOX') {
+    if (loc === 'DME1' || loc === 'DME2' || loc === 'SNB') {
       return loc;
     }
-    if (Math.abs(Number(jetObj.mm) - 1.85) < 0.002 && jetObj.inBox === false) return 'DME1';
+    if (loc === 'OUT' || loc === 'UNCHECKED') {
+      return 'OUT';
+    }
+    if (loc === 'BOX') {
+      return jetObj.inBox === false && jetObj.inToolbox === false ? 'OUT' : 'BOX';
+    }
+    if (Math.abs(Number(jetObj.mm) - 1.88) < 0.002 && jetObj.inBox === false) return 'DME1';
     if (Math.abs(Number(jetObj.mm) - 1.90) < 0.002 && jetObj.inBox === false) return 'DME2';
-    return jetObj.inBox === false && jetObj.inToolbox === false ? 'DME2' : 'BOX';
+    return jetObj.inBox === false && jetObj.inToolbox === false ? 'OUT' : 'BOX';
   }
 
   function formatJetLocationBadge(loc) {
@@ -274,6 +281,7 @@
     if (clean === 'DME1') return 'In DME #1';
     if (clean === 'DME2') return 'In DME #2';
     if (clean === 'SNB') return 'In SNB';
+    if (clean === 'OUT') return 'Out of Box';
     return 'In Tactix Box';
   }
 
@@ -304,7 +312,7 @@
 
   function makeMmJetId(mmVal) {
     const n = Number(mmVal);
-    if (!Number.isFinite(n) || n <= 0) return 'mm_185';
+    if (!Number.isFinite(n) || n <= 0) return 'mm_188';
     const thousandths = Math.round(n * 1000);
     return thousandths % 10 === 0 ? `mm_${Math.round(n * 100)}` : `mm_${thousandths}`;
   }
@@ -321,38 +329,38 @@
 
   function createDefaultJets() {
     const stampNotes = {
-      '1.70': 'Tactix Slot 1 • Lean Extreme Reserve',
-      '1.73': 'Tactix Slot 2 • Lean Track Step',
-      '1.75': 'Tactix Slot 3 • Lean Calibration',
-      '1.80': 'Tactix Slot 4 • High-Altitude / Hot RAD',
-      '1.85': 'Tactix Slot 5 • DME #1 Active Baseline (Bellmouthed)',
-      '1.87': 'Tactix Slot 6 • Calder/Winton Test Spec (w/ Type #1)',
-      '1.89': 'Tactix Slot 7 • Richer Mid-Range / SNB Check',
-      '1.92': 'Tactix Slot 8 • Cold Morning / Dense Air Step',
-      '1.94': 'Tactix Slot 9 • High-Speed Slipstream Step',
-      '2.00': 'Tactix Slot 10 • Heavy Load / E3 Emulsion Step',
-      '2.03': 'Tactix Slot 11 • Rich Extreme Reserve'
+      '1.73': 'Tactix Slot 1 • Lean Extreme Reserve',
+      '1.76': 'Tactix Slot 2 • Lean Track Step',
+      '1.80': 'Tactix Slot 3 • High-Altitude / Hot RAD',
+      '1.83': 'Tactix Slot 4 • Lean Calibration Step',
+      '1.85': 'Tactix Slot 5 • Warm Afternoon / Bellmouthed Step',
+      '1.88': 'Tactix Slot 6 • DME #1 Active Fitted Baseline',
+      '1.91': 'Tactix Slot 7 • Richer Mid-Range Step',
+      '1.94': 'Tactix Slot 8 • High-Speed Slipstream Step',
+      '1.97': 'Tactix Slot 9 • Cold Morning / Dense Air Step',
+      '2.03': 'Tactix Slot 10 • Heavy Load / E3 Emulsion Step',
+      '2.07': 'Tactix Slot 11 • Rich Extreme Reserve'
     };
     const jets = TACTIX_BOX_MM_SIZES.map((mm) => {
       const mmFixed = Number(mm.toFixed(2));
       const key = mmFixed.toFixed(2);
-      const isDme1Seed = Math.abs(mmFixed - 1.85) < 0.002;
+      const isDme1Seed = Math.abs(mmFixed - 1.88) < 0.002;
       const loc = isDme1Seed ? 'DME1' : 'BOX';
       return {
         id: makeMmJetId(mmFixed),
-        label: `${key} mm`,
+        label: isDme1Seed ? `${key} mm (In DME #1)` : `${key} mm`,
         stamp: stampNotes[key] || 'Tactix Metric Drill-Gauge Box',
         mm: mmFixed,
         custom: false,
         location: loc,
-        inBox: loc === 'BOX',
-        inToolbox: loc === 'BOX'
+        inBox: true,
+        inToolbox: true
       };
     });
-    // Include spare 1.90 mm jet fitted in DME #2 so the 11-slot Tactix box (1.70-2.03 mm) stays untouched
+    // Include spare 1.90 mm jet fitted in DME #2 so the 11-slot Tactix box (1.73-2.07 mm) stays untouched
     jets.push({
       id: 'mm_190',
-      label: '1.90 mm',
+      label: '1.90 mm (In DME #2)',
       stamp: 'Spare 1.90 mm Jet • Fitted in DME #2 (Sandown WOT Spec)',
       mm: 1.90,
       custom: false,
@@ -375,7 +383,7 @@
         qty: 3,
         collar: 'Single/Twin',
         pattern: '2 Large Holes Only (1 collar, 1 base • solid mid-barrel)',
-        vsBase5: 'Less mid-range air bleed -> heavier fuel column & punchier mid-range torque hit out of tight 2nd/3rd-gear corners. Target test setup for Calder / Winton tight corners: pair Type #1 + 1.87 mm jet in DME #2 for 4000–4500 RPM mid-range punch.',
+        vsBase5: 'Less mid-range air bleed -> heavier fuel column & punchier mid-range torque hit out of tight 2nd/3rd-gear corners. Target test setup for Calder / Winton tight corners: pair Type #1 + 1.88 mm jet in DME #2 for 4000–4500 RPM mid-range punch.',
         status: 'Untested Stock'
       },
       {
@@ -411,7 +419,7 @@
         qty: 1,
         collar: 'Single',
         pattern: '6 Open Holes (2 upper + 4 spaced) • DME Angled Jet Entry, Polished Shank & Thin-Wall Tip',
-        vsBase5: 'ACTIVE BASELINE (in DME #1): Proven linear all-rounder with smoothed jet entry & strong booster signal on 1.85 mm jet.',
+        vsBase5: 'ACTIVE BASELINE (in DME #1): Proven linear all-rounder with smoothed jet entry & strong booster signal on 1.88 mm jet.',
         status: 'Fitted in DME #1'
       },
       {
@@ -543,9 +551,9 @@
         exitMm: 39.81,
         mainVenturiMm: null,
         venturiMm: null,
-        fittedJetMm: 1.85,
-        fittedJetId: 'mm_185',
-        recommendedStartJetMm: 1.85,
+        fittedJetMm: 1.88,
+        fittedJetId: 'mm_188',
+        recommendedStartJetMm: 1.88,
         emulsionId: 'E5_DME',
         needleSeat: 'V8 High-Flow Brass + Viton Tip',
         spillHeightMm: 15.0,
@@ -561,9 +569,9 @@
         gasketStack: 'HQRA heat shield between 2x std 40mm gaskets',
         baselineAnchor: {
           sourceLabel: 'Calder Race 1',
-          jetId: 'mm_185',
-          jetLabel: '1.85 mm',
-          jetMm: 1.85,
+          jetId: 'mm_188',
+          jetLabel: '1.88 mm',
+          jetMm: 1.88,
           rad: 94.3,
           fuelSg: 0.740,
           verifiedAfr: 12.50,
@@ -571,7 +579,7 @@
           fuelPsi: 4.3,
           emulsionId: 'E5_DME'
         },
-        notes: 'Last raced on 1.85 mm bellmouthed jet + #5-DME emulsion. Built by DM Engines (#73/1.85mm spec) for 4 psi @ 0.74 SG BP 98.'
+        notes: 'Currently fitted with 1.88 mm main jet + #5-DME emulsion. Built by DM Engines for 4 psi @ 0.74 SG BP 98.'
       },
       {
         id: 'DME2',
@@ -587,7 +595,7 @@
         venturiMm: null,
         fittedJetMm: 1.90,
         fittedJetId: 'mm_190',
-        recommendedStartJetMm: 1.87,
+        recommendedStartJetMm: 1.88,
         emulsionId: 'E4',
         needleSeat: 'V8 High-Flow Brass + Viton Tip',
         spillHeightMm: 15.0,
@@ -613,7 +621,7 @@
           fuelPsi: 4.3,
           emulsionId: 'E4'
         },
-        notes: 'READY SPARE FOR SANDOWN: Spare 1.90 mm jet + Type #4 emulsion (bottom 2 holes soldered shut for 5600+ RPM chute WOT protection). Calder/Winton test spec: Type #1 + 1.87 mm jet.'
+        notes: 'READY SPARE FOR SANDOWN: Spare 1.90 mm jet + Type #4 emulsion (bottom 2 holes soldered shut for 5600+ RPM chute WOT protection). Calder/Winton test spec: Type #1 + 1.88 mm jet.'
       },
       {
         id: 'SNB',
@@ -630,7 +638,7 @@
         fittedJetMm: null,
         fittedJetId: '',
         fittedJetDisplay: 'TBD (1.9 marked on top bar — verify internal jet)',
-        recommendedStartJetMm: 1.89,
+        recommendedStartJetMm: 1.91,
         emulsionId: 'TBD',
         needleSeat: 'V8 High-Flow Brass + Viton Tip',
         spillHeightMm: null,
@@ -646,9 +654,9 @@
         gasketStack: 'HQRA heat shield between 2x std 40mm gaskets',
         baselineAnchor: {
           sourceLabel: 'Calder P2 (Verify Internal Jet)',
-          jetId: 'mm_189',
-          jetLabel: '1.89 mm',
-          jetMm: 1.89,
+          jetId: 'mm_191',
+          jetLabel: '1.91 mm',
+          jetMm: 1.91,
           rad: 96.0,
           fuelSg: 0.740,
           verifiedAfr: 11.90,
@@ -811,9 +819,9 @@
       sessionName: 'Race 1',
       carbyId: 'DME1',
       emulsionId: 'E5_DME',
-      jetId: 'mm_185',
-      jetLabel: '1.85 mm',
-      jetMm: 1.85,
+      jetId: 'mm_188',
+      jetLabel: '1.88 mm',
+      jetMm: 1.88,
       rad: 94.3,
       fuelSg: 0.740,
       wotAfr: 12.50,
@@ -5111,8 +5119,11 @@
     const needsJetLocationsV1 = !candidate.jetLocationsV1;
     const needsManifoldActiveF_V1 = !candidate.manifoldActiveF_V1;
     const needsFuelSystemAuditV2 = !candidate.fuelSystemAuditV2;
+    const needsTactixJetBoxV2 = !candidate.tactixJetBoxV2;
+    const isNewTactixBoxSize = (mmVal) => TACTIX_BOX_MM_SIZES.some((tm) => Math.abs(tm - Number(mmVal)) < 0.002);
+    const isObsoleteTactixV1Size = (mmVal) => OBSOLETE_TACTIX_V1_MM_SIZES.some((om) => Math.abs(om - Number(mmVal)) < 0.002);
 
-    // 1) Hydrate & Migrate Pure "mm" 11-Slot Tactix Drill-Gauge Matrix + Spare 1.90 mm (In DME #2)
+    // 1) Hydrate & Migrate Pure "mm" 11-Slot Tactix Drill-Gauge Matrix (1.73–2.07 mm) + Spare 1.90 mm (In DME #2)
     if (needsCarbyJetAuditV1 || !Array.isArray(candidate.jets) || candidate.jets.length === 0) {
       const customExtras = [];
       if (Array.isArray(candidate.jets)) {
@@ -5124,8 +5135,12 @@
           const mmVal = Number(oldJ.mm);
           if (!Number.isFinite(mmVal) || mmVal <= 0) return;
           if (defaultJets.some((dj) => Math.abs(dj.mm - mmVal) < 0.002)) return;
-          const loc = ['BOX', 'DME1', 'DME2', 'SNB'].includes(String(oldJ.location || '').toUpperCase())
-            ? String(oldJ.location).toUpperCase()
+          const isObsV1 = isObsoleteTactixV1Size(mmVal) && !Boolean(oldJ.custom);
+          const rawLoc = String(oldJ.location || '').toUpperCase();
+          const loc = ['DME1', 'DME2', 'SNB'].includes(rawLoc)
+            ? rawLoc
+            : isObsV1
+            ? 'OUT'
             : 'BOX';
           const isBox = loc === 'BOX';
           customExtras.push({
@@ -5135,7 +5150,7 @@
               ? oldJ.stamp.replace(/#\d+\s*\/?\s*/g, '').trim() || 'Custom Metric Drill'
               : 'Custom Metric Drill',
             mm: Number(mmVal.toFixed(3)),
-            custom: true,
+            custom: !isObsV1,
             location: loc,
             inBox: isBox,
             inToolbox: isBox
@@ -5154,21 +5169,53 @@
         if (seenMm.has(mmKey)) return;
         seenMm.add(mmKey);
         const stdMatch = defaultJets.find((dj) => Math.abs(dj.mm - mmVal) < 0.002);
+        const isUserCustom = Boolean(j.custom) && !stdMatch;
+        const isObsoleteSeed = isObsoleteTactixV1Size(mmVal) && !isUserCustom;
+        const prevLoc = String(j.location || '').toUpperCase();
+
         let loc = 'BOX';
-        if (needsJetLocationsV1) {
-          if (Math.abs(mmVal - 1.85) < 0.002) {
+        if (needsTactixJetBoxV2) {
+          if (Math.abs(mmVal - 1.88) < 0.002) {
             loc = 'DME1';
+          } else if (Math.abs(mmVal - 1.85) < 0.002) {
+            loc = prevLoc === 'DME2' || prevLoc === 'SNB' ? prevLoc : 'BOX';
           } else if (Math.abs(mmVal - 1.90) < 0.002) {
-            loc = 'DME2';
+            loc = prevLoc === 'DME1' || prevLoc === 'SNB' ? prevLoc : 'DME2';
+          } else if (['DME1', 'DME2', 'SNB'].includes(prevLoc)) {
+            loc = prevLoc;
+          } else if (isObsoleteSeed) {
+            loc = 'OUT';
           } else {
             loc = 'BOX';
           }
-        } else if (['BOX', 'DME1', 'DME2', 'SNB'].includes(String(j.location || '').toUpperCase())) {
-          loc = String(j.location).toUpperCase();
+        } else if (needsJetLocationsV1) {
+          if (Math.abs(mmVal - 1.88) < 0.002) {
+            loc = 'DME1';
+          } else if (Math.abs(mmVal - 1.90) < 0.002) {
+            loc = 'DME2';
+          } else if (isObsoleteSeed) {
+            loc = 'OUT';
+          } else {
+            loc = 'BOX';
+          }
+        } else if (['BOX', 'DME1', 'DME2', 'SNB', 'OUT'].includes(prevLoc)) {
+          loc = prevLoc === 'BOX' && j.inBox === false && j.inToolbox === false ? 'OUT' : prevLoc;
         } else if (stdMatch && stdMatch.location) {
           loc = stdMatch.location;
+        } else if (j.inBox === false && j.inToolbox === false) {
+          loc = 'OUT';
         }
-        const isBox = loc === 'BOX';
+
+        const isActiveInBox =
+          loc === 'BOX'
+            ? (needsTactixJetBoxV2
+                ? !isObsoleteSeed
+                : (j.inBox !== undefined ? Boolean(j.inBox) : (j.inToolbox !== undefined ? Boolean(j.inToolbox) : !isObsoleteSeed)))
+            : isNewTactixBoxSize(mmVal);
+        if (loc === 'BOX' && !isActiveInBox) {
+          loc = 'OUT';
+        }
+
         const jetObj = {
           id: stdMatch ? stdMatch.id : (j.id || makeMmJetId(mmVal)),
           label: formatJetPureMm(stdMatch ? stdMatch.mm : mmVal),
@@ -5176,23 +5223,30 @@
             ? stdMatch.stamp
             : (typeof j.stamp === 'string' && j.stamp.trim() ? j.stamp.replace(/#\d+\s*\/?\s*/g, '').trim() : 'Custom Metric Drill'),
           mm: stdMatch ? stdMatch.mm : Number(mmVal.toFixed(3)),
-          custom: stdMatch ? false : Boolean(j.custom ?? true),
+          custom: stdMatch ? false : isUserCustom,
           location: loc,
-          inBox: isBox,
-          inToolbox: isBox
+          inBox: isActiveInBox,
+          inToolbox: isActiveInBox
         };
         jetObj.label = formatJetOptionLabel(jetObj);
         normalizedJets.push(jetObj);
       });
       defaultJets.forEach((dj) => {
         if (!normalizedJets.some((nj) => Math.abs(nj.mm - dj.mm) < 0.002)) {
-          normalizedJets.push({ ...dj });
+          const clone = { ...dj };
+          if (needsTactixJetBoxV2 && Math.abs(clone.mm - 1.88) < 0.002) {
+            clone.location = 'DME1';
+            clone.inBox = true;
+            clone.inToolbox = true;
+            clone.label = formatJetOptionLabel(clone);
+          }
+          normalizedJets.push(clone);
         }
       });
       candidate.jets = sortJetsByDiameter(normalizedJets);
     }
 
-    // 2) Hydrate & Migrate 3 Audited Carburettor Profiles (DME #1, DME #2 Sandown Spec, SNB)
+    // 2) Hydrate & Migrate 3 Audited Carburettor Profiles (DME #1 on 1.88 mm, DME #2 Sandown Spec on 1.90 mm, SNB)
     if (needsCarbyJetAuditV1 || !Array.isArray(candidate.carbies) || candidate.carbies.length === 0) {
       const extraUserCarbies = [];
       const prevLearnedByAlias = {};
@@ -5218,7 +5272,7 @@
               venturiMm: pickOptNum(oldC.mainVenturiMm ?? oldC.venturiMm),
               fittedJetMm: fittedMm,
               fittedJetId: fittedMm ? makeMmJetId(fittedMm) : '',
-              recommendedStartJetMm: pickOptNum(oldC.recommendedStartJetMm) ?? 1.85,
+              recommendedStartJetMm: pickOptNum(oldC.recommendedStartJetMm) ?? 1.88,
               emulsionId: oldC.emulsionId || 'TBD',
               needleSeat: oldC.needleSeat || 'V8 High-Flow Brass + Viton Tip',
               spillHeightMm: pickOptNum(oldC.spillHeightMm ?? oldC.spillMm),
@@ -5245,9 +5299,12 @@
         const alias = normalizeCarbyIdAlias(c.id || c.name);
         const def = defaultCarbies.find((d) => d.id === alias);
         const isDme2Upgrade = needsManifoldAudit2012V2 && alias === 'DME2' && def;
+        const isDme1JetV2Upgrade = needsTactixJetBoxV2 && alias === 'DME1' && def;
         const boreMm = pickOptNum(c.throttleBoreMm ?? c.exitMm) ?? (def ? def.throttleBoreMm : 39.90);
         const ventMm = c.mainVenturiMm !== undefined ? pickOptNum(c.mainVenturiMm) : (def ? def.mainVenturiMm : pickOptNum(c.venturiMm));
-        const fitMm = isDme2Upgrade
+        const fitMm = isDme1JetV2Upgrade
+          ? 1.88
+          : isDme2Upgrade
           ? def.fittedJetMm
           : c.fittedJetMm !== undefined
           ? pickOptNum(c.fittedJetMm)
@@ -5264,9 +5321,9 @@
           ? { ...def.baselineAnchor }
           : (c.baselineAnchor || (def && def.baselineAnchor) || {
               sourceLabel: 'Bench Baseline',
-              jetId: fitJetObj ? fitJetObj.id : 'mm_185',
-              jetLabel: formatJetPureMm(fitMm || 1.85),
-              jetMm: fitMm || 1.85,
+              jetId: fitJetObj ? fitJetObj.id : 'mm_188',
+              jetLabel: formatJetPureMm(fitMm || 1.88),
+              jetMm: fitMm || 1.88,
               rad: 94.3,
               fuelSg: 0.740,
               verifiedAfr: 12.50,
@@ -5274,12 +5331,20 @@
               fuelPsi: 4.3,
               emulsionId: resolvedEmulsionId
             });
+        if (isDme1JetV2Upgrade && anchorBase) {
+          anchorBase.jetMm = 1.88;
+          anchorBase.jetId = 'mm_188';
+          anchorBase.jetLabel = '1.88 mm';
+        }
+        const recStartMm = isDme1JetV2Upgrade
+          ? 1.88
+          : (pickOptNum(c.recommendedStartJetMm) ?? (def ? def.recommendedStartJetMm : 1.88));
         return {
           ...(def || {}),
           ...c,
           id: def ? def.id : String(c.id || c.name).trim(),
           name: typeof c.name === 'string' && c.name.trim() ? c.name.trim() : (def ? def.name : 'Carby'),
-          onCar: Boolean(c.onCar),
+          onCar: isDme1JetV2Upgrade ? true : Boolean(c.onCar),
           bodyCode: typeof c.bodyCode === 'string' && c.bodyCode.trim() ? c.bodyCode.trim() : (def ? def.bodyCode : 'TBD'),
           baseCasting: typeof c.baseCasting === 'string' && c.baseCasting.trim() ? c.baseCasting.trim() : (def ? def.baseCasting : 'BXUV-3 (75mm Studs)'),
           throttleBoreMm: boreMm,
@@ -5288,7 +5353,7 @@
           venturiMm: ventMm,
           fittedJetMm: fitMm,
           fittedJetId: fitMm !== null ? (fitJetObj ? fitJetObj.id : makeMmJetId(fitMm)) : '',
-          recommendedStartJetMm: pickOptNum(c.recommendedStartJetMm) ?? (def ? def.recommendedStartJetMm : 1.85),
+          recommendedStartJetMm: recStartMm,
           emulsionId: resolvedEmulsionId,
           needleSeat: typeof c.needleSeat === 'string' && c.needleSeat.trim() ? c.needleSeat.trim() : (def ? def.needleSeat : 'V8 High-Flow Brass + Viton Tip'),
           spillHeightMm: spillVal,
@@ -5303,7 +5368,7 @@
             : (typeof c.airCleaner === 'string' && c.airCleaner.trim() ? c.airCleaner.trim() : (def ? def.airCleaner : 'Speco HQ900AL (225x50mm Cotton Element — Set 5–6mm up on neck for flush bellmouth, bridge bar Front-to-Back) + HQRA Carby Shield')),
           baselineAnchor: {
             ...anchorBase,
-            jetLabel: formatJetPureMm(anchorBase.jetMm || fitMm || 1.85),
+            jetLabel: formatJetPureMm(anchorBase.jetMm || fitMm || 1.88),
             fuelPsi: Number.isFinite(Number(anchorBase.fuelPsi)) ? Number(anchorBase.fuelPsi) : 4.3
           },
           notes: isDme2Upgrade ? def.notes : (typeof c.notes === 'string' ? c.notes : (def ? def.notes : ''))
@@ -5323,29 +5388,46 @@
         if (matchedJet) {
           candidate.jets.forEach((otherJ) => {
             if (otherJ.id !== matchedJet.id && otherJ.location === cid) {
-              otherJ.location = 'BOX';
-              otherJ.inBox = true;
-              otherJ.inToolbox = true;
+              const otherObs = isObsoleteTactixV1Size(otherJ.mm) && !Boolean(otherJ.custom);
+              otherJ.location = otherObs ? 'OUT' : 'BOX';
+              otherJ.inBox = !otherObs;
+              otherJ.inToolbox = !otherObs;
               otherJ.label = formatJetOptionLabel(otherJ);
             }
           });
           matchedJet.location = cid;
-          matchedJet.inBox = false;
-          matchedJet.inToolbox = false;
+          const keepInBoxPool = isNewTactixBoxSize(matchedJet.mm) || Boolean(matchedJet.custom);
+          matchedJet.inBox = keepInBoxPool;
+          matchedJet.inToolbox = keepInBoxPool;
           matchedJet.label = formatJetOptionLabel(matchedJet);
           carbyObj.fittedJetId = matchedJet.id;
         }
       } else {
         candidate.jets.forEach((j) => {
           if (j.location === cid) {
-            j.location = 'BOX';
-            j.inBox = true;
-            j.inToolbox = true;
+            const obs = isObsoleteTactixV1Size(j.mm) && !Boolean(j.custom);
+            j.location = obs ? 'OUT' : 'BOX';
+            j.inBox = !obs;
+            j.inToolbox = !obs;
             j.label = formatJetOptionLabel(j);
           }
         });
       }
     });
+
+    // Ensure obsolete V1 sizes (1.70, 1.75, 1.87, 1.89, 1.92, 2.00) are unchecked from inBox: true unless currently assigned to a carby or custom-added by the user
+    if (needsTactixJetBoxV2) {
+      candidate.jets.forEach((j) => {
+        if (!j) return;
+        const assignedToCarby = ['DME1', 'DME2', 'SNB'].includes(String(j.location || '').toUpperCase());
+        if (!assignedToCarby && !Boolean(j.custom) && isObsoleteTactixV1Size(j.mm)) {
+          j.location = 'OUT';
+          j.inBox = false;
+          j.inToolbox = false;
+          j.label = formatJetOptionLabel(j);
+        }
+      });
+    }
 
     // 3) Hydrate Emulsion Tubes (#1–#8: 9 profiles = 14 physical tubes) & Brass Kit (2 Idle + 4 Power Bypass)
     if (needsCarbyJetAuditV1 || !Array.isArray(candidate.emulsions) || candidate.emulsions.length === 0) {
@@ -6131,8 +6213,8 @@
     b.carbyId = normalizeCarbyIdAlias(b.carbyId || 'DME1');
     if (needsCarbyJetAuditV1) {
       if (b.carbyId === 'DME1' && (b.jetId === 'drill_2000' || Math.abs(Number(b.jetMm) - 2.0) < 0.005)) {
-        b.jetId = 'mm_185';
-        b.jetMm = 1.85;
+        b.jetId = 'mm_188';
+        b.jetMm = 1.88;
       }
       if (!b.fuelPsi || Math.abs(Number(b.fuelPsi) - 5.0) < 0.05) {
         b.fuelPsi = 4.3;
@@ -6141,7 +6223,12 @@
         b.emulsionId = 'E5_DME';
       }
     }
-    b.jetMm = Number.isFinite(Number(b.jetMm)) && Number(b.jetMm) > 0 ? Number(b.jetMm) : 1.85;
+    if (needsTactixJetBoxV2 && b.carbyId === 'DME1') {
+      b.jetMm = 1.88;
+      b.jetId = 'mm_188';
+      b.jetLabel = '1.88 mm';
+    }
+    b.jetMm = Number.isFinite(Number(b.jetMm)) && Number(b.jetMm) > 0 ? Number(b.jetMm) : 1.88;
     b.jetLabel = formatJetPureMm(b.jetMm);
     const matchedBaseJet = candidate.jets.find((j) => Math.abs(j.mm - b.jetMm) < 0.002);
     b.jetId = matchedBaseJet ? matchedBaseJet.id : makeMmJetId(b.jetMm);
@@ -6937,6 +7024,7 @@
     candidate.exhaustRosterAudit2025V1 = true;
     candidate.enginesHeadsSeededV1 = true;
     candidate.engineNicknamesV1 = true;
+    candidate.tactixJetBoxV2 = true;
     candidate.lastModifiedAt =
       Number.isFinite(Number(candidate.lastModifiedAt)) && Number(candidate.lastModifiedAt) > 0
         ? Math.round(Number(candidate.lastModifiedAt))
@@ -6976,6 +7064,7 @@
     exhaustRosterAudit2025V1: true,
     enginesHeadsSeededV1: true,
     engineNicknamesV1: true,
+    tactixJetBoxV2: true,
     lastModifiedAt: 0,
     activeEventId: null,
     activeSessionId: null,
@@ -7029,7 +7118,7 @@
   }
 
   state = loadState();
-  // Persist the one-time seedInitializedV1 / eventArchitectureV1 / suspensionSeededV1 / peddersDynoAuditV1 / carbyJetAuditV1 / manifoldAudit2012V2 / manifoldActiveF_V1 / fuelSystemAuditV2 / brakesAuditV2 / jetLocationsV1 / spacerKitSeededV1 / calder2024CwSeededV1 / bathurstBenchmarkFixV1 / exhaustRosterAudit2025V1 / enginesHeadsSeededV1 migration immediately
+  // Persist the one-time seedInitializedV1 / eventArchitectureV1 / suspensionSeededV1 / peddersDynoAuditV1 / carbyJetAuditV1 / manifoldAudit2012V2 / manifoldActiveF_V1 / fuelSystemAuditV2 / brakesAuditV2 / jetLocationsV1 / spacerKitSeededV1 / calder2024CwSeededV1 / bathurstBenchmarkFixV1 / exhaustRosterAudit2025V1 / enginesHeadsSeededV1 / tactixJetBoxV2 migration immediately
   try {
     state.seedInitializedV1 = true;
     state.peddersDynoAuditV1 = true;
@@ -7044,6 +7133,7 @@
     state.bathurstBenchmarkFixV1 = true;
     state.exhaustRosterAudit2025V1 = true;
     state.enginesHeadsSeededV1 = true;
+    state.tactixJetBoxV2 = true;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (_) {}
 
@@ -7740,7 +7830,7 @@
    *   2) X.location = 'BOX', X.inBox = true, X.inToolbox = true.
    */
   function assignJetLocationTwoWay(jetIdOrMm, targetLocation, options = {}) {
-    const loc = ['BOX', 'DME1', 'DME2', 'SNB'].includes(String(targetLocation || '').toUpperCase())
+    const loc = ['BOX', 'DME1', 'DME2', 'SNB', 'OUT'].includes(String(targetLocation || '').toUpperCase())
       ? String(targetLocation).toUpperCase()
       : 'BOX';
     const jet = state.jets.find(
@@ -7751,7 +7841,7 @@
     if (!jet) return null;
 
     const prevLoc = getJetLocation(jet);
-    if (prevLoc && prevLoc !== 'BOX' && prevLoc !== loc) {
+    if (prevLoc && prevLoc !== 'BOX' && prevLoc !== 'OUT' && prevLoc !== loc) {
       const prevCarby = state.carbies.find((c) => c.id === prevLoc);
       if (prevCarby && prevCarby.fittedJetMm !== null && Math.abs(Number(prevCarby.fittedJetMm) - jet.mm) < 0.002) {
         prevCarby.fittedJetMm = null;
@@ -7759,7 +7849,12 @@
       }
     }
 
-    if (loc === 'BOX') {
+    if (loc === 'OUT') {
+      jet.location = 'OUT';
+      jet.inBox = false;
+      jet.inToolbox = false;
+      jet.label = formatJetOptionLabel(jet);
+    } else if (loc === 'BOX') {
       jet.location = 'BOX';
       jet.inBox = true;
       jet.inToolbox = true;
@@ -7767,15 +7862,17 @@
     } else {
       state.jets.forEach((otherJ) => {
         if (otherJ.id !== jet.id && getJetLocation(otherJ) === loc) {
-          otherJ.location = 'BOX';
-          otherJ.inBox = true;
-          otherJ.inToolbox = true;
+          const isObsOther = OBSOLETE_TACTIX_V1_MM_SIZES.some((om) => Math.abs(om - otherJ.mm) < 0.002) && !Boolean(otherJ.custom);
+          otherJ.location = isObsOther ? 'OUT' : 'BOX';
+          otherJ.inBox = !isObsOther;
+          otherJ.inToolbox = !isObsOther;
           otherJ.label = formatJetOptionLabel(otherJ);
         }
       });
       jet.location = loc;
-      jet.inBox = false;
-      jet.inToolbox = false;
+      const isTactixSlot = TACTIX_BOX_MM_SIZES.some((tm) => Math.abs(tm - jet.mm) < 0.002) || Boolean(jet.custom);
+      jet.inBox = isTactixSlot;
+      jet.inToolbox = isTactixSlot;
       jet.label = formatJetOptionLabel(jet);
 
       const targetCarby = state.carbies.find((c) => c.id === loc);
@@ -8065,7 +8162,7 @@
     const fallbackPreviewMm =
       selectedCarby && Number.isFinite(Number(selectedCarby.recommendedStartJetMm)) && Number(selectedCarby.recommendedStartJetMm) > 0
         ? Number(selectedCarby.recommendedStartJetMm)
-        : 1.85;
+        : 1.88;
     const effectiveBaseJetMm =
       Number.isFinite(Number(base.jetMm)) && Number(base.jetMm) > 0
         ? Number(base.jetMm)
@@ -8151,7 +8248,7 @@
   }
 
   /**
-   * Finds the Recommended Safe Mid-Point Jet from active Tactix Box mm jets (sorted smallest-to-largest mm):
+   * Finds the Recommended Safe Mid-Point Jet from active Tactix Box mm jets (1.73–2.07 mm) plus any jet fitted on the selected carby (sorted smallest-to-largest mm):
    * 1) Calculates exact idealJetMm for targetAfr using fourth-root RAD & SG physics.
    * 2) Picks the active inBox/inToolbox mm jet closest to idealJetMm, THEN checks its predictedAfr:
    *    if that jet's predictedAfr triggers red lean danger (endCylAfr >= 13.25 or predictedAfr > targetAfr + 0.12),
@@ -8184,13 +8281,15 @@
       ? sortJetsByDiameter(activeJetsOpt)
       : sortJetsByDiameter(
           state.jets.filter((j) => {
+            if (!j) return false;
             const loc = getJetLocation(j);
-            if (loc === 'BOX' || loc === selectedCarbyId) return true;
+            const isActiveBoxJet = loc === 'BOX' && Boolean(j.inBox !== undefined ? j.inBox : j.inToolbox);
+            if (isActiveBoxJet || loc === selectedCarbyId) return true;
             if (fittedMmInSelectedCarby !== null && Math.abs(j.mm - fittedMmInSelectedCarby) < 0.002) return true;
             return false;
           })
         );
-    const sortedJets = toolboxJets.length > 0 ? toolboxJets : sortJetsByDiameter(state.jets);
+    const sortedJets = toolboxJets.length > 0 ? toolboxJets : sortJetsByDiameter(state.jets.filter((j) => Boolean(j && (j.inBox || j.inToolbox))));
 
     let midIdx = 0;
     let bestDiff = Infinity;
@@ -11831,12 +11930,12 @@
       ? `#1 & #6 End-Cyl Est: ${phys.unchangedEndCyl.toFixed(2)} AFR`
       : `Weather-Only Est (#1/#6: ${phys.unchangedEndCyl.toFixed(2)} AFR)`;
 
-    const activeCount = state.jets.filter((j) => getJetLocation(j) === 'BOX').length;
+    const activeCount = state.jets.filter((j) => j && Boolean(j.inBox !== undefined ? j.inBox : j.inToolbox)).length;
     const selectedCarbyId = normalizeCarbyIdAlias(($('selectCalcCarby') && $('selectCalcCarby').value) || state.baseline.carbyId || 'DME1');
     const selectedCarbyObj = (state.carbies || []).find((c) => c && c.id === selectedCarbyId);
     const fittedTag =
       selectedCarbyObj && selectedCarbyObj.fittedJetMm
-        ? ` + ${formatJetPureMm(selectedCarbyObj.fittedJetMm)} in ${selectedCarbyObj.name}`
+        ? ` • ${formatJetPureMm(selectedCarbyObj.fittedJetMm)} in ${selectedCarbyObj.name}`
         : '';
     $('activeToolboxCountHint').textContent = `${activeCount} in Tactix Box${fittedTag}`;
 
@@ -11919,9 +12018,19 @@
       })
       .join('');
 
-    // Populate Full-Kit Dropdown strictly in mm + mm² (tagging any jet sitting in a carby e.g. '1.90 mm (In DME #2)')
+    // Populate Full-Kit Dropdown strictly in mm + mm² (tagging any jet sitting in a carby e.g. '1.88 mm (In DME #1)' / '1.90 mm (In DME #2)')
     const fullSelect = $('selectFullJetKit');
-    fullSelect.innerHTML = sortJetsByDiameter(state.jets)
+    const dropdownJets = sortJetsByDiameter(
+      state.jets.filter((j) => {
+        if (!j) return false;
+        const loc = getJetLocation(j);
+        if (loc === 'DME1' || loc === 'DME2' || loc === 'SNB') return true;
+        if (Boolean(j.inBox !== undefined ? j.inBox : j.inToolbox)) return true;
+        if (ui.selectedJetId && j.id === ui.selectedJetId) return true;
+        return false;
+      })
+    );
+    fullSelect.innerHTML = dropdownJets
       .map((j) => {
         const pred = calculatePredictedAfr(
           phys.effectiveBaseAfr,
@@ -21807,18 +21916,20 @@
     const tbBadge = $('toolboxSummaryBadge');
     if (tbBadge) tbBadge.textContent = summaryParts.join(' • ');
     const jetsCountBadge = $('fleetJetsCountBadge');
-    if (jetsCountBadge) jetsCountBadge.textContent = `${sorted.length} JETS`;
+    const activeBoxOrFittedCount = sorted.filter((j) => getJetLocation(j) !== 'OUT').length;
+    if (jetsCountBadge) jetsCountBadge.textContent = `${activeBoxOrFittedCount} JETS`;
 
     listEl.innerHTML = sorted
       .map((j) => {
         const area = orificeAreaMm2(j.mm);
         const loc = getJetLocation(j);
         const isBox = loc === 'BOX';
+        const isOut = loc === 'OUT';
         const pureMm = formatJetPureMm(j.mm);
         const rowClass = [
           'jet-inv-row',
           j.custom ? 'custom-drill' : '',
-          isBox ? 'in-tactix-box' : 'fitted-in-carby'
+          isOut ? 'out-of-box' : isBox ? 'in-tactix-box' : 'fitted-in-carby'
         ]
           .filter(Boolean)
           .join(' ');
@@ -21837,7 +21948,7 @@
             </div>
 
             <select
-              class="jet-location-select ${isBox ? 'loc-box' : 'loc-carby'}"
+              class="jet-location-select ${isOut ? 'loc-out' : isBox ? 'loc-box' : 'loc-carby'}"
               data-jet-location-select="${escapeHtml(j.id)}"
               aria-label="Location for ${escapeHtml(pureMm)}"
             >
@@ -21845,6 +21956,7 @@
               <option value="DME1" ${loc === 'DME1' ? 'selected' : ''}>In DME #1</option>
               <option value="DME2" ${loc === 'DME2' ? 'selected' : ''}>In DME #2</option>
               <option value="SNB" ${loc === 'SNB' ? 'selected' : ''}>In SNB</option>
+              <option value="OUT" ${loc === 'OUT' ? 'selected' : ''}>Out of Box</option>
             </select>
           </div>
         `;
@@ -23160,9 +23272,9 @@
           exitMm: 39.81,
           mainVenturiMm: null,
           venturiMm: null,
-          fittedJetMm: 1.85,
-          fittedJetId: 'mm_185',
-          recommendedStartJetMm: 1.85,
+          fittedJetMm: 1.88,
+          fittedJetId: 'mm_188',
+          recommendedStartJetMm: 1.88,
           emulsionId: 'E5_STD',
           needleSeat: 'V8 High-Flow Brass + Viton Tip',
           spillHeightMm: 15.0,
@@ -23175,7 +23287,7 @@
           airCleaner: 'Speco HQ900AL (225x50mm Cotton Element — Set 5–6mm up on neck for flush bellmouth, bridge bar Front-to-Back) + HQRA Carby Shield',
           notes: '',
           baselineAnchor: {
-            jetMm: 1.85,
+            jetMm: 1.88,
             rad: 94.3,
             fuelSg: 0.740,
             verifiedAfr: null,
@@ -23289,13 +23401,13 @@
     }
 
     const a = carby.baselineAnchor || {
-      jetMm: carby.fittedJetMm || carby.recommendedStartJetMm || 1.85,
+      jetMm: carby.fittedJetMm || carby.recommendedStartJetMm || 1.88,
       rad: 94.3,
       fuelSg: 0.740,
       verifiedAfr: null,
       sourceLabel: 'Fleet Anchor'
     };
-    if ($('editCarbyAnchorJetMm')) $('editCarbyAnchorJetMm').value = Number(a.jetMm || 1.85).toFixed(2);
+    if ($('editCarbyAnchorJetMm')) $('editCarbyAnchorJetMm').value = Number(a.jetMm || 1.88).toFixed(2);
     if ($('editCarbyAnchorRad')) $('editCarbyAnchorRad').value = Number(a.rad || 94.3).toFixed(1);
     if ($('editCarbyAnchorSg')) $('editCarbyAnchorSg').value = Number(a.fuelSg || 0.740).toFixed(3);
     if ($('editCarbyAnchorSource')) $('editCarbyAnchorSource').value = a.sourceLabel || '';
@@ -23401,19 +23513,20 @@
 
     const selectedJetVal = $('editCarbyJet') ? $('editCarbyJet').value : '__NO_JET__';
     if (!selectedJetVal || selectedJetVal === '__NO_JET__') {
-      // Return any jet previously fitted in this carby back to Tactix Box
+      // Return any jet previously fitted in this carby back to Tactix Box (or Out of Box if obsolete V1 size)
       (state.jets || []).forEach((j) => {
         if (getJetLocation(j) === carby.id) {
-          j.location = 'BOX';
-          j.inBox = true;
-          j.inToolbox = true;
+          const isObs = OBSOLETE_TACTIX_V1_MM_SIZES.some((om) => Math.abs(om - j.mm) < 0.002) && !Boolean(j.custom);
+          j.location = isObs ? 'OUT' : 'BOX';
+          j.inBox = !isObs;
+          j.inToolbox = !isObs;
           j.label = formatJetOptionLabel(j);
         }
       });
       carby.fittedJetId = '';
       carby.fittedJetMm = null;
       if (!carby.recommendedStartJetMm) {
-        carby.recommendedStartJetMm = carby.id === 'DME2' ? 1.87 : 1.85;
+        carby.recommendedStartJetMm = 1.88;
       }
     } else {
       const fittedJet = findJetById(selectedJetVal);
@@ -23422,7 +23535,7 @@
       }
     }
 
-    const fallbackAnchorMm = carby.fittedJetMm || carby.recommendedStartJetMm || 1.85;
+    const fallbackAnchorMm = carby.fittedJetMm || carby.recommendedStartJetMm || 1.88;
     const anchorJetMm = Number(readNum('editCarbyAnchorJetMm', fallbackAnchorMm).toFixed(3));
     const nearestJet = findNearestJetByMm(anchorJetMm) || state.jets[0];
     const untested = Boolean(ui.editCarbyAnchorUntested);
