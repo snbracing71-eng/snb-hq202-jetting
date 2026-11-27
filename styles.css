@@ -9345,6 +9345,276 @@ button:disabled.btn-stage-locked,
   white-space: nowrap;
 }
 
+/* ============================================================================
+   FULL-SCREEN NEXT-SESSION COUNTDOWN OVERLAY (mechanic.html)
+   ============================================================================ */
+.mech-header-countdown-btn {
+  padding: 6px 11px !important;
+  min-height: 36px !important;
+  font-size: 12.5px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
 
+.mech-header-countdown-btn.is-active {
+  background: linear-gradient(180deg, #F59E0B 0%, #D97706 100%) !important;
+  color: #090B0E !important;
+  border-color: #FDE68A !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.45);
+}
 
+.mech-countdown-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 15%, rgba(16, 185, 129, 0.16) 0%, transparent 65%),
+    radial-gradient(ellipse 80% 50% at 50% 90%, rgba(245, 158, 11, 0.14) 0%, transparent 70%),
+    linear-gradient(180deg, #070A0F 0%, #0B1018 50%, #05070B 100%);
+  color: #F8FAFC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(20px + env(safe-area-inset-bottom, 0px));
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  overflow-y: auto;
+}
 
+.mech-countdown-overlay.is-pregrid-window {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 15%, rgba(245, 158, 11, 0.24) 0%, transparent 65%),
+    linear-gradient(180deg, #0D0B06 0%, #141008 50%, #070604 100%);
+}
+
+.mech-countdown-panel {
+  width: 100%;
+  max-width: 780px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 20px;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(22, 30, 44, 0.94) 0%, rgba(11, 15, 23, 0.97) 100%);
+  border: 2.5px solid #10B981;
+  border-top-color: #6EE7B7;
+  border-bottom-color: #065F46;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.9),
+    0 0 28px rgba(16, 185, 129, 0.18),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.18);
+}
+
+.mech-countdown-overlay.is-pregrid-window .mech-countdown-panel {
+  border-color: #F59E0B;
+  border-top-color: #FDE68A;
+  border-bottom-color: #92400E;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.92),
+    0 0 32px rgba(245, 158, 11, 0.25),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.2);
+}
+
+.mech-countdown-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.mech-countdown-event-badge {
+  font-size: 0.86rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #6EE7B7;
+}
+
+.mech-countdown-precheck-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  background: rgba(245, 158, 11, 0.18);
+  border: 1.5px solid #F59E0B;
+  color: #FDE68A;
+}
+
+.mech-countdown-precheck-pill.is-ready {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: #34D399;
+  color: #A7F3D0;
+}
+
+.mech-countdown-hero {
+  text-align: center;
+  padding: 18px 14px;
+  border-radius: 14px;
+  background:
+    radial-gradient(ellipse 75% 55% at 50% 10%, rgba(16, 185, 129, 0.16) 0%, transparent 70%),
+    linear-gradient(180deg, #090E16 0%, #05080D 100%);
+  border: 2px solid #26354A;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.85);
+}
+
+.mech-countdown-heading {
+  font-size: clamp(1rem, 2.8vw, 1.35rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #FCD34D;
+  margin-bottom: 6px;
+}
+
+.mech-countdown-clock {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-size: clamp(2.75rem, 11vw, 5.4rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: 0.03em;
+  color: #ECFDF5;
+  text-shadow:
+    0 0 24px rgba(52, 211, 153, 0.38),
+    0 4px 10px rgba(0, 0, 0, 0.95);
+  margin: 4px 0 8px;
+}
+
+.mech-countdown-overlay.is-pregrid-window .mech-countdown-clock {
+  color: #FEF3C7;
+  text-shadow:
+    0 0 26px rgba(245, 158, 11, 0.48),
+    0 4px 10px rgba(0, 0, 0, 0.95);
+}
+
+.mech-countdown-status-sub {
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #94A3B8;
+}
+
+.mech-countdown-times-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .mech-countdown-times-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+.mech-countdown-time-card {
+  padding: 14px 14px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #141C29 0%, #0C1119 100%);
+  border: 2px solid #2D3C52;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.mech-countdown-time-card.is-actual {
+  border-color: #38BDF8;
+  background: linear-gradient(180deg, rgba(12, 74, 110, 0.35) 0%, rgba(12, 17, 25, 0.95) 100%);
+}
+
+.mech-countdown-time-card.is-next {
+  border-color: #10B981;
+  background: linear-gradient(180deg, rgba(6, 95, 70, 0.4) 0%, rgba(12, 17, 25, 0.95) 100%);
+}
+
+.mech-countdown-time-card.is-pregrid {
+  border-color: #F59E0B;
+  background: linear-gradient(180deg, rgba(120, 53, 15, 0.45) 0%, rgba(12, 17, 25, 0.95) 100%);
+}
+
+.mech-countdown-time-label {
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #CBD5E1;
+}
+
+.mech-countdown-time-card.is-actual .mech-countdown-time-label {
+  color: #7DD3FC;
+}
+
+.mech-countdown-time-card.is-next .mech-countdown-time-label {
+  color: #6EE7B7;
+}
+
+.mech-countdown-time-card.is-pregrid .mech-countdown-time-label {
+  color: #FCD34D;
+}
+
+.mech-countdown-time-val {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-size: clamp(1.45rem, 4.2vw, 2.05rem);
+  font-weight: 900;
+  line-height: 1.15;
+  color: #FFFFFF;
+}
+
+.mech-countdown-time-sub {
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #94A3B8;
+  letter-spacing: 0.03em;
+}
+
+.mech-countdown-tap-cue {
+  margin-top: 2px;
+  padding: 15px 18px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #10B981 0%, #059669 100%);
+  border: 2px solid #6EE7B7;
+  color: #04130E;
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow:
+    0 4px 0 #064E3B,
+    0 10px 22px rgba(16, 185, 129, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.mech-countdown-tap-cue:hover {
+  filter: brightness(1.06);
+}
+
+.mech-countdown-tap-cue:active {
+  transform: translateY(2px);
+}
+
+.mech-countdown-tap-icon {
+  font-size: 1.25rem;
+}

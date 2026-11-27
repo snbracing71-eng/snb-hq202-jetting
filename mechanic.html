@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest-mech.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.0.15" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.16" />
 </head>
 <body class="crew-page-body">
   <!-- Sticky 3D Brushed-Metal AgerPro Header -->
@@ -69,6 +69,15 @@
       </div>
 
       <div class="header-actions">
+        <button
+          type="button"
+          id="btnMechHeaderCountdown"
+          class="btn btn-amber-outline mech-header-countdown-btn"
+          aria-label="Open Next-Session Countdown Screen"
+          title="Jump to Full-Screen Next-Session Countdown"
+        >
+          &#9201; Countdown
+        </button>
         <button
           type="button"
           id="btnInstallPwa"
@@ -866,8 +875,71 @@
     </div>
   </main>
 
+  <!-- =========================================================
+       FULL-SCREEN NEXT-SESSION COUNTDOWN OVERLAY (#mechCountdownScreen)
+       Shown on load when an active event has an upcoming session with a scheduled start time,
+       via the header "Countdown" toggle, or after 3 minutes (180s) of checklist inactivity.
+       ========================================================= -->
+  <section
+    id="mechCountdownScreen"
+    class="mech-countdown-overlay"
+    role="dialog"
+    aria-modal="false"
+    aria-labelledby="mechCountdownHeading"
+    tabindex="0"
+    style="display: none;"
+  >
+    <div class="mech-countdown-panel">
+      <div class="mech-countdown-top-bar">
+        <span class="mech-countdown-event-badge mono" id="mechCountdownEventBadge">
+          &#127937; SANDOWN RACEWAY &bull; ACTIVE RACE WEEKEND
+        </span>
+        <span class="mech-countdown-precheck-pill mono" id="mechCountdownPrecheckPill">
+          PRE-RACE: 0 / 9 CHECKED
+        </span>
+      </div>
+
+      <div class="mech-countdown-hero">
+        <div class="mech-countdown-heading mono" id="mechCountdownHeading">
+          COUNTDOWN TO PRACTICE 1
+        </div>
+        <div class="mech-countdown-clock tabular" id="mechCountdownClock" aria-live="polite">
+          00:00:00
+        </div>
+        <div class="mech-countdown-status-sub mono" id="mechCountdownStatusSub">
+          SCHEDULED SESSION COUNTDOWN
+        </div>
+      </div>
+
+      <div class="mech-countdown-times-grid">
+        <div class="mech-countdown-time-card is-actual">
+          <div class="mech-countdown-time-label mono">ACTUAL TIME</div>
+          <div class="mech-countdown-time-val tabular" id="mechCountdownActualTime">--:--:--</div>
+          <div class="mech-countdown-time-sub mono" id="mechCountdownActualDay">LIVE DEVICE CLOCK</div>
+        </div>
+
+        <div class="mech-countdown-time-card is-next">
+          <div class="mech-countdown-time-label mono">NEXT SESSION TIME</div>
+          <div class="mech-countdown-time-val tabular" id="mechCountdownNextSessionTime">--:--</div>
+          <div class="mech-countdown-time-sub mono" id="mechCountdownNextSessionDay">SCHEDULED START</div>
+        </div>
+
+        <div class="mech-countdown-time-card is-pregrid" id="mechCountdownPreGridCard">
+          <div class="mech-countdown-time-label mono">PRE-GRID TIME</div>
+          <div class="mech-countdown-time-val tabular" id="mechCountdownPreGridTime">--:--</div>
+          <div class="mech-countdown-time-sub mono" id="mechCountdownPreGridSub">NEXT SESSION &minus; 30 MIN</div>
+        </div>
+      </div>
+
+      <div class="mech-countdown-tap-cue" id="mechCountdownTapCue" role="button" aria-label="Tap anywhere to open mechanic checklist">
+        <span class="mech-countdown-tap-icon" aria-hidden="true">&#128070;</span>
+        <span class="mech-countdown-tap-text">Tap anywhere to open mechanic checklist</span>
+      </div>
+    </div>
+  </section>
+
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=1.0.15"></script>
+  <script src="./app.js?v=1.0.16"></script>
 </body>
 </html>

@@ -26096,6 +26096,407 @@
     }
     updateMechFuelBurnBadgeFromInputs();
     togglePostRaceAccordion(Boolean(ui.postRaceAccordionOpen));
+    syncMechCountdownOnBootAndRender();
+  }
+
+  /* ------------------------------------------------------------------------
+     FULL-SCREEN NEXT-SESSION COUNTDOWN OVERLAY & 180s IDLE AUTO-RETURN
+     ------------------------------------------------------------------------ */
+  const MECH_IDLE_RETURN_MS = 180000; // 3 minutes (180,000 ms)
+  let mechCountdownTickInterval = null;
+  let mechIdleReturnTimeout = null;
+  let mechCountdownBootEvaluated = false;
+
+  function formatMinutesOfDay12h(totalMinutes) {
+    if (!Number.isFinite(totalMinutes)) return '—';
+    const norm = ((Math.round(totalMinutes) % 1440) + 1440) % 1440;
+    const hh24 = Math.floor(norm / 60);
+    const mm = norm % 60;
+    const ampm = hh24 >= 12 ? 'PM' : 'AM';
+    let hh12 = hh24 % 12;
+    if (hh12 === 0) hh12 = 12;
+    return `${hh12}:${String(mm).padStart(2, '0')} ${ampm}`;
+  }
+
+  function formatLiveDeviceTime12h(dateObj) {
+    const d = dateObj instanceof Date ? dateObj : new Date();
+    const hh24 = d.getHours();
+    const mm = d.getMinutes();
+    const ss = d.getSeconds();
+    const ampm = hh24 >= 12 ? 'PM' : 'AM';
+    let hh12 = hh24 % 12;
+    if (hh12 === 0) hh12 = 12;
+    return `${hh12}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')} ${ampm}`;
+  }
+
+  function formatLiveDeviceDayShort(dateObj) {
+    const d = dateObj instanceof Date ? dateObj : new Date();
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  }
+
+  function resolveSessionScheduledStartInfo(sess, evt) {
+    if (!sess || typeof sess !== 'object') return null;
+    const rawTimeStr = String(sess.scheduledTime || sess.timestamp || sess.time || '').trim();
+    const parsedTime = parseSessionTimeMinutes(rawTimeStr);
+    if (!parsedTime || parsedTime.minutes < 0) return null;
+
+    const fallbackIso = (evt && evt.eventDate) || getLocalTodayIso();
+    const isoDate = resolveSessionIsoDate(sess, fallbackIso);
+    const mIso = String(isoDate || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    const hh = Math.floor(parsedTime.minutes / 60);
+    const mm = parsedTime.minutes % 60;
+
+    let startDateObj = null;
+    if (mIso) {
+      startDateObj = new Date(
+        Number(mIso[1]),
+        Number(mIso[2]) - 1,
+        Number(mIso[3]),
+        hh,
+        mm,
+        0,
+        0
+      );
+    } else {
+      const now = new Date();
+      startDateObj = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0, 0);
+    }
+
+    const durationMin =
+      Number.isFinite(Number(sess.durationMin)) && Number(sess.durationMin) > 0
+        ? Number(sess.durationMin)
+        : Number.isFinite(Number(sess.estRunMin)) && Number(sess.estRunMin) > 0
+        ? Number(sess.estRunMin)
+        : 20;
+
+    const startMs = startDateObj.getTime();
+    const endMs = startMs + durationMin * 60 * 1000;
+    const preGridMinutes = parsedTime.minutes - 30;
+    const preGridMs = startMs - 30 * 60 * 1000;
+    const dayLabel = String(sess.scheduledDay || sess.sessionDate || formatIsoDateDisplay(isoDate) || '').trim();
+
+    return {
+      session: sess,
+      sessionName: String(sess.sessionName || 'Next Session').trim(),
+      isoDate,
+      dayLabel,
+      startMinutes: parsedTime.minutes,
+      startTimeFormatted: formatMinutesOfDay12h(parsedTime.minutes),
+      preGridMinutes,
+      preGridTimeFormatted: formatMinutesOfDay12h(preGridMinutes),
+      startMs,
+      endMs,
+      preGridMs,
+      durationMin
+    };
+  }
+
+  function resolveNextCountdownSessionInfo() {
+    const liveEvt = resolveActiveUnlockedEvent();
+    if (!liveEvt || !Array.isArray(liveEvt.sessions) || liveEvt.sessions.length === 0) {
+      return { liveEvt: liveEvt || null, targetInfo: null, reason: liveEvt ? 'no_sessions' : 'no_event' };
+    }
+
+    const ordered = sortSessionsDesc(liveEvt.sessions);
+    const uncompleted = ordered.filter(
+      (s) => s && s.status !== 'completed' && !s.completed && !s.postRaceCompleted && !s.tyresPostLocked
+    );
+
+    const nowMs = Date.now();
+    const candidates = (uncompleted.length > 0 ? uncompleted : ordered)
+      .map((s) => resolveSessionScheduledStartInfo(s, liveEvt))
+      .filter(Boolean);
+
+    if (candidates.length === 0) {
+      // No session has a scheduled start time; still return selected/first uncompleted session metadata for safe fallback display
+      const fallbackSess =
+        (ui.selectedCrewSessionId && ordered.find((s) => s && s.id === ui.selectedCrewSessionId)) ||
+        uncompleted[0] ||
+        ordered[0] ||
+        null;
+      return { liveEvt, targetInfo: null, fallbackSess, reason: 'no_schedule_time' };
+    }
+
+    // 1. Prefer the next uncompleted session whose scheduled start is in the future or currently underway
+    const upcomingOrUnderway = candidates.find((info) => info.endMs > nowMs);
+    if (upcomingOrUnderway) {
+      return { liveEvt, targetInfo: upcomingOrUnderway, reason: 'upcoming' };
+    }
+
+    // 2. If all scheduled times are in the past compared to device clock, prefer the currently selected crew session (if uncompleted & scheduled) or the first uncompleted scheduled session
+    const selectedCandidate =
+      (ui.selectedCrewSessionId &&
+        candidates.find((c) => c.session && c.session.id === ui.selectedCrewSessionId)) ||
+      (state.activeSessionId &&
+        candidates.find((c) => c.session && c.session.id === state.activeSessionId)) ||
+      candidates[0];
+
+    return { liveEvt, targetInfo: selectedCandidate, reason: 'past_or_active' };
+  }
+
+  function formatCountdownDurationHhMmSs(diffMs) {
+    if (!Number.isFinite(diffMs) || diffMs <= 0) {
+      return '00:00:00';
+    }
+    const totalSec = Math.max(0, Math.floor(diffMs / 1000));
+    const days = Math.floor(totalSec / 86400);
+    const remAfterDays = totalSec % 86400;
+    const hh = Math.floor(remAfterDays / 3600);
+    const mm = Math.floor((remAfterDays % 3600) / 60);
+    const ss = remAfterDays % 60;
+    const hhMmSs = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
+    return days > 0 ? `${days}D ${hhMmSs}` : hhMmSs;
+  }
+
+  function renderMechCountdownOverlay() {
+    const overlayEl = $('mechCountdownScreen');
+    if (!overlayEl) return;
+
+    const now = new Date();
+    const nowMs = now.getTime();
+
+    if ($('mechCountdownActualTime')) {
+      $('mechCountdownActualTime').textContent = formatLiveDeviceTime12h(now);
+    }
+    if ($('mechCountdownActualDay')) {
+      $('mechCountdownActualDay').textContent = formatLiveDeviceDayShort(now);
+    }
+
+    const { liveEvt, targetInfo, fallbackSess } = resolveNextCountdownSessionInfo();
+    const venueName = liveEvt ? normalizeVenueName(liveEvt.venue || 'Sandown Raceway') : 'NO ACTIVE EVENT';
+    const roundTitle = (liveEvt && liveEvt.eventTitle) || 'ACTIVE RACE WEEKEND';
+
+    if ($('mechCountdownEventBadge')) {
+      $('mechCountdownEventBadge').textContent = liveEvt
+        ? `🏁 ${venueName.toUpperCase()} • ${roundTitle.toUpperCase()}`
+        : '🏁 NO ACTIVE EVENT OPEN';
+    }
+
+    const activeSessObj = (targetInfo && targetInfo.session) || fallbackSess || null;
+    const preCl = normalizePreRaceChecklist(activeSessObj ? activeSessObj.preRaceChecklist : null);
+    const prePill = $('mechCountdownPrecheckPill');
+    if (prePill) {
+      prePill.textContent = `PRE-RACE: ${preCl.completedCount} / ${preCl.totalCount} ${
+        preCl.allChecked ? 'READY ✓' : 'CHECKED'
+      }`;
+      prePill.classList.toggle('is-ready', Boolean(preCl.allChecked));
+    }
+
+    const headingEl = $('mechCountdownHeading');
+    const clockEl = $('mechCountdownClock');
+    const statusSubEl = $('mechCountdownStatusSub');
+    const nextTimeEl = $('mechCountdownNextSessionTime');
+    const nextDayEl = $('mechCountdownNextSessionDay');
+    const preGridTimeEl = $('mechCountdownPreGridTime');
+    const preGridSubEl = $('mechCountdownPreGridSub');
+
+    if (!liveEvt) {
+      overlayEl.classList.remove('is-pregrid-window');
+      if (headingEl) headingEl.textContent = 'COUNTDOWN TO NEXT SESSION';
+      if (clockEl) clockEl.textContent = '— : — : —';
+      if (statusSubEl) statusSubEl.textContent = 'NO ACTIVE EVENT OPEN — TAP TO OPEN MECHANIC WORKSPACE';
+      if (nextTimeEl) nextTimeEl.textContent = '—';
+      if (nextDayEl) nextDayEl.textContent = 'NO SCHEDULED SESSION';
+      if (preGridTimeEl) preGridTimeEl.textContent = '—';
+      if (preGridSubEl) preGridSubEl.textContent = 'NEXT SESSION − 30 MIN';
+      return;
+    }
+
+    if (!targetInfo) {
+      const fbName = (fallbackSess && fallbackSess.sessionName) || 'NEXT SESSION';
+      overlayEl.classList.remove('is-pregrid-window');
+      if (headingEl) headingEl.textContent = `COUNTDOWN TO ${String(fbName).toUpperCase()}`;
+      if (clockEl) clockEl.textContent = '00:00:00';
+      if (statusSubEl) statusSubEl.textContent = 'NO SCHEDULED START TIME SET FOR THIS SESSION';
+      if (nextTimeEl) nextTimeEl.textContent = 'TBD';
+      if (nextDayEl) nextDayEl.textContent = (fallbackSess && fallbackSess.sessionDate) || venueName;
+      if (preGridTimeEl) preGridTimeEl.textContent = 'TBD';
+      if (preGridSubEl) preGridSubEl.textContent = 'NEXT SESSION − 30 MIN';
+      return;
+    }
+
+    const sessUpper = String(targetInfo.sessionName || 'NEXT SESSION').toUpperCase();
+    if (headingEl) {
+      headingEl.textContent = `COUNTDOWN TO ${sessUpper}`;
+    }
+    if (nextTimeEl) {
+      nextTimeEl.textContent = targetInfo.startTimeFormatted;
+    }
+    if (nextDayEl) {
+      nextDayEl.textContent = targetInfo.dayLabel
+        ? `${targetInfo.dayLabel.toUpperCase()} • ${targetInfo.durationMin} MIN`
+        : `SCHEDULED START (${targetInfo.durationMin} MIN)`;
+    }
+    if (preGridTimeEl) {
+      preGridTimeEl.textContent = targetInfo.preGridTimeFormatted;
+    }
+
+    const diffMs = targetInfo.startMs - nowMs;
+    const preGridDiffMs = targetInfo.preGridMs - nowMs;
+
+    if (diffMs > 0) {
+      if (clockEl) {
+        clockEl.textContent = formatCountdownDurationHhMmSs(diffMs);
+      }
+      const inPreGridWindow = preGridDiffMs <= 0;
+      overlayEl.classList.toggle('is-pregrid-window', inPreGridWindow);
+      if (inPreGridWindow) {
+        if (statusSubEl) {
+          statusSubEl.textContent = `⚠️ PRE-GRID WINDOW OPEN NOW — HEAD TO DUMMY GRID (${targetInfo.preGridTimeFormatted})`;
+        }
+        if (preGridSubEl) {
+          preGridSubEl.textContent = 'PRE-GRID CALL ACTIVE NOW';
+        }
+      } else {
+        const minsToPreGrid = Math.max(1, Math.ceil(preGridDiffMs / 60000));
+        if (statusSubEl) {
+          statusSubEl.textContent =
+            minsToPreGrid <= 180
+              ? `PRE-GRID CALL IN ${minsToPreGrid} MIN (${targetInfo.preGridTimeFormatted})`
+              : `SCHEDULED: ${targetInfo.dayLabel || targetInfo.isoDate} @ ${targetInfo.startTimeFormatted}`;
+        }
+        if (preGridSubEl) {
+          preGridSubEl.textContent = 'NEXT SESSION − 30 MIN';
+        }
+      }
+    } else if (nowMs < targetInfo.endMs) {
+      // Session is currently underway — never show negative countdown
+      overlayEl.classList.add('is-pregrid-window');
+      if (clockEl) {
+        clockEl.textContent = '00:00:00';
+      }
+      if (statusSubEl) {
+        statusSubEl.textContent = `🟢 ${sessUpper} IN PROGRESS (${targetInfo.startTimeFormatted})`;
+      }
+      if (preGridSubEl) {
+        preGridSubEl.textContent = 'SESSION CURRENTLY ON TRACK';
+      }
+    } else {
+      // Scheduled start time has passed on device clock, awaiting run/completion
+      overlayEl.classList.remove('is-pregrid-window');
+      if (clockEl) {
+        clockEl.textContent = '00:00:00';
+      }
+      if (statusSubEl) {
+        statusSubEl.textContent = `READY / AWAITING ${sessUpper} (${targetInfo.startTimeFormatted})`;
+      }
+      if (preGridSubEl) {
+        preGridSubEl.textContent = 'NEXT SESSION − 30 MIN';
+      }
+    }
+  }
+
+  function isMechModalOrDrawerBlockingIdleReturn() {
+    const cloudDrawer = $('mechCloudSyncDrawer');
+    if (cloudDrawer && cloudDrawer.style.display !== 'none') {
+      return true;
+    }
+    const openModalEl = document.querySelector('.modal-backdrop.open, .modal-overlay.open, [role="dialog"].open');
+    if (openModalEl && openModalEl.id !== 'mechCountdownScreen') {
+      return true;
+    }
+    return false;
+  }
+
+  function clearMechIdleReturnTimer() {
+    if (mechIdleReturnTimeout) {
+      clearTimeout(mechIdleReturnTimeout);
+      mechIdleReturnTimeout = null;
+    }
+  }
+
+  function resetMechIdleReturnTimer() {
+    if (!$('crewMechanicPage') || !$('mechCountdownScreen')) return;
+    clearMechIdleReturnTimer();
+    const overlayEl = $('mechCountdownScreen');
+    const isOverlayVisible = overlayEl && overlayEl.style.display !== 'none';
+    if (isOverlayVisible) return;
+
+    mechIdleReturnTimeout = setTimeout(() => {
+      if (isMechModalOrDrawerBlockingIdleReturn()) {
+        // Do not interrupt if a modal or cloud sync config drawer is open; re-arm for another 3 minutes
+        resetMechIdleReturnTimer();
+        return;
+      }
+      const { liveEvt } = resolveNextCountdownSessionInfo();
+      if (liveEvt) {
+        openMechCountdownScreen();
+      }
+    }, MECH_IDLE_RETURN_MS);
+  }
+
+  function ensureMechCountdownTicker() {
+    if (mechCountdownTickInterval) return;
+    mechCountdownTickInterval = setInterval(() => {
+      const overlayEl = $('mechCountdownScreen');
+      if (overlayEl && overlayEl.style.display !== 'none') {
+        renderMechCountdownOverlay();
+      }
+    }, 1000);
+  }
+
+  function openMechCountdownScreen() {
+    const overlayEl = $('mechCountdownScreen');
+    if (!overlayEl) return;
+    clearMechIdleReturnTimer();
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+      try {
+        document.activeElement.blur();
+      } catch (_) {}
+    }
+    renderMechCountdownOverlay();
+    overlayEl.style.display = 'flex';
+    ui.mechCountdownOpen = true;
+    const hdrBtn = $('btnMechHeaderCountdown');
+    if (hdrBtn) {
+      hdrBtn.classList.add('is-active');
+      hdrBtn.setAttribute('aria-pressed', 'true');
+    }
+    ensureMechCountdownTicker();
+  }
+
+  function closeMechCountdownScreen() {
+    const overlayEl = $('mechCountdownScreen');
+    if (!overlayEl) return;
+    overlayEl.style.display = 'none';
+    ui.mechCountdownOpen = false;
+    const hdrBtn = $('btnMechHeaderCountdown');
+    if (hdrBtn) {
+      hdrBtn.classList.remove('is-active');
+      hdrBtn.setAttribute('aria-pressed', 'false');
+    }
+    resetMechIdleReturnTimer();
+  }
+
+  function syncMechCountdownOnBootAndRender() {
+    if (!$('crewMechanicPage') || !$('mechCountdownScreen')) return;
+    const { liveEvt, targetInfo } = resolveNextCountdownSessionInfo();
+    const hdrBtn = $('btnMechHeaderCountdown');
+    if (hdrBtn) {
+      hdrBtn.style.display = liveEvt ? 'inline-flex' : 'none';
+    }
+
+    if (!mechCountdownBootEvaluated) {
+      mechCountdownBootEvaluated = true;
+      // Default to showing the full-screen countdown view on load when an active event has an upcoming/scheduled session
+      if (liveEvt && targetInfo) {
+        openMechCountdownScreen();
+        return;
+      } else {
+        closeMechCountdownScreen();
+        return;
+      }
+    }
+
+    if (ui.mechCountdownOpen) {
+      if (!liveEvt) {
+        closeMechCountdownScreen();
+      } else {
+        renderMechCountdownOverlay();
+      }
+    }
   }
 
   function readCrewSessionMatchFromInputs() {
@@ -29059,6 +29460,51 @@
     }
 
     if ($('crewMechanicPage')) {
+      const countdownEl = $('mechCountdownScreen');
+      if (countdownEl) {
+        countdownEl.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeMechCountdownScreen();
+        });
+        countdownEl.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+            e.preventDefault();
+            closeMechCountdownScreen();
+          }
+        });
+      }
+
+      if ($('btnMechHeaderCountdown')) {
+        $('btnMechHeaderCountdown').addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const overlay = $('mechCountdownScreen');
+          if (overlay && overlay.style.display !== 'none') {
+            closeMechCountdownScreen();
+          } else {
+            openMechCountdownScreen();
+          }
+        });
+      }
+
+      // Reset 180,000 ms (3-minute) idle auto-return timer on pointerdown, keydown, input, change, and scroll
+      ['pointerdown', 'keydown', 'input', 'change', 'scroll'].forEach((evtType) => {
+        window.addEventListener(
+          evtType,
+          (e) => {
+            if (e && e.target && e.target.closest && e.target.closest('#mechCountdownScreen')) {
+              return;
+            }
+            const overlay = $('mechCountdownScreen');
+            if (overlay && overlay.style.display === 'none') {
+              resetMechIdleReturnTimer();
+            }
+          },
+          { passive: true, capture: true }
+        );
+      });
+
       document.addEventListener('input', (e) => {
         const tyrePsiInp = e.target.closest('[data-pre-tyre-psi-corner]');
         if (tyrePsiInp) {
