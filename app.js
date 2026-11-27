@@ -26173,8 +26173,8 @@
 
     const startMs = startDateObj.getTime();
     const endMs = startMs + durationMin * 60 * 1000;
-    const preGridMinutes = parsedTime.minutes - 30;
-    const preGridMs = startMs - 30 * 60 * 1000;
+    const preGridMinutes = parsedTime.minutes - 20;
+    const preGridMs = startMs - 20 * 60 * 1000;
     const dayLabel = String(sess.scheduledDay || sess.sessionDate || formatIsoDateDisplay(isoDate) || '').trim();
 
     return {
@@ -26300,7 +26300,7 @@
       if (nextTimeEl) nextTimeEl.textContent = '—';
       if (nextDayEl) nextDayEl.textContent = 'NO SCHEDULED SESSION';
       if (preGridTimeEl) preGridTimeEl.textContent = '—';
-      if (preGridSubEl) preGridSubEl.textContent = 'NEXT SESSION − 30 MIN';
+      if (preGridSubEl) preGridSubEl.textContent = 'NEXT SESSION − 20 MIN';
       return;
     }
 
@@ -26313,7 +26313,7 @@
       if (nextTimeEl) nextTimeEl.textContent = 'TBD';
       if (nextDayEl) nextDayEl.textContent = (fallbackSess && fallbackSess.sessionDate) || venueName;
       if (preGridTimeEl) preGridTimeEl.textContent = 'TBD';
-      if (preGridSubEl) preGridSubEl.textContent = 'NEXT SESSION − 30 MIN';
+      if (preGridSubEl) preGridSubEl.textContent = 'NEXT SESSION − 20 MIN';
       return;
     }
 
@@ -26358,7 +26358,7 @@
               : `SCHEDULED: ${targetInfo.dayLabel || targetInfo.isoDate} @ ${targetInfo.startTimeFormatted}`;
         }
         if (preGridSubEl) {
-          preGridSubEl.textContent = 'NEXT SESSION − 30 MIN';
+          preGridSubEl.textContent = 'NEXT SESSION − 20 MIN';
         }
       }
     } else if (nowMs < targetInfo.endMs) {
@@ -26383,7 +26383,7 @@
         statusSubEl.textContent = `READY / AWAITING ${sessUpper} (${targetInfo.startTimeFormatted})`;
       }
       if (preGridSubEl) {
-        preGridSubEl.textContent = 'NEXT SESSION − 30 MIN';
+        preGridSubEl.textContent = 'NEXT SESSION − 20 MIN';
       }
     }
   }
