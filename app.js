@@ -2295,17 +2295,276 @@
    * (`date + timestamp`, parsing `YYYY-MM-DD` and time strings cleanly, falling back to session progression,
    * `id` timestamp, or array order only when dates and timestamps tie).
    */
+  const SANDOWN_DEC2026_HQ_EVENT_ID = 'evt_sandown_dec2026_hq';
+  const SANDOWN_DEC2026_HQ_VENUE = 'Sandown Raceway';
+  const SANDOWN_DEC2026_HQ_TITLE = 'Sandown Summer Enduro (5–6 Dec 2026) — HQ';
+  const SANDOWN_DEC2026_HQ_START_DATE = '2026-12-05';
+
+  const SANDOWN_DEC2026_HQ_SESSIONS_SPEC = [
+    {
+      id: 'sess_sandown_dec2026_hq_p1',
+      orderIndex: 1,
+      sessionName: 'Practice 1',
+      sessionDateIso: '2026-12-05',
+      sessionDate: '5 Dec 2026',
+      scheduledDay: 'Sat 5 Dec 2026',
+      scheduledTime: '1:55 PM',
+      timestamp: 'Sat 1:55 PM (15 min)',
+      durationMin: 15,
+      racedLaps: null
+    },
+    {
+      id: 'sess_sandown_dec2026_hq_q1',
+      orderIndex: 2,
+      sessionName: 'Qualifying',
+      sessionDateIso: '2026-12-05',
+      sessionDate: '5 Dec 2026',
+      scheduledDay: 'Sat 5 Dec 2026',
+      scheduledTime: '4:30 PM',
+      timestamp: 'Sat 4:30 PM (15 min)',
+      durationMin: 15,
+      racedLaps: null
+    },
+    {
+      id: 'sess_sandown_dec2026_hq_r1',
+      orderIndex: 3,
+      sessionName: 'Race 1',
+      sessionDateIso: '2026-12-06',
+      sessionDate: '6 Dec 2026',
+      scheduledDay: 'Sun 6 Dec 2026',
+      scheduledTime: '9:10 AM',
+      timestamp: 'Sun 9:10 AM (20 min • 8 Laps)',
+      durationMin: 20,
+      racedLaps: 8
+    },
+    {
+      id: 'sess_sandown_dec2026_hq_r2',
+      orderIndex: 4,
+      sessionName: 'Race 2',
+      sessionDateIso: '2026-12-06',
+      sessionDate: '6 Dec 2026',
+      scheduledDay: 'Sun 6 Dec 2026',
+      scheduledTime: '10:55 AM',
+      timestamp: 'Sun 10:55 AM (20 min • 8 Laps)',
+      durationMin: 20,
+      racedLaps: 8
+    },
+    {
+      id: 'sess_sandown_dec2026_hq_r3',
+      orderIndex: 5,
+      sessionName: 'Race 3',
+      sessionDateIso: '2026-12-06',
+      sessionDate: '6 Dec 2026',
+      scheduledDay: 'Sun 6 Dec 2026',
+      scheduledTime: '2:20 PM',
+      timestamp: 'Sun 2:20 PM (20 min • 8 Laps)',
+      durationMin: 20,
+      racedLaps: 8
+    },
+    {
+      id: 'sess_sandown_dec2026_hq_r4',
+      orderIndex: 6,
+      sessionName: 'Race 4',
+      sessionDateIso: '2026-12-06',
+      sessionDate: '6 Dec 2026',
+      scheduledDay: 'Sun 6 Dec 2026',
+      scheduledTime: '3:45 PM',
+      timestamp: 'Sun 3:45 PM (20 min • 8 Laps)',
+      durationMin: 20,
+      racedLaps: 8
+    }
+  ];
+
+  function createSandownDec2026HqPendingSession(spec, refState) {
+    const st = refState || state || {};
+    const base = (st && st.baseline) || createDefaultBaseline();
+    const carbyId = normalizeCarbyIdAlias(base.carbyId || 'DME1');
+    const carbiesList = Array.isArray(st.carbies) ? st.carbies : createDefaultCarbies();
+    const carbyObj = carbiesList.find((c) => c && c.id === carbyId);
+    const emulsionId = (carbyObj && carbyObj.emulsionId) || base.emulsionId || 'E5_DME';
+    const manifoldId = st.activeManifoldId || base.manifoldId || 'MAN_F';
+    const exhaustId = st.activeExhaustId || base.exhaustId || 'Macca';
+    const jetMm =
+      carbyObj && Number.isFinite(Number(carbyObj.fittedJetMm)) && Number(carbyObj.fittedJetMm) > 0
+        ? Number(carbyObj.fittedJetMm)
+        : Number.isFinite(Number(base.jetMm)) && Number(base.jetMm) > 0
+        ? Number(base.jetMm)
+        : 1.88;
+    const isStoneCold = spec.orderIndex === 1;
+    const dryStagger = computeDryAiColdStagger('CCW');
+    const mountedTyres =
+      st.chassis && st.chassis.mountedTyres && typeof st.chassis.mountedTyres === 'object'
+        ? st.chassis.mountedTyres
+        : { ...DEFAULT_CORNER_TYRE_IDS };
+    const mountedShocks =
+      st.mountedShocks && typeof st.mountedShocks === 'object'
+        ? { ...st.mountedShocks }
+        : { ...DEFAULT_MOUNTED_SHOCKS };
+    const mountedSprings =
+      st.mountedSprings && typeof st.mountedSprings === 'object'
+        ? { ...st.mountedSprings }
+        : { ...DEFAULT_MOUNTED_SPRINGS };
+    const mountedSpacers = normalizeRearSpacersMap(st.mountedSpacers, DEFAULT_MOUNTED_SPACERS);
+
+    const buildCorner = (c) => {
+      const targetHot = c.startsWith('F') ? 40.0 : 43.0;
+      const coldVal = isStoneCold ? dryStagger[c] : null;
+      return {
+        tyreId: mountedTyres[c] || DEFAULT_CORNER_TYRE_IDS[c],
+        targetHot,
+        cold: coldVal,
+        hot: null,
+        build: null,
+        diff: null,
+        nextCold: coldVal,
+        pyro: null
+      };
+    };
+
+    const burnRate = DEFAULT_TRACK_BURN_L[SANDOWN_DEC2026_HQ_VENUE] || 1.75;
+    const effLapsForFuel = spec.racedLaps !== null ? spec.racedLaps : 10;
+    const expectedBurnL = Number((effLapsForFuel * burnRate).toFixed(1));
+    const litresToPourL = Number((expectedBurnL + 12.0).toFixed(1));
+
+    return {
+      id: spec.id,
+      orderIndex: spec.orderIndex,
+      eventId: SANDOWN_DEC2026_HQ_EVENT_ID,
+      eventTitle: SANDOWN_DEC2026_HQ_TITLE,
+      eventLocked: false,
+      status: 'pending',
+      completed: false,
+      preRaceCompleted: false,
+      postRaceCompleted: false,
+      preRaceCompletedAt: '',
+      venue: SANDOWN_DEC2026_HQ_VENUE,
+      date: spec.sessionDateIso,
+      sessionDateIso: spec.sessionDateIso,
+      sessionIsoDate: spec.sessionDateIso,
+      sessionDate: spec.sessionDate,
+      sessionName: spec.sessionName,
+      scheduledDay: spec.scheduledDay,
+      scheduledTime: spec.scheduledTime,
+      durationMin: spec.durationMin,
+      timestamp: spec.timestamp,
+      carbyId,
+      emulsionId,
+      manifoldId,
+      exhaustId,
+      jetId: makeMmJetId(jetMm),
+      jetLabel: formatJetPureMm(jetMm),
+      jetMm,
+      rad: Number.isFinite(Number(base.rad)) ? Number(base.rad) : 96.0,
+      fuelSg: Number.isFinite(Number(base.fuelSg)) ? Number(base.fuelSg) : 0.740,
+      fuelTempC: 20.0,
+      timing: Number.isFinite(Number(base.timing)) ? Number(base.timing) : 33.0,
+      fuelPsi: Number.isFinite(Number(base.fuelPsi)) ? Number(base.fuelPsi) : 4.3,
+      waterTempC: null,
+      trackTempC: null,
+      estRunMin: spec.durationMin,
+      isStoneColdSession: isStoneCold,
+      afr3500: null,
+      afr4000: null,
+      afr4500: null,
+      afr5000: null,
+      afr5500: null,
+      afrWot: Number.isFinite(Number(base.wotAfr)) ? Number(base.wotAfr) : 12.75,
+      peakRpm: 5900,
+      bestLapStr: null,
+      bestLapSec: null,
+      bestLapNum: null,
+      finishPos: null,
+      isNewTrackPb: false,
+      afrStatus: 'estimated',
+      litresToPourL,
+      startingFuelReqL: litresToPourL,
+      expectedBurnL,
+      fuelFloorL: 12.0,
+      fuelInL: null,
+      fuelOutL: null,
+      fuelUsedL: null,
+      racedLaps: spec.racedLaps,
+      measuredBurnLPerLap: burnRate,
+      scaleWeightKg: null,
+      postRaceEstKg: null,
+      tyreHotTarget: 40.0,
+      hotTargetFront: 40.0,
+      hotTargetRear: 43.0,
+      tyreCondition: 'dry',
+      tyres: {
+        FL: buildCorner('FL'),
+        FR: buildCorner('FR'),
+        RL: buildCorner('RL'),
+        RR: buildCorner('RR')
+      },
+      shocks: mountedShocks,
+      springs: mountedSprings,
+      spacers: mountedSpacers,
+      spacerNote: formatRearSpacerNote(mountedSpacers),
+      handlingTags: [],
+      brakeTemps: { FL: null, FR: null, RL: null, RR: null },
+      brakeBiasTag: null,
+      brakes: createDefaultBrakes(),
+      tunePreLocked: false,
+      fuelPreLocked: false,
+      tyresPreLocked: false,
+      tunePostLocked: false,
+      fuelPostLocked: false,
+      tyresPostLocked: false,
+      workflowStep: 1,
+      preRaceNotes: '',
+      postRaceNotes: '',
+      notes: '',
+      mechanicNotes: '',
+      preRaceChecklist: null,
+      preRaceTyreAdjustments: null,
+      preRaceFuelAdjustment: null,
+      preRaceTyreAction: null,
+      driverPreSessionChecklist: null,
+      mechanicUpdatedAt: ''
+    };
+  }
+
+  /**
+   * Chronological session sorting helper:
+   * - If all sessions in the list belong to an unlocked event with preloaded/pending sessions (or have orderIndex),
+   *   sorts them in chronological schedule order (Practice 1 -> Qualifying -> Race 1 -> Race 2 -> Race 3 -> Race 4).
+   * - Otherwise sorts historical/completed sessions newest-first by actual session date & time.
+   */
   function sortSessionsDesc(sessions) {
     if (!Array.isArray(sessions)) return [];
+    const hasPendingOrPreloadedOrder = sessions.some(
+      (s) =>
+        s &&
+        (s.status === 'pending' ||
+          Number.isFinite(Number(s.orderIndex)) ||
+          String(s.id || '').startsWith('sess_sandown_dec2026_hq_'))
+    );
     return sessions
       .map((s, idx) => {
         const iso = resolveSessionIsoDate(s, '1970-01-01');
-        const tInfo = parseSessionTimeMinutes(s && (s.timestamp || s.time));
+        const tInfo = parseSessionTimeMinutes(s && (s.scheduledTime || s.timestamp || s.time));
         const idNum = extractNumericIdFallback(s && s.id);
         const progWeight = typeof getSessionOrderWeight === 'function' ? getSessionOrderWeight(s) : 0;
-        return { s, idx, iso, tInfo, idNum, progWeight };
+        const orderIndex = Number.isFinite(Number(s && s.orderIndex)) ? Number(s.orderIndex) : null;
+        return { s, idx, iso, tInfo, idNum, progWeight, orderIndex };
       })
       .sort((a, b) => {
+        if (hasPendingOrPreloadedOrder) {
+          if (a.orderIndex !== null && b.orderIndex !== null && a.orderIndex !== b.orderIndex) {
+            return a.orderIndex - b.orderIndex;
+          }
+          if (a.iso !== b.iso) {
+            return a.iso.localeCompare(b.iso);
+          }
+          if (a.tInfo.minutes !== -1 && b.tInfo.minutes !== -1 && a.tInfo.minutes !== b.tInfo.minutes) {
+            return a.tInfo.minutes - b.tInfo.minutes;
+          }
+          if (a.progWeight !== b.progWeight) {
+            return a.progWeight - b.progWeight;
+          }
+          return a.idx - b.idx;
+        }
         if (a.iso !== b.iso) {
           return b.iso.localeCompare(a.iso);
         }
@@ -2335,6 +2594,9 @@
         const isLiveA = Boolean(!a.evt.locked && activeEventId && a.evt.id === activeEventId);
         const isLiveB = Boolean(!b.evt.locked && activeEventId && b.evt.id === activeEventId);
         if (isLiveA !== isLiveB) return isLiveA ? -1 : 1;
+        const isUnlockedA = !a.evt.locked;
+        const isUnlockedB = !b.evt.locked;
+        if (isUnlockedA !== isUnlockedB) return isUnlockedA ? -1 : 1;
         const dateA = resolveSessionIsoDate({ date: a.evt.eventDate }, fallbackIso);
         const dateB = resolveSessionIsoDate({ date: b.evt.eventDate }, fallbackIso);
         if (dateA !== dateB) return dateB.localeCompare(dateA);
@@ -6495,9 +6757,21 @@
           ? Boolean(s.isNewTrackPb)
           : Boolean(defMatch && defMatch.isNewTrackPb);
 
+      const isExplicitPending =
+        s.status === 'pending' ||
+        (s.completed === false && s.status !== 'active' && !s.tyresPostLocked);
+      const resolvedStatus =
+        s.status === 'active'
+          ? 'active'
+          : isExplicitPending
+          ? 'pending'
+          : 'completed';
+      const isCompletedBool = resolvedStatus === 'completed';
+
       return {
         ...s,
-        status: s.status === 'active' ? 'active' : 'completed',
+        status: resolvedStatus,
+        completed: isCompletedBool,
         venue,
         sessionDateIso,
         sessionIsoDate,
@@ -6525,7 +6799,7 @@
         bestLapNum,
         finishPos,
         isNewTrackPb,
-        afrStatus: s.afrStatus || 'verified',
+        afrStatus: s.afrStatus || (isCompletedBool ? 'verified' : 'estimated'),
         litresToPourL,
         startingFuelReqL,
         expectedBurnL,
@@ -6550,14 +6824,18 @@
         brakeTemps,
         brakeBiasTag,
         brakes: brakesSnap,
-        tunePreLocked: s.tunePreLocked !== undefined ? Boolean(s.tunePreLocked) : (s.status || 'completed') === 'completed',
-        fuelPreLocked: s.fuelPreLocked !== undefined ? Boolean(s.fuelPreLocked) : (s.status || 'completed') === 'completed',
-        tyresPreLocked: s.tyresPreLocked !== undefined ? Boolean(s.tyresPreLocked) : (s.status || 'completed') === 'completed',
-        tunePostLocked: s.tunePostLocked !== undefined ? Boolean(s.tunePostLocked) : (s.status || 'completed') === 'completed',
-        fuelPostLocked: s.fuelPostLocked !== undefined ? Boolean(s.fuelPostLocked) : (s.status || 'completed') === 'completed',
-        tyresPostLocked: s.tyresPostLocked !== undefined ? Boolean(s.tyresPostLocked) : (s.status || 'completed') === 'completed',
+        tunePreLocked: s.tunePreLocked !== undefined ? Boolean(s.tunePreLocked) : isCompletedBool,
+        fuelPreLocked: s.fuelPreLocked !== undefined ? Boolean(s.fuelPreLocked) : isCompletedBool,
+        tyresPreLocked: s.tyresPreLocked !== undefined ? Boolean(s.tyresPreLocked) : isCompletedBool,
+        tunePostLocked: s.tunePostLocked !== undefined ? Boolean(s.tunePostLocked) : isCompletedBool,
+        fuelPostLocked: s.fuelPostLocked !== undefined ? Boolean(s.fuelPostLocked) : isCompletedBool,
+        tyresPostLocked: s.tyresPostLocked !== undefined ? Boolean(s.tyresPostLocked) : isCompletedBool,
+        postRaceCompleted:
+          s.postRaceCompleted !== undefined
+            ? Boolean(s.postRaceCompleted)
+            : Boolean(isCompletedBool || s.tyresPostLocked),
         workflowStep:
-          (s.status || 'completed') === 'completed' || s.workflowStep === 'done'
+          isCompletedBool || s.workflowStep === 'done'
             ? 'done'
             : !s.tunePreLocked
             ? 1
@@ -6621,6 +6899,7 @@
                   hydrated.eventLocked = locked;
                   if (locked) {
                     hydrated.status = 'completed';
+                    hydrated.completed = true;
                   }
                   return hydrated;
                 })
@@ -6662,6 +6941,7 @@
                   hydrated.eventLocked = locked;
                   if (locked) {
                     hydrated.status = 'completed';
+                    hydrated.completed = true;
                   }
                   return hydrated;
                 })
@@ -6693,8 +6973,12 @@
           candidate.activeSessionId = null;
         }
         activeEvt.sessions.forEach((s) => {
-          if (s) {
-            s.status = s.id === candidate.activeSessionId ? 'active' : 'completed';
+          if (!s) return;
+          if (s.id === candidate.activeSessionId) {
+            s.status = 'active';
+            s.completed = false;
+          } else if (s.status === 'active') {
+            s.status = s.completed || s.tyresPostLocked ? 'completed' : 'pending';
           }
         });
       }
@@ -6725,6 +7009,7 @@
             hydrated.eventTitle = hEvt.eventTitle || '';
             hydrated.eventLocked = true;
             hydrated.status = 'completed';
+            hydrated.completed = true;
             return hydrated;
           })
         );
@@ -6752,6 +7037,7 @@
             hydrated.eventLocked = Boolean(existingEvt.locked);
             if (existingEvt.locked) {
               hydrated.status = 'completed';
+              hydrated.completed = true;
             }
             existingEvt.sessions.push(hydrated);
           }
@@ -6759,6 +7045,53 @@
         existingEvt.sessions = sortSessionsDesc(existingEvt.sessions);
       }
     });
+
+    // Safe, idempotent, non-destructive seed of Sandown Summer Enduro (5–6 Dec 2026) — HQ
+    if (!candidate.sandownDec2026HqSeededV1) {
+      let sandownEvt = candidate.events.find((e) => e && e.id === SANDOWN_DEC2026_HQ_EVENT_ID);
+      if (!sandownEvt) {
+        const preloadedSessions = SANDOWN_DEC2026_HQ_SESSIONS_SPEC.map((spec) =>
+          hydrateSingleSession(
+            createSandownDec2026HqPendingSession(spec, candidate),
+            SANDOWN_DEC2026_HQ_VENUE,
+            spec.sessionDateIso
+          )
+        );
+        sandownEvt = {
+          id: SANDOWN_DEC2026_HQ_EVENT_ID,
+          venue: SANDOWN_DEC2026_HQ_VENUE,
+          eventDate: SANDOWN_DEC2026_HQ_START_DATE,
+          eventTitle: SANDOWN_DEC2026_HQ_TITLE,
+          locked: false,
+          endedAt: null,
+          sessions: sortSessionsDesc(preloadedSessions)
+        };
+        candidate.events.push(sandownEvt);
+      } else {
+        if (!Array.isArray(sandownEvt.sessions)) {
+          sandownEvt.sessions = [];
+        }
+        SANDOWN_DEC2026_HQ_SESSIONS_SPEC.forEach((spec) => {
+          const exists = sandownEvt.sessions.some(
+            (es) =>
+              es &&
+              (es.id === spec.id ||
+                String(es.sessionName || '').trim().toLowerCase() === spec.sessionName.toLowerCase())
+          );
+          if (!exists) {
+            const rawSess = createSandownDec2026HqPendingSession(spec, candidate);
+            const hydrated = hydrateSingleSession(rawSess, SANDOWN_DEC2026_HQ_VENUE, spec.sessionDateIso);
+            sandownEvt.sessions.push(hydrated);
+          }
+        });
+        sandownEvt.sessions = sortSessionsDesc(sandownEvt.sessions);
+      }
+      if (!candidate.activeEventId && !sandownEvt.locked) {
+        candidate.activeEventId = sandownEvt.id;
+        candidate.activeSessionId = null;
+      }
+      candidate.sandownDec2026HqSeededV1 = true;
+    }
 
     candidate.events = sortEventsDesc(candidate.events, candidate.activeEventId);
     candidate.sessions = flattenEventsToSessions(candidate.events);
@@ -7001,7 +7334,7 @@
     candidate.tyrePool.forEach((t) => {
       let sessLaps = 0;
       (candidate.sessions || []).forEach((s) => {
-        if (!s || s.status === 'active' || !s.tyres || typeof s.tyres !== 'object') return;
+        if (!s || s.status !== 'completed' || !s.tyres || typeof s.tyres !== 'object') return;
         const laps = Number(s.racedLaps);
         if (!Number.isFinite(laps) || laps <= 0) return;
         if (['FL', 'FR', 'RL', 'RR'].some((c) => s.tyres[c] && s.tyres[c].tyreId === t.id)) {
@@ -8606,6 +8939,7 @@
     const burnValues = [];
 
     (state.sessions || []).forEach((s) => {
+      if (!s || s.status === 'pending') return;
       if ((s.venue || 'Calder Park Raceway') !== venue) return;
       const inL = Number(s.fuelInL);
       const outL = Number(s.fuelOutL);
@@ -8708,7 +9042,7 @@
       const axleTargetHot = c.startsWith('F') ? frontHotTarget : rearHotTarget;
       const ideals = [];
       (state.sessions || []).forEach((s) => {
-        if (!s || s.status === 'active') return;
+        if (!s || s.status !== 'completed') return;
         if ((s.venue || 'Calder Park Raceway') !== venue) return;
         if (s.isStoneColdSession === false) return;
         if (!s.tyres || !s.tyres[c]) return;
@@ -8909,24 +9243,58 @@
             s &&
             s.id !== excludeSessionId &&
             s.sessionName &&
-            (s.status === 'completed' || s.tunePreLocked || s.tunePostLocked || s.id === state.activeSessionId)
+            (s.status === 'completed' ||
+              s.completed === true ||
+              s.postRaceCompleted === true ||
+              s.tyresPostLocked ||
+              s.id === state.activeSessionId)
         )
         .map((s) => String(s.sessionName).trim().toLowerCase())
     );
+
+    const pendingScheduleMap = new Map();
+    sessions.forEach((s) => {
+      if (!s || !s.sessionName) return;
+      const key = String(s.sessionName).trim().toLowerCase();
+      if (!loggedNamesLower.has(key) && (s.scheduledDay || s.scheduledTime || s.durationMin)) {
+        const metaParts = [];
+        if (s.scheduledDay) metaParts.push(s.scheduledDay.replace(/\s+20\d{2}$/, ''));
+        if (s.scheduledTime) metaParts.push(s.scheduledTime);
+        if (s.durationMin) metaParts.push(`${s.durationMin}m`);
+        if (s.racedLaps !== null && s.racedLaps !== undefined && Number(s.racedLaps) > 0) {
+          metaParts.push(`${s.racedLaps} Laps`);
+        }
+        if (metaParts.length > 0) {
+          pendingScheduleMap.set(key, `${s.sessionName} (${metaParts.join(' • ')})`);
+        }
+      }
+    });
 
     const htmlParts = [];
     if (includePlaceholder) {
       htmlParts.push('<option value="">-- Select Next Session to Commence --</option>');
     }
 
-    SESSION_PROGRESSION.forEach((stdName) => {
-      const isLogged = loggedNamesLower.has(stdName.toLowerCase());
+    const orderedStdNames =
+      activeEvent && activeEvent.id === SANDOWN_DEC2026_HQ_EVENT_ID
+        ? [
+            ...SANDOWN_DEC2026_HQ_SESSIONS_SPEC.map((sp) => sp.sessionName),
+            ...SESSION_PROGRESSION.filter(
+              (n) => !SANDOWN_DEC2026_HQ_SESSIONS_SPEC.some((sp) => sp.sessionName.toLowerCase() === n.toLowerCase())
+            )
+          ]
+        : SESSION_PROGRESSION;
+
+    orderedStdNames.forEach((stdName) => {
+      const lower = stdName.toLowerCase();
+      const isLogged = loggedNamesLower.has(lower);
+      const dispLabel = pendingScheduleMap.get(lower) || stdName;
       if (isLogged) {
         htmlParts.push(
-          `<option value="${escapeHtml(stdName)}" disabled>${escapeHtml(stdName)} (Already Logged)</option>`
+          `<option value="${escapeHtml(stdName)}" disabled>${escapeHtml(stdName)} (Completed)</option>`
         );
       } else {
-        htmlParts.push(`<option value="${escapeHtml(stdName)}">${escapeHtml(stdName)}</option>`);
+        htmlParts.push(`<option value="${escapeHtml(stdName)}">${escapeHtml(dispLabel)}</option>`);
       }
     });
 
@@ -9137,8 +9505,14 @@
       gateBetween.style.display = 'block';
       liveView.style.display = 'none';
 
-      const sortedEventSessions = sortSessionsDesc(sessions);
-      const lastCompleted = sortedEventSessions.length > 0 ? sortedEventSessions[0] : null;
+      const completedSessions = sessions.filter(
+        (s) => s && (s.status === 'completed' || s.completed === true || s.postRaceCompleted === true || s.tyresPostLocked)
+      );
+      const pendingSessions = sessions.filter(
+        (s) => s && !completedSessions.includes(s)
+      );
+      const lastCompleted = completedSessions.length > 0 ? completedSessions[completedSessions.length - 1] : null;
+      const nextPending = pendingSessions.length > 0 ? pendingSessions[0] : null;
       if ($('gateBLiveEventBannerPill')) {
         $('gateBLiveEventBannerPill').textContent = '\uD83D\uDFE2 LIVE EVENT ACTIVE';
       }
@@ -9151,7 +9525,10 @@
       }
       if ($('gateBEventTitleLabel')) {
         const roundLbl = liveEvt.eventTitle || 'Race Weekend';
-        const countLbl = `${sessions.length} ${sessions.length === 1 ? 'Session' : 'Sessions'} Logged`;
+        const countLbl =
+          pendingSessions.length > 0
+            ? `${completedSessions.length} / ${sessions.length} Completed (${pendingSessions.length} Pending)`
+            : `${sessions.length} ${sessions.length === 1 ? 'Session' : 'Sessions'} Logged`;
         $('gateBEventTitleLabel').textContent = `${roundLbl} • ${countLbl} — Select Session to Commence`;
       }
       if ($('gateBaselineBoxHeader')) {
@@ -9177,7 +9554,7 @@
           'btnCommenceSelectedSessionGateB'
         );
       }
-      renderPreSessionReadinessPanel(liveEvt, lastCompleted);
+      renderPreSessionReadinessPanel(liveEvt, nextPending || lastCompleted);
       return;
     }
 
@@ -9758,20 +10135,37 @@
       targetEvt.sessions = [];
     }
 
-    // Mark any prior sessions in this event as completed
-    targetEvt.sessions.forEach((s) => {
-      if (s) s.status = 'completed';
-    });
-
-    const venue = normalizeVenueName(targetEvt.venue || 'Calder Park Raceway');
-    const evtIso = targetEvt.eventDate || getLocalTodayIso();
-    const evtDisp = formatIsoDateDisplay(evtIso) || evtIso;
     const cleanName = (sessionName || 'Practice 1').trim() || 'Practice 1';
     const preNotes = typeof initialPreNotes === 'string' ? initialPreNotes.trim() : '';
 
-    // Carry forward from most recent completed session in event (if any) or Locked Baseline + Track Profile
-    const sortedExistingSessions = sortSessionsDesc(targetEvt.sessions);
-    const prevSess = sortedExistingSessions.length > 0 ? sortedExistingSessions[0] : null;
+    // Check if there is an existing pending/uncompleted session with this name in targetEvt
+    const existingPending = targetEvt.sessions.find(
+      (s) =>
+        s &&
+        s.sessionName &&
+        s.sessionName.trim().toLowerCase() === cleanName.toLowerCase() &&
+        s.status !== 'completed' &&
+        !s.completed &&
+        !s.tyresPostLocked
+    );
+
+    // Demote any other 'active' session in this event back to 'completed' (if post-locked) or 'pending' (if not completed)
+    targetEvt.sessions.forEach((s) => {
+      if (!s || (existingPending && s.id === existingPending.id)) return;
+      if (s.status === 'active') {
+        s.status = s.completed || s.postRaceCompleted || s.tyresPostLocked ? 'completed' : 'pending';
+      }
+    });
+
+    const venue = normalizeVenueName(targetEvt.venue || 'Calder Park Raceway');
+    const evtIso = (existingPending && existingPending.sessionDateIso) || targetEvt.eventDate || getLocalTodayIso();
+    const evtDisp = formatIsoDateDisplay(evtIso) || evtIso;
+
+    // Carry forward ONLY from most recent COMPLETED session in event (if any) or Locked Baseline + Track Profile
+    const completedInEvent = targetEvt.sessions.filter(
+      (s) => s && (s.status === 'completed' || s.completed === true || s.postRaceCompleted === true || s.tyresPostLocked)
+    );
+    const prevSess = completedInEvent.length > 0 ? completedInEvent[completedInEvent.length - 1] : null;
     const base = state.baseline || createDefaultBaseline();
     const ch = state.chassis || createDefaultChassisState();
     const prof = ensureTrackProfile(venue);
@@ -9783,7 +10177,7 @@
     }
 
     const activeCarbyId = normalizeCarbyIdAlias((prevSess && prevSess.carbyId) || base.carbyId || 'DME1');
-    const activeManifoldId = (prevSess && prevSess.manifoldId) || state.activeManifoldId || 'Macca';
+    const activeManifoldId = (prevSess && prevSess.manifoldId) || state.activeManifoldId || 'MAN_F';
     const activeExhaustId = (prevSess && prevSess.exhaustId) || state.activeExhaustId || 'Macca';
     const carbyObj = state.carbies.find((c) => c.id === activeCarbyId);
     const activeEmulsionId =
@@ -9811,6 +10205,25 @@
     if ($('inputFuelSg')) $('inputFuelSg').value = sgVal.toFixed(3);
     if ($('inputTotalTiming')) $('inputTotalTiming').value = timingVal.toFixed(1);
 
+    // Sync session's scheduled laps into Fuel & Tyre lap steppers if specified (or keep editable default for Practice/Qualifying)
+    const scheduledLaps =
+      existingPending && existingPending.racedLaps !== undefined
+        ? existingPending.racedLaps
+        : undefined;
+    if (scheduledLaps !== undefined && scheduledLaps !== null && Number.isFinite(Number(scheduledLaps)) && Number(scheduledLaps) > 0) {
+      const lapsInt = Math.round(Number(scheduledLaps));
+      ch.raceLaps = lapsInt;
+      if ($('inputRaceLaps')) $('inputRaceLaps').value = String(lapsInt);
+      if ($('inputTyreSessionLaps')) $('inputTyreSessionLaps').value = String(lapsInt);
+    } else if (existingPending && existingPending.durationMin) {
+      // Practice 1 / Qualifying (15 min, racedLaps: null / editable) -> estimate ~9 laps on calculator steppers while keeping session.racedLaps null until locked
+      const cProf = getCircuitTyreProfile(venue);
+      const estLaps = Math.max(1, Math.round((Number(existingPending.durationMin) * 60) / (cProf.estLapSec || 96)));
+      ch.raceLaps = estLaps;
+      if ($('inputRaceLaps')) $('inputRaceLaps').value = String(estLaps);
+      if ($('inputTyreSessionLaps')) $('inputTyreSessionLaps').value = String(estLaps);
+    }
+
     const fuelSnap = recalcFuelAndWeight();
 
     // Determine Session 1 (Stone-Cold) vs Session 2+ (Hot-Target Only)
@@ -9831,7 +10244,10 @@
     const hotTargetRear = Number.isFinite(Number(ch.hotTargetRear)) ? Number(ch.hotTargetRear) : 43.0;
 
     const hasCompletedSameSpecInEvent = targetEvt.sessions.some(
-      (s) => s && s.status === 'completed' && getSessionTyreCondition(s) === activeCond
+      (s) =>
+        s &&
+        (s.status === 'completed' || s.completed === true || s.postRaceCompleted === true || s.tyresPostLocked) &&
+        getSessionTyreCondition(s) === activeCond
     );
     const isStoneColdSession = !hasCompletedSameSpecInEvent;
 
@@ -9910,9 +10326,72 @@
 
     const resolvedJetMm = fallbackJet ? fallbackJet.mm : base.jetMm;
     const activeBrakesSnap = getActiveBrakesSnapshot();
+
+    if (existingPending) {
+      // Activate the preloaded pending session in-place while preserving its deterministic ID, schedule metadata, and any crew pre-race checks already recorded for THIS specific session
+      existingPending.status = 'active';
+      existingPending.completed = false;
+      existingPending.postRaceCompleted = false;
+      existingPending.venue = venue;
+      existingPending.sessionDateIso = evtIso;
+      existingPending.sessionIsoDate = evtIso;
+      existingPending.sessionDate = evtDisp;
+      existingPending.carbyId = activeCarbyId;
+      existingPending.emulsionId = activeEmulsionId;
+      existingPending.manifoldId = activeManifoldId;
+      existingPending.exhaustId = activeExhaustId;
+      existingPending.jetId = fallbackJet ? fallbackJet.id : base.jetId;
+      existingPending.jetLabel = formatJetPureMm(resolvedJetMm);
+      existingPending.jetMm = resolvedJetMm;
+      existingPending.rad = radVal;
+      existingPending.fuelSg = sgVal;
+      existingPending.fuelTempC = Number(readNum('inputFuelTempC', 20.0).toFixed(1));
+      existingPending.timing = timingVal;
+      existingPending.fuelPsi = fuelPsiVal;
+      existingPending.trackTempC = initialTrackTempC;
+      existingPending.estRunMin = existingPending.durationMin || dynOffsets.estRunMin;
+      existingPending.isStoneColdSession = isStoneColdSession;
+      existingPending.litresToPourL = Number(fuelSnap.litresToPourL.toFixed(1));
+      existingPending.startingFuelReqL = Number(fuelSnap.startingFuelReqL.toFixed(1));
+      existingPending.expectedBurnL = Number(fuelSnap.expectedBurnL.toFixed(1));
+      existingPending.fuelFloorL = Number(fuelSnap.safeFloorL.toFixed(1));
+      existingPending.measuredBurnLPerLap = Number(fuelSnap.burnLPerLap.toFixed(2));
+      existingPending.tyreHotTarget = hotTargetFront;
+      existingPending.hotTargetFront = hotTargetFront;
+      existingPending.hotTargetRear = hotTargetRear;
+      existingPending.tyreCondition = activeCond;
+      existingPending.tyres = initialCorners;
+      existingPending.shocks = { ...mountedShocks };
+      existingPending.springs = { ...mountedSprings };
+      existingPending.spacers = { ...mountedSpacers };
+      existingPending.spacerNote = formatRearSpacerNote(mountedSpacers);
+      existingPending.brakes = activeBrakesSnap;
+      if (preNotes) {
+        existingPending.preRaceNotes = preNotes;
+        existingPending.notes = existingPending.postRaceNotes || preNotes;
+      }
+      // Ensure isolated checklists (never carry over another session's checklist ticks)
+      existingPending.preRaceChecklist = normalizePreRaceChecklist(existingPending.preRaceChecklist || null);
+      existingPending.preRaceTyreAdjustments = normalizePreRaceTyreAdjustments(existingPending.preRaceTyreAdjustments || null);
+      existingPending.preRaceFuelAdjustment = normalizePreRaceFuelAdjustment(existingPending.preRaceFuelAdjustment || null, existingPending);
+      existingPending.preRaceTyreAction = normalizePreRaceTyreAction(existingPending.preRaceTyreAction || null);
+      existingPending.driverPreSessionChecklist = normalizeDriverPreSessionChecklist(existingPending.driverPreSessionChecklist || null);
+
+      targetEvt.sessions = sortSessionsDesc(targetEvt.sessions);
+      state.activeSessionId = existingPending.id;
+      state.awaitingPostRaceId = existingPending.id;
+      syncFlatSessionsFromEvents(state);
+      syncPreRaceNotesInputs(existingPending.preRaceNotes || '');
+      syncPreRacePostRaceLocksUi();
+      return existingPending;
+    }
+
     const created = {
       id: `run_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       status: 'active',
+      completed: false,
+      preRaceCompleted: false,
+      postRaceCompleted: false,
       eventId: targetEvt.id,
       eventTitle: targetEvt.eventTitle || '',
       eventLocked: false,
@@ -9992,7 +10471,6 @@
       notes: preNotes,
       mechanicNotes: '',
       preRaceChecklist: normalizePreRaceChecklist(null),
-      preRaceCompleted: false,
       preRaceCompletedAt: '',
       preRaceTyreAdjustments: normalizePreRaceTyreAdjustments(null),
       preRaceFuelAdjustment: normalizePreRaceFuelAdjustment(null),
@@ -10009,6 +10487,106 @@
     syncPreRaceNotesInputs(preNotes);
     syncPreRacePostRaceLocksUi();
     return created;
+  }
+
+  /**
+   * Safe, idempotent, non-destructive helper to create/activate the
+   * Sandown Summer Enduro (5–6 Dec 2026) — HQ event at Sandown Raceway
+   * and preload all 6 HQ sessions as pending/uncompleted without overwriting
+   * any existing events, sessions, baselines, or fleet records in localStorage.
+   */
+  function loadSandownDec2026HqEventTemplate(opts = {}) {
+    const silent = Boolean(opts && opts.silent);
+    if (!Array.isArray(state.events)) {
+      state.events = [];
+    }
+
+    let sandownEvt = state.events.find((e) => e && e.id === SANDOWN_DEC2026_HQ_EVENT_ID);
+    let addedSessionsCount = 0;
+
+    if (!sandownEvt) {
+      const preloaded = SANDOWN_DEC2026_HQ_SESSIONS_SPEC.map((spec) => {
+        addedSessionsCount += 1;
+        return createSandownDec2026HqPendingSession(spec, state);
+      });
+      sandownEvt = {
+        id: SANDOWN_DEC2026_HQ_EVENT_ID,
+        venue: SANDOWN_DEC2026_HQ_VENUE,
+        eventDate: SANDOWN_DEC2026_HQ_START_DATE,
+        eventTitle: SANDOWN_DEC2026_HQ_TITLE,
+        locked: false,
+        endedAt: null,
+        sessions: sortSessionsDesc(preloaded)
+      };
+      state.events.push(sandownEvt);
+    } else {
+      sandownEvt.venue = SANDOWN_DEC2026_HQ_VENUE;
+      sandownEvt.eventDate = sandownEvt.eventDate || SANDOWN_DEC2026_HQ_START_DATE;
+      sandownEvt.eventTitle = sandownEvt.eventTitle || SANDOWN_DEC2026_HQ_TITLE;
+      sandownEvt.locked = false;
+      sandownEvt.endedAt = null;
+      if (!Array.isArray(sandownEvt.sessions)) {
+        sandownEvt.sessions = [];
+      }
+      SANDOWN_DEC2026_HQ_SESSIONS_SPEC.forEach((spec) => {
+        const existingSess = sandownEvt.sessions.find(
+          (es) =>
+            es &&
+            (es.id === spec.id ||
+              String(es.sessionName || '').trim().toLowerCase() === spec.sessionName.toLowerCase())
+        );
+        if (!existingSess) {
+          sandownEvt.sessions.push(createSandownDec2026HqPendingSession(spec, state));
+          addedSessionsCount += 1;
+        } else {
+          // Ensure deterministic orderIndex & schedule metadata without overwriting any user/crew progress
+          existingSess.orderIndex = spec.orderIndex;
+          existingSess.scheduledDay = existingSess.scheduledDay || spec.scheduledDay;
+          existingSess.scheduledTime = existingSess.scheduledTime || spec.scheduledTime;
+          existingSess.durationMin = existingSess.durationMin || spec.durationMin;
+          if (!existingSess.timestamp) {
+            existingSess.timestamp = spec.timestamp;
+          }
+        }
+      });
+      sandownEvt.sessions = sortSessionsDesc(sandownEvt.sessions);
+    }
+
+    state.activeEventId = sandownEvt.id;
+    // Keep activeSessionId if it belongs to a currently active session in this event; otherwise leave null so user selects session 1-by-1
+    if (
+      state.activeSessionId &&
+      !sandownEvt.sessions.some((s) => s && s.id === state.activeSessionId && s.status === 'active')
+    ) {
+      state.activeSessionId = null;
+    }
+    state.sandownDec2026HqSeededV1 = true;
+
+    if (ui.expandedEventIds instanceof Set) {
+      ui.expandedEventIds.add(sandownEvt.id);
+    }
+    if (ui.collapsedLiveEventIds instanceof Set) {
+      ui.collapsedLiveEventIds.delete(sandownEvt.id);
+    }
+
+    loadTrackProfileToFuelAndTyreInputs(SANDOWN_DEC2026_HQ_VENUE);
+    syncFlatSessionsFromEvents(state);
+    saveState();
+    renderAll();
+
+    if (!silent) {
+      const pendingCount = sandownEvt.sessions.filter((s) => s && s.status !== 'completed' && !s.completed).length;
+      showToast(
+        addedSessionsCount > 0
+          ? `✓ Loaded ${SANDOWN_DEC2026_HQ_TITLE} (${pendingCount} Pending HQ Sessions Ready)`
+          : `✓ ${SANDOWN_DEC2026_HQ_TITLE} Active (${pendingCount} Pending HQ Sessions Ready)`
+      );
+    }
+    return sandownEvt;
+  }
+
+  if (typeof window !== 'undefined') {
+    window.loadSandownDec2026HqEventTemplate = loadSandownDec2026HqEventTemplate;
   }
 
   function openNewEventModal(pendingActionCallback) {
@@ -10146,7 +10724,22 @@
     );
     const preNotes = (($('gateBPreRaceNotesInput') && $('gateBPreRaceNotesInput').value) || '').trim();
     let created = null;
-    if (existingInEvt && existingInEvt.status === 'active' && !existingInEvt.tunePreLocked && !existingInEvt.tunePostLocked) {
+    const isAlreadyCompleted = Boolean(
+      existingInEvt &&
+        (existingInEvt.status === 'completed' ||
+          existingInEvt.completed === true ||
+          existingInEvt.postRaceCompleted === true ||
+          existingInEvt.tyresPostLocked)
+    );
+    if (isAlreadyCompleted) {
+      showToast(`${chosenName} is already completed in this event — select the next session`);
+      return;
+    }
+    if (
+      existingInEvt &&
+      existingInEvt.status === 'active' &&
+      (existingInEvt.tunePreLocked || existingInEvt.fuelPreLocked || existingInEvt.tyresPreLocked)
+    ) {
       created = existingInEvt;
       if (preNotes) {
         created.preRaceNotes = preNotes;
@@ -10155,9 +10748,6 @@
       state.activeSessionId = created.id;
       state.awaitingPostRaceId = created.id;
       syncFlatSessionsFromEvents(state);
-    } else if (existingInEvt) {
-      showToast(`${chosenName} is already logged in this event — select the next session`);
-      return;
     } else {
       created = createAndActivateSessionInEvent(liveEvt, chosenName, preNotes);
     }
@@ -10193,9 +10783,12 @@
     }
 
     const sortedSessions = sortSessionsDesc(liveEvt.sessions || []);
+    const completedList = sortedSessions.filter(
+      (s) => s && (s.status === 'completed' || s.completed === true || s.postRaceCompleted === true || s.tyresPostLocked)
+    );
     const lastSess =
       (completedSess && typeof completedSess === 'object' ? completedSess : null) ||
-      (sortedSessions.length > 0 ? sortedSessions[0] : null);
+      (completedList.length > 0 ? completedList[completedList.length - 1] : null);
 
     const completedName =
       typeof completedSess === 'string' && completedSess.trim()
@@ -10255,7 +10848,22 @@
     );
     const preNotes = (($('nextSessionPreNotes') && $('nextSessionPreNotes').value) || '').trim();
     let created = null;
-    if (existingInEvt && existingInEvt.status === 'active' && !existingInEvt.tunePreLocked && !existingInEvt.tunePostLocked) {
+    const isAlreadyCompleted = Boolean(
+      existingInEvt &&
+        (existingInEvt.status === 'completed' ||
+          existingInEvt.completed === true ||
+          existingInEvt.postRaceCompleted === true ||
+          existingInEvt.tyresPostLocked)
+    );
+    if (isAlreadyCompleted) {
+      showToast(`${nextName} is already completed in this event — select the next session`);
+      return;
+    }
+    if (
+      existingInEvt &&
+      existingInEvt.status === 'active' &&
+      (existingInEvt.tunePreLocked || existingInEvt.fuelPreLocked || existingInEvt.tyresPreLocked)
+    ) {
       created = existingInEvt;
       if (preNotes) {
         created.preRaceNotes = preNotes;
@@ -10264,9 +10872,6 @@
       state.activeSessionId = created.id;
       state.awaitingPostRaceId = created.id;
       syncFlatSessionsFromEvents(state);
-    } else if (existingInEvt) {
-      showToast(`${nextName} is already logged in this event — select the next session`);
-      return;
     } else {
       created = createAndActivateSessionInEvent(liveEvt, nextName, preNotes);
     }
@@ -12262,7 +12867,7 @@
     let sessionLaps = 0;
 
     (state.sessions || []).forEach((s) => {
-      if (!s || s.status === 'active' || !s.tyres || typeof s.tyres !== 'object') return;
+      if (!s || s.status !== 'completed' || !s.tyres || typeof s.tyres !== 'object') return;
       const laps = Number(s.racedLaps);
       if (!Number.isFinite(laps) || laps <= 0) return;
       const mountedOnAnyCorner = ['FL', 'FR', 'RL', 'RR'].some(
@@ -17585,6 +18190,7 @@
         `
         : '';
 
+    const isPendingRun = !isEventLocked && s.status === 'pending' && !s.completed;
     const actionsHtml = isEventLocked
       ? `
         <div class="session-actions" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);">
@@ -17592,6 +18198,21 @@
           <button type="button" class="btn ${isBaseline ? 'btn-emerald-outline' : 'btn-amber-outline'}" data-lock-session="${escapeHtml(s.id)}">
             ${isBaseline ? 'Locked Baseline' : 'Load as Baseline'}
           </button>
+        </div>
+      `
+      : isPendingRun
+      ? `
+        <div class="session-actions">
+          <button type="button" class="btn btn-confirm" data-commence-session="${escapeHtml(s.id)}">
+            &#9654; Commence Session
+          </button>
+          <button type="button" class="btn ${isEditing ? 'btn-danger' : 'btn-secondary'}" data-edit-session-afr="${escapeHtml(s.id)}">
+            ${isEditing ? 'Cancel Edit' : 'Edit Session'}
+          </button>
+          <button type="button" class="btn ${isBaseline ? 'btn-emerald-outline' : 'btn-amber-outline'}" data-lock-session="${escapeHtml(s.id)}">
+            ${isBaseline ? 'Locked Baseline' : 'Lock as Baseline'}
+          </button>
+          <button type="button" class="btn-icon-delete" data-delete-session="${escapeHtml(s.id)}" title="Remove Session" aria-label="Remove Session">&#10005;</button>
         </div>
       `
       : `
@@ -17626,6 +18247,9 @@
     } else if (s.tunePreLocked && !s.fuelPreLocked) {
       wfStatusBadgeClass = 'estimated';
       wfStatusBadgeText = '1. PRE-TUNE LOCKED';
+    } else if (s.status === 'pending' && !s.completed) {
+      wfStatusBadgeClass = 'estimated';
+      wfStatusBadgeText = 'PENDING / UNCOMPLETED';
     } else {
       wfStatusBadgeClass = 'estimated';
       wfStatusBadgeText = 'PRE-RACE DRAFT';
@@ -17702,6 +18326,7 @@
         Math.abs(state.baseline.jetMm - s.jetMm) < 0.0005 &&
         Math.abs(state.baseline.rad - s.rad) < 0.05);
     const isActiveRun = !isEventLocked && s.id === state.activeSessionId;
+    const isPendingRun = !isEventLocked && !isActiveRun && s.status === 'pending' && !s.completed;
     const isSessOpen = ui.expandedSessionId === s.id;
 
     const carbyDisp = getCarbyDisplayName(s.carbyId || 'DME1');
@@ -17711,11 +18336,21 @@
       ? ` • ⏱ ${s.bestLapStr}${s.bestLapNum ? ` (L${s.bestLapNum})` : ''}${s.isNewTrackPb ? ' 🏆' : ''}`
       : '';
     const finishPart = s.finishPos ? ` • ${s.finishPos}` : '';
-    const quickGlanceStr = `${carbyDisp} • ${rawJet} • ${wotAfrStr}${lapPart}${finishPart}`;
+    const durPart = isPendingRun && s.durationMin ? ` • ${s.durationMin} min` : '';
+    const schedLapsPart = isPendingRun
+      ? s.racedLaps && Number(s.racedLaps) > 0
+        ? ` • ${s.racedLaps} Laps`
+        : ' • Laps Editable'
+      : '';
+    const quickGlanceStr = isPendingRun
+      ? `${carbyDisp} • ${rawJet}${durPart}${schedLapsPart}`
+      : `${carbyDisp} • ${rawJet} • ${wotAfrStr}${lapPart}${finishPart}`;
 
     let statusPillHtml = '';
     if (isActiveRun && s.status !== 'completed') {
       statusPillHtml = `<span class="session-row-status-pill in-progress">IN PROGRESS</span>`;
+    } else if (isPendingRun) {
+      statusPillHtml = `<span class="session-row-status-pill pending">PENDING</span>`;
     } else if (isBaseline) {
       statusPillHtml = `<span class="session-row-status-pill baseline">BASELINE</span>`;
     }
@@ -22814,6 +23449,8 @@
     linked.tyresPostLocked = true;
     linked.workflowStep = 'done';
     linked.status = 'completed';
+    linked.completed = true;
+    linked.postRaceCompleted = true;
     linked.afrStatus = 'verified';
 
     const completedSessionName = linked.sessionName || state.baseline.sessionName || 'Session';
@@ -24881,7 +25518,16 @@
         selEl.innerHTML = orderedSessions
           .map((s) => {
             const isAct = s.id === state.activeSessionId;
-            return `<option value="${escapeHtml(s.id)}">${escapeHtml(s.sessionName)}${isAct ? ' (ACTIVE SESSION)' : ''}</option>`;
+            const isDone = s.status === 'completed' || Boolean(s.completed || s.postRaceCompleted);
+            const schedInfo = [s.sessionDate, s.timestamp].filter(Boolean).join(' • ');
+            const statusSuffix = isAct
+              ? ' (ACTIVE SESSION)'
+              : isDone
+              ? ' (COMPLETED)'
+              : schedInfo
+              ? ` (PENDING • ${schedInfo})`
+              : ' (PENDING)';
+            return `<option value="${escapeHtml(s.id)}">${escapeHtml(s.sessionName)}${escapeHtml(statusSuffix)}</option>`;
           })
           .join('');
         if (selectedSess) {
@@ -25735,6 +26381,34 @@
         saveState();
         renderAll();
         showToast(`🏆 Saved ${vKey} Benchmark PB: ${bestLapStr}`);
+        return;
+      }
+
+      const loadSandownHqBtn = e.target.closest('[data-load-sandown-hq-dec2026], #btnLoadSandownHqDec2026');
+      if (loadSandownHqBtn) {
+        e.preventDefault();
+        loadSandownDec2026HqEventTemplate({ activateEvent: true, silent: false });
+        return;
+      }
+
+      const commenceSessionCardBtn = e.target.closest('[data-commence-session]');
+      if (commenceSessionCardBtn) {
+        e.preventDefault();
+        const sid = commenceSessionCardBtn.getAttribute('data-commence-session');
+        if (!sid) return;
+        const targetEvt = (state.events || []).find(
+          (ev) => ev && !ev.locked && Array.isArray(ev.sessions) && ev.sessions.some((s) => s && s.id === sid)
+        );
+        if (!targetEvt) {
+          showToast('Event is Completed & Locked (Read-Only)');
+          return;
+        }
+        state.activeEventId = targetEvt.id;
+        const activated = createAndActivateSessionInEvent(sid, '');
+        if (activated) {
+          switchTab('tab-calc');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
         return;
       }
 
@@ -27847,6 +28521,32 @@
     if ($('mechSessionSelect')) {
       $('mechSessionSelect').addEventListener('change', (e) => {
         ui.selectedCrewSessionId = e.target.value || null;
+        if (document.activeElement && typeof document.activeElement.blur === 'function') {
+          document.activeElement.blur();
+        }
+        [
+          'preTyreSetPsi_FL',
+          'preTyreSetPsi_FR',
+          'preTyreSetPsi_RL',
+          'preTyreSetPsi_RR',
+          'mechFuelOutL',
+          'mechNextSessionLaps',
+          'preRaceSignOffNotesInput',
+          'mechCold_FL',
+          'mechCold_FR',
+          'mechCold_RL',
+          'mechCold_RR',
+          'mechHot_FL',
+          'mechHot_FR',
+          'mechHot_RL',
+          'mechHot_RR',
+          'mechFuelInL',
+          'mechRacedLaps',
+          'mechNotesInput'
+        ].forEach((inputId) => {
+          const inp = $(inputId);
+          if (inp) inp.value = '';
+        });
         renderCrewPages();
       });
     }

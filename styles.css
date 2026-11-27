@@ -4008,6 +4008,12 @@ textarea:focus-visible {
   color: #FDE047;
 }
 
+.session-row-status-pill.pending {
+  background: rgba(56, 189, 248, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.58);
+  color: #7DD3FC;
+}
+
 .session-row-delete-btn {
   width: 28px !important;
   min-width: 28px !important;

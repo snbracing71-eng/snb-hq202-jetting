@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.0.13" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.14" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -115,6 +115,9 @@
         </p>
         <button type="button" class="btn btn-confirm btn-full btn-cta-lg" id="btnOpenNewEventModal">
           + START NEW EVENT
+        </button>
+        <button type="button" class="btn btn-amber-outline btn-full" id="btnGateALoadSandownHqDec2026" data-load-sandown-hq-dec2026="1" style="margin-top: 8px;">
+          &#127937; Load Sandown HQ (5–6 Dec)
         </button>
       </div>
 
@@ -2157,9 +2160,14 @@
           >&#10005;</button>
         </div>
 
-        <button type="button" class="btn btn-ai-dump-gold btn-full" id="btnOpenAiDataDump" style="margin-top: 8px;">
-          &#128203; AI DATA DUMP (COPY FOR REVIEW)
-        </button>
+        <div class="form-grid-2 compact-pair-grid" style="margin-top: 8px;">
+          <button type="button" class="btn btn-confirm btn-full" id="btnLoadSandownHqDec2026" data-load-sandown-hq-dec2026="1">
+            &#127937; Load Sandown HQ (5–6 Dec)
+          </button>
+          <button type="button" class="btn btn-ai-dump-gold btn-full" id="btnOpenAiDataDump">
+            &#128203; AI DATA DUMP (COPY FOR REVIEW)
+          </button>
+        </div>
       </div>
 
       <div id="sessionLogList"></div>
@@ -5925,6 +5933,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=1.0.13"></script>
+  <script src="./app.js?v=1.0.14"></script>
 </body>
 </html>
