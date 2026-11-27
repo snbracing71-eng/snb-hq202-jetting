@@ -7098,15 +7098,6 @@
       if (!candidate.activeEventId && !sandownEvt.locked) {
         candidate.activeEventId = sandownEvt.id;
       }
-      if (candidate.activeEventId === sandownEvt.id && !candidate.activeSessionId) {
-        const firstPending = (sandownEvt.sessions || []).find(
-          (s) => s && s.status !== 'completed' && !s.completed && !s.postRaceCompleted && !s.tyresPostLocked
-        );
-        if (firstPending) {
-          firstPending.status = 'active';
-          candidate.activeSessionId = firstPending.id;
-        }
-      }
       candidate.sandownDec2026HqSeededV1 = true;
     }
 
@@ -9493,19 +9484,27 @@
   }
 
   function syncLoadSandownHqButtonsVisibility() {
-    const exists = hasSandownDec2026HqEvent();
+    const isActiveSandown =
+      Boolean(state && state.activeEventId === SANDOWN_DEC2026_HQ_EVENT_ID) &&
+      hasSandownDec2026HqEvent();
     ['btnLoadSandownHq', 'btnLoadSandownHqDec2026', 'btnGateALoadSandownHqDec2026'].forEach((id) => {
       const btn = $(id);
       if (btn) {
-        btn.style.display = exists ? 'none' : '';
+        btn.style.display = '';
+        btn.innerHTML = isActiveSandown
+          ? '&#127937; Load Sandown HQ (5–6 Dec) &#10003;'
+          : '&#127937; Load Sandown HQ (5–6 Dec)';
       }
     });
     document.querySelectorAll('[data-load-sandown-hq-dec2026]').forEach((btn) => {
-      btn.style.display = exists ? 'none' : '';
+      btn.style.display = '';
+      btn.innerHTML = isActiveSandown
+        ? '&#127937; Load Sandown HQ (5–6 Dec) &#10003;'
+        : '&#127937; Load Sandown HQ (5–6 Dec)';
     });
     const toolbarRow = $('logToolbarActionsRow');
     if (toolbarRow) {
-      toolbarRow.style.gridTemplateColumns = exists ? '1fr' : '';
+      toolbarRow.style.gridTemplateColumns = '';
     }
   }
 
@@ -10651,22 +10650,19 @@
     }
 
     state.activeEventId = sandownEvt.id;
-    // If activeSessionId does not belong to this event, auto-select the first pending session (e.g. Practice 1)
+    // Keep all 6 sessions in pending/uncompleted state unless an existing session in this event was already commenced/active
     if (
-      !state.activeSessionId ||
+      state.activeSessionId &&
       !sandownEvt.sessions.some((s) => s && s.id === state.activeSessionId)
     ) {
-      const nextPending = sandownEvt.sessions.find(
-        (s) => s && s.status !== 'completed' && !s.completed && !s.postRaceCompleted && !s.tyresPostLocked
-      );
-      if (nextPending) {
-        nextPending.status = 'active';
-        state.activeSessionId = nextPending.id;
-        state.awaitingPostRaceId = nextPending.id;
-        ui.selectedCrewSessionId = nextPending.id;
-      } else {
-        state.activeSessionId = null;
-      }
+      state.activeSessionId = null;
+      state.awaitingPostRaceId = null;
+    }
+    const nextPending = sandownEvt.sessions.find(
+      (s) => s && s.status !== 'completed' && !s.completed && !s.postRaceCompleted && !s.tyresPostLocked
+    );
+    if (nextPending && !ui.selectedCrewSessionId) {
+      ui.selectedCrewSessionId = nextPending.id;
     }
     state.sandownDec2026HqSeededV1 = true;
 
@@ -10773,6 +10769,9 @@
       }
       state.activeSessionId = targetSess.id;
       state.awaitingPostRaceId = targetSess.id;
+      ui.selectedHandlingTags = normalizeHandlingTagsArray(targetSess.handlingTags);
+      ui.selectedBrakeBiasTag = normalizeBrakeBiasTag(targetSess.brakeBiasTag);
+      ui.postBrakeTempsOpen = Boolean(targetSess.brakeTemps && hasAnyBrakeTemps(targetSess.brakeTemps));
       if ($('selectCalcCarby') && targetSess.carbyId) $('selectCalcCarby').value = targetSess.carbyId;
       if ($('selectCalcEmulsion') && targetSess.emulsionId) $('selectCalcEmulsion').value = targetSess.emulsionId;
       if ($('selectCalcManifold') && targetSess.manifoldId) $('selectCalcManifold').value = targetSess.manifoldId;
@@ -10794,6 +10793,41 @@
       }
       syncPreRaceNotesInputs(targetSess.preRaceNotes || '');
     }
+
+    // Clear transient post-race & mechanic DOM inputs so switching sessions never carries over another session's entries
+    [
+      'modalPostBestLapStr',
+      'modalPostBestLapNum',
+      'modalPostFinishPos',
+      'modalPostNotes',
+      'modalPostFuelInL',
+      'modalPostFuelOutL',
+      'modalPostRacedLaps',
+      'modalPostScaleKg',
+      'modalPostFuelNotes',
+      'inputTyreRunNotes',
+      'preTyreSetPsi_FL',
+      'preTyreSetPsi_FR',
+      'preTyreSetPsi_RL',
+      'preTyreSetPsi_RR',
+      'mechFuelOutL',
+      'mechNextSessionLaps',
+      'preRaceSignOffNotesInput',
+      'mechCold_FL',
+      'mechCold_FR',
+      'mechCold_RL',
+      'mechCold_RR',
+      'mechHot_FL',
+      'mechHot_FR',
+      'mechHot_RL',
+      'mechHot_RR',
+      'mechFuelInL',
+      'mechRacedLaps',
+      'mechNotesInput'
+    ].forEach((inputId) => {
+      const inp = $(inputId);
+      if (inp) inp.value = '';
+    });
 
     ui.selectedCrewSessionId = activeSess.id;
     syncFlatSessionsFromEvents(state);
@@ -25811,14 +25845,11 @@
           ) || orderedSessions[0];
       }
       ui.selectedCrewSessionId = selectedSess ? selectedSess.id : null;
-      if (selectedSess && !state.activeSessionId) {
-        state.activeSessionId = selectedSess.id;
-      }
 
       if (selEl) {
         selEl.innerHTML = orderedSessions
           .map((s) => {
-            const isAct = s.id === state.activeSessionId;
+            const isAct = s.id === (selectedSess ? selectedSess.id : state.activeSessionId);
             const isDone = s.status === 'completed' || Boolean(s.completed || s.postRaceCompleted || s.tyresPostLocked);
             const schedInfo = [s.sessionDate, s.timestamp].filter(Boolean).join(' • ');
             const statusSuffix = isAct
@@ -29262,6 +29293,12 @@
           if (liveEvt && Array.isArray(liveEvt.sessions)) {
             const matchedSess = liveEvt.sessions.find((s) => s && s.id === chosenId);
             if (matchedSess) {
+              liveEvt.sessions.forEach((s) => {
+                if (!s || s.id === matchedSess.id) return;
+                if (s.status === 'active') {
+                  s.status = s.completed || s.postRaceCompleted || s.tyresPostLocked ? 'completed' : 'pending';
+                }
+              });
               state.activeSessionId = matchedSess.id;
               saveState();
             }
