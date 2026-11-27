@@ -2468,14 +2468,14 @@
       afr4500: null,
       afr5000: null,
       afr5500: null,
-      afrWot: Number.isFinite(Number(base.wotAfr)) ? Number(base.wotAfr) : 12.75,
-      peakRpm: 5900,
+      afrWot: null,
+      peakRpm: null,
       bestLapStr: null,
       bestLapSec: null,
       bestLapNum: null,
       finishPos: null,
       isNewTrackPb: false,
-      afrStatus: 'estimated',
+      afrStatus: 'pending',
       litresToPourL,
       startingFuelReqL: litresToPourL,
       expectedBurnL,
@@ -6539,9 +6539,18 @@
       const a40 = normalizeOptionalAfr(s.afr4000);
       const a45 = normalizeOptionalAfr(s.afr4500);
       const a50 = normalizeOptionalAfr(s.afr5000);
-      const aWot = Number.isFinite(Number(s.afrWot)) ? Number(Number(s.afrWot).toFixed(2)) : 12.80;
+      const isUnrunPendingSess =
+        (s.status === 'pending' || (s.completed === false && s.status !== 'active')) &&
+        !s.tunePreLocked &&
+        !s.tunePostLocked &&
+        !s.tyresPostLocked;
+      const aWot = isUnrunPendingSess
+        ? null
+        : s.afrWot !== null && s.afrWot !== undefined && Number.isFinite(Number(s.afrWot))
+        ? Number(Number(s.afrWot).toFixed(2))
+        : 12.80;
       let a55 = normalizeOptionalAfr(s.afr5500);
-      if (a55 === null && s.afr5500 === undefined && a50 !== null && String(s.id || '').startsWith('calder_')) {
+      if (a55 === null && s.afr5500 === undefined && a50 !== null && aWot !== null && String(s.id || '').startsWith('calder_')) {
         a55 = Number(((a50 + aWot) / 2).toFixed(2));
       }
       const peakRpm = Number.isFinite(Number(s.peakRpm)) ? Math.round(Number(s.peakRpm)) : 5900;
@@ -7088,7 +7097,15 @@
       }
       if (!candidate.activeEventId && !sandownEvt.locked) {
         candidate.activeEventId = sandownEvt.id;
-        candidate.activeSessionId = null;
+      }
+      if (candidate.activeEventId === sandownEvt.id && !candidate.activeSessionId) {
+        const firstPending = (sandownEvt.sessions || []).find(
+          (s) => s && s.status !== 'completed' && !s.completed && !s.postRaceCompleted && !s.tyresPostLocked
+        );
+        if (firstPending) {
+          firstPending.status = 'active';
+          candidate.activeSessionId = firstPending.id;
+        }
       }
       candidate.sandownDec2026HqSeededV1 = true;
     }
@@ -9458,7 +9475,86 @@
     return { tuneMain, tuneSub, fuelMain, fuelSub, tyreStr, tuneStr, fuelStr };
   }
 
+  function hasSandownDec2026HqEvent() {
+    if (!state || !Array.isArray(state.events)) return false;
+    return state.events.some((evt) => {
+      if (!evt) return false;
+      if (evt.id === SANDOWN_DEC2026_HQ_EVENT_ID) return true;
+      const venueNorm = normalizeVenueName(evt.venue || '');
+      if (venueNorm !== SANDOWN_DEC2026_HQ_VENUE) return false;
+      const rawDate = String(evt.eventDate || '').trim();
+      const dispDate = String(formatIsoDateDisplay(rawDate) || '').trim();
+      const titleStr = String(evt.eventTitle || '').trim();
+      if (rawDate === '2026-12-05' || rawDate === '2026-12-06') return true;
+      if (/^5\s+Dec\s+2026$/i.test(rawDate) || /^5\s+Dec\s+2026$/i.test(dispDate)) return true;
+      if (/5[–\-]6\s*Dec\s*2026/i.test(titleStr) || /5\s*Dec\s*2026/i.test(titleStr)) return true;
+      return false;
+    });
+  }
+
+  function syncLoadSandownHqButtonsVisibility() {
+    const exists = hasSandownDec2026HqEvent();
+    ['btnLoadSandownHq', 'btnLoadSandownHqDec2026', 'btnGateALoadSandownHqDec2026'].forEach((id) => {
+      const btn = $(id);
+      if (btn) {
+        btn.style.display = exists ? 'none' : '';
+      }
+    });
+    document.querySelectorAll('[data-load-sandown-hq-dec2026]').forEach((btn) => {
+      btn.style.display = exists ? 'none' : '';
+    });
+    const toolbarRow = $('logToolbarActionsRow');
+    if (toolbarRow) {
+      toolbarRow.style.gridTemplateColumns = exists ? '1fr' : '';
+    }
+  }
+
+  function syncTuneActiveSessionBannerAndSelect(liveEvtOpt, activeSessOpt) {
+    const liveEvt = liveEvtOpt !== undefined ? liveEvtOpt : getActiveEvent();
+    const activeSess = activeSessOpt !== undefined ? activeSessOpt : getActiveSession();
+    const bannerEl = $('tuneActiveSessionBanner');
+    const bannerTextEl = $('tuneActiveSessionBannerText');
+    const selEl = $('selectSessionName');
+
+    if (!liveEvt || !activeSess) {
+      if (bannerEl) bannerEl.style.display = 'none';
+      return;
+    }
+
+    if (bannerEl) bannerEl.style.display = 'flex';
+    const trackName = normalizeVenueName(liveEvt.venue || activeSess.venue || 'Sandown Raceway');
+    const sessName = activeSess.sessionName || 'Practice 1';
+    if (bannerTextEl) {
+      bannerTextEl.textContent = `ACTIVE SESSION: ${trackName} • ${sessName}`;
+    }
+
+    if (selEl) {
+      const orderedSessions = sortSessionsDesc(Array.isArray(liveEvt.sessions) ? liveEvt.sessions : []);
+      if (orderedSessions.length > 0) {
+        selEl.innerHTML = orderedSessions
+          .map((s) => {
+            const isAct = s.id === activeSess.id;
+            const isDone =
+              s.status === 'completed' ||
+              Boolean(s.completed || s.postRaceCompleted || s.tyresPostLocked);
+            const statusTag = isAct
+              ? ' • LIVE'
+              : isDone
+              ? ' • COMPLETED'
+              : ' • PENDING';
+            return `<option value="${escapeHtml(s.id)}">${escapeHtml(s.sessionName)}${escapeHtml(statusTag)}</option>`;
+          })
+          .join('');
+        selEl.value = activeSess.id;
+      } else {
+        selEl.innerHTML = `<option value="${escapeHtml(activeSess.id)}">${escapeHtml(sessName)} • LIVE</option>`;
+        selEl.value = activeSess.id;
+      }
+    }
+  }
+
   function renderWeekendEventBanner() {
+    syncLoadSandownHqButtonsVisibility();
     const banner = $('weekendEventBanner');
     const gateNoEvent = $('eventGateNoEventView');
     const gateBetween = $('eventGateBetweenSessionsView');
@@ -9480,6 +9576,8 @@
         wrapEl.style.display = hasLockedActiveSession ? 'block' : 'none';
       }
     });
+
+    syncTuneActiveSessionBannerAndSelect(liveEvt, activeSess);
 
     if (!banner || !gateNoEvent || !gateBetween || !liveView) return;
 
@@ -10553,12 +10651,22 @@
     }
 
     state.activeEventId = sandownEvt.id;
-    // Keep activeSessionId if it belongs to a currently active session in this event; otherwise leave null so user selects session 1-by-1
+    // If activeSessionId does not belong to this event, auto-select the first pending session (e.g. Practice 1)
     if (
-      state.activeSessionId &&
-      !sandownEvt.sessions.some((s) => s && s.id === state.activeSessionId && s.status === 'active')
+      !state.activeSessionId ||
+      !sandownEvt.sessions.some((s) => s && s.id === state.activeSessionId)
     ) {
-      state.activeSessionId = null;
+      const nextPending = sandownEvt.sessions.find(
+        (s) => s && s.status !== 'completed' && !s.completed && !s.postRaceCompleted && !s.tyresPostLocked
+      );
+      if (nextPending) {
+        nextPending.status = 'active';
+        state.activeSessionId = nextPending.id;
+        state.awaitingPostRaceId = nextPending.id;
+        ui.selectedCrewSessionId = nextPending.id;
+      } else {
+        state.activeSessionId = null;
+      }
     }
     state.sandownDec2026HqSeededV1 = true;
 
@@ -10585,8 +10693,127 @@
     return sandownEvt;
   }
 
+  /**
+   * Finds the next PENDING / un-run session in a LIVE event after the current session
+   * (e.g. Practice 1 -> Qualifying -> Race 1 -> Race 2 -> Race 3 -> Race 4).
+   */
+  function findNextPendingSessionInEvent(evt, completedSessionId) {
+    if (!evt || !Array.isArray(evt.sessions) || evt.sessions.length === 0) return null;
+    const ordered = sortSessionsDesc(evt.sessions);
+    const isPending = (s) =>
+      Boolean(
+        s &&
+          s.id !== completedSessionId &&
+          s.status !== 'completed' &&
+          !s.completed &&
+          !s.postRaceCompleted &&
+          !s.tyresPostLocked
+      );
+    if (completedSessionId) {
+      const curIdx = ordered.findIndex((s) => s && s.id === completedSessionId);
+      if (curIdx !== -1) {
+        for (let i = curIdx + 1; i < ordered.length; i++) {
+          if (isPending(ordered[i])) return ordered[i];
+        }
+      }
+    }
+    return ordered.find(isPending) || null;
+  }
+
+  /**
+   * Activates a specific session inside a LIVE event, syncs Tune's #selectSessionName
+   * and mechanic.html's active session, and optionally switches straight to #tab-calc (Tune).
+   */
+  function activateSessionByIdInLiveEvent(sessionId, opts = {}) {
+    const switchToTune = opts.switchToTune !== false;
+    const silent = Boolean(opts.silent);
+    if (!sessionId || !Array.isArray(state.events)) return null;
+
+    let targetEvt = null;
+    let targetSess = null;
+    for (const ev of state.events) {
+      if (!ev || ev.locked || !Array.isArray(ev.sessions)) continue;
+      const found = ev.sessions.find((s) => s && s.id === sessionId);
+      if (found) {
+        targetEvt = ev;
+        targetSess = found;
+        break;
+      }
+    }
+    if (!targetEvt || !targetSess) {
+      if (!silent) showToast('Event is Completed & Locked (Read-Only)');
+      return null;
+    }
+
+    state.activeEventId = targetEvt.id;
+
+    // Demote any other 'active' session in this event back to 'completed' (if post-locked) or 'pending'
+    targetEvt.sessions.forEach((s) => {
+      if (!s || s.id === targetSess.id) return;
+      if (s.status === 'active') {
+        s.status = s.completed || s.postRaceCompleted || s.tyresPostLocked ? 'completed' : 'pending';
+      }
+    });
+
+    const isDone =
+      targetSess.status === 'completed' ||
+      Boolean(targetSess.completed || targetSess.postRaceCompleted || targetSess.tyresPostLocked);
+
+    let activeSess = targetSess;
+    if (!isDone && !targetSess.tunePreLocked && !targetSess.fuelPreLocked && !targetSess.tyresPreLocked) {
+      // Commence / hydrate pending session with latest carried-forward baseline
+      activeSess = createAndActivateSessionInEvent(
+        targetEvt,
+        targetSess.sessionName,
+        targetSess.preRaceNotes || ''
+      ) || targetSess;
+    } else {
+      if (!isDone) {
+        targetSess.status = 'active';
+      }
+      state.activeSessionId = targetSess.id;
+      state.awaitingPostRaceId = targetSess.id;
+      if ($('selectCalcCarby') && targetSess.carbyId) $('selectCalcCarby').value = targetSess.carbyId;
+      if ($('selectCalcEmulsion') && targetSess.emulsionId) $('selectCalcEmulsion').value = targetSess.emulsionId;
+      if ($('selectCalcManifold') && targetSess.manifoldId) $('selectCalcManifold').value = targetSess.manifoldId;
+      if ($('selectCalcExhaust') && targetSess.exhaustId) $('selectCalcExhaust').value = targetSess.exhaustId;
+      if ($('inputRadPct') && Number.isFinite(Number(targetSess.rad))) {
+        $('inputRadPct').value = Number(targetSess.rad).toFixed(1);
+      }
+      if ($('inputFuelSg') && Number.isFinite(Number(targetSess.fuelSg))) {
+        $('inputFuelSg').value = Number(targetSess.fuelSg).toFixed(3);
+      }
+      if ($('inputTotalTiming') && Number.isFinite(Number(targetSess.timing))) {
+        $('inputTotalTiming').value = Number(targetSess.timing).toFixed(1);
+      }
+      if (targetSess.racedLaps && Number.isFinite(Number(targetSess.racedLaps)) && Number(targetSess.racedLaps) > 0) {
+        const lapsInt = Math.round(Number(targetSess.racedLaps));
+        if (state.chassis) state.chassis.raceLaps = lapsInt;
+        if ($('inputRaceLaps')) $('inputRaceLaps').value = String(lapsInt);
+        if ($('inputTyreSessionLaps')) $('inputTyreSessionLaps').value = String(lapsInt);
+      }
+      syncPreRaceNotesInputs(targetSess.preRaceNotes || '');
+    }
+
+    ui.selectedCrewSessionId = activeSess.id;
+    syncFlatSessionsFromEvents(state);
+    saveState();
+    setCalculatorStep(1);
+    renderAll();
+
+    if (switchToTune) {
+      switchTab('tab-calc');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    if (!silent) {
+      showToast(`ACTIVE SESSION: ${targetEvt.venue} • ${activeSess.sessionName}`);
+    }
+    return activeSess;
+  }
+
   if (typeof window !== 'undefined') {
     window.loadSandownDec2026HqEventTemplate = loadSandownDec2026HqEventTemplate;
+    window.activateSessionByIdInLiveEvent = activateSessionByIdInLiveEvent;
   }
 
   function openNewEventModal(pendingActionCallback) {
@@ -18072,10 +18299,21 @@
         Math.abs(state.baseline.jetMm - s.jetMm) < 0.0005 &&
         Math.abs(state.baseline.rad - s.rad) < 0.05);
 
-    const prot = evaluateManifoldProtection(s.afrWot, s.timing);
+    const isUnrunPending =
+      !isEventLocked &&
+      s.status !== 'completed' &&
+      !s.completed &&
+      !s.postRaceCompleted &&
+      !s.tunePreLocked &&
+      !s.tunePostLocked &&
+      !s.tyresPostLocked;
+    const hasNumericWotAfr =
+      !isUnrunPending && s.afrWot !== null && s.afrWot !== undefined && Number.isFinite(Number(s.afrWot));
+
+    const prot = evaluateManifoldProtection(hasNumericWotAfr ? Number(s.afrWot) : 12.75, s.timing);
     const endCylClass = prot.level === 'danger' ? 'txt-danger' : 'txt-emerald';
     const isEditing = !isEventLocked && ui.editingSessionId === s.id;
-    const isEstimated = s.afrStatus === 'estimated';
+    const isEstimated = s.afrStatus === 'estimated' || s.afrStatus === 'pending' || isUnrunPending;
     const isActiveRun = !isEventLocked && s.id === state.activeSessionId;
     const wotValClass = isEstimated
       ? 'txt-amber'
@@ -18190,7 +18428,7 @@
         `
         : '';
 
-    const isPendingRun = !isEventLocked && s.status === 'pending' && !s.completed;
+    const isPendingRun = !isEventLocked && s.status !== 'completed' && !s.completed;
     const actionsHtml = isEventLocked
       ? `
         <div class="session-actions" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);">
@@ -18204,7 +18442,7 @@
       ? `
         <div class="session-actions">
           <button type="button" class="btn btn-confirm" data-commence-session="${escapeHtml(s.id)}">
-            &#9654; Commence Session
+            &#9654; Open in Tune
           </button>
           <button type="button" class="btn ${isEditing ? 'btn-danger' : 'btn-secondary'}" data-edit-session-afr="${escapeHtml(s.id)}">
             ${isEditing ? 'Cancel Edit' : 'Edit Session'}
@@ -18247,13 +18485,39 @@
     } else if (s.tunePreLocked && !s.fuelPreLocked) {
       wfStatusBadgeClass = 'estimated';
       wfStatusBadgeText = '1. PRE-TUNE LOCKED';
-    } else if (s.status === 'pending' && !s.completed) {
+    } else if (isUnrunPending) {
       wfStatusBadgeClass = 'estimated';
-      wfStatusBadgeText = 'PENDING / UNCOMPLETED';
+      wfStatusBadgeText = 'PENDING • NOT RUN YET';
     } else {
       wfStatusBadgeClass = 'estimated';
       wfStatusBadgeText = 'PRE-RACE DRAFT';
     }
+
+    const afrSectionHtml = isUnrunPending
+      ? `
+        <div class="pending-not-run-strip">
+          <span class="pending-not-run-badge">PENDING &bull; NOT RUN YET</span>
+          <span>Tap session or <strong>Open in Tune</strong> to set up &amp; run this session</span>
+        </div>
+      `
+      : `
+        <div class="afr-rpm-strip">
+          ${stages
+            .map(
+              (st) => `
+              <div class="afr-pill">
+                <span class="afr-pill-rpm">${st.rpm}</span>
+                <span class="afr-pill-val ${st.val === null ? 'is-blank' : ''}">${st.val !== null ? st.val.toFixed(2) : '&mdash;'}</span>
+              </div>
+            `
+            )
+            .join('')}
+          <div class="afr-pill wot-pill">
+            <span class="afr-pill-rpm">WOT @ ${peakRpmVal}</span>
+            <span class="afr-pill-val ${wotValClass}">${hasNumericWotAfr ? Number(s.afrWot).toFixed(2) : '&mdash;'}</span>
+          </div>
+        </div>
+      `;
 
     return `
       <article class="session-card ${isBaseline ? 'is-baseline' : ''}" data-session-id="${escapeHtml(s.id)}">
@@ -18274,6 +18538,8 @@
                 ? '<span class="in-session-locked-pill" style="padding: 2px 7px; font-size: 0.835rem;">ACTIVE SESSION</span>'
                 : isBaseline
                 ? '<span class="locked-badge">Baseline</span>'
+                : isUnrunPending
+                ? '<span class="pending-not-run-badge">PENDING &bull; NOT RUN YET</span>'
                 : `<span class="mono ${endCylClass}" style="font-size: 0.835rem; font-weight: 800;">#1/#6: ${prot.endCylAfr.toFixed(2)}</span>`
             }
             <div style="margin-top: 4px;">
@@ -18286,22 +18552,7 @@
 
         ${bestLapBlockHtml}
 
-        <div class="afr-rpm-strip">
-          ${stages
-            .map(
-              (st) => `
-              <div class="afr-pill">
-                <span class="afr-pill-rpm">${st.rpm}</span>
-                <span class="afr-pill-val ${st.val === null ? 'is-blank' : ''}">${st.val !== null ? st.val.toFixed(2) : '&mdash;'}</span>
-              </div>
-            `
-            )
-            .join('')}
-          <div class="afr-pill wot-pill">
-            <span class="afr-pill-rpm">WOT @ ${peakRpmVal}</span>
-            <span class="afr-pill-val ${wotValClass}">${Number(s.afrWot).toFixed(2)}</span>
-          </div>
-        </div>
+        ${afrSectionHtml}
 
         ${renderUnifiedPreSessionReadinessBlock(s, isEventLocked)}
         ${renderUnifiedFuelWeightBlock(s)}
@@ -18326,12 +18577,24 @@
         Math.abs(state.baseline.jetMm - s.jetMm) < 0.0005 &&
         Math.abs(state.baseline.rad - s.rad) < 0.05);
     const isActiveRun = !isEventLocked && s.id === state.activeSessionId;
-    const isPendingRun = !isEventLocked && !isActiveRun && s.status === 'pending' && !s.completed;
+    const isDoneRun =
+      s.status === 'completed' ||
+      Boolean(s.completed || s.postRaceCompleted || s.tyresPostLocked);
+    const isUnrunPending =
+      !isEventLocked &&
+      !isDoneRun &&
+      !s.tunePreLocked &&
+      !s.tunePostLocked &&
+      !s.tyresPostLocked;
+    const isPendingRun = !isEventLocked && !isDoneRun;
     const isSessOpen = ui.expandedSessionId === s.id;
 
     const carbyDisp = getCarbyDisplayName(s.carbyId || 'DME1');
     const rawJet = formatJetPureMm(s.jetMm || 1.85);
-    const wotAfrStr = Number.isFinite(Number(s.afrWot)) ? `${Number(s.afrWot).toFixed(2)} AFR` : '— AFR';
+    const wotAfrStr =
+      !isUnrunPending && s.afrWot !== null && s.afrWot !== undefined && Number.isFinite(Number(s.afrWot))
+        ? `${Number(s.afrWot).toFixed(2)} AFR`
+        : '— AFR';
     const lapPart = s.bestLapStr
       ? ` • ⏱ ${s.bestLapStr}${s.bestLapNum ? ` (L${s.bestLapNum})` : ''}${s.isNewTrackPb ? ' 🏆' : ''}`
       : '';
@@ -18342,13 +18605,17 @@
         ? ` • ${s.racedLaps} Laps`
         : ' • Laps Editable'
       : '';
-    const quickGlanceStr = isPendingRun
+    const quickGlanceStr = isUnrunPending
       ? `${carbyDisp} • ${rawJet}${durPart}${schedLapsPart}`
       : `${carbyDisp} • ${rawJet} • ${wotAfrStr}${lapPart}${finishPart}`;
 
     let statusPillHtml = '';
-    if (isActiveRun && s.status !== 'completed') {
-      statusPillHtml = `<span class="session-row-status-pill in-progress">IN PROGRESS</span>`;
+    if (isActiveRun && !isDoneRun) {
+      statusPillHtml = isUnrunPending
+        ? `<span class="session-row-status-pill in-progress">ACTIVE SESSION</span><span class="session-row-status-pill pending">PENDING &bull; NOT RUN YET</span>`
+        : `<span class="session-row-status-pill in-progress">IN PROGRESS</span>`;
+    } else if (isUnrunPending) {
+      statusPillHtml = `<span class="session-row-status-pill pending">PENDING &bull; NOT RUN YET</span>`;
     } else if (isPendingRun) {
       statusPillHtml = `<span class="session-row-status-pill pending">PENDING</span>`;
     } else if (isBaseline) {
@@ -18368,17 +18635,27 @@
           }</span>`
         : '';
 
+    const rowActionAttr = !isEventLocked
+      ? `data-open-live-session-in-tune="${escapeHtml(s.id)}"`
+      : `data-toggle-session-acc="${escapeHtml(s.id)}"`;
+
     return `
       <div class="event-session-item ${isSessOpen ? 'expanded' : ''} ${isBaseline ? 'is-baseline' : ''}" data-session-id="${escapeHtml(s.id)}">
         <div
           role="button"
           tabindex="0"
-          class="session-compact-row ${isSessOpen ? 'expanded' : ''}"
-          data-toggle-session-acc="${escapeHtml(s.id)}"
+          class="session-compact-row ${!isEventLocked ? 'is-live-clickable' : ''} ${isSessOpen ? 'expanded' : ''}"
+          ${rowActionAttr}
           aria-expanded="${isSessOpen ? 'true' : 'false'}"
         >
           <div class="session-row-left">
-            <span class="session-row-chevron" aria-hidden="true">${isSessOpen ? '&#9660;' : '&#9654;'}</span>
+            <button
+              type="button"
+              class="session-row-chevron-btn"
+              data-toggle-session-acc="${escapeHtml(s.id)}"
+              title="${isSessOpen ? 'Collapse Session Details' : 'Expand Session Details'}"
+              aria-label="${isSessOpen ? 'Collapse Session Details' : 'Expand Session Details'}"
+            >${isSessOpen ? '&#9660;' : '&#9654;'}</button>
             <span class="session-row-name">${escapeHtml(s.sessionName)}</span>
             ${s.timestamp ? `<span class="session-row-time tabular">${escapeHtml(s.timestamp)}</span>` : ''}
           </div>
@@ -18388,7 +18665,7 @@
             <span class="session-row-summary-pill tabular">${escapeHtml(quickGlanceStr)}</span>
             ${
               !isEventLocked
-                ? `<button type="button" class="btn-icon-delete session-row-delete-btn" data-delete-session="${escapeHtml(s.id)}" title="Remove Session" aria-label="Remove Session">&#10005;</button>`
+                ? `<span class="session-row-open-tune-pill">TUNE &rarr;</span><button type="button" class="btn-icon-delete session-row-delete-btn" data-delete-session="${escapeHtml(s.id)}" title="Remove Session" aria-label="Remove Session">&#10005;</button>`
                 : ''
             }
           </div>
@@ -18403,6 +18680,7 @@
   }
 
   function renderSessionLog() {
+    syncLoadSandownHqButtonsVisibility();
     const fallbackIso = getLocalTodayIso();
     if (!Array.isArray(state.events)) {
       state.events = [];
@@ -23555,9 +23833,8 @@
       });
     }
 
-    // Clear activeSessionId and immediately transition to Gate B (full-screen Select Next Session to Commence card)
-    state.activeSessionId = null;
-    state.awaitingPostRaceId = null;
+    // Automatically advance state.activeSessionId to the next PENDING session in this event (if any)
+    const nextPendingSess = findNextPendingSessionInEvent(liveEvt, linked.id);
     ui.postRaceTargetSessionId = null;
     ui.selectedHandlingTags = [];
     ui.selectedBrakeBiasTag = null;
@@ -23573,6 +23850,24 @@
     if ($('inputRadPct')) {
       $('inputRadPct').value = state.baseline.rad.toFixed(1);
     }
+
+    if (nextPendingSess) {
+      createAndActivateSessionInEvent(liveEvt, nextPendingSess.sessionName, nextPendingSess.preRaceNotes || '');
+      ui.selectedCrewSessionId = nextPendingSess.id;
+      closeModal('modalPromptNextSession');
+      saveState();
+      setCalculatorStep(1);
+      renderAll();
+      switchTab('tab-calc');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast(
+        `✓ ${completedSessionName} VERIFIED & LOCKED — Auto-Advanced to ${nextPendingSess.sessionName}!`
+      );
+      return;
+    }
+
+    state.activeSessionId = null;
+    state.awaitingPostRaceId = null;
 
     if ($('gateBCommenceSessionSelect')) {
       populateCommenceSessionSelect($('gateBCommenceSessionSelect'), liveEvt, { preserveValue: false });
@@ -25503,30 +25798,36 @@
     let selectedSess = null;
 
     if (orderedSessions.length > 0) {
-      if (ui.selectedCrewSessionId) {
-        selectedSess = orderedSessions.find((s) => s && s.id === ui.selectedCrewSessionId) || null;
-      }
-      if (!selectedSess && state.activeSessionId) {
+      if (state.activeSessionId) {
         selectedSess = orderedSessions.find((s) => s && s.id === state.activeSessionId) || null;
       }
+      if (!selectedSess && ui.selectedCrewSessionId) {
+        selectedSess = orderedSessions.find((s) => s && s.id === ui.selectedCrewSessionId) || null;
+      }
       if (!selectedSess) {
-        selectedSess = orderedSessions[0];
+        selectedSess =
+          orderedSessions.find(
+            (s) => s && s.status !== 'completed' && !s.completed && !s.postRaceCompleted && !s.tyresPostLocked
+          ) || orderedSessions[0];
       }
       ui.selectedCrewSessionId = selectedSess ? selectedSess.id : null;
+      if (selectedSess && !state.activeSessionId) {
+        state.activeSessionId = selectedSess.id;
+      }
 
       if (selEl) {
         selEl.innerHTML = orderedSessions
           .map((s) => {
             const isAct = s.id === state.activeSessionId;
-            const isDone = s.status === 'completed' || Boolean(s.completed || s.postRaceCompleted);
+            const isDone = s.status === 'completed' || Boolean(s.completed || s.postRaceCompleted || s.tyresPostLocked);
             const schedInfo = [s.sessionDate, s.timestamp].filter(Boolean).join(' • ');
             const statusSuffix = isAct
               ? ' (ACTIVE SESSION)'
               : isDone
               ? ' (COMPLETED)'
               : schedInfo
-              ? ` (PENDING • ${schedInfo})`
-              : ' (PENDING)';
+              ? ` (PENDING • NOT RUN YET • ${schedInfo})`
+              : ' (PENDING • NOT RUN YET)';
             return `<option value="${escapeHtml(s.id)}">${escapeHtml(s.sessionName)}${escapeHtml(statusSuffix)}</option>`;
           })
           .join('');
@@ -25548,6 +25849,15 @@
           .join('');
         selEl.value = curVal;
       }
+    }
+
+    if ($('mechActiveSessionBannerText')) {
+      const actLabelName = selectedSess
+        ? selectedSess.sessionName
+        : ui.selectedCrewSessionId && String(ui.selectedCrewSessionId).startsWith('__NEW_SESS__:')
+        ? String(ui.selectedCrewSessionId).slice('__NEW_SESS__:'.length).trim()
+        : 'Practice 1';
+      $('mechActiveSessionBannerText').textContent = `ACTIVE SESSION: ${venueName} • ${actLabelName}`;
     }
 
     // 3. Hydrate Pre-Race Checklist, Tyre Adjustments Drawer, Fuel Adjustment Drawer & Post-Race Accordion
@@ -25932,13 +26242,28 @@
       fuelInL: fuelInRaw !== '' ? Number(fuelInRaw) : null,
       fuelOutL: fuelOutRaw !== '' ? Number(fuelOutRaw) : null,
       racedLaps: lapsRaw !== '' ? Number(lapsRaw) : null,
-      mechanicNotes
+      mechanicNotes,
+      postRaceCompleted: true
     });
 
     if (updated) {
-      ui.selectedCrewSessionId = updated.id;
-      renderCrewPages();
-      showToast(`Saved Post-Race / Pit Data (${updated.sessionName})`);
+      const liveEvt = resolveActiveUnlockedEvent();
+      const nextPending = liveEvt ? findNextPendingSessionInEvent(liveEvt, updated.id) : null;
+      if (nextPending) {
+        nextPending.status = 'active';
+        state.activeSessionId = nextPending.id;
+        state.awaitingPostRaceId = nextPending.id;
+        ui.selectedCrewSessionId = nextPending.id;
+        saveState();
+        renderCrewPages();
+        showToast(
+          `✓ Saved Post-Race Data (${updated.sessionName}) — Auto-Advanced to ${nextPending.sessionName}!`
+        );
+      } else {
+        ui.selectedCrewSessionId = updated.id;
+        renderCrewPages();
+        showToast(`Saved Post-Race / Pit Data (${updated.sessionName})`);
+      }
     } else {
       showToast('No active event open — ask Warren to start the weekend event');
     }
@@ -26215,6 +26540,8 @@
 
       const toggleSessionAccBtn = e.target.closest('[data-toggle-session-acc]');
       if (toggleSessionAccBtn) {
+        e.preventDefault();
+        e.stopPropagation();
         const sid = toggleSessionAccBtn.getAttribute('data-toggle-session-acc');
         if (ui.expandedSessionId === sid) {
           ui.expandedSessionId = null;
@@ -26225,6 +26552,16 @@
           ui.expandedSessionId = sid;
         }
         renderSessionLog();
+        return;
+      }
+
+      const openLiveSessBtn = e.target.closest('[data-open-live-session-in-tune]');
+      if (openLiveSessBtn) {
+        e.preventDefault();
+        const sid = openLiveSessBtn.getAttribute('data-open-live-session-in-tune');
+        if (sid) {
+          activateSessionByIdInLiveEvent(sid, { switchToTune: true, silent: false });
+        }
         return;
       }
 
@@ -26384,7 +26721,7 @@
         return;
       }
 
-      const loadSandownHqBtn = e.target.closest('[data-load-sandown-hq-dec2026], #btnLoadSandownHqDec2026');
+      const loadSandownHqBtn = e.target.closest('[data-load-sandown-hq-dec2026], #btnLoadSandownHq, #btnLoadSandownHqDec2026');
       if (loadSandownHqBtn) {
         e.preventDefault();
         loadSandownDec2026HqEventTemplate({ activateEvent: true, silent: false });
@@ -26396,19 +26733,7 @@
         e.preventDefault();
         const sid = commenceSessionCardBtn.getAttribute('data-commence-session');
         if (!sid) return;
-        const targetEvt = (state.events || []).find(
-          (ev) => ev && !ev.locked && Array.isArray(ev.sessions) && ev.sessions.some((s) => s && s.id === sid)
-        );
-        if (!targetEvt) {
-          showToast('Event is Completed & Locked (Read-Only)');
-          return;
-        }
-        state.activeEventId = targetEvt.id;
-        const activated = createAndActivateSessionInEvent(sid, '');
-        if (activated) {
-          switchTab('tab-calc');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        activateSessionByIdInLiveEvent(sid, { switchToTune: true, silent: false });
         return;
       }
 
@@ -28517,10 +28842,30 @@
       });
     }
 
+    if ($('selectSessionName')) {
+      $('selectSessionName').addEventListener('change', (e) => {
+        const chosenId = e.target.value;
+        if (chosenId) {
+          activateSessionByIdInLiveEvent(chosenId, { switchToTune: false, silent: false });
+        }
+      });
+    }
+
     // Consolidated Mechanic Mini-PWA (mechanic.html) bindings
     if ($('mechSessionSelect')) {
       $('mechSessionSelect').addEventListener('change', (e) => {
-        ui.selectedCrewSessionId = e.target.value || null;
+        const chosenId = e.target.value || null;
+        ui.selectedCrewSessionId = chosenId;
+        if (chosenId && !String(chosenId).startsWith('__NEW_SESS__:')) {
+          const liveEvt = resolveActiveUnlockedEvent();
+          if (liveEvt && Array.isArray(liveEvt.sessions)) {
+            const matchedSess = liveEvt.sessions.find((s) => s && s.id === chosenId);
+            if (matchedSess) {
+              state.activeSessionId = matchedSess.id;
+              saveState();
+            }
+          }
+        }
         if (document.activeElement && typeof document.activeElement.blur === 'function') {
           document.activeElement.blur();
         }

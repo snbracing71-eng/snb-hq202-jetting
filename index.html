@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.0.14" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.15" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -331,6 +331,18 @@
          ========================================================= -->
     <section id="tab-calc" class="tab-panel active" aria-labelledby="navTabCalc">
       <div id="calcActiveSessionContent" style="display: none;">
+      <!-- ACTIVE SESSION BANNER & QUICK SESSION SWITCHER AT TOP OF TUNE TAB -->
+      <div class="tune-active-session-banner" id="tuneActiveSessionBanner" role="region" aria-label="Active Session Banner">
+        <div class="tune-active-session-left">
+          <span class="tune-active-session-dot" aria-hidden="true"></span>
+          <span class="tune-active-session-text" id="tuneActiveSessionBannerText">ACTIVE SESSION: SANDOWN RACEWAY &bull; PRACTICE 1</span>
+        </div>
+        <div class="tune-active-session-right">
+          <label class="sr-only" for="selectSessionName">Active Session</label>
+          <select id="selectSessionName" class="select-input tune-active-session-select" aria-label="Active Session Selector"></select>
+        </div>
+      </div>
+
       <!-- TOP WORKFLOW ACTION BAR FOR TUNE (PRE-RACE TUNE -> POST-SESSION TUNE -> POST-SESSION FUEL & WEIGHT) -->
       <div class="top-workflow-action-card" id="tuneTopWorkflowCard">
         <div class="top-wf-header-row">
@@ -2160,8 +2172,8 @@
           >&#10005;</button>
         </div>
 
-        <div class="form-grid-2 compact-pair-grid" style="margin-top: 8px;">
-          <button type="button" class="btn btn-confirm btn-full" id="btnLoadSandownHqDec2026" data-load-sandown-hq-dec2026="1">
+        <div id="logToolbarActionsRow" class="form-grid-2 compact-pair-grid" style="margin-top: 8px;">
+          <button type="button" class="btn btn-confirm btn-full" id="btnLoadSandownHq" data-load-sandown-hq-dec2026="1">
             &#127937; Load Sandown HQ (5–6 Dec)
           </button>
           <button type="button" class="btn btn-ai-dump-gold btn-full" id="btnOpenAiDataDump">
@@ -5933,6 +5945,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=1.0.14"></script>
+  <script src="./app.js?v=1.0.15"></script>
 </body>
 </html>
