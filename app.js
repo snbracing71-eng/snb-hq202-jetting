@@ -9468,14 +9468,17 @@
 
   function hasSandownDec2026HqEvent() {
     if (!state || !Array.isArray(state.events)) return false;
-    return state.events.some((evt) => {
-      if (!evt) return false;
-      if (evt.id === SANDOWN_DEC2026_HQ_EVENT_ID) return true;
-      const venueNorm = normalizeVenueName(evt.venue || '');
+    return state.events.some((e) => {
+      if (!e) return false;
+      if (e.id === SANDOWN_DEC2026_HQ_EVENT_ID || e.id === 'evt_sandown_dec2026_hq') return true;
+      const venueStr = String(e.venue || '');
+      const dateStr = String(e.date || e.eventDate || '');
+      if (venueStr.includes('Sandown') && dateStr.includes('2026-12-05')) return true;
+      const venueNorm = normalizeVenueName(venueStr);
       if (venueNorm !== SANDOWN_DEC2026_HQ_VENUE) return false;
-      const rawDate = String(evt.eventDate || '').trim();
+      const rawDate = dateStr.trim();
       const dispDate = String(formatIsoDateDisplay(rawDate) || '').trim();
-      const titleStr = String(evt.eventTitle || '').trim();
+      const titleStr = String(e.eventTitle || '').trim();
       if (rawDate === '2026-12-05' || rawDate === '2026-12-06') return true;
       if (/^5\s+Dec\s+2026$/i.test(rawDate) || /^5\s+Dec\s+2026$/i.test(dispDate)) return true;
       if (/5[–\-]6\s*Dec\s*2026/i.test(titleStr) || /5\s*Dec\s*2026/i.test(titleStr)) return true;
@@ -9484,24 +9487,34 @@
   }
 
   function syncLoadSandownHqButtonsVisibility() {
-    const isActiveSandown =
-      Boolean(state && state.activeEventId === SANDOWN_DEC2026_HQ_EVENT_ID) &&
-      hasSandownDec2026HqEvent();
-    ['btnLoadSandownHq', 'btnLoadSandownHqDec2026', 'btnGateALoadSandownHqDec2026'].forEach((id) => {
+    const hasSandown =
+      (state && Array.isArray(state.events) ? state.events : []).some(
+        (e) =>
+          e &&
+          (e.id === 'evt_sandown_dec2026_hq' ||
+            (String(e.venue || '').includes('Sandown') &&
+              (String(e.date || '').includes('2026-12-05') || String(e.eventDate || '').includes('2026-12-05'))))
+      ) || hasSandownDec2026HqEvent();
+
+    const loadSandownBtn = $('btnLoadSandownHq');
+    if (loadSandownBtn) {
+      loadSandownBtn.style.display = hasSandown ? 'none' : 'inline-flex';
+    }
+    ['btnLoadSandownHqDec2026', 'btnGateALoadSandownHqDec2026'].forEach((id) => {
       const btn = $(id);
       if (btn) {
-        btn.style.display = '';
-        btn.innerHTML = isActiveSandown
-          ? '&#127937; Load Sandown HQ (5–6 Dec) &#10003;'
-          : '&#127937; Load Sandown HQ (5–6 Dec)';
+        btn.style.display = hasSandown ? 'none' : 'inline-flex';
       }
     });
     document.querySelectorAll('[data-load-sandown-hq-dec2026]').forEach((btn) => {
-      btn.style.display = '';
-      btn.innerHTML = isActiveSandown
-        ? '&#127937; Load Sandown HQ (5–6 Dec) &#10003;'
-        : '&#127937; Load Sandown HQ (5–6 Dec)';
+      btn.style.display = hasSandown ? 'none' : 'inline-flex';
     });
+
+    const openNewEventBtn = $('btnOpenNewEvent');
+    if (openNewEventBtn) {
+      openNewEventBtn.style.display = hasSandown ? 'inline-flex' : 'none';
+    }
+
     const toolbarRow = $('logToolbarActionsRow');
     if (toolbarRow) {
       toolbarRow.style.gridTemplateColumns = '';
@@ -25718,6 +25731,7 @@
       }
     };
     safeRun('renderGatekeeper', () => renderWeekendEventBanner());
+    safeRun('syncSandownToolbar', () => syncLoadSandownHqButtonsVisibility());
     safeRun('renderCalc', () => {
       renderLockedBaselineBar();
       populateCarbySelects();
@@ -27157,6 +27171,13 @@
       if (loadSandownHqBtn) {
         e.preventDefault();
         loadSandownDec2026HqEventTemplate({ activateEvent: true, silent: false });
+        return;
+      }
+
+      const openNewEventBtn = e.target.closest('[data-open-new-event], #btnOpenNewEvent');
+      if (openNewEventBtn) {
+        e.preventDefault();
+        openNewEventModal();
         return;
       }
 
