@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.0.25" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.26" />
 </head>
 <body>
   <!-- Sticky Pit-Lane Header -->
@@ -244,84 +244,6 @@
           <button type="button" class="btn btn-danger live-end-event-btn" id="btnOpenEndEventModal" aria-label="End and Lock Event">
             END EVENT
           </button>
-        </div>
-      </div>
-
-      <!-- PRE-SESSION READINESS PANEL: Crew Pre-Race Checklist + Tyre Action + Driver / Operator Checklist -->
-      <div id="preSessionReadinessPanel" class="pre-session-readiness-panel" style="display: none;" role="region" aria-label="Pre-Session Crew &amp; Driver Readiness">
-        <div class="pre-session-readiness-head">
-          <div class="pre-session-readiness-title-group">
-            <span class="section-eyebrow" style="color: #6ee7b7; margin: 0;">PRE-SESSION READINESS &amp; GRID CHECKS</span>
-            <span class="pre-session-readiness-target mono" id="preSessionReadinessSessionLabel">PRACTICE 1</span>
-          </div>
-          <div class="pre-session-readiness-badges">
-            <span class="fleet-acc-status-pill amber mono" id="mainCrewPreRaceStatusBadge">CREW: 0 / 9 DONE</span>
-            <span class="fleet-acc-status-pill amber mono" id="mainDriverPreSessionStatusBadge">DRIVER: 0 / 3 DONE</span>
-          </div>
-        </div>
-
-        <div class="pre-session-readiness-grid">
-          <!-- Left / Top Block: Crew Pre-Race Checklist, Tyre Adjustments & Fuel Adjustment Confirmation -->
-          <div class="pre-session-crew-box">
-            <div class="pre-session-subhead-row">
-              <span class="pre-session-subhead-title">&#128295; Crew Pre-Race Check Status</span>
-              <div class="pre-session-adjustments-badges">
-                <span class="pre-session-tyre-action-pill mono" id="mainPreRaceTyreActionBadge">TYRE PRESSURES: Left As Is (FL, FR, RL, RR)</span>
-                <span class="pre-session-tyre-action-pill mono is-left" id="mainPreRaceFuelActionBadge">FUEL LOAD: Left As Is</span>
-                <span class="pre-session-tyre-action-pill mono" id="mainPreRaceFuelCapBadge">FUEL CAP: PENDING</span>
-              </div>
-            </div>
-            <div class="pre-session-crew-split-lists">
-              <div class="pre-session-crew-list-col">
-                <span class="pre-session-list-label done" id="mainCrewDoneHeader">&#9989; Completed (0)</span>
-                <div class="pre-session-pill-wrap" id="mainCrewDoneList"></div>
-              </div>
-              <div class="pre-session-crew-list-col">
-                <span class="pre-session-list-label pending" id="mainCrewPendingHeader">&#9203; Not Done (9)</span>
-                <div class="pre-session-pill-wrap" id="mainCrewPendingList"></div>
-              </div>
-            </div>
-            <div class="pre-session-crew-notes mono" id="mainCrewSignOffNotesLine" style="display: none;"></div>
-          </div>
-
-          <!-- Right / Bottom Block: Driver / Operator Pre-Session Checklist (Camera, Drink Bottle, Timer in place) -->
-          <div class="pre-session-driver-box">
-            <div class="pre-session-subhead-row">
-              <span class="pre-session-subhead-title">&#127937; Driver / Operator Pre-Session Check</span>
-              <span class="field-hint emerald">Tap Row to Toggle</span>
-            </div>
-            <div class="crew-prerace-checklist-stack driver-pre-checklist-stack" id="mainDriverPreSessionChecklistWrap">
-              <label class="crew-check-row mech-check-row driver-pre-check-chip" data-driver-precheck-chip="camera">
-                <input type="checkbox" class="driver-pre-check-input" data-driver-precheck="camera" id="chkDriverPre_camera" />
-                <span class="crew-check-box driver-pre-check-box" aria-hidden="true">&#10003;</span>
-                <span class="crew-check-copy">
-                  <span class="crew-check-title driver-pre-check-label">1. Camera</span>
-                  <span class="crew-check-sub">In-car camera powered on, SD card checked &amp; recording armed</span>
-                </span>
-                <span class="crew-check-status mono" id="drvPreStatus_camera">PENDING</span>
-              </label>
-
-              <label class="crew-check-row mech-check-row driver-pre-check-chip" data-driver-precheck-chip="drinkBottle">
-                <input type="checkbox" class="driver-pre-check-input" data-driver-precheck="drinkBottle" id="chkDriverPre_drinkBottle" />
-                <span class="crew-check-box driver-pre-check-box" aria-hidden="true">&#10003;</span>
-                <span class="crew-check-copy">
-                  <span class="crew-check-title driver-pre-check-label">2. Drink Bottle</span>
-                  <span class="crew-check-sub">Driver drink bottle filled, secured in cage mount &amp; tube routed</span>
-                </span>
-                <span class="crew-check-status mono" id="drvPreStatus_drinkBottle">PENDING</span>
-              </label>
-
-              <label class="crew-check-row mech-check-row driver-pre-check-chip" data-driver-precheck-chip="timerInPlace">
-                <input type="checkbox" class="driver-pre-check-input" data-driver-precheck="timerInPlace" id="chkDriverPre_timerInPlace" />
-                <span class="crew-check-box driver-pre-check-box" aria-hidden="true">&#10003;</span>
-                <span class="crew-check-copy">
-                  <span class="crew-check-title driver-pre-check-label">3. Timer in place</span>
-                  <span class="crew-check-sub">Lap timer / transponder mounted, charged &amp; satellite lock verified</span>
-                </span>
-                <span class="crew-check-status mono" id="drvPreStatus_timerInPlace">PENDING</span>
-              </label>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -806,6 +728,84 @@
           </button>
         </div>
       </div>
+      </div>
+
+      <!-- PRE-SESSION READINESS PANEL AT BOTTOM OF TUNE TAB (Moved dynamically to bottom of active setup tab) -->
+      <div id="preSessionReadinessPanel" class="pre-session-readiness-panel" style="display: none;" role="region" aria-label="Pre-Session Crew &amp; Driver Readiness">
+        <div class="pre-session-readiness-head">
+          <div class="pre-session-readiness-title-group">
+            <span class="section-eyebrow" style="color: #6ee7b7; margin: 0;">PRE-SESSION READINESS &amp; GRID CHECKS</span>
+            <span class="pre-session-readiness-target mono" id="preSessionReadinessSessionLabel">PRACTICE 1</span>
+          </div>
+          <div class="pre-session-readiness-badges">
+            <span class="fleet-acc-status-pill amber mono" id="mainCrewPreRaceStatusBadge">CREW: 0 / 9 DONE</span>
+            <span class="fleet-acc-status-pill amber mono" id="mainDriverPreSessionStatusBadge">DRIVER: 0 / 3 DONE</span>
+          </div>
+        </div>
+
+        <div class="pre-session-readiness-grid">
+          <!-- Left / Top Block: Crew Pre-Race Checklist, Tyre Adjustments & Fuel Adjustment Confirmation -->
+          <div class="pre-session-crew-box">
+            <div class="pre-session-subhead-row">
+              <span class="pre-session-subhead-title">&#128295; Crew Pre-Race Check Status</span>
+              <div class="pre-session-adjustments-badges">
+                <span class="pre-session-tyre-action-pill mono" id="mainPreRaceTyreActionBadge">TYRE PRESSURES: Left As Is (FL, FR, RL, RR)</span>
+                <span class="pre-session-tyre-action-pill mono is-left" id="mainPreRaceFuelActionBadge">FUEL LOAD: Left As Is</span>
+                <span class="pre-session-tyre-action-pill mono" id="mainPreRaceFuelCapBadge">FUEL CAP: PENDING</span>
+              </div>
+            </div>
+            <div class="pre-session-crew-split-lists">
+              <div class="pre-session-crew-list-col">
+                <span class="pre-session-list-label done" id="mainCrewDoneHeader">&#9989; Completed (0)</span>
+                <div class="pre-session-pill-wrap" id="mainCrewDoneList"></div>
+              </div>
+              <div class="pre-session-crew-list-col">
+                <span class="pre-session-list-label pending" id="mainCrewPendingHeader">&#9203; Not Done (9)</span>
+                <div class="pre-session-pill-wrap" id="mainCrewPendingList"></div>
+              </div>
+            </div>
+            <div class="pre-session-crew-notes mono" id="mainCrewSignOffNotesLine" style="display: none;"></div>
+          </div>
+
+          <!-- Right / Bottom Block: Driver / Operator Pre-Session Checklist (Camera, Drink Bottle, Timer in place) -->
+          <div class="pre-session-driver-box">
+            <div class="pre-session-subhead-row">
+              <span class="pre-session-subhead-title">&#127937; Driver / Operator Pre-Session Check</span>
+              <span class="field-hint emerald">Tap Row to Toggle</span>
+            </div>
+            <div class="crew-prerace-checklist-stack driver-pre-checklist-stack" id="mainDriverPreSessionChecklistWrap">
+              <label class="crew-check-row mech-check-row driver-pre-check-chip" data-driver-precheck-chip="camera">
+                <input type="checkbox" class="driver-pre-check-input" data-driver-precheck="camera" id="chkDriverPre_camera" />
+                <span class="crew-check-box driver-pre-check-box" aria-hidden="true">&#10003;</span>
+                <span class="crew-check-copy">
+                  <span class="crew-check-title driver-pre-check-label">1. Camera</span>
+                  <span class="crew-check-sub">Power on, SD card &amp; recording armed</span>
+                </span>
+                <span class="crew-check-status mono" id="drvPreStatus_camera">PENDING</span>
+              </label>
+
+              <label class="crew-check-row mech-check-row driver-pre-check-chip" data-driver-precheck-chip="drinkBottle">
+                <input type="checkbox" class="driver-pre-check-input" data-driver-precheck="drinkBottle" id="chkDriverPre_drinkBottle" />
+                <span class="crew-check-box driver-pre-check-box" aria-hidden="true">&#10003;</span>
+                <span class="crew-check-copy">
+                  <span class="crew-check-title driver-pre-check-label">2. Drink Bottle</span>
+                  <span class="crew-check-sub">Filled, cage mount &amp; tube routed</span>
+                </span>
+                <span class="crew-check-status mono" id="drvPreStatus_drinkBottle">PENDING</span>
+              </label>
+
+              <label class="crew-check-row mech-check-row driver-pre-check-chip" data-driver-precheck-chip="timerInPlace">
+                <input type="checkbox" class="driver-pre-check-input" data-driver-precheck="timerInPlace" id="chkDriverPre_timerInPlace" />
+                <span class="crew-check-box driver-pre-check-box" aria-hidden="true">&#10003;</span>
+                <span class="crew-check-copy">
+                  <span class="crew-check-title driver-pre-check-label">3. Timer in place</span>
+                  <span class="crew-check-sub">Mounted, charged &amp; GPS lock</span>
+                </span>
+                <span class="crew-check-status mono" id="drvPreStatus_timerInPlace">PENDING</span>
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1368,7 +1368,7 @@
               <span class="ai-spacer-match-pill" id="outAiSpacerStatusPill">ON CAR</span>
             </div>
             <div class="ai-spacer-reason-line" id="outAiSpacerReason">
-              CW Circuit &bull; RR 20mm preloads inside RR (+19kg wedge) to stop right-hand exit wheelspin
+              CW circuit &bull; RR 20mm plants inside RR on RH corner exits
             </div>
           </div>
           <button type="button" class="btn-apply-ai-spacer" id="btnApplyAiSpacers">
@@ -2032,13 +2032,13 @@
         </div>
 
         <div id="logToolbarActionsRow" class="form-grid-2 compact-pair-grid log-toolbar-actions-row" style="margin-top: 8px;">
-          <button type="button" class="btn btn-confirm btn-full log-toolbar-equal-btn" id="btnLoadSandownHq" data-load-sandown-hq-dec2026="1">
+          <button type="button" class="btn btn-confirm btn-full log-toolbar-equal-btn" id="btnLoadSandownHq" data-load-sandown-hq-dec2026="1" style="display: none;">
             &#127937; Load Sandown HQ (5–6 Dec)
           </button>
-          <button type="button" class="btn btn-confirm btn-full log-toolbar-equal-btn" id="btnOpenNewEvent" data-open-new-event="1" style="display: none;">
+          <button type="button" class="btn btn-confirm btn-full log-toolbar-equal-btn" id="btnOpenNewEvent" data-open-new-event="1">
             + NEW EVENT
           </button>
-          <button type="button" class="btn btn-ai-dump-gold btn-full log-toolbar-equal-btn" id="btnOpenAiDataDump" data-ai-data-dump="1">
+          <button type="button" class="btn btn-ai-dump-gold btn-full log-toolbar-equal-btn" id="btnAiDataDump" data-ai-data-dump="1">
             &#128203; AI DATA DUMP (COPY FOR REVIEW)
           </button>
         </div>
@@ -5997,6 +5997,6 @@
   <!-- Toast Banner -->
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=1.0.25"></script>
+  <script src="./app.js?v=1.0.26"></script>
 </body>
 </html>

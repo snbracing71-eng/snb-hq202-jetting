@@ -11685,47 +11685,47 @@
       {
         key: 'tyrePressures',
         label: 'Tyre Pressures Checked / Adjusted',
-        sub: 'FL, FR, RL, RR — enter Set To PSI only if altered'
+        sub: 'FL, FR, RL, RR — enter PSI only if changed'
       },
       {
         key: 'wheelNuts',
         label: 'Wheel nuts torqued',
-        sub: 'All 4 wheels torqued & studs checked'
+        sub: '4 wheels torqued & studs OK'
       },
       {
         key: 'brakes',
         label: 'Brake pedal, fluid, lines & pads checked',
-        sub: 'Firm pedal, fluid level, lines & pads/drums OK'
+        sub: 'Firm pedal, fluid & lines OK'
       },
       {
         key: 'fuelLoad',
         label: 'Fuel Load Checked / Adjusted',
-        sub: 'Log pump-out, check next pour & confirm cap on'
+        sub: 'Pump-out, pour & cap on'
       },
       {
         key: 'fluidsLeaks',
         label: 'Oil, coolant, catch-can & leaks checked',
-        sub: 'Oil, coolant, catch-can & zero leaks'
+        sub: 'Levels checked & zero leaks'
       },
       {
         key: 'safetyFasteners',
         label: 'Safety pins, fasteners & mirrors checked',
-        sub: 'Pins, fasteners, isolator, harness & mirrors OK'
+        sub: 'Pins, harness, isolator & mirrors OK'
       },
       {
         key: 'cleanCarInside',
         label: 'Clean car inside',
-        sub: 'Floor, pedals, seat & dash clear'
+        sub: 'Floor, pedals & cockpit clear'
       },
       {
         key: 'cleanCarOutside',
         label: 'Clean car outside',
-        sub: 'Bodywork, numbers & grilles wiped clean'
+        sub: 'Panels & numbers wiped clean'
       },
       {
         key: 'cleanGlass',
         label: 'Clean glass',
-        sub: 'Windscreen, rear, side glass & mirrors clear'
+        sub: 'Screens & mirrors clean'
       }
     ];
   }
@@ -12011,19 +12011,19 @@
         key: 'camera',
         label: '1. Camera',
         shortLabel: 'Camera',
-        sub: 'In-car camera powered on, SD card checked & recording armed'
+        sub: 'Power on, SD card & recording armed'
       },
       {
         key: 'drinkBottle',
         label: '2. Drink Bottle',
         shortLabel: 'Drink Bottle',
-        sub: 'Driver drink bottle filled, secured in cage mount & tube routed'
+        sub: 'Filled, cage mount & tube routed'
       },
       {
         key: 'timerInPlace',
         label: '3. Timer in place',
         shortLabel: 'Timer in place',
-        sub: 'Lap timer / transponder mounted, charged & satellite lock verified'
+        sub: 'Mounted, charged & GPS lock'
       }
     ];
   }
@@ -12130,6 +12130,15 @@
     if (!liveEvt) {
       panel.style.display = 'none';
       return;
+    }
+
+    const activeSetupTabId =
+      ui && (ui.activeTab === 'tab-calc' || ui.activeTab === 'tab-fuel' || ui.activeTab === 'tab-tyres')
+        ? ui.activeTab
+        : 'tab-calc';
+    const hostTabEl = $(activeSetupTabId);
+    if (hostTabEl && panel.parentElement !== hostTabEl) {
+      hostTabEl.appendChild(panel);
     }
 
     panel.style.display = 'block';
@@ -12248,7 +12257,7 @@
           ? doneItems
               .map(
                 (it) =>
-                  `<span class="pre-session-item-pill done">&#10003; ${escapeHtml(it.label)}</span>`
+                  `<div class="pre-session-item-pill done"><span class="pre-session-check-mark">&#10003;</span><span>${escapeHtml(it.label)}</span></div>`
               )
               .join('')
           : `<span class="pre-session-empty-hint">None completed yet</span>`;
@@ -12261,10 +12270,10 @@
           ? pendingItems
               .map(
                 (it) =>
-                  `<span class="pre-session-item-pill pending">&bull; ${escapeHtml(it.label)}</span>`
+                  `<div class="pre-session-item-pill pending"><span class="pre-session-check-mark">&bull;</span><span>${escapeHtml(it.label)}</span></div>`
               )
               .join('')
-          : `<span class="pre-session-item-pill done">&#10003; All ${preCl.totalCount} Crew Checks Complete</span>`;
+          : `<div class="pre-session-item-pill done"><span class="pre-session-check-mark">&#10003;</span><span>All ${preCl.totalCount} Crew Checks Complete</span></div>`;
     }
 
     const signOffEl = $('mainCrewSignOffNotesLine');
@@ -16499,24 +16508,24 @@
     let recRL = 0;
     let recRR = isCCW ? 10 : 20;
     let sourceTag = isCCW
-      ? `CCW Scale Seed (0.92 kg/mm)`
-      : `Calder Green Row 2 (49.38% RF+LR)`;
+      ? `CCW Scale Seed`
+      : `CW Row 2 Green`;
     let reason = isSandown
-      ? `Sandown (CCW): 20mm RR leaves RL at 304 kg (-30 kg vs RR 334 kg) for tight Turn 4 LH exit. RL 0mm • RR 10mm (8.03mm Black / 7.63mm Orange / 10.11mm Steel) puts ~4.5 kg back onto RL (0.92 kg/mm) while supporting Turn 1/13 fast LH; combine with ~15 kg Left Passenger Floor Ballast if Spin LH Exit (RL) occurs!`
+      ? `Sandown (CCW): RL 0mm • RR 10mm keeps weight on RL for Turn 4 LH exit.`
       : isCCW
-      ? `${venue} (CCW): RL 0mm • RR 10mm (8.03mm Black / 7.63mm Orange / 10.11mm Steel) avoids the -30 kg RL unload of 20mm RR (RL 304 vs RR 334 kg) while supporting fast LH sweepers (0.92 kg/mm scale constant).`
-      : `${venue} (CW): RL 0mm • RR 20mm (Calder Row 2 Green: FL 361 / FR 373 / RL 304 / RR 334 • RF+LR Cross 49.38%) shifts 9.0 kg onto FL & RR (0.92 kg/mm), narrowing FR-FL split from 30 kg to 12 kg and planting inside RR (334 kg) on RH exits.`;
+      ? `${venue} (CCW): RL 0mm • RR 10mm balances RL traction on LH exits.`
+      : `${venue} (CW): RL 0mm • RR 20mm plants inside RR (334 kg) on RH exits.`;
 
     let insideUnloadWarning = '';
     if (cwTelem.hasAllFour) {
       const simRec = computeCornerWeightAndWedgeTelemetry(recRL, recRR);
       if (!isCCW) {
-        sourceTag = `Row 2 Green (${simRec.liveIntercompCrossPct.toFixed(2)}% RF+LR)`;
+        sourceTag = `Row 2 Green (${simRec.liveIntercompCrossPct.toFixed(1)}% Cross)`;
       } else {
-        sourceTag = `CCW Anti-Spin (${simRec.liveIntercompCrossPct.toFixed(2)}% RF+LR)`;
+        sourceTag = `CCW Anti-Spin (${simRec.liveIntercompCrossPct.toFixed(1)}% Cross)`;
       }
       if (isCCW && activeSpacers.RR >= 20 && cwTelem.liveRR - cwTelem.liveRL >= 20) {
-        insideUnloadWarning = ` ⚠️ Active 20mm RR drops RL to ${cwTelem.liveRL.toFixed(0)} kg (-${(cwTelem.liveRR - cwTelem.liveRL).toFixed(0)} kg vs RR ${cwTelem.liveRR.toFixed(0)} kg): fit RR 10mm (8.03mm Black / 7.63mm Orange / 10.11mm Steel) + Left Passenger Ballast if Spin LH Exit (RL) occurs!`;
+        insideUnloadWarning = ` (20mm RR unloads RL by ${(cwTelem.liveRR - cwTelem.liveRL).toFixed(0)} kg)`;
       }
     }
 
@@ -16592,7 +16601,7 @@
           recRR = latestSpacers.RR;
         }
         sourceTag = `Learned (${venueSessions.length} Run${venueSessions.length === 1 ? '' : 's'} • Anti-Spin RL)`;
-        reason = `${latestTags.includes('Spin LH Exit (RL)') || spinLhCount > 0 ? 'Logged "Spin LH Exit (RL)"' : 'Unloaded RL hot-gain/pyro spike'} at ${venue}: Step from RL ${latestSpacers.RL}/RR ${latestSpacers.RR}mm → RL ${recRL}mm • RR ${recRR}mm (fit 8.03mm Black Poly, 7.63mm Orange Poly, or 10.11mm Steel Ring on RR + ~15 kg Left Passenger Ballast) to restore static weight onto RL (0.92 kg/mm).`;
+        reason = `Anti-spin RL at ${venue}: Step to RL ${recRL}mm • RR ${recRR}mm to load RL on LH exits.`;
       } else if (latestTags.includes('Spin RH Exit (RR)') || spinRhCount > 0 || abnormalRrSpikeOnCw) {
         if (latestSpacers.RR < 20) {
           recRL = latestSpacers.RL;
@@ -16602,7 +16611,7 @@
           recRR = 20;
         }
         sourceTag = `Learned (${venueSessions.length} Run${venueSessions.length === 1 ? '' : 's'} • Anti-Spin RR)`;
-        reason = `${latestTags.includes('Spin RH Exit (RR)') || spinRhCount > 0 ? 'Logged "Spin RH Exit (RR)"' : 'Unloaded RR hot-gain/pyro spike'} at ${venue}: Step spacers to RL ${recRL}mm • RR ${recRR}mm (Row 2 Green 20mm RR plants RR at 334 kg & narrows FR-FL split to +12 kg) for RH corner exits.`;
+        reason = `Anti-spin RR at ${venue}: Step to RL ${recRL}mm • RR ${recRR}mm to plant RR on RH exits.`;
       } else if ((latestTags.includes('Mid-Corner Push') || pushCount > 0) && spinLhCount === 0 && spinRhCount === 0) {
         if (isCCW) {
           recRL = latestSpacers.RL;
@@ -16612,7 +16621,7 @@
           recRR = latestSpacers.RR;
         }
         sourceTag = `Learned (${venueSessions.length} Run${venueSessions.length === 1 ? '' : 's'} • Anti-Push)`;
-        reason = `Logged "Mid-Corner Push" with zero inside wheelspin at ${venue}: Favour +10mm on loaded outside rear (RL ${recRL}mm • RR ${recRR}mm) to aid mid-corner rotation.`;
+        reason = `Mid-corner push at ${venue}: RL ${recRL}mm • RR ${recRR}mm (+10mm outside rear) aids rotation.`;
       } else if (latestTags.includes('Loose Entry') || looseEntryCount > 0) {
         if (isCCW) {
           recRL = latestSpacers.RL;
@@ -16622,12 +16631,12 @@
           recRR = snapSpacerMm(Math.max(0, latestSpacers.RR - 10), 10);
         }
         sourceTag = `Learned (${venueSessions.length} Run${venueSessions.length === 1 ? '' : 's'} • Entry Stability)`;
-        reason = `Logged "Loose Entry" at ${venue}: Step rear spacer down to RL ${recRL}mm • RR ${recRR}mm to lower rear roll centre & calm entry oversteer.`;
+        reason = `Loose entry at ${venue}: Step down to RL ${recRL}mm • RR ${recRR}mm to calm entry.`;
       } else if (latestTags.includes('Balanced') || balancedCount > 0) {
         recRL = latestSpacers.RL;
         recRR = latestSpacers.RR;
         sourceTag = `Verified Balanced (${venueSessions.length} Run${venueSessions.length === 1 ? '' : 's'})`;
-        reason = `Last verified balanced setup at ${venue} (${latestRun.sessionName}): Keep RL ${recRL}mm • RR ${recRR}mm (${sprInfo.rlCode} ${sprInfo.rlRate} N/mm / ${sprInfo.rrCode} ${sprInfo.rrRate} N/mm • 0.92 kg/mm scale constant).`;
+        reason = `Verified balanced at ${venue} (${latestRun.sessionName}): Keep RL ${recRL}mm • RR ${recRR}mm.`;
       }
     }
 
@@ -16659,7 +16668,7 @@
     const applyBtn = $('btnApplyAiSpacers');
 
     if (callEl) {
-      callEl.textContent = `AI SPACER CALL: RL ${rec.RL}mm • RR ${rec.RR}mm`;
+      callEl.textContent = `RL ${rec.RL}mm • RR ${rec.RR}mm`;
     }
     if (pillEl) {
       pillEl.textContent = rec.matchesActive ? `✓ ON CAR (${rec.sourceTag})` : rec.sourceTag;
@@ -17989,10 +17998,10 @@
     if ($('outTyreTrackLearnedSub')) {
       $('outTyreTrackLearnedSub').textContent =
         learnedStats.totalRuns > 0
-          ? `Normalized Session 1 Cold baseline (${condLabel} @ ${hotTargetFront.toFixed(1)}F/${hotTargetRear.toFixed(1)}R, 11.5m / 26°C std) from ${learnedStats.totalRuns} stone-cold run${learnedStats.totalRuns === 1 ? '' : 's'} at ${venue} (${learnedStats.direction})`
+          ? `Session 1 cold base (${condLabel} @ ${hotTargetFront.toFixed(1)}F/${hotTargetRear.toFixed(1)}R) from ${learnedStats.totalRuns} run${learnedStats.totalRuns === 1 ? '' : 's'}`
           : activeCond === 'wet'
-          ? `${learnedStats.wetPresetLabel} (${learnedStats.direction} ${learnedStats.direction === 'CCW' ? 'FR/RR loaded' : 'FL/RL loaded'}) • Targets ${learnedStats.wetStagger.hotTargetFront.toFixed(1)}F / ${learnedStats.wetStagger.hotTargetRear.toFixed(1)}R PSI`
-          : `AI Cold Start baseline (${condLabel} • ${learnedStats.direction}) for ${hotTargetFront.toFixed(1)}F / ${hotTargetRear.toFixed(1)}R PSI • Protected from Session 2+ hot-bled runs`;
+          ? `${learnedStats.wetPresetLabel} (${learnedStats.direction}) • Targets ${learnedStats.wetStagger.hotTargetFront.toFixed(1)}F / ${learnedStats.wetStagger.hotTargetRear.toFixed(1)}R psi`
+          : `Cold start base (${condLabel} • ${learnedStats.direction}) for ${hotTargetFront.toFixed(1)}F / ${hotTargetRear.toFixed(1)}R psi`;
     }
 
     const dynBannerEl = $('tyreDynamicBanner');
@@ -18007,7 +18016,7 @@
           hotTargetRear
         );
         dynBannerEl.className = 'learned-inline-banner tyre-dynamic-banner stone-cold';
-        dynBannerEl.innerHTML = `<strong>Session 1 Stone-Cold Call (${tyreSessionLaps} Laps / ~${estRunMin.toFixed(1)}m @ ${trackTempInfo.effectiveTrackTempC}°C Track${trackTempInfo.isBlank ? ' std' : ''}):</strong> FL <strong>${dynCold.FL.toFixed(1)}</strong> &bull; FR <strong>${dynCold.FR.toFixed(1)}</strong> &bull; RL <strong>${dynCold.RL.toFixed(1)}</strong> &bull; RR <strong>${dynCold.RR.toFixed(1)} psi</strong> (${escapeHtml(dynCold.offsets.summaryText)})`;
+        dynBannerEl.innerHTML = `<strong>Cold Start (${tyreSessionLaps} laps @ ${trackTempInfo.effectiveTrackTempC}°C):</strong> FL <strong>${dynCold.FL.toFixed(1)}</strong> &bull; FR <strong>${dynCold.FR.toFixed(1)}</strong> &bull; RL <strong>${dynCold.RL.toFixed(1)}</strong> &bull; RR <strong>${dynCold.RR.toFixed(1)} psi</strong>`;
       } else {
         const completedList = getCompletedEventSessionsForTyreMode(activeCond);
         const prevSess = completedList.length ? completedList[completedList.length - 1] : null;
@@ -18042,20 +18051,18 @@
         const prevName = prevSess && prevSess.sessionName ? prevSess.sessionName : 'last run';
 
         if (Math.abs(deltaMin) >= 1.0 || Math.abs(deltaTemp) >= 3 || Math.abs(extraRisePsi) >= 0.2) {
-          const minSign = deltaMin >= 0 ? '+' : '';
-          const tempSign = deltaTemp >= 0 ? '+' : '';
           const riseSign = extraRisePsi >= 0 ? '+' : '';
           const trimAction =
             extraRisePsi > 0.05
-              ? `trim <strong>-${Math.abs(extraRisePsi).toFixed(1)} psi</strong> off paddock tyres if untouched since last bleed`
+              ? `bleed <strong>-${Math.abs(extraRisePsi).toFixed(1)} psi</strong>`
               : extraRisePsi < -0.05
-              ? `add <strong>+${Math.abs(extraRisePsi).toFixed(1)} psi</strong> to paddock tyres if untouched since last bleed`
-              : `keep paddock hot-bled pressures as set`;
+              ? `add <strong>+${Math.abs(extraRisePsi).toFixed(1)} psi</strong>`
+              : `keep pressures as set`;
           dynBannerEl.className = 'learned-inline-banner tyre-dynamic-banner hot-advisory';
-          dynBannerEl.innerHTML = `<strong>Hot-Bled Grid Advisory:</strong> ${tyreSessionLaps} Laps (${minSign}${deltaMin.toFixed(1)}m) &amp; ${trackTempInfo.effectiveTrackTempC}°C Track (${tempSign}${deltaTemp}°C vs ${escapeHtml(prevName)}): Expect <strong>~${riseSign}${extraRisePsi.toFixed(1)} psi</strong> ${extraRisePsi >= 0 ? 'extra' : 'less'} rise &mdash; ${trimAction}`;
+          dynBannerEl.innerHTML = `<strong>Hot-Bled Grid Call (${tyreSessionLaps} laps @ ${trackTempInfo.effectiveTrackTempC}°C):</strong> ~${riseSign}${extraRisePsi.toFixed(1)} psi vs ${escapeHtml(prevName)} &mdash; ${trimAction}`;
         } else {
           dynBannerEl.className = 'learned-inline-banner tyre-dynamic-banner hot-steady';
-          dynBannerEl.innerHTML = `<strong>Session 2+ Hot-Cycled Mode (${tyreSessionLaps} Laps / ~${estRunMin.toFixed(1)}m @ ${trackTempInfo.effectiveTrackTempC}°C Track):</strong> Tyres already heat-cycled &amp; bled hot after ${escapeHtml(prevName)} &mdash; lock your <strong>Pre-Session Target Hot PSI</strong> below.`;
+          dynBannerEl.innerHTML = `<strong>Hot-Bled Mode (${tyreSessionLaps} laps @ ${trackTempInfo.effectiveTrackTempC}°C):</strong> Bled hot after ${escapeHtml(prevName)} &mdash; lock target hot PSI below.`;
         }
       }
     }
@@ -19024,7 +19031,7 @@
         ? doneItems
             .map(
               (it) =>
-                `<span class="pre-session-item-pill done">&#10003; ${escapeHtml(it.label)}</span>`
+                `<div class="pre-session-item-pill done"><span class="pre-session-check-mark">&#10003;</span><span>${escapeHtml(it.label)}</span></div>`
             )
             .join('')
         : `<span class="pre-session-empty-hint">None completed yet</span>`;
@@ -19034,10 +19041,10 @@
         ? pendingItems
             .map(
               (it) =>
-                `<span class="pre-session-item-pill pending">&bull; ${escapeHtml(it.label)}</span>`
+                `<div class="pre-session-item-pill pending"><span class="pre-session-check-mark">&bull;</span><span>${escapeHtml(it.label)}</span></div>`
             )
             .join('')
-        : `<span class="pre-session-item-pill done">&#10003; All ${preCl.totalCount} Crew Checks Complete</span>`;
+        : `<div class="pre-session-item-pill done"><span class="pre-session-check-mark">&#10003;</span><span>All ${preCl.totalCount} Crew Checks Complete</span></div>`;
 
     const hasBled = ['FL', 'FR', 'RL', 'RR'].some((c) => tyreAdj[c].action === 'Bled');
     const hasAdded = ['FL', 'FR', 'RL', 'RR'].some((c) => tyreAdj[c].action === 'Added');
@@ -19377,11 +19384,11 @@
 
         ${afrSectionHtml}
 
-        ${renderUnifiedPreSessionReadinessBlock(s, isEventLocked)}
         ${renderUnifiedFuelWeightBlock(s)}
         ${renderUnifiedTyresBlock(s)}
         ${renderUnifiedSuspensionBlock(s)}
         ${renderUnifiedBrakesBlock(s)}
+        ${renderUnifiedPreSessionReadinessBlock(s, isEventLocked)}
 
         ${notesBlockHtml}
 
@@ -26841,7 +26848,7 @@
     if (tyreActSummaryBadge) {
       tyreActSummaryBadge.textContent =
         tyreAdj.allLeftAsIs && !preCl.items.tyrePressures
-          ? 'FL, FR, RL, RR — enter Set To PSI only if altered'
+          ? 'FL, FR, RL, RR — enter PSI only if changed'
           : `Tyres: ${tyreAdj.summary}`;
     }
 
@@ -26905,8 +26912,8 @@
     }
     if (confirmPourSub) {
       confirmPourSub.textContent = isFuelConfirmed
-        ? `${refillCalc.litresToPourL.toFixed(1)} L Fuel In logged & Cap On ✓`
-        : `Tap to log ${refillCalc.litresToPourL.toFixed(1)} L Fuel In & confirm Cap On`;
+        ? `${refillCalc.litresToPourL.toFixed(1)} L Fuel In & Cap On ✓`
+        : `Tap to confirm ${refillCalc.litresToPourL.toFixed(1)} L & Cap On`;
     }
     if (fuelCapStatusBadge) {
       fuelCapStatusBadge.textContent = isFuelConfirmed ? 'DONE ✓' : 'PENDING';
@@ -26916,7 +26923,7 @@
     if (fuelSummaryBadge) {
       fuelSummaryBadge.textContent =
         fuelAdj.fuelOutL === null && !isFuelConfirmed
-          ? 'Log pump-out, check next pour & confirm cap on'
+          ? 'Pump-out, pour & cap on'
           : fuelAdj.fullSummary;
     }
 
@@ -29847,6 +29854,9 @@
     }
     if ($('btnOpenAiDataDump')) {
       $('btnOpenAiDataDump').addEventListener('click', openAiDataDumpModal);
+    }
+    if ($('btnAiDataDump')) {
+      $('btnAiDataDump').addEventListener('click', openAiDataDumpModal);
     }
     if ($('btnCopyAiDataDump')) {
       $('btnCopyAiDataDump').addEventListener('click', copyAiDataDumpToClipboard);

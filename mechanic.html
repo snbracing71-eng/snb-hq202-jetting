@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest-mech.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.0.25" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.26" />
 </head>
 <body class="crew-page-body">
   <!-- Sticky 3D Brushed-Metal AgerPro Header -->
@@ -224,7 +224,7 @@
                 >
                   <span class="crew-check-copy">
                     <span class="crew-check-title">1. Tyre Pressures Checked / Adjusted</span>
-                    <span class="crew-check-sub" id="preRaceTyreActionSummaryBadge">FL, FR, RL, RR &mdash; enter Set To PSI only if altered</span>
+                    <span class="crew-check-sub" id="preRaceTyreActionSummaryBadge">FL, FR, RL, RR &mdash; enter PSI only if changed</span>
                   </span>
                   <span class="crew-task-header-right">
                     <span class="crew-check-status mono" id="preRaceStatus_tyrePressures">PENDING</span>
@@ -236,7 +236,7 @@
               <!-- Collapsible Drawer Body: 4 Corners FL / FR / RL / RR + Conditional Set To (PSI) Input -->
               <div class="crew-task-drawer-body" id="tyreDrawerBody">
                 <div class="crew-drawer-toolbar">
-                  <span class="crew-drawer-hint">FL, FR, RL, RR &mdash; enter <strong>Set To (PSI)</strong> only if altered</span>
+                  <span class="crew-drawer-hint">FL, FR, RL, RR &mdash; enter <strong>Set To (PSI)</strong> if changed</span>
                   <button
                     type="button"
                     class="btn btn-secondary btn-xs crew-tyre-helper-btn"
@@ -381,7 +381,7 @@
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
                 <span class="crew-check-title">2. Wheel nuts torqued</span>
-                <span class="crew-check-sub">All 4 wheels torqued &amp; studs checked</span>
+                <span class="crew-check-sub">4 wheels torqued &amp; studs OK</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
@@ -396,7 +396,7 @@
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
                 <span class="crew-check-title">3. Brake pedal, fluid, lines &amp; pads checked</span>
-                <span class="crew-check-sub">Firm pedal, fluid level, lines &amp; pads/drums OK</span>
+                <span class="crew-check-sub">Firm pedal, fluid &amp; lines OK</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
@@ -422,7 +422,7 @@
                 >
                   <span class="crew-check-copy">
                     <span class="crew-check-title">4. Fuel Load Checked / Adjusted</span>
-                    <span class="crew-check-sub" id="preRaceFuelActionSummaryBadge">Log pump-out, check next pour &amp; confirm cap on</span>
+                    <span class="crew-check-sub" id="preRaceFuelActionSummaryBadge">Pump-out, pour &amp; cap on</span>
                   </span>
                   <span class="crew-task-header-right">
                     <span class="crew-check-status mono" id="preRaceStatus_fuelLoad">PENDING</span>
@@ -544,7 +544,7 @@
                     <span class="crew-check-box" aria-hidden="true">&#10003;</span>
                     <span class="crew-check-copy">
                       <span class="crew-check-title" id="mechFuelPourConfirmedTitle">Fuel In &amp; Cap On &mdash; Done (27.6 L)</span>
-                      <span class="crew-check-sub" id="mechFuelPourConfirmedSub">Tap to log 27.6 L Fuel In &amp; confirm Cap On</span>
+                      <span class="crew-check-sub" id="mechFuelPourConfirmedSub">Tap to confirm 27.6 L &amp; Cap On</span>
                     </span>
                     <span class="crew-check-status mono" id="preFuelCapOnStatusBadge">PENDING</span>
                   </button>
@@ -562,7 +562,7 @@
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
                 <span class="crew-check-title">5. Oil, coolant, catch-can &amp; leaks checked</span>
-                <span class="crew-check-sub">Oil, coolant, catch-can &amp; zero leaks</span>
+                <span class="crew-check-sub">Levels checked &amp; zero leaks</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
@@ -577,7 +577,7 @@
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
                 <span class="crew-check-title">6. Safety pins, fasteners &amp; mirrors checked</span>
-                <span class="crew-check-sub">Pins, fasteners, isolator, harness &amp; mirrors OK</span>
+                <span class="crew-check-sub">Pins, harness, isolator &amp; mirrors OK</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
@@ -592,7 +592,7 @@
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
                 <span class="crew-check-title">7. Clean car inside</span>
-                <span class="crew-check-sub">Floor, pedals, seat &amp; dash clear</span>
+                <span class="crew-check-sub">Floor, pedals &amp; cockpit clear</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
@@ -607,7 +607,7 @@
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
                 <span class="crew-check-title">8. Clean car outside</span>
-                <span class="crew-check-sub">Bodywork, numbers &amp; grilles wiped clean</span>
+                <span class="crew-check-sub">Panels &amp; numbers wiped clean</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
@@ -622,7 +622,7 @@
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
                 <span class="crew-check-title">9. Clean glass</span>
-                <span class="crew-check-sub">Windscreen, rear, side glass &amp; mirrors clear</span>
+                <span class="crew-check-sub">Screens &amp; mirrors clean</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
@@ -940,6 +940,6 @@
 
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=1.0.25"></script>
+  <script src="./app.js?v=1.0.26"></script>
 </body>
 </html>

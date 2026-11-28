@@ -8977,15 +8977,15 @@ button:disabled.btn-stage-locked,
 .pre-session-crew-list-col {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding: 7px 8px;
+  gap: 8px;
+  padding: 8px 10px;
   border-radius: 8px;
-  background: rgba(6, 9, 14, 0.65);
-  border: 1px solid rgba(51, 65, 85, 0.55);
+  background: rgba(6, 9, 14, 0.55);
+  border: 1px solid rgba(51, 65, 85, 0.45);
 }
 
 .pre-session-list-label {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -8996,51 +8996,71 @@ button:disabled.btn-stage-locked,
 }
 
 .pre-session-list-label.pending {
-  color: #FCD34D;
+  color: #E2E8F0;
 }
 
 .pre-session-pill-wrap {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .pre-session-item-pill {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 7px;
-  border-radius: 6px;
-  font-size: 0.76rem;
-  font-weight: 800;
-  line-height: 1.3;
+  gap: 8px;
+  padding: 2px 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #F8FAFC;
 }
 
 .pre-session-item-pill.done {
-  background: rgba(6, 95, 70, 0.42);
-  border: 1px solid rgba(52, 211, 153, 0.5);
-  color: #D1FAE5;
+  background: transparent;
+  border: none;
+  color: #F8FAFC;
 }
 
 .pre-session-item-pill.pending {
-  background: rgba(120, 53, 15, 0.28);
-  border: 1px solid rgba(245, 158, 11, 0.45);
-  color: #FDE68A;
+  background: transparent;
+  border: none;
+  color: #E2E8F0;
+}
+
+.pre-session-check-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  flex-shrink: 0;
+  font-weight: 900;
+}
+
+.pre-session-item-pill.done .pre-session-check-mark {
+  color: #34D399;
+}
+
+.pre-session-item-pill.pending .pre-session-check-mark {
+  color: #94A3B8;
 }
 
 .pre-session-empty-hint {
-  font-size: 0.76rem;
+  font-size: 14px;
   font-style: italic;
-  color: #64748B;
+  color: #94A3B8;
 }
 
 .pre-session-crew-notes {
   padding: 5px 8px;
   border-radius: 6px;
-  background: rgba(245, 158, 11, 0.12);
-  border: 1px solid rgba(245, 158, 11, 0.4);
-  color: #FDE68A;
-  font-size: 0.78rem;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  color: #E2E8F0;
+  font-size: 14px;
 }
 
 .pre-session-driver-checks-row {
@@ -9052,13 +9072,13 @@ button:disabled.btn-stage-locked,
 .driver-pre-checklist-stack {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 9px;
 }
 
 .pre-session-driver-log-row {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .crew-fuel-cap-check-row {
@@ -9072,36 +9092,34 @@ button:disabled.btn-stage-locked,
 .driver-pre-check-chip {
   position: relative;
   width: 100%;
-  padding: 10px 12px;
+  padding: 8px 10px;
   min-height: unset;
   height: auto;
-  border-radius: 10px;
-  background: linear-gradient(180deg, #1A2332 0%, #101620 100%);
-  border: 2px solid #35455D;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(51, 65, 85, 0.65);
   color: #F8FAFC;
-  font-size: 13.5px;
-  font-weight: 900;
+  font-size: 14.5px;
+  font-weight: 800;
   cursor: pointer;
   user-select: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  box-shadow:
-    0 3px 8px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .driver-pre-check-chip:hover {
-  border-color: #546B8C;
+  border-color: #64748B;
 }
 
 .driver-pre-check-chip.is-readonly {
   cursor: default;
   min-height: unset;
   height: auto;
-  padding: 10px 12px;
+  padding: 8px 10px;
 }
 
 .driver-pre-check-input {
@@ -9113,31 +9131,31 @@ button:disabled.btn-stage-locked,
 }
 
 .driver-pre-check-box {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 900;
   color: transparent;
   background: #0D1219;
-  border: 2px solid #4A5E7D;
+  border: 1.5px solid #4A5E7D;
   flex-shrink: 0;
 }
 
 .driver-pre-check-chip .crew-check-title,
 .driver-pre-check-label {
-  font-size: 13.5px;
-  font-weight: 900;
-  line-height: 1.2;
+  font-size: 14.5px;
+  font-weight: 800;
+  line-height: 1.25;
   color: #F8FAFC;
 }
 
 .driver-pre-check-chip .crew-check-sub {
-  font-size: 11.5px;
-  font-weight: 700;
+  font-size: 12.5px;
+  font-weight: 600;
   line-height: 1.25;
   color: #94A3B8;
   white-space: nowrap;
@@ -9147,27 +9165,30 @@ button:disabled.btn-stage-locked,
 
 .driver-pre-check-chip .crew-check-status {
   padding: 2px 7px;
-  font-size: 10.5px;
-  font-weight: 900;
+  font-size: 11px;
+  font-weight: 800;
+  background: transparent;
+  border: 1px solid rgba(71, 85, 105, 0.6);
+  color: #CBD5E1;
 }
 
 .driver-pre-check-chip.is-checked {
-  border-color: #10B981;
-  background: linear-gradient(180deg, rgba(6, 95, 70, 0.45) 0%, rgba(6, 78, 59, 0.25) 100%);
-  color: #ECFDF5;
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.22);
+  border-color: rgba(16, 185, 129, 0.55);
+  background: rgba(6, 78, 59, 0.22);
+  color: #F8FAFC;
+  box-shadow: none;
 }
 
 .driver-pre-check-chip.is-checked .driver-pre-check-box {
   color: #051B14;
-  background: linear-gradient(180deg, #34D399 0%, #10B981 100%);
-  border-color: #6EE7B7;
+  background: #10B981;
+  border-color: #34D399;
 }
 
 .driver-pre-check-chip.is-checked .crew-check-status {
-  background: rgba(6, 95, 70, 0.85);
+  background: rgba(6, 95, 70, 0.45);
   border-color: #34D399;
-  color: #A7F3D0;
+  color: #6EE7B7;
 }
 
 /* ============================================================================
@@ -9818,9 +9839,9 @@ button:disabled.btn-stage-locked,
 #btnOpenAiDataDump,
 #btnAiDataDump,
 .log-toolbar-equal-btn {
-  width: 100%;
-  height: 100%;
-  min-height: 58px;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 58px !important;
   display: flex;
   align-items: center;
   justify-content: center;
