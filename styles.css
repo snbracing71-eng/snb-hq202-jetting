@@ -3209,6 +3209,185 @@ textarea:focus-visible {
   align-items: end;
 }
 
+.tyre-stock-top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tyre-add-top-btn {
+  min-height: 40px;
+  padding: 6px 12px;
+  font-size: 13.5px;
+  font-weight: 900;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tyre-scrap-action-box {
+  margin-top: 2px;
+  padding: 10px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(24, 15, 15, 0.78) 0%, rgba(14, 9, 10, 0.92) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tyre-scrap-controls-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(132px, 1fr);
+  gap: 8px;
+  align-items: stretch;
+}
+
+@media (max-width: 460px) {
+  .tyre-scrap-controls-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.btn-scrap-tyre {
+  min-height: 46px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  border-radius: 10px;
+  background:
+    radial-gradient(ellipse 75% 45% at 50% 10%, rgba(251, 191, 36, 0.25) 0%, transparent 70%),
+    linear-gradient(180deg, #5C280C 0%, #3B1606 58%, #220B03 100%);
+  border: 1.5px solid #F59E0B;
+  border-top-color: #FDE047;
+  border-bottom-color: #9A3412;
+  color: #FDE68A;
+  box-shadow:
+    0 3px 0 #0A0402,
+    0 5px 10px rgba(0, 0, 0, 0.75),
+    inset 0 1px 1px rgba(255, 255, 255, 0.28);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-scrap-tyre.confirming {
+  background:
+    radial-gradient(ellipse 75% 45% at 50% 10%, rgba(254, 202, 202, 0.32) 0%, transparent 70%),
+    linear-gradient(180deg, #B91C1C 0%, #7F1D1D 58%, #450A0A 100%);
+  border-color: #EF4444;
+  border-top-color: #FCA5A5;
+  border-bottom-color: #7F1D1D;
+  color: #FFFFFF;
+}
+
+.scrapped-tyres-archive-panel {
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 5%, rgba(255, 255, 255, 0.06) 0%, transparent 70%),
+    linear-gradient(180deg, #171E2A 0%, #0D121A 100%);
+  border: 1.5px solid #334155;
+  border-top-color: #475569;
+  border-bottom-color: #1E293B;
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.scrapped-archive-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  text-align: left;
+  cursor: pointer;
+}
+
+.scrapped-archive-title {
+  font-size: 16.5px;
+  font-weight: 900;
+  color: #F8FAFC;
+  line-height: 1.2;
+}
+
+.scrapped-archive-head-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.scrapped-archive-lifetime-strip {
+  padding: 7px 12px;
+  background: rgba(10, 14, 21, 0.88);
+  border-top: 1px solid rgba(71, 85, 105, 0.45);
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #FDE68A;
+  line-height: 1.35;
+}
+
+.scrapped-archive-body {
+  padding: 10px 12px 12px;
+  border-top: 1px solid rgba(71, 85, 105, 0.45);
+  background: rgba(7, 10, 15, 0.78);
+}
+
+.scrapped-tyres-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scrapped-tyre-row {
+  border-radius: 9px;
+  background: linear-gradient(180deg, #161D28 0%, #0E131B 100%);
+  border: 1px solid #2E3B4E;
+  overflow: hidden;
+}
+
+.scrapped-tyre-summary-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 11px;
+  background: transparent;
+  border: none;
+  color: #E2E8F0;
+  font-size: 13.5px;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+
+.scrapped-tyre-detail {
+  padding: 10px 11px;
+  border-top: 1px solid rgba(71, 85, 105, 0.4);
+  background: rgba(6, 9, 13, 0.85);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13.5px;
+  color: #CBD5E1;
+}
+
+.scrapped-tyre-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 /* ============================================================================
    SLIM SESSION LOG 2-ROW SEARCH PANEL & BOTTOM COLLAPSIBLE BACKUP DRAWER
    ============================================================================ */
