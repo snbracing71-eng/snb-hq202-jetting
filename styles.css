@@ -9618,3 +9618,70 @@ button:disabled.btn-stage-locked,
 .mech-countdown-tap-icon {
   font-size: 1.25rem;
 }
+
+/* =========================================================
+   SESSION LOG TOP 2-BUTTON TOOLBAR EQUAL HEIGHT & SET LIVE BUTTON
+   ========================================================= */
+#logToolbarActionsRow,
+.log-toolbar-actions-row {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+}
+
+#btnOpenNewEvent,
+#btnLoadSandownHq,
+#btnOpenAiDataDump,
+#btnAiDataDump,
+.log-toolbar-equal-btn {
+  width: 100%;
+  height: 100%;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.btn-event-set-live {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 36px;
+  height: 36px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 10%, rgba(255, 255, 255, 0.28) 0%, transparent 70%),
+    linear-gradient(180deg, #10B981 0%, #059669 55%, #047857 100%);
+  border: 1.5px solid #6EE7B7;
+  border-top-color: #A7F3D0;
+  border-bottom-color: #064E3B;
+  color: #ECFDF5;
+  font-size: 12.5px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+  box-shadow:
+    0 2px 0 #022C22,
+    0 4px 10px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: transform 0.08s ease, filter 0.12s ease;
+}
+
+.btn-event-set-live:hover {
+  filter: brightness(1.08);
+}
+
+.btn-event-set-live:active {
+  transform: translateY(1px);
+}
+

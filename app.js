@@ -9498,21 +9498,21 @@
 
     const loadSandownBtn = $('btnLoadSandownHq');
     if (loadSandownBtn) {
-      loadSandownBtn.style.display = hasSandown ? 'none' : 'inline-flex';
+      loadSandownBtn.style.display = hasSandown ? 'none' : 'flex';
     }
     ['btnLoadSandownHqDec2026', 'btnGateALoadSandownHqDec2026'].forEach((id) => {
       const btn = $(id);
       if (btn) {
-        btn.style.display = hasSandown ? 'none' : 'inline-flex';
+        btn.style.display = hasSandown ? 'none' : 'flex';
       }
     });
     document.querySelectorAll('[data-load-sandown-hq-dec2026]').forEach((btn) => {
-      btn.style.display = hasSandown ? 'none' : 'inline-flex';
+      btn.style.display = hasSandown ? 'none' : 'flex';
     });
 
     const openNewEventBtn = $('btnOpenNewEvent');
     if (openNewEventBtn) {
-      openNewEventBtn.style.display = hasSandown ? 'inline-flex' : 'none';
+      openNewEventBtn.style.display = hasSandown ? 'flex' : 'none';
     }
 
     const toolbarRow = $('logToolbarActionsRow');
@@ -10911,15 +10911,17 @@
     const eventDate = ($('newEventDate') && $('newEventDate').value) || getLocalTodayIso();
     const eventTitle = (($('newEventTitle') && $('newEventTitle').value) || '').trim();
 
-    // Lock any previously open event before starting the new one
+    // Lock any previously open event before starting the new one (preserving pending session completion flags so SET LIVE restores them cleanly)
     if (Array.isArray(state.events)) {
       state.events.forEach((evt) => {
         if (evt && !evt.locked) {
           evt.locked = true;
           evt.endedAt = new Date().toISOString();
           (evt.sessions || []).forEach((s) => {
+            if (!s) return;
             s.eventLocked = true;
-            s.status = 'completed';
+            const isTrulyCompleted = Boolean(s.completed || s.postRaceCompleted || s.tyresPostLocked);
+            s.status = isTrulyCompleted ? 'completed' : 'pending';
           });
         }
       });
@@ -10972,6 +10974,108 @@
     renderAll();
 
     showToast(`LIVE EVENT STARTED: ${venue} — Select Session to Commence`);
+  }
+
+  /**
+   * 1-tap SET LIVE / ACTIVATE helper for locked events:
+   * - Locks any currently live event (locked: true)
+   * - Unlocks the tapped event (locked: false) without losing a single session
+   * - Sets state.activeEventId = evt.id and state.activeSessionId to its first PENDING session (e.g. Practice 1)
+   * - Saves localStorage and re-renders so both index.html and mechanic.html immediately switch to that event
+   */
+  function setEventLiveById(eventId, opts = {}) {
+    const silent = Boolean(opts && opts.silent);
+    if (!eventId || !Array.isArray(state.events)) return null;
+    const targetEvt = state.events.find((e) => e && e.id === eventId);
+    if (!targetEvt) return null;
+
+    // 1. Lock any other currently live event while preserving its pending sessions
+    state.events.forEach((evt) => {
+      if (!evt || evt.id === targetEvt.id) return;
+      if (!evt.locked) {
+        evt.locked = true;
+        evt.endedAt = evt.endedAt || new Date().toISOString();
+        (evt.sessions || []).forEach((s) => {
+          if (!s) return;
+          s.eventLocked = true;
+          const isTrulyCompleted = Boolean(s.completed || s.postRaceCompleted || s.tyresPostLocked);
+          s.status = isTrulyCompleted ? 'completed' : 'pending';
+        });
+      }
+    });
+
+    // 2. Unlock targetEvt and restore each session's true pending vs completed status
+    targetEvt.locked = false;
+    targetEvt.endedAt = null;
+    if (!Array.isArray(targetEvt.sessions)) {
+      targetEvt.sessions = [];
+    }
+
+    // If this is the Sandown Dec 2026 HQ event, ensure all 6 deterministic HQ sessions are present
+    if (targetEvt.id === SANDOWN_DEC2026_HQ_EVENT_ID) {
+      SANDOWN_DEC2026_HQ_SESSIONS_SPEC.forEach((spec) => {
+        const exists = targetEvt.sessions.some(
+          (es) =>
+            es &&
+            (es.id === spec.id ||
+              String(es.sessionName || '').trim().toLowerCase() === spec.sessionName.toLowerCase())
+        );
+        if (!exists) {
+          targetEvt.sessions.push(createSandownDec2026HqPendingSession(spec, state));
+        }
+      });
+    }
+
+    targetEvt.sessions.forEach((s) => {
+      if (!s) return;
+      s.eventLocked = false;
+      const isTrulyCompleted = Boolean(s.completed || s.postRaceCompleted || s.tyresPostLocked);
+      s.status = isTrulyCompleted ? 'completed' : 'pending';
+      s.completed = isTrulyCompleted;
+    });
+    targetEvt.sessions = sortSessionsDesc(targetEvt.sessions);
+
+    state.activeEventId = targetEvt.id;
+
+    // 3. Find the first PENDING session (e.g. Practice 1) and set state.activeSessionId to it
+    const firstPending = targetEvt.sessions.find(
+      (s) => s && s.status !== 'completed' && !s.completed && !s.postRaceCompleted && !s.tyresPostLocked
+    );
+    if (firstPending) {
+      firstPending.status = 'active';
+      state.activeSessionId = firstPending.id;
+      state.awaitingPostRaceId = firstPending.id;
+      ui.selectedCrewSessionId = firstPending.id;
+    } else {
+      state.activeSessionId = null;
+      state.awaitingPostRaceId = null;
+      ui.selectedCrewSessionId = targetEvt.sessions[0] ? targetEvt.sessions[0].id : null;
+    }
+
+    state.events = sortEventsDesc(state.events, state.activeEventId);
+    if (ui.expandedEventIds instanceof Set) {
+      ui.expandedEventIds.add(targetEvt.id);
+    }
+    if (ui.collapsedLiveEventIds instanceof Set) {
+      ui.collapsedLiveEventIds.delete(targetEvt.id);
+    }
+
+    loadTrackProfileToFuelAndTyreInputs(normalizeVenueName(targetEvt.venue || 'Sandown Raceway'));
+    syncFlatSessionsFromEvents(state);
+    saveState();
+    setCalculatorStep(1);
+    renderAll();
+
+    if (!silent) {
+      const dispDate = formatIsoDateDisplay(targetEvt.eventDate || getLocalTodayIso()) || targetEvt.eventDate || '';
+      const activeSessLbl = firstPending ? ` • Active: ${firstPending.sessionName}` : '';
+      showToast(`🟢 SET LIVE: ${targetEvt.venue} (${dispDate})${activeSessLbl}`);
+    }
+    return targetEvt;
+  }
+
+  if (typeof window !== 'undefined') {
+    window.setEventLiveById = setEventLiveById;
   }
 
   function commenceSessionFromGateB() {
@@ -18903,7 +19007,7 @@
       const sessCount = orderedSessions.length;
       const statusBadgeHtml = isLiveEvt
         ? `<span class="event-status-badge live">&#128994; LIVE</span>`
-        : `<span class="event-status-badge locked">&#128274; LOCKED</span>`;
+        : `<span class="event-status-badge locked">&#128274; LOCKED</span><button type="button" class="btn-event-set-live" data-set-event-live="${escapeHtml(evt.id)}" title="Unlock &amp; Set Event Live" aria-label="Set Event Live">&#9889; SET LIVE</button>`;
 
       return `
         <section class="event-log-card ${isLiveEvt ? 'event-live' : 'event-locked'} ${isExpanded ? 'expanded' : ''}" data-event-id="${escapeHtml(evt.id)}">
@@ -24054,6 +24158,7 @@
       (Array.isArray(targetEvt.sessions) ? targetEvt.sessions : []).map((s) => s && s.id).filter(Boolean)
     );
 
+    const wasActiveOrLiveDeleted = state.activeEventId === eid || !targetEvt.locked;
     state.seedInitializedV1 = true;
     state.events = state.events.filter((e) => e && e.id !== eid);
     if (state.activeEventId === eid || state.events.length === 0) {
@@ -24083,6 +24188,29 @@
     }
     ui.confirmDeleteEventId = null;
 
+    // If the active LIVE event was deleted, automatically promote the most recent upcoming/saved event (such as evt_sandown_dec2026_hq) back to LIVE
+    let promotedEvt = null;
+    if (wasActiveOrLiveDeleted && state.events.length > 0) {
+      const existingUnlocked = state.events.find((e) => e && !e.locked);
+      const sandownCandidate = state.events.find(
+        (e) =>
+          e &&
+          (e.id === SANDOWN_DEC2026_HQ_EVENT_ID ||
+            e.id === 'evt_sandown_dec2026_hq' ||
+            (String(e.venue || '').includes('Sandown') &&
+              (String(e.date || '').includes('2026-12-05') || String(e.eventDate || '').includes('2026-12-05'))))
+      );
+      const sortedByDateDesc = [...state.events].sort((a, b) => {
+        const dA = resolveSessionIsoDate({ date: a && (a.eventDate || a.date) }, '1970-01-01');
+        const dB = resolveSessionIsoDate({ date: b && (b.eventDate || b.date) }, '1970-01-01');
+        return dB.localeCompare(dA);
+      });
+      const candidateToPromote = existingUnlocked || sandownCandidate || sortedByDateDesc[0] || null;
+      if (candidateToPromote) {
+        promotedEvt = setEventLiveById(candidateToPromote.id, { silent: true });
+      }
+    }
+
     syncFlatSessionsFromEvents(state);
     recalculateTrackAverageBurn(removedVenue);
     if (Array.isArray(state.tyrePool)) {
@@ -24094,7 +24222,11 @@
     closeModal('modalDeleteEventConfirm');
     saveState();
     renderAll();
-    showToast(`Permanently deleted Event: ${removedVenue} (${removedDispDate})`);
+    if (promotedEvt) {
+      showToast(`Deleted ${removedVenue} (${removedDispDate}) — Promoted ${promotedEvt.venue} back to LIVE`);
+    } else {
+      showToast(`Permanently deleted Event: ${removedVenue} (${removedDispDate})`);
+    }
   }
 
   function syncEditBaselineModalWeatherOnlyUi() {
@@ -26964,6 +27096,17 @@
       const closeModalBtn = e.target.closest('[data-close-modal]');
       if (closeModalBtn) {
         closeModal(closeModalBtn.getAttribute('data-close-modal'));
+        return;
+      }
+
+      const setEventLiveBtn = e.target.closest('[data-set-event-live]');
+      if (setEventLiveBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const eid = setEventLiveBtn.getAttribute('data-set-event-live');
+        if (eid) {
+          setEventLiveById(eid, { silent: false });
+        }
         return;
       }
 
