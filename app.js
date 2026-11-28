@@ -6776,7 +6776,9 @@
       const a45 = normalizeOptionalAfr(s.afr4500);
       const a50 = normalizeOptionalAfr(s.afr5000);
       const isUnrunPendingSess =
-        (s.status === 'pending' || (s.completed === false && s.status !== 'active')) &&
+        s.status !== 'completed' &&
+        s.completed !== true &&
+        !s.postRaceCompleted &&
         !s.tunePreLocked &&
         !s.tunePostLocked &&
         !s.tyresPostLocked;
@@ -7044,7 +7046,7 @@
         bestLapNum,
         finishPos,
         isNewTrackPb,
-        afrStatus: s.afrStatus || (isCompletedBool ? 'verified' : 'estimated'),
+        afrStatus: isUnrunPendingSess ? 'pending' : (s.afrStatus || (isCompletedBool ? 'verified' : 'estimated')),
         litresToPourL,
         startingFuelReqL,
         expectedBurnL,
@@ -7335,6 +7337,20 @@
         candidate.activeEventId = sandownEvt.id;
       }
       candidate.sandownDec2026HqSeededV1 = true;
+    }
+
+    if (candidate.activeEventId && !candidate.activeSessionId) {
+      const liveActiveEvt = candidate.events.find((e) => e && !e.locked && e.id === candidate.activeEventId);
+      if (liveActiveEvt && Array.isArray(liveActiveEvt.sessions)) {
+        const firstPendingSess = liveActiveEvt.sessions.find(
+          (s) => s && s.status !== 'completed' && !s.completed && !s.postRaceCompleted && !s.tyresPostLocked
+        );
+        if (firstPendingSess) {
+          firstPendingSess.status = 'active';
+          candidate.activeSessionId = firstPendingSess.id;
+          candidate.awaitingPostRaceId = firstPendingSess.id;
+        }
+      }
     }
 
     candidate.events = sortEventsDesc(candidate.events, candidate.activeEventId);
@@ -9768,24 +9784,31 @@
     const bannerTextEl = $('tuneActiveSessionBannerText');
     const selEl = $('selectSessionName');
 
-    if (!liveEvt || !activeSess) {
+    if (!liveEvt) {
       if (bannerEl) bannerEl.style.display = 'none';
       return;
     }
 
     if (bannerEl) bannerEl.style.display = 'flex';
-    const trackName = normalizeVenueName(liveEvt.venue || activeSess.venue || 'Sandown Raceway');
-    const sessName = activeSess.sessionName || 'Practice 1';
+    const orderedSessions = sortSessionsDesc(Array.isArray(liveEvt.sessions) ? liveEvt.sessions : []);
+    const effSess =
+      activeSess ||
+      orderedSessions.find(
+        (s) => s && s.status !== 'completed' && !s.completed && !s.postRaceCompleted && !s.tyresPostLocked
+      ) ||
+      orderedSessions[0] ||
+      null;
+    const trackName = normalizeVenueName(liveEvt.venue || (effSess && effSess.venue) || 'Sandown Raceway');
+    const sessName = effSess ? effSess.sessionName || 'Practice 1' : 'Select Session';
     if (bannerTextEl) {
       bannerTextEl.textContent = `ACTIVE SESSION: ${trackName} • ${sessName}`;
     }
 
     if (selEl) {
-      const orderedSessions = sortSessionsDesc(Array.isArray(liveEvt.sessions) ? liveEvt.sessions : []);
       if (orderedSessions.length > 0) {
         selEl.innerHTML = orderedSessions
           .map((s) => {
-            const isAct = s.id === activeSess.id;
+            const isAct = effSess && s.id === effSess.id;
             const isDone =
               s.status === 'completed' ||
               Boolean(s.completed || s.postRaceCompleted || s.tyresPostLocked);
@@ -9797,10 +9820,12 @@
             return `<option value="${escapeHtml(s.id)}">${escapeHtml(s.sessionName)}${escapeHtml(statusTag)}</option>`;
           })
           .join('');
-        selEl.value = activeSess.id;
-      } else {
-        selEl.innerHTML = `<option value="${escapeHtml(activeSess.id)}">${escapeHtml(sessName)} • LIVE</option>`;
-        selEl.value = activeSess.id;
+        if (effSess) {
+          selEl.value = effSess.id;
+        }
+      } else if (effSess) {
+        selEl.innerHTML = `<option value="${escapeHtml(effSess.id)}">${escapeHtml(sessName)} • LIVE</option>`;
+        selEl.value = effSess.id;
       }
     }
   }
@@ -10701,6 +10726,13 @@
       existingPending.trackTempC = initialTrackTempC;
       existingPending.estRunMin = existingPending.durationMin || dynOffsets.estRunMin;
       existingPending.isStoneColdSession = isStoneColdSession;
+      existingPending.afr3500 = null;
+      existingPending.afr4000 = null;
+      existingPending.afr4500 = null;
+      existingPending.afr5000 = null;
+      existingPending.afr5500 = null;
+      existingPending.afrWot = null;
+      existingPending.afrStatus = 'pending';
       existingPending.litresToPourL = Number(fuelSnap.litresToPourL.toFixed(1));
       existingPending.startingFuelReqL = Number(fuelSnap.startingFuelReqL.toFixed(1));
       existingPending.expectedBurnL = Number(fuelSnap.expectedBurnL.toFixed(1));
@@ -10772,19 +10804,14 @@
       afr4500: null,
       afr5000: null,
       afr5500: null,
-      afrWot:
-        base.wotAfr !== null && Number.isFinite(Number(base.wotAfr))
-          ? Number(base.wotAfr)
-          : prevSess && Number.isFinite(Number(prevSess.afrWot))
-          ? Number(prevSess.afrWot)
-          : 12.80,
+      afrWot: null,
       peakRpm: (prevSess && prevSess.peakRpm) || base.peakRpm || 5900,
       bestLapStr: null,
       bestLapSec: null,
       bestLapNum: null,
       finishPos: null,
       isNewTrackPb: false,
-      afrStatus: 'estimated',
+      afrStatus: 'pending',
       litresToPourL: Number(fuelSnap.litresToPourL.toFixed(1)),
       startingFuelReqL: Number(fuelSnap.startingFuelReqL.toFixed(1)),
       expectedBurnL: Number(fuelSnap.expectedBurnL.toFixed(1)),
@@ -10903,7 +10930,7 @@
     }
 
     state.activeEventId = sandownEvt.id;
-    // Keep all 6 sessions in pending/uncompleted state unless an existing session in this event was already commenced/active
+    // Keep all 6 sessions in pending/uncompleted state and auto-select the first pending session if none is active
     if (
       state.activeSessionId &&
       !sandownEvt.sessions.some((s) => s && s.id === state.activeSessionId)
@@ -10914,6 +10941,11 @@
     const nextPending = sandownEvt.sessions.find(
       (s) => s && s.status !== 'completed' && !s.completed && !s.postRaceCompleted && !s.tyresPostLocked
     );
+    if (nextPending && !state.activeSessionId) {
+      nextPending.status = 'active';
+      state.activeSessionId = nextPending.id;
+      state.awaitingPostRaceId = nextPending.id;
+    }
     if (nextPending && !ui.selectedCrewSessionId) {
       ui.selectedCrewSessionId = nextPending.id;
     }

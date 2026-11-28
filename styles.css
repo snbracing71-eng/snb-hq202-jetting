@@ -9483,8 +9483,10 @@ button:disabled.btn-stage-locked,
   cursor: pointer;
 }
 
-.session-compact-row.is-live-clickable:hover {
+.session-compact-row.is-live-clickable:hover,
+.session-compact-row.is-live-clickable:focus-visible {
   border-color: #34D399;
+  outline: none;
 }
 
 .session-row-chevron-btn {
