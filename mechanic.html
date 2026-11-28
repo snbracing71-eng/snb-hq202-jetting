@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest-mech.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="stylesheet" href="./styles.css?v=1.0.24" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.25" />
 </head>
 <body class="crew-page-body">
   <!-- Sticky 3D Brushed-Metal AgerPro Header -->
@@ -224,7 +224,7 @@
                 >
                   <span class="crew-check-copy">
                     <span class="crew-check-title">1. Tyre Pressures Checked / Adjusted</span>
-                    <span class="crew-check-sub" id="preRaceTyreActionSummaryBadge">Tap to set FL / FR / RL / RR (Left As Is | Added | Bled)</span>
+                    <span class="crew-check-sub" id="preRaceTyreActionSummaryBadge">FL, FR, RL, RR &mdash; enter Set To PSI only if altered</span>
                   </span>
                   <span class="crew-task-header-right">
                     <span class="crew-check-status mono" id="preRaceStatus_tyrePressures">PENDING</span>
@@ -236,7 +236,7 @@
               <!-- Collapsible Drawer Body: 4 Corners FL / FR / RL / RR + Conditional Set To (PSI) Input -->
               <div class="crew-task-drawer-body" id="tyreDrawerBody">
                 <div class="crew-drawer-toolbar">
-                  <span class="crew-drawer-hint">Select corner action &mdash; enter <strong>Set To (PSI)</strong> only if Added or Bled:</span>
+                  <span class="crew-drawer-hint">FL, FR, RL, RR &mdash; enter <strong>Set To (PSI)</strong> only if altered</span>
                   <button
                     type="button"
                     class="btn btn-secondary btn-xs crew-tyre-helper-btn"
@@ -381,7 +381,7 @@
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
                 <span class="crew-check-title">2. Wheel nuts torqued</span>
-                <span class="crew-check-sub">All 4 wheels torqued to spec &amp; wheel studs / seating checked</span>
+                <span class="crew-check-sub">All 4 wheels torqued &amp; studs checked</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
@@ -396,7 +396,7 @@
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
                 <span class="crew-check-title">3. Brake pedal, fluid, lines &amp; pads checked</span>
-                <span class="crew-check-sub">Firm pedal, PBR master fluid level, braided lines, front R-4 pads &amp; rear drums checked</span>
+                <span class="crew-check-sub">Firm pedal, fluid level, lines &amp; pads/drums OK</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
@@ -422,7 +422,7 @@
                 >
                   <span class="crew-check-copy">
                     <span class="crew-check-title">4. Fuel Load Checked / Adjusted</span>
-                    <span class="crew-check-sub" id="preRaceFuelActionSummaryBadge">Pump tank empty, verify next session refill litres &amp; confirm fuel cap secured</span>
+                    <span class="crew-check-sub" id="preRaceFuelActionSummaryBadge">Log pump-out, check next pour &amp; confirm cap on</span>
                   </span>
                   <span class="crew-task-header-right">
                     <span class="crew-check-status mono" id="preRaceStatus_fuelLoad">PENDING</span>
@@ -436,7 +436,7 @@
                 <div class="crew-fuel-drawer-inner">
                   <div class="crew-fuel-action-row">
                     <div class="crew-fuel-mode-header-row">
-                      <span class="crew-tyre-action-corner-label">FUEL WORKFLOW (TANK ALWAYS PUMPED OUT &amp; REFILLED)</span>
+                      <span class="crew-tyre-action-corner-label">FUEL PUMP-OUT &amp; REFILL</span>
                       <span class="locked-badge mono" id="mechCircuitBurnAvgBadge">TRACK AVG: 1.30 L/LAP</span>
                     </div>
                     <div class="seg-toggle crew-fuel-action-seg" role="group" aria-label="Pre-Session Fuel Load Mode">
@@ -446,7 +446,7 @@
                         id="preFuelBtn_Left"
                         disabled
                         aria-disabled="true"
-                        title="Fuel is never left as is — tank is always pumped out and refilled for the next session"
+                        title="Fuel is always pumped out and refilled"
                       >
                         Left As Is
                       </button>
@@ -456,7 +456,7 @@
                         id="preFuelBtn_Added"
                         disabled
                         aria-disabled="true"
-                        title="Use Pumped Out + Next Session Refill below"
+                        title="Use Pumped Out + Fuel to Put In below"
                       >
                         Added
                       </button>
@@ -520,7 +520,7 @@
                   <!-- High-Contrast 3D Next Session Refill Callout Box (#mechNextFuelPourBox) -->
                   <div class="crew-next-fuel-pour-box" id="mechNextFuelPourBox" role="region" aria-live="polite">
                     <div class="crew-next-fuel-pour-eyebrow mono" id="mechNextFuelPourLabel">
-                      FUEL TO PUT BACK IN FOR PRACTICE 1 (12 LAPS)
+                      FUEL TO PUT IN &bull; PRACTICE 1 (12 LAPS)
                     </div>
                     <div class="crew-next-fuel-pour-val tabular txt-emerald" id="mechNextFuelPourValue">
                       27.6 L
@@ -543,8 +543,8 @@
                   >
                     <span class="crew-check-box" aria-hidden="true">&#10003;</span>
                     <span class="crew-check-copy">
-                      <span class="crew-check-title" id="mechFuelPourConfirmedTitle">Confirm 27.6 L Put In &amp; Fuel Cap Secured</span>
-                      <span class="crew-check-sub" id="mechFuelPourConfirmedSub">Saves 27.6 L Fuel In, locks Fuel Cap On &amp; marks Fuel Check complete</span>
+                      <span class="crew-check-title" id="mechFuelPourConfirmedTitle">Fuel In &amp; Cap On &mdash; Done (27.6 L)</span>
+                      <span class="crew-check-sub" id="mechFuelPourConfirmedSub">Tap to log 27.6 L Fuel In &amp; confirm Cap On</span>
                     </span>
                     <span class="crew-check-status mono" id="preFuelCapOnStatusBadge">PENDING</span>
                   </button>
@@ -562,7 +562,7 @@
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
                 <span class="crew-check-title">5. Oil, coolant, catch-can &amp; leaks checked</span>
-                <span class="crew-check-sub">Engine oil level, radiator coolant, catch-can drained &amp; zero fluid leaks under car</span>
+                <span class="crew-check-sub">Oil, coolant, catch-can &amp; zero leaks</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
@@ -577,7 +577,7 @@
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
                 <span class="crew-check-title">6. Safety pins, fasteners &amp; mirrors checked</span>
-                <span class="crew-check-sub">Bonnet/boot pins secured, body fasteners, battery isolator, harness &amp; mirrors checked</span>
+                <span class="crew-check-sub">Pins, fasteners, isolator, harness &amp; mirrors OK</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
@@ -592,7 +592,7 @@
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
                 <span class="crew-check-title">7. Clean car inside</span>
-                <span class="crew-check-sub">Cabin floor, footwell, pedals, seat &amp; dash cleared of stones, debris &amp; loose items</span>
+                <span class="crew-check-sub">Floor, pedals, seat &amp; dash clear</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
@@ -607,7 +607,7 @@
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
                 <span class="crew-check-title">8. Clean car outside</span>
-                <span class="crew-check-sub">Bodywork, race numbers, grille &amp; guards wiped down &amp; free of rubber/oil</span>
+                <span class="crew-check-sub">Bodywork, numbers &amp; grilles wiped clean</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
@@ -622,19 +622,19 @@
               <span class="crew-check-box" aria-hidden="true">&#10003;</span>
               <span class="crew-check-copy">
                 <span class="crew-check-title">9. Clean glass</span>
-                <span class="crew-check-sub">Windscreen inside &amp; out, rear screen, side glass &amp; mirrors cleaned for clear vision</span>
+                <span class="crew-check-sub">Windscreen, rear, side glass &amp; mirrors clear</span>
               </span>
               <span class="crew-check-status mono">PENDING</span>
             </button>
           </div>
 
-          <div class="field-group" style="margin-top: 14px; margin-bottom: 14px;">
+          <div class="field-group" style="margin-top: 16px; margin-bottom: 16px;">
             <label class="field-label" for="preRaceSignOffNotesInput">Crew Pre-Race Notes</label>
             <textarea
               id="preRaceSignOffNotesInput"
               class="text-input crew-touch-textarea"
-              rows="3"
-              placeholder="Optional crew pre-race notes before heading to dummy grid..."
+              rows="2"
+              placeholder="Optional pre-grid note..."
             ></textarea>
           </div>
 
@@ -679,7 +679,7 @@
             </div>
 
             <p class="crew-helper-banner">
-              <strong>Hot-Set Note:</strong> Leave <strong>Cold PSI</strong> blank (<code>&mdash;</code>) when tyres are left hot-set at <strong>44.0 psi</strong> from the previous run.
+              <strong>Hot-Set Note:</strong> Leave <strong>Cold PSI</strong> blank (<code>&mdash;</code>) when left hot-set at <strong>44.0 psi</strong>.
             </p>
 
             <div class="crew-tyre-corners-grid">
@@ -856,13 +856,13 @@
               </div>
             </div>
 
-            <div class="field-group" style="margin-bottom: 14px;">
+            <div class="field-group" style="margin-bottom: 16px;">
               <label class="field-label" for="mechNotesInput">Post-Race / Pit Notes</label>
               <textarea
                 id="mechNotesInput"
                 class="text-input crew-touch-textarea"
-                rows="3"
-                placeholder="Log tyre condition, hot-set 44.0 psi notes, fuel pump-out observations, suspension or brake notes..."
+                rows="2"
+                placeholder="Tyre condition, hot-set 44.0 psi, pump-out or chassis notes..."
               ></textarea>
             </div>
 
@@ -940,6 +940,6 @@
 
   <div id="pitToast" class="pit-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=1.0.24"></script>
+  <script src="./app.js?v=1.0.25"></script>
 </body>
 </html>

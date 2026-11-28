@@ -8273,20 +8273,20 @@ button:disabled.btn-stage-locked,
 .crew-check-row,
 .mech-check-row {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 14px;
   min-height: unset;
   height: auto;
   border-radius: 10px;
   background: linear-gradient(180deg, #1A2332 0%, #101620 100%);
   border: 2px solid #35455D;
-  color: #F8FAFC;
+  color: #FFFFFF;
   font-family: inherit;
   text-align: left;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -8304,13 +8304,13 @@ button:disabled.btn-stage-locked,
 
 .crew-check-box {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 900;
   color: transparent;
   background: #0D1219;
@@ -8329,21 +8329,21 @@ button:disabled.btn-stage-locked,
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .crew-check-title {
-  font-size: 13.5px;
+  font-size: 14.5px;
   font-weight: 900;
-  line-height: 1.2;
-  color: #F8FAFC;
+  line-height: 1.22;
+  color: #FFFFFF;
 }
 
 .crew-check-sub {
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 700;
-  color: #94A3B8;
-  line-height: 1.25;
+  color: #CBD5E1;
+  line-height: 1.28;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -8351,12 +8351,12 @@ button:disabled.btn-stage-locked,
 
 .crew-check-status {
   flex-shrink: 0;
-  padding: 2px 7px;
+  padding: 3px 8px;
   border-radius: 999px;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.04em;
-  background: rgba(15, 23, 42, 0.8);
+  background: rgba(15, 23, 42, 0.85);
   border: 1px solid #475569;
   color: #FCD34D;
 }
@@ -8392,7 +8392,7 @@ button:disabled.btn-stage-locked,
    ============================================================================ */
 .crew-tyre-action-card {
   margin-bottom: 14px;
-  padding: 12px;
+  padding: 14px;
   border-radius: 11px;
   background: linear-gradient(180deg, #161F2D 0%, #0E141E 100%);
   border: 1.5px solid #35455D;
@@ -8404,13 +8404,13 @@ button:disabled.btn-stage-locked,
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .crew-tyre-action-title {
-  font-size: 0.96rem;
+  font-size: 0.98rem;
   font-weight: 900;
-  color: #F8FAFC;
+  color: #FFFFFF;
   line-height: 1.25;
 }
 
@@ -8458,32 +8458,32 @@ button:disabled.btn-stage-locked,
 }
 
 .crew-tyre-action-corner {
-  padding: 9px 10px;
+  padding: 10px 12px;
   border-radius: 9px;
   background: rgba(11, 15, 22, 0.78);
   border: 1px solid #2D3B4F;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .crew-tyre-action-corner-label {
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 900;
   letter-spacing: 0.04em;
-  color: #CBD5E1;
+  color: #F1F5F9;
 }
 
 .crew-tyre-action-seg {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 5px;
+  gap: 6px;
 }
 
 .crew-tyre-action-seg .seg-btn {
   min-height: 40px;
   padding: 6px 4px;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 900;
   white-space: nowrap;
 }
@@ -8498,7 +8498,7 @@ button:disabled.btn-stage-locked,
   border-radius: 11px;
   background: linear-gradient(180deg, #1A2332 0%, #101620 100%);
   border: 2px solid #35455D;
-  color: #F8FAFC;
+  color: #FFFFFF;
   overflow: hidden;
   transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
@@ -8513,7 +8513,7 @@ button:disabled.btn-stage-locked,
   display: flex;
   align-items: stretch;
   width: 100%;
-  min-height: 62px;
+  min-height: 64px;
 }
 
 .crew-check-box-btn {
@@ -8565,29 +8565,29 @@ button:disabled.btn-stage-locked,
 
 .crew-drawer-chevron {
   font-size: 0.85rem;
-  color: #94A3B8;
+  color: #CBD5E1;
   transition: transform 0.15s ease;
 }
 
 .crew-task-drawer-body {
-  padding: 12px 14px 14px;
-  border-top: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(10, 14, 21, 0.78);
+  padding: 14px;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(10, 14, 21, 0.82);
 }
 
 .crew-drawer-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .crew-drawer-hint {
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 700;
-  color: #CBD5E1;
+  color: #F1F5F9;
 }
 
 .crew-tyre-drawer-grid {
@@ -8603,7 +8603,7 @@ button:disabled.btn-stage-locked,
 }
 
 .crew-tyre-drawer-corner {
-  padding: 10px;
+  padding: 12px;
   border-radius: 9px;
   background: rgba(15, 21, 31, 0.92);
   border: 1px solid #2D3B4F;
@@ -8615,7 +8615,7 @@ button:disabled.btn-stage-locked,
 .crew-tyre-drawer-corner-top {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .crew-conditional-input-row {
@@ -8623,12 +8623,12 @@ button:disabled.btn-stage-locked,
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding-top: 6px;
+  padding-top: 8px;
   border-top: 1px dashed rgba(148, 163, 184, 0.25);
 }
 
 .crew-conditional-label {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 900;
   color: #FCD34D;
   white-space: nowrap;
@@ -8648,13 +8648,13 @@ button:disabled.btn-stage-locked,
 .crew-fuel-drawer-inner {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .crew-fuel-action-row {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .crew-fuel-mode-header-row {
@@ -8691,8 +8691,8 @@ button:disabled.btn-stage-locked,
 .crew-fuel-conditional-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  padding-top: 8px;
+  gap: 12px;
+  padding-top: 10px;
   border-top: 1px dashed rgba(148, 163, 184, 0.25);
 }
 
@@ -8717,7 +8717,7 @@ button:disabled.btn-stage-locked,
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .crew-next-fuel-pour-box.is-over-tank {
@@ -8730,10 +8730,10 @@ button:disabled.btn-stage-locked,
 }
 
 .crew-next-fuel-pour-eyebrow {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 900;
   letter-spacing: 0.05em;
-  color: #A7F3D0;
+  color: #F1F5F9;
   text-transform: uppercase;
 }
 
@@ -8746,9 +8746,9 @@ button:disabled.btn-stage-locked,
 }
 
 .crew-next-fuel-pour-sub {
-  font-size: 0.84rem;
+  font-size: 0.85rem;
   font-weight: 800;
-  color: #CBD5E1;
+  color: #F1F5F9;
   line-height: 1.35;
 }
 
@@ -8765,7 +8765,7 @@ button:disabled.btn-stage-locked,
 
 .crew-fuel-confirm-pour-card {
   min-height: 64px;
-  padding: 12px 14px;
+  padding: 14px;
   background: linear-gradient(180deg, #1E293B 0%, #111827 100%);
   border: 2px solid #F59E0B;
   box-shadow:
@@ -8783,6 +8783,7 @@ button:disabled.btn-stage-locked,
 
 .crew-mark-complete-btn {
   min-height: 60px;
+  margin-top: 14px;
   font-size: 1.08rem;
   font-weight: 900;
   letter-spacing: 0.04em;

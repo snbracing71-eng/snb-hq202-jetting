@@ -11685,47 +11685,47 @@
       {
         key: 'tyrePressures',
         label: 'Tyre Pressures Checked / Adjusted',
-        sub: 'Cold / Hot-Set target pressures verified across FL, FR, RL, RR & valve caps fitted'
+        sub: 'FL, FR, RL, RR — enter Set To PSI only if altered'
       },
       {
         key: 'wheelNuts',
         label: 'Wheel nuts torqued',
-        sub: 'All 4 wheels torqued to spec & wheel studs / seating checked'
+        sub: 'All 4 wheels torqued & studs checked'
       },
       {
         key: 'brakes',
         label: 'Brake pedal, fluid, lines & pads checked',
-        sub: 'Firm pedal, PBR master fluid level, braided lines, front R-4 pads & rear drums checked'
+        sub: 'Firm pedal, fluid level, lines & pads/drums OK'
       },
       {
         key: 'fuelLoad',
         label: 'Fuel Load Checked / Adjusted',
-        sub: 'Session fuel load verified, filler cap locked & tank breather clear'
+        sub: 'Log pump-out, check next pour & confirm cap on'
       },
       {
         key: 'fluidsLeaks',
         label: 'Oil, coolant, catch-can & leaks checked',
-        sub: 'Engine oil level, radiator coolant, catch-can drained & zero fluid leaks under car'
+        sub: 'Oil, coolant, catch-can & zero leaks'
       },
       {
         key: 'safetyFasteners',
         label: 'Safety pins, fasteners & mirrors checked',
-        sub: 'Bonnet/boot pins secured, body fasteners, battery isolator, harness & mirrors checked'
+        sub: 'Pins, fasteners, isolator, harness & mirrors OK'
       },
       {
         key: 'cleanCarInside',
         label: 'Clean car inside',
-        sub: 'Cabin floor, footwell, pedals, seat & dash cleared of stones, debris & loose items'
+        sub: 'Floor, pedals, seat & dash clear'
       },
       {
         key: 'cleanCarOutside',
         label: 'Clean car outside',
-        sub: 'Bodywork, race numbers, grille & guards wiped down & free of rubber/oil'
+        sub: 'Bodywork, numbers & grilles wiped clean'
       },
       {
         key: 'cleanGlass',
         label: 'Clean glass',
-        sub: 'Windscreen inside & out, rear screen, side glass & mirrors cleaned for clear vision'
+        sub: 'Windscreen, rear, side glass & mirrors clear'
       }
     ];
   }
@@ -26839,7 +26839,10 @@
 
     const tyreActSummaryBadge = $('preRaceTyreActionSummaryBadge');
     if (tyreActSummaryBadge) {
-      tyreActSummaryBadge.textContent = `Tyres: ${tyreAdj.summary}`;
+      tyreActSummaryBadge.textContent =
+        tyreAdj.allLeftAsIs && !preCl.items.tyrePressures
+          ? 'FL, FR, RL, RR — enter Set To PSI only if altered'
+          : `Tyres: ${tyreAdj.summary}`;
     }
 
     // Hydrate Task Card B: Pumped-Out Mode + Litres Pumped Out (L) + Next-Session Refill Callout Box + Confirm Card
@@ -26869,7 +26872,7 @@
       pourBoxEl.classList.toggle('is-over-tank', refillCalc.isOverTank);
     }
     if (pourLabelEl) {
-      pourLabelEl.textContent = `FUEL TO PUT BACK IN FOR ${String(sessionDispName).toUpperCase()} (${refillCalc.nextSessionLaps} LAPS)`;
+      pourLabelEl.textContent = `FUEL TO PUT IN • ${String(sessionDispName).toUpperCase()} (${refillCalc.nextSessionLaps} LAPS)`;
     }
     if (pourValEl) {
       pourValEl.textContent = `${refillCalc.litresToPourL.toFixed(1)} L`;
@@ -26898,20 +26901,23 @@
       confirmPourBtn.setAttribute('aria-pressed', isFuelConfirmed ? 'true' : 'false');
     }
     if (confirmPourTitle) {
-      confirmPourTitle.textContent = `Confirm ${refillCalc.litresToPourL.toFixed(1)} L Put In & Fuel Cap Secured`;
+      confirmPourTitle.textContent = `Fuel In & Cap On — Done (${refillCalc.litresToPourL.toFixed(1)} L)`;
     }
     if (confirmPourSub) {
       confirmPourSub.textContent = isFuelConfirmed
-        ? `Confirmed: ${refillCalc.litresToPourL.toFixed(1)} L Fuel In logged & Fuel Cap On ✓`
-        : `Tap to confirm ${refillCalc.litresToPourL.toFixed(1)} L poured into tank & fuel cap locked`;
+        ? `${refillCalc.litresToPourL.toFixed(1)} L Fuel In logged & Cap On ✓`
+        : `Tap to log ${refillCalc.litresToPourL.toFixed(1)} L Fuel In & confirm Cap On`;
     }
     if (fuelCapStatusBadge) {
-      fuelCapStatusBadge.textContent = isFuelConfirmed ? 'CONFIRMED ✓' : 'PENDING';
+      fuelCapStatusBadge.textContent = isFuelConfirmed ? 'DONE ✓' : 'PENDING';
     }
 
     const fuelSummaryBadge = $('preRaceFuelActionSummaryBadge');
     if (fuelSummaryBadge) {
-      fuelSummaryBadge.textContent = fuelAdj.fullSummary;
+      fuelSummaryBadge.textContent =
+        fuelAdj.fuelOutL === null && !isFuelConfirmed
+          ? 'Log pump-out, check next pour & confirm cap on'
+          : fuelAdj.fullSummary;
     }
 
     // Hydrate checklist items & expandable task card states
