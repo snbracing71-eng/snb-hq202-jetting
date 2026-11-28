@@ -22866,7 +22866,9 @@
           const hVal = cr.hot !== null && cr.hot !== undefined && Number.isFinite(Number(cr.hot)) && Number(cr.hot) > 0 ? Number(cr.hot) : null;
           const pyroStr = formatPyroAiSummary(cr.pyro);
           if (cVal !== null && hVal !== null) {
-            return `${c}[${cr.tyreId || '—'}] ${cVal.toFixed(1)}C->${hVal.toFixed(1)}H (Target_Hot_PSI:${cornerTgt.toFixed(1)})${pyroStr ? ` ${pyroStr}` : ''}`;
+            const gainVal = hVal - cVal;
+            const gainStr = `${gainVal >= 0 ? '+' : ''}${gainVal.toFixed(1)}psi`;
+            return `${c}[${cr.tyreId || '—'}] ${cVal.toFixed(1)}C->${hVal.toFixed(1)}H (Gain:${gainStr}, Target_Hot_PSI:${cornerTgt.toFixed(1)})${pyroStr ? ` ${pyroStr}` : ''}`;
           }
           if (cVal === null && hVal !== null) {
             const delta = hVal - cornerTgt;
